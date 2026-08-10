@@ -8,6 +8,10 @@ import 'package:nutq/features/auth/data/datasources/auth_api_service.dart';
 import 'package:nutq/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:nutq/features/auth/domain/repositories/auth_repository.dart';
 import 'package:nutq/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:nutq/features/jobs/data/datasources/jobs_api_service.dart';
+import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
+import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
+import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -36,4 +40,12 @@ Future<void> setupDI() async {
   );
 
   sl.registerFactory<AuthCubit>(() => AuthCubit(sl<AuthRepository>()));
+
+  sl.registerLazySingleton<JobsApiService>(() => JobsApiService(sl<Dio>()));
+
+  sl.registerLazySingleton<JobsRepository>(
+    () => JobsRepositoryImpl(sl<JobsApiService>()),
+  );
+
+  sl.registerFactory<JobsCubit>(() => JobsCubit(sl<JobsRepository>()));
 }

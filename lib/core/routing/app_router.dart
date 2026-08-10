@@ -5,6 +5,7 @@ import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:nutq/features/auth/presentation/screens/login_screen.dart';
 import 'package:nutq/features/auth/presentation/screens/register_screen.dart';
+import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/screens/jobs_screen.dart';
 
 class AppRouter {
@@ -27,7 +28,12 @@ class AppRouter {
         );
 
       case Routes.jobs:
-        return MaterialPageRoute(builder: (_) => const JobsScreen());
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => sl<JobsCubit>(),
+            child: const JobsScreen(),
+          ),
+        );
 
       default:
         return MaterialPageRoute(
