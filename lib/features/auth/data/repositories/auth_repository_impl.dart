@@ -1,16 +1,17 @@
 import 'package:nutq/core/network/api_result.dart';
-import 'package:nutq/core/network/dio_factory.dart';
 import 'package:nutq/core/network/error_handler.dart';
+import 'package:nutq/core/network/token_storage.dart';
 import 'package:nutq/core/preferences/app_preferences.dart';
 import 'package:nutq/features/auth/data/datasources/auth_api_service.dart';
 import 'package:nutq/features/auth/data/models/auth_models.dart';
 import 'package:nutq/features/auth/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._api, this._prefs);
+  AuthRepositoryImpl(this._api, this._prefs, this._tokenStorage);
 
   final AuthApiService _api;
   final AppPreferences _prefs;
+  final TokenStorage _tokenStorage;
 
   @override
   Future<ApiResult<UserResponse>> register(String email, String password) async {
@@ -33,8 +34,10 @@ class AuthRepositoryImpl implements AuthRepository {
       final result = await _api.login(
         LoginRequest(email: email, password: password),
       );
-      await DioFactory.setToken(result.accessToken);
-      await DioFactory.setRefreshToken(result.refreshToken);
+      await _tokenStorage.saveTokens(
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      );
       await _prefs.setLoggedIn(true);
       return ApiResult.success(result);
     } catch (e) {
@@ -47,7 +50,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() async {
-    await DioFactory.clearTokens();
+    await _tokenStorage.clear();
     await _prefs.setLoggedIn(false);
   }
 }
