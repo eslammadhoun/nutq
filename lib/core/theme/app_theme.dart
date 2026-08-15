@@ -22,10 +22,8 @@ class AppTheme {
     ),
   );
 
-  static BoxDecoration backgroundDecoration(Brightness brightness) {
-    return brightness == Brightness.dark
-        ? darkBackgroundDecoration
-        : lightBackgroundDecoration;
+  static BoxDecoration backgroundDecoration(bool isDark) {
+    return isDark ? darkBackgroundDecoration : lightBackgroundDecoration;
   }
 
   // ── Light ───────────────────────────────────────────────────────────────
@@ -69,15 +67,12 @@ class AppTheme {
 
   // ── Shared builder ──────────────────────────────────────────────────────
   static ThemeData _base(ColorScheme scheme) {
-    final textTheme = AppTypography.textTheme;
-
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: Colors.transparent,
       fontFamily: AppTypography.fontFamily,
       fontFamilyFallback: AppTypography.fontFamilyFallback,
-      textTheme: textTheme,
     );
   }
 }

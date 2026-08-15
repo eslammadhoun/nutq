@@ -28,12 +28,12 @@ class NutqApp extends StatelessWidget {
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: ThemeMode.system,
-        initialRoute: Routes.onboarding,
+        initialRoute: Routes.splash,
         onGenerateRoute: AppRouter.generateRoute,
         builder: (context, child) {
-          final Brightness brightness = context.brightness;
+          final bool isDark = context.isDark;
           return DecoratedBox(
-            decoration: AppTheme.backgroundDecoration(brightness),
+            decoration: AppTheme.backgroundDecoration(isDark),
             child: child!,
           );
         },

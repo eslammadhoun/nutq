@@ -17,12 +17,12 @@ class VersionPill extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: context.brightness == Brightness.dark
+        color: context.isDark
             ? Color(0xffffffff).withValues(alpha: 0.10)
             : context.colorsTheme.primary.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(13),
         border: Border.all(
-          color: context.brightness == Brightness.dark
+          color: context.isDark
               ? Color(0xffffffff).withValues(alpha: 0.22)
               : context.colorsTheme.primary.withValues(alpha: 0.22),
           width: 1,

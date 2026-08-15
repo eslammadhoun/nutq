@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nutq/core/routing/routes.dart';
+import 'package:nutq/features/auth/presentaion/screens/login_screen.dart';
 import 'package:nutq/features/onBoarding/presentation/screens/on_boarding_screen.dart';
 import 'package:nutq/features/onBoarding/presentation/screens/splash_screen.dart';
 
@@ -7,14 +8,36 @@ class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case Routes.splash:
-        return MaterialPageRoute(builder: (context) => SplashScreen());
+        return _buildRoute(settings, const SplashScreen());
+
       case Routes.onboarding:
-        return MaterialPageRoute(builder: (context) => OnBoardingScreen());
+        return _buildRoute(settings, const OnBoardingScreen());
+
+      case Routes.login:
+        return _buildRoute(settings, const LoginScreen());
+
       default:
-        return MaterialPageRoute(
-          builder: (_) =>
-              const Scaffold(body: Center(child: Text('Route not found'))),
+        return _buildRoute(
+          settings,
+          const Scaffold(body: Center(child: Text('Route not found'))),
         );
     }
+  }
+
+  static PageRouteBuilder _buildRoute(RouteSettings settings, Widget page) {
+    return PageRouteBuilder(
+      settings: settings,
+
+      transitionDuration: const Duration(milliseconds: 180),
+      reverseTransitionDuration: const Duration(milliseconds: 150),
+
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return page;
+      },
+
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(opacity: animation, child: child);
+      },
+    );
   }
 }

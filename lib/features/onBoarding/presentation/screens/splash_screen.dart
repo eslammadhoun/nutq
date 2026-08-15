@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:nutq/core/extensions/navigation_extension.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/widgets/version_pill.dart';
 import 'package:nutq/features/onBoarding/presentation/widgets/onboarding_brand_rings.dart';
 
@@ -12,6 +14,16 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(milliseconds: 1500), () {
+      if (mounted) {
+        context.pushNamedAndRemoveUntil(Routes.onboarding);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                   Positioned(
                     top: 220.h,
-                    child: Text('Nutq', style: context.textTheme.displayLarge),
+                    child: Text('Nutq', style: context.typography.display),
                   ),
                   Positioned(
                     bottom: 40,
@@ -38,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       children: [
                         Text(
                           'نُطق',
-                          style: context.textTheme.bodyLarge!.copyWith(
+                          style: context.typography.bodyXL.copyWith(
                             color: context.colorsTheme.primary,
                             fontSize: 19,
                           ),
@@ -60,7 +72,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       children: [
                         Text(
                           'Arabic Speech Transcription',
-                          style: context.textTheme.bodySmall!.copyWith(
+                          style: context.typography.bodySmall.copyWith(
                             color: context.colorsTheme.onSurfaceVariant,
                           ),
                         ),

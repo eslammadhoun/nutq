@@ -23,74 +23,73 @@ class OnboardingBrandRings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double size = isSplash ? 360.w : 280.w;
+    final double size = 360.w;
 
     final List<double> ringsSizes = isSplash
         ? splashRingsSizes
         : onBoardingRingsSizes;
 
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Stack(
-        alignment: Alignment.center,
-        clipBehavior: Clip.none,
-        children: [
-          // ============================================================
-          // BLUE GLOW
-          // ============================================================
-          ImageFiltered(
-            imageFilter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-            child: Container(
-              width: isSplash ? 360.w : 280.w,
-              height: isSplash ? 360.w : 280.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  radius: 1.0,
-                  colors: [
-                    context.colorsTheme.primary.withAlpha(
-                      context.brightness == Brightness.dark ? 180 : 120,
-                    ),
-                    context.colorsTheme.primary.withAlpha(70),
-                    context.colorsTheme.primary.withAlpha(0),
-                  ],
-                  stops: const [0.0, 0.45, 1.0],
+    return RepaintBoundary(
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            // ============================================================
+            // BLUE GLOW
+            // ============================================================
+            ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+              child: Container(
+                width: 360.w,
+                height: 360.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    radius: 1.5,
+                    colors: [
+                      context.colorsTheme.primary.withAlpha(40),
+                      context.colorsTheme.primary.withAlpha(0),
+                    ],
+                    stops: const [0.0, 1.0],
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // ============================================================
-          // RINGS
-          // ============================================================
-          ...List.generate(ringsSizes.length, (index) {
-            final double ringSize = ringsSizes[index].w;
+            // ============================================================
+            // RINGS
+            // ============================================================
+            ...List.generate(ringsSizes.length, (index) {
+              final double ringSize = ringsSizes[index].w;
 
-            return Container(
-              width: ringSize,
-              height: ringSize,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: context.colorsTheme.primary.withAlpha(
-                    ringsColorOpacity[index],
+              return Container(
+                width: ringSize,
+                height: ringSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: context.colorsTheme.primary.withAlpha(
+                      ringsColorOpacity[index],
+                    ),
+                    width: 1,
                   ),
-                  width: 1,
                 ),
-              ),
-            );
-          }),
+              );
+            }),
 
-          // ============================================================
-          // LOGO
-          // ============================================================
-          NutqLogo(
-            size: isSplash ? 80 : 96,
-            iconPath: iconPath,
-            borderRadius: isSplash ? 20 : 24,
-          ),
-        ],
+            // ============================================================
+            // LOGO
+            // ============================================================
+            NutqLogo(
+              size: isSplash ? 80 : 96,
+              iconPath: iconPath,
+              borderRadius: isSplash ? 20 : 24,
+            ),
+          ],
+        ),
       ),
     );
   }

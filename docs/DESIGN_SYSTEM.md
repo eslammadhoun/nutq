@@ -63,22 +63,49 @@ Extracted from Figma (frame `63:2` "🎨 Design System" + screen designs) on
 Line heights verified against the actual Figma **variables** via the Dev Mode
 MCP (`get_variable_defs`), which supersede the DS frame's text labels.
 
-| Style | Figma variable | Weight | Size / Line height | Usage |
-|---|---|---|---|---|
-| Display | `Nutq/Display/ExtraBold` | 800 | 32/40 | Hero / splash headlines |
-| Heading 1 | `Nutq/Heading/2` | 700 | 28/36 | Screen titles |
-| Heading 2 | `Nutq/Heading/3b` | 700 | 24/30 | Section headers |
-| Heading 3 | `Nutq/Label/2XL` | 600 | 20/26 | Card & modal titles |
-| Heading 4 | `Nutq/Label/3XL` | 600 | 18/24 | Sub-section labels |
-| Body Large | `Nutq/Body/MD` | 400 | 16/22 | Primary body text |
-| Body Medium | `Nutq/Body Medium/SM` | 500 | 14/20 | Descriptions, secondary text |
-| Body Small | `Nutq/Body/XS` | 400 | 13/18 | Helper text, card meta |
-| Caption | `Nutq/Body/2XS` | 400 | 12/16 | Timestamps, footnotes |
-| Label | `Nutq/Label/3XS` | 600 | 11/14 | Chips, overlines |
+The table below lists the core semantic styles exposed by `AppTypography`. All
+of the design's variable tokens carry **0 letter-spacing/tracking**, so no
+`letterSpacing` is set in the code.
 
-The design defines additional sizes (`Nutq/Body/3XS–5XS`, `Nutq/Label/4XS–5XS`,
-`Nutq/Heading/10–12`, `Nutq/Icon/XL`, `Nutq/Display/ExtraBold2`) — add to
-`AppTypography` only when a screen actually needs them.
+| Getter | Figma variable | Weight | Size / Line height | Usage |
+|---|---|---|---|---|
+| `display` | `Nutq/Display/ExtraBold` | 800 | 32/40 | Hero / splash headlines |
+| `heading1` | `Nutq/Heading/2` | 700 | 28/36 | Screen titles |
+| `heading2` | `Nutq/Heading/3b` | 700 | 24/30 | Section headers |
+| `heading3` | `Nutq/Label/2XL` | 600 | 20/26 | Card & modal titles |
+| `heading4` | `Nutq/Label/3XL` | 600 | 18/24 | Sub-section labels |
+| `bodyLarge` | `Nutq/Body/MD` | 400 | 16/22 | Primary body text |
+| `bodyMedium` | `Nutq/Body Medium/SM` | 500 | 14/20 | Descriptions, secondary text |
+| `bodySmall` | `Nutq/Body/XS` | 400 | 13/18 | Helper text, card meta |
+| `caption` | `Nutq/Body/2XS` | 400 | 12/16 | Timestamps, footnotes |
+| `label` | `Nutq/Label/3XS` | 600 | 11/14 | Chips, overlines |
+
+Additional granular styles (extracted from the Figma file and included in
+`AppTypography` for direct use, token names in parentheses):
+
+- **Display (800):** `displaySmall` (`Nutq/Display/ExtraBold2`) 24/30
+- **Headings (700):** `headingLarge` (`Nutq/Heading/3`) 26/34 ·
+  `heading5` (`Nutq/Heading/6`) 18/24 · `heading6` (`Nutq/Heading/9`) 15/20 ·
+  `heading7` (`Nutq/Heading/10`) 14/20 · `heading8` (`Nutq/Heading/11`) 13/18 ·
+  `heading9` (`Nutq/Heading/12`) 12/16
+- **Body (400):** `bodyXL` (`Nutq/Body/XL`) 19/26 · `bodyBase` (`Nutq/Body/Base`)
+  15/22 · `captionSmall` (`Nutq/Body/3XS`) 11/14 · `micro` (`Nutq/Body/4XS`)
+  10/14 · `nano` (`Nutq/Body/5XS`) 8/11
+- **Body Medium (500):** `bodyMediumLarge` (`Nutq/Body Medium/MD`) 15/22 ·
+  `bodyMediumSmall` (`Nutq/Body Medium/XS`) 13/18 ·
+  `bodyMediumTiny` (`Nutq/Body Medium/3XS`) 11/14
+- **Labels (600):** `labelLarge` (`Nutq/Label/LG`) 16/20 ·
+  `labelMedium` (`Nutq/Label/MD`) 15/20 · `labelSmall` (`Nutq/Label/SM`) 14/20 ·
+  `labelXS` (`Nutq/Label/XS`) 13/18 · `label2XS` (`Nutq/Label/2XS`) 12/16 ·
+  `labelTiny` (`Nutq/Label/4XS`) 10/14 · `labelMicro` (`Nutq/Label/5XS`) 9/12
+- **Tag (500):** `tag` (`Nutq/Tag`) 12/16
+
+The design also defines sizes with no rendered instances in screens
+(`Nutq/Heading/1,4,5,7,8,13,14`, `Nutq/Body/LG`, `Nutq/Body Medium/2XS`,
+`Nutq/Label/XL`, `Nutq/Subtitle`, `Nutq/Button`) and `Nutq/Icon/*` sizes for
+icon glyphs (icons come from Lucide / Material Symbols, not text styles) — add
+only if a screen actually needs them.
+
 
 ## Spacing — 4 px base grid
 `2 · 4 · 8 · 12 · 16 · 20 · 24 · 32 · 40 · 48 · 64 · 80 · 96`
