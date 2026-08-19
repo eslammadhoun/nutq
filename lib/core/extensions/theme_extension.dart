@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nutq/core/theme/app_colors.dart';
 import 'package:nutq/core/theme/app_typography.dart';
 
 /// Instance facade over the static [AppTypography] scale, so styles can be read
@@ -50,6 +51,10 @@ class AppTypographyRef {
 extension ThemeExtension on BuildContext {
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
   ColorScheme get colorsTheme => Theme.of(this).colorScheme;
+
+  /// Full Nutq color-token set for the active theme (light/dark), named 1:1
+  /// after the Figma Design System tokens (see [AppColors]).
+  AppColors get appColors => Theme.of(this).extension<AppColors>()!;
 
   /// Custom Nutq typography scale (see [AppTypographyRef]).
   AppTypographyRef get typography => const AppTypographyRef();

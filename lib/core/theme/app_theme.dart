@@ -2,14 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:nutq/core/theme/app_colors.dart';
 import 'package:nutq/core/theme/app_typography.dart';
 
-/// Nutq themes, built from the Figma Design System tokens (v1.0).
+/// Nutq themes, built from the Figma Design System tokens (`Nutq _ Colors 2`).
+///
+/// Each theme carries its full 34-color token set via `ThemeData.extensions`
+/// as an [AppColors] instance, resolved in widgets with
+/// `context.appColors.<token>`. The built-in [ColorScheme] is mapped from
+/// those same tokens so Material widgets also pick up the palette.
 class AppTheme {
   static const BoxDecoration lightBackgroundDecoration = BoxDecoration(
     gradient: LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: [Color(0xffE8F0FE), Color(0xffF3F7FF), Color(0xFFFFFFFF)],
-      stops: [0.0, 5, 1.0],
+      colors: [Color(0xffF8F9FB), Color(0xffFAFBFC), Color(0xFFFFFFFF)],
+      stops: [0.0, 0.6, 1.0],
     ),
   );
 
@@ -17,7 +22,7 @@ class AppTheme {
     gradient: LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: [Color(0xff0B1120), Color(0xff111827), Color(0xff0F1729)],
+      colors: [Color(0xff0B1120), Color(0xff111827), Color(0xff0F172A)],
       stops: [0.0, 0.6, 1.0],
     ),
   );
@@ -28,48 +33,51 @@ class AppTheme {
 
   // ── Light ───────────────────────────────────────────────────────────────
   static ThemeData get light => _base(
-    const ColorScheme.light(
-      primary: AppColors.primary500,
-      onPrimary: Colors.white,
-      secondary: AppColors.primary400,
-      onSecondary: Colors.white,
-      error: AppColors.error,
-      onError: Colors.white,
-      surface: Colors.white,
-      onSurface: AppColors.lightTextPrimary,
-      onSurfaceVariant: AppColors.lightTextSecondary,
-      surfaceContainerHighest: AppColors.grey100,
-      outline: AppColors.grey200,
-      outlineVariant: AppColors.grey100,
+    colors: AppColors.light,
+    scheme: ColorScheme.light(
+      primary: AppColors.light.primary,
+      onPrimary: AppColors.light.textInverse,
+      secondary: AppColors.light.primaryDark,
+      onSecondary: AppColors.light.textInverse,
+      error: AppColors.light.statusFailed,
+      onError: AppColors.light.textInverse,
+      surface: AppColors.light.surface,
+      onSurface: AppColors.light.textPrimary,
+      onSurfaceVariant: AppColors.light.textSecondary,
+      surfaceContainerHighest: AppColors.light.subtle,
+      outline: AppColors.light.borderDefault,
+      outlineVariant: AppColors.light.borderSubtle,
     ),
   );
 
   // ── Dark ────────────────────────────────────────────────────────────────
-  // Per Figma dark screens: surfaces #1F2A37 on background #111928, primary
-  // buttons keep #1A56DB, while text-level accents (links, focus) lighten to
-  // primary300 (#76A9FA) for legibility.
   static ThemeData get dark => _base(
-    const ColorScheme.dark(
-      primary: AppColors.primary500,
-      onPrimary: AppColors.grey900,
-      secondary: AppColors.primary300,
-      onSecondary: AppColors.grey900,
-      error: AppColors.error,
-      onError: Colors.white,
-      surface: AppColors.darkSurface,
-      onSurface: AppColors.darkTextPrimary,
-      onSurfaceVariant: AppColors.darkTextSecondary,
-      surfaceContainerHighest: AppColors.darkSurfaceRaised,
-      outline: AppColors.darkBorder,
-      outlineVariant: AppColors.darkSurfaceRaised,
+    colors: AppColors.dark,
+    scheme: ColorScheme.dark(
+      primary: AppColors.dark.primary,
+      onPrimary: AppColors.dark.base,
+      secondary: AppColors.dark.primaryDark,
+      onSecondary: AppColors.dark.base,
+      error: AppColors.dark.statusFailed,
+      onError: AppColors.dark.textInverse,
+      surface: AppColors.dark.surface,
+      onSurface: AppColors.dark.textPrimary,
+      onSurfaceVariant: AppColors.dark.textSecondary,
+      surfaceContainerHighest: AppColors.dark.card,
+      outline: AppColors.dark.borderDefault,
+      outlineVariant: AppColors.dark.borderSubtle,
     ),
   );
 
   // ── Shared builder ──────────────────────────────────────────────────────
-  static ThemeData _base(ColorScheme scheme) {
+  static ThemeData _base({
+    required AppColors colors,
+    required ColorScheme scheme,
+  }) {
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
+      extensions: [colors],
       scaffoldBackgroundColor: Colors.transparent,
       fontFamily: AppTypography.fontFamily,
       fontFamilyFallback: AppTypography.fontFamilyFallback,
