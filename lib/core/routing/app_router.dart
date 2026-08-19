@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nutq/core/routing/routes.dart';
-import 'package:nutq/features/auth/presentaion/ui/login/screens/login_screen.dart';
-import 'package:nutq/features/auth/presentaion/ui/register/screens/register_screen.dart';
+import 'package:nutq/features/auth/presentation/ui/login/screens/login_screen.dart';
+import 'package:nutq/features/auth/presentation/ui/register/screens/register_screen.dart';
 import 'package:nutq/features/home/presentation/screens/home_screen.dart';
 import 'package:nutq/features/onBoarding/presentation/screens/on_boarding_screen.dart';
 import 'package:nutq/features/onBoarding/presentation/screens/splash_screen.dart';
