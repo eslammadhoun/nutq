@@ -1,28 +1,23 @@
-// ignore_for_file: prefer_initializing_formals — constructor uses named
-// params (tokenStorage/onSessionExpired) for a self-documenting call site.
+// ignore_for_file: prefer_initializing_formals
 import 'package:dio/dio.dart';
-import 'package:nutq/core/network/token_storage.dart';
+import 'package:nutq/core/network/token/token_refresher.dart';
+import 'package:nutq/core/network/token/secure_token_storage.dart';
 
-/// Attaches the bearer access token to outgoing requests and transparently
-/// refreshes it on a 401, retrying the original request exactly once.
-///
-/// Extends [QueuedInterceptor] so concurrent requests that all 401 at once
-/// (e.g. several in-flight calls when the access token expires) share a
-/// single refresh attempt instead of each firing their own /auth/refresh
-/// call against the backend.
 class AuthInterceptor extends QueuedInterceptor {
   AuthInterceptor({
     required TokenStorage tokenStorage,
+    required TokenRefresher tokenRefresher,
     required Future<void> Function() onSessionExpired,
   }) : _tokenStorage = tokenStorage,
+       _tokenRefresher = tokenRefresher,
        _onSessionExpired = onSessionExpired;
 
   final TokenStorage _tokenStorage;
+  final TokenRefresher _tokenRefresher;
   final Future<void> Function() _onSessionExpired;
   late final Dio _dio;
 
-  /// Must be called once with the [Dio] instance this interceptor is
-  /// attached to, so it can replay requests and call /auth/refresh.
+  /// Must be called once with the [Dio] instance this interceptor is attached to
   void attach(Dio dio) => _dio = dio;
 
   @override
@@ -30,6 +25,7 @@ class AuthInterceptor extends QueuedInterceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
+    // Skip adding auth header for refresh call itself
     if (options.extra['isRefreshCall'] != true) {
       final token = await _tokenStorage.accessToken;
       if (token != null) {
@@ -59,17 +55,15 @@ class AuthInterceptor extends QueuedInterceptor {
     }
 
     try {
-      final response = await _dio.post<Map<String, dynamic>>(
-        '/auth/refresh',
-        options: Options(
-          headers: {'Authorization': 'Bearer $refreshToken'},
-          extra: {'isRefreshCall': true},
-        ),
-      );
-      final data = response.data!;
+      final tokenPair = await _tokenRefresher.refresh(refreshToken);
+      if (tokenPair == null) {
+        await _expireSession(handler, err);
+        return;
+      }
+
       await _tokenStorage.saveTokens(
-        accessToken: data['access_token'] as String,
-        refreshToken: data['refresh_token'] as String,
+        accessToken: tokenPair.accessToken,
+        refreshToken: tokenPair.refreshToken,
       );
 
       final retryOptions = err.requestOptions;

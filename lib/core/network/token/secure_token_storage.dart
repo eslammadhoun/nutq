@@ -1,4 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:nutq/core/network/token/token_refresher.dart';
 
 abstract interface class TokenStorage {
   Future<String?> get accessToken;
@@ -8,6 +9,16 @@ abstract interface class TokenStorage {
     required String refreshToken,
   });
   Future<void> clear();
+
+  /// Convenience getter for both tokens as a pair
+  Future<TokenPair?> get tokenPair async {
+    final access = await accessToken;
+    final refresh = await refreshToken;
+    if (access != null && refresh != null) {
+      return TokenPair(accessToken: access, refreshToken: refresh);
+    }
+    return null;
+  }
 }
 
 class SecureTokenStorage implements TokenStorage {
@@ -36,4 +47,14 @@ class SecureTokenStorage implements TokenStorage {
 
   @override
   Future<void> clear() => _storage.deleteAll();
+
+  @override
+  Future<TokenPair?> get tokenPair async {
+    final access = await accessToken;
+    final refresh = await refreshToken;
+    if (access != null && refresh != null) {
+      return TokenPair(accessToken: access, refreshToken: refresh);
+    }
+    return null;
+  }
 }

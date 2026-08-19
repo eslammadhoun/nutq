@@ -119,11 +119,11 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( T data)?  success,TResult Function( String message,  int? statusCode)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( T data)?  success,TResult Function( ApiError error)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case Success() when success != null:
 return success(_that.data);case Failure() when failure != null:
-return failure(_that.message,_that.statusCode);case _:
+return failure(_that.error);case _:
   return orElse();
 
 }
@@ -141,11 +141,11 @@ return failure(_that.message,_that.statusCode);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( T data)  success,required TResult Function( String message,  int? statusCode)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( T data)  success,required TResult Function( ApiError error)  failure,}) {final _that = this;
 switch (_that) {
 case Success():
 return success(_that.data);case Failure():
-return failure(_that.message,_that.statusCode);}
+return failure(_that.error);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -159,11 +159,11 @@ return failure(_that.message,_that.statusCode);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( T data)?  success,TResult? Function( String message,  int? statusCode)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( T data)?  success,TResult? Function( ApiError error)?  failure,}) {final _that = this;
 switch (_that) {
 case Success() when success != null:
 return success(_that.data);case Failure() when failure != null:
-return failure(_that.message,_that.statusCode);case _:
+return failure(_that.error);case _:
   return null;
 
 }
@@ -241,11 +241,10 @@ as T,
 
 
 class Failure<T> implements ApiResult<T> {
-  const Failure(this.message, {this.statusCode});
+  const Failure(this.error);
   
 
- final  String message;
- final  int? statusCode;
+ final  ApiError error;
 
 /// Create a copy of ApiResult
 /// with the given fields replaced by the non-null parameter values.
@@ -257,16 +256,16 @@ $FailureCopyWith<T, Failure<T>> get copyWith => _$FailureCopyWithImpl<T, Failure
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Failure<T>&&(identical(other.message, message) || other.message == message)&&(identical(other.statusCode, statusCode) || other.statusCode == statusCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Failure<T>&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message,statusCode);
+int get hashCode => Object.hash(runtimeType,error);
 
 @override
 String toString() {
-  return 'ApiResult<$T>.failure(message: $message, statusCode: $statusCode)';
+  return 'ApiResult<$T>.failure(error: $error)';
 }
 
 
@@ -277,11 +276,11 @@ abstract mixin class $FailureCopyWith<T,$Res> implements $ApiResultCopyWith<T, $
   factory $FailureCopyWith(Failure<T> value, $Res Function(Failure<T>) _then) = _$FailureCopyWithImpl;
 @useResult
 $Res call({
- String message, int? statusCode
+ ApiError error
 });
 
 
-
+$ApiErrorCopyWith<$Res> get error;
 
 }
 /// @nodoc
@@ -294,15 +293,23 @@ class _$FailureCopyWithImpl<T,$Res>
 
 /// Create a copy of ApiResult
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? statusCode = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? error = null,}) {
   return _then(Failure<T>(
-null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,statusCode: freezed == statusCode ? _self.statusCode : statusCode // ignore: cast_nullable_to_non_nullable
-as int?,
+null == error ? _self.error : error // ignore: cast_nullable_to_non_nullable
+as ApiError,
   ));
 }
 
-
+/// Create a copy of ApiResult
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ApiErrorCopyWith<$Res> get error {
+  
+  return $ApiErrorCopyWith<$Res>(_self.error, (value) {
+    return _then(_self.copyWith(error: value));
+  });
+}
 }
 
 // dart format on
