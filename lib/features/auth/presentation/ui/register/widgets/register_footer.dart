@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nutq/features/auth/presentaion/widgets/auth_footer.dart';
+import 'package:nutq/features/auth/presentation/widgets/auth_footer.dart';
 
 class RegisterFooter extends StatelessWidget {
   const RegisterFooter({super.key});

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/routing/routes.dart';
-import 'package:nutq/features/auth/presentaion/ui/login/widgets/login_form.dart';
-import 'package:nutq/features/auth/presentaion/ui/login/widgets/login_welcome.dart';
-import 'package:nutq/features/auth/presentaion/widgets/auth_footer.dart';
-import 'package:nutq/features/auth/presentaion/widgets/auth_header.dart';
+import 'package:nutq/features/auth/presentation/ui/login/widgets/login_form.dart';
+import 'package:nutq/features/auth/presentation/ui/login/widgets/login_welcome.dart';
+import 'package:nutq/features/auth/presentation/widgets/auth_footer.dart';
+import 'package:nutq/features/auth/presentation/widgets/auth_header.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});

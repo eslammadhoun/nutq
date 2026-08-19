@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nutq/features/auth/presentaion/widgets/auth_header.dart';
+import 'package:nutq/features/auth/presentation/widgets/auth_header.dart';
 
 class RegisterHeader extends StatelessWidget {
   const RegisterHeader({super.key});
