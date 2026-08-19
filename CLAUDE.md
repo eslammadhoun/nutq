@@ -32,6 +32,8 @@ lib/
     preferences/    # AppPreferences (SharedPreferences wrapper)
     routing/        # AppRouter + Routes constants
     theme/          # AppTheme
+    utils/          # Validators, extensions, helpers
+    widgets/        # Global reusable widgets (GlobalTextField, etc.)
   features/
     auth/
       data/
@@ -42,12 +44,30 @@ lib/
         repositories/ # AuthRepository interface
       presentation/
         cubit/        # AuthCubit + AuthState
-        screens/      # LoginScreen, RegisterScreen
-        widgets/      # AuthTextField
+        ui/           # Screens organized by feature screen
+          login/
+            screens/  # LoginScreen
+            widgets/  # Login-specific widgets (LoginWelcome, LoginForm)
+          register/
+            screens/  # RegisterScreen
+            widgets/  # Register-specific widgets (RegisterWelcome, RegisterForm)
+        widgets/      # Shared auth widgets (AuthHeader, AuthFooter)
     jobs/
       presentation/
         screens/      # JobsScreen (placeholder — to be built)
 ```
+
+### Widget Reusability Pattern (Auth Feature)
+
+**Shared widgets** live in `features/auth/presentation/widgets/`:
+- `AuthHeader` — Nutq logo + brand (used by both Login & Register)
+- `AuthFooter` — "Have account? Sign up" / "No account? Log in" (configurable)
+
+**Screen-specific widgets** live in `features/auth/presentation/ui/<screen>/widgets/`:
+- `LoginWelcome`, `LoginForm` — only used by LoginScreen
+- `RegisterWelcome`, `RegisterForm` — only used by RegisterScreen
+
+This avoids duplication while keeping screen-specific logic isolated.
 
 ### Adding a new feature
 
