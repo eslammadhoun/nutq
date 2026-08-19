@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
-import 'package:nutq/core/theme/app_colors.dart';
 
 /// Nutq brand mark: brand-blue rounded square with a white audio waveform.
 /// Scales proportionally from the 80 px Figma spec via [size].
@@ -24,16 +23,16 @@ class NutqLogo extends StatelessWidget {
       width: size.w,
       height: size.h,
       decoration: BoxDecoration(
-        color: AppColors.primary500,
+        color: context.appColors.primary,
         borderRadius: BorderRadius.circular(borderRadius.r),
         boxShadow: [
           BoxShadow(
-            color: context.colorsTheme.primary.withValues(alpha: 0.3),
+            color: context.appColors.primary.withValues(alpha: 0.3),
             blurRadius: 28.r,
             offset: Offset(0, 8.h),
           ),
           BoxShadow(
-            color: context.colorsTheme.primary.withValues(alpha: 0.6),
+            color: context.appColors.primary.withValues(alpha: 0.6),
             blurRadius: 20.r,
             offset: Offset(0, 0),
             spreadRadius: 4,

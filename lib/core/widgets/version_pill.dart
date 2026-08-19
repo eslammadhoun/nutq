@@ -19,12 +19,12 @@ class VersionPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.isDark
             ? Color(0xffffffff).withValues(alpha: 0.10)
-            : context.colorsTheme.primary.withValues(alpha: 0.10),
+            : context.appColors.primary.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(13),
         border: Border.all(
           color: context.isDark
               ? Color(0xffffffff).withValues(alpha: 0.22)
-              : context.colorsTheme.primary.withValues(alpha: 0.22),
+              : context.appColors.primary.withValues(alpha: 0.22),
           width: 1,
         ),
       ),
@@ -32,7 +32,9 @@ class VersionPill extends StatelessWidget {
         'v $version',
         style: AppTypography.caption.copyWith(
           fontWeight: FontWeight.w500,
-          color: context.colorsTheme.onSurface,
+          color: context.isDark
+              ? context.appColors.textPrimary
+              : context.appColors.primary,
         ),
       ),
     );

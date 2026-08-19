@@ -27,17 +27,17 @@ class GlobalButton extends StatelessWidget {
                 ? Colors.transparent
                 : context.isDark
                 ? Colors.white.withAlpha(50)
-                : context.colorsTheme.primary.withAlpha(50),
+                : context.appColors.primary.withAlpha(50),
           ),
           color: isFilled
-              ? context.colorsTheme.primary
+              ? context.appColors.primary
               : context.isDark
               ? Colors.white.withAlpha(20)
-              : context.colorsTheme.primary.withAlpha(20),
+              : context.appColors.primary.withAlpha(20),
           boxShadow: isFilled
               ? [
                   BoxShadow(
-                    color: context.colorsTheme.primary.withValues(alpha: 0.45),
+                    color: context.appColors.primary.withValues(alpha: 0.45),
                     blurRadius: 16,
                     offset: Offset(0, 4.h),
                   ),
@@ -51,8 +51,8 @@ class GlobalButton extends StatelessWidget {
               color: isFilled
                   ? Colors.white
                   : context.isDark
-                  ? Color(0xffF9FAFB)
-                  : context.colorsTheme.primary,
+                  ? context.appColors.textPrimary
+                  : context.appColors.primary,
             ),
           ),
         ),
