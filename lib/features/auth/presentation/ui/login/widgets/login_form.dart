@@ -39,7 +39,7 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthCubit, AuthState>(
+    return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthSuccess) {
           Navigator.pushNamedAndRemoveUntil(
@@ -63,76 +63,79 @@ class _LoginFormState extends State<LoginForm> {
           );
         }
       },
-      builder: (context, state) {
-        final isLoading = state is AuthLoading;
-        return Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 20.h),
-              Text(
-                'Email address',
-                style: context.typography.labelSmall.copyWith(
-                  color: context.appColors.textSecondary,
-                ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 20.h),
+            Text(
+              'Email address',
+              style: context.typography.labelSmall.copyWith(
+                color: context.appColors.textSecondary,
               ),
-              SizedBox(height: 5.h),
-              GlobalTextField(
-                controller: _emailController,
-                hintText: 'Enter your email',
-                textInputType: TextInputType.emailAddress,
-                validator: Validators.validateEmail,
+            ),
+            SizedBox(height: 5.h),
+            GlobalTextField(
+              controller: _emailController,
+              hintText: 'Enter your email',
+              textInputType: TextInputType.emailAddress,
+              validator: Validators.validateEmail,
+            ),
+            SizedBox(height: 24.h),
+            Text(
+              'Password',
+              style: context.typography.labelSmall.copyWith(
+                color: context.appColors.textSecondary,
               ),
-              SizedBox(height: 24.h),
-              Text(
-                'Password',
-                style: context.typography.labelSmall.copyWith(
-                  color: context.appColors.textSecondary,
-                ),
-              ),
-              SizedBox(height: 5.h),
-              GlobalTextField(
-                controller: _passwordController,
-                hintText: '••••••••',
-                textInputType: TextInputType.visiblePassword,
-                obscureText: !_showPassword,
-                suffixWidget: GestureDetector(
-                  onTap: () => setState(() => _showPassword = !_showPassword),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Text(
-                      _showPassword ? 'Hide' : 'Show',
-                      style: context.typography.labelSmall.copyWith(
-                        color: context.appColors.textBrand,
-                      ),
+            ),
+            SizedBox(height: 5.h),
+            GlobalTextField(
+              controller: _passwordController,
+              hintText: '••••••••',
+              textInputType: TextInputType.visiblePassword,
+              obscureText: !_showPassword,
+              suffixWidget: GestureDetector(
+                onTap: () => setState(() => _showPassword = !_showPassword),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Text(
+                    _showPassword ? 'Hide' : 'Show',
+                    style: context.typography.labelSmall.copyWith(
+                      color: context.appColors.textBrand,
                     ),
                   ),
                 ),
-                validator: Validators.validatePassword,
               ),
-              SizedBox(height: 32.h),
-              GlobalButton(
-                isFilled: true,
-                isLoading: isLoading,
-                onTap: isLoading
-                    ? null
-                    : () {
-                        if (_formKey.currentState!.validate()) {
-                          context.read<AuthCubit>().login(
-                            LoginRequest(
-                              email: _emailController.text.trim(),
-                              password: _passwordController.text,
-                            ),
-                          );
-                        }
-                      },
-                text: 'Log In',
-              ),
-            ],
-          ),
-        );
-      },
+              validator: Validators.validatePassword,
+            ),
+            SizedBox(height: 32.h),
+            BlocBuilder<AuthCubit, AuthState>(
+              buildWhen: (_, state) => state is AuthLoading,
+              builder: (context, state) {
+                final isLoading = state is AuthLoading;
+                return GlobalButton(
+                  isFilled: true,
+                  isLoading: isLoading,
+                  onTap: isLoading
+                      ? null
+                      : () {
+                          if (_formKey.currentState!.validate()) {
+                            context.read<AuthCubit>().login(
+                              LoginRequest(
+                                email: _emailController.text.trim(),
+                                password: _passwordController.text,
+                              ),
+                            );
+                          }
+                        },
+                  text: 'Log In',
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

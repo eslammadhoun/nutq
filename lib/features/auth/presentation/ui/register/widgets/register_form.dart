@@ -47,7 +47,7 @@ class _RegisterFormState extends State<RegisterForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthCubit, AuthState>(
+    return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthSuccess) {
           Navigator.pushNamedAndRemoveUntil(
@@ -71,122 +71,125 @@ class _RegisterFormState extends State<RegisterForm> {
           );
         }
       },
-      builder: (context, state) {
-        final isLoading = state is AuthLoading;
-        return Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 20.h),
-              Text(
-                'Username',
-                style: context.typography.labelSmall.copyWith(
-                  color: context.appColors.textSecondary,
-                ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 20.h),
+            Text(
+              'Username',
+              style: context.typography.labelSmall.copyWith(
+                color: context.appColors.textSecondary,
               ),
-              SizedBox(height: 5.h),
-              GlobalTextField(
-                controller: _usernameController,
-                hintText: 'e.g. ahmed_ali',
-                textInputType: TextInputType.text,
-                validator: Validators.validateUsername,
+            ),
+            SizedBox(height: 5.h),
+            GlobalTextField(
+              controller: _usernameController,
+              hintText: 'e.g. ahmed_ali',
+              textInputType: TextInputType.text,
+              validator: Validators.validateUsername,
+            ),
+            SizedBox(height: 24.h),
+            Text(
+              'Email address',
+              style: context.typography.labelSmall.copyWith(
+                color: context.appColors.textSecondary,
               ),
-              SizedBox(height: 24.h),
-              Text(
-                'Email address',
-                style: context.typography.labelSmall.copyWith(
-                  color: context.appColors.textSecondary,
-                ),
+            ),
+            SizedBox(height: 5.h),
+            GlobalTextField(
+              controller: _emailController,
+              hintText: 'Enter your email',
+              textInputType: TextInputType.emailAddress,
+              validator: Validators.validateEmail,
+            ),
+            SizedBox(height: 24.h),
+            Text(
+              'Password',
+              style: context.typography.labelSmall.copyWith(
+                color: context.appColors.textSecondary,
               ),
-              SizedBox(height: 5.h),
-              GlobalTextField(
-                controller: _emailController,
-                hintText: 'Enter your email',
-                textInputType: TextInputType.emailAddress,
-                validator: Validators.validateEmail,
-              ),
-              SizedBox(height: 24.h),
-              Text(
-                'Password',
-                style: context.typography.labelSmall.copyWith(
-                  color: context.appColors.textSecondary,
-                ),
-              ),
-              SizedBox(height: 5.h),
-              GlobalTextField(
-                controller: _passwordController,
-                hintText: '••••••••',
-                textInputType: TextInputType.visiblePassword,
-                obscureText: !_showPassword,
-                suffixWidget: GestureDetector(
-                  onTap: () => setState(() => _showPassword = !_showPassword),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Text(
-                      _showPassword ? 'Hide' : 'Show',
-                      style: context.typography.labelSmall.copyWith(
-                        color: context.appColors.textBrand,
-                      ),
+            ),
+            SizedBox(height: 5.h),
+            GlobalTextField(
+              controller: _passwordController,
+              hintText: '••••••••',
+              textInputType: TextInputType.visiblePassword,
+              obscureText: !_showPassword,
+              suffixWidget: GestureDetector(
+                onTap: () => setState(() => _showPassword = !_showPassword),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Text(
+                    _showPassword ? 'Hide' : 'Show',
+                    style: context.typography.labelSmall.copyWith(
+                      color: context.appColors.textBrand,
                     ),
                   ),
                 ),
-                validator: Validators.validatePassword,
               ),
-              SizedBox(height: 24.h),
-              Text(
-                'Confirm password',
-                style: context.typography.labelSmall.copyWith(
-                  color: context.appColors.textSecondary,
-                ),
+              validator: Validators.validatePassword,
+            ),
+            SizedBox(height: 24.h),
+            Text(
+              'Confirm password',
+              style: context.typography.labelSmall.copyWith(
+                color: context.appColors.textSecondary,
               ),
-              SizedBox(height: 5.h),
-              GlobalTextField(
-                controller: _confirmPasswordController,
-                hintText: 'Repeat your password',
-                textInputType: TextInputType.visiblePassword,
-                obscureText: !_showConfirmPassword,
-                suffixWidget: GestureDetector(
-                  onTap: () =>
-                      setState(() => _showConfirmPassword = !_showConfirmPassword),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Text(
-                      _showConfirmPassword ? 'Hide' : 'Show',
-                      style: context.typography.labelSmall.copyWith(
-                        color: context.appColors.textBrand,
-                      ),
+            ),
+            SizedBox(height: 5.h),
+            GlobalTextField(
+              controller: _confirmPasswordController,
+              hintText: 'Repeat your password',
+              textInputType: TextInputType.visiblePassword,
+              obscureText: !_showConfirmPassword,
+              suffixWidget: GestureDetector(
+                onTap: () =>
+                    setState(() => _showConfirmPassword = !_showConfirmPassword),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Text(
+                    _showConfirmPassword ? 'Hide' : 'Show',
+                    style: context.typography.labelSmall.copyWith(
+                      color: context.appColors.textBrand,
                     ),
                   ),
                 ),
-                validator: (value) => Validators.validateConfirmPassword(
-                  value,
-                  _passwordController.text,
-                ),
               ),
-              SizedBox(height: 32.h),
-              GlobalButton(
-                isFilled: true,
-                isLoading: isLoading,
-                onTap: isLoading
-                    ? null
-                    : () {
-                        if (_formKey.currentState!.validate()) {
-                          context.read<AuthCubit>().register(
-                            RegisterRequest(
-                              name: _usernameController.text.trim(),
-                              email: _emailController.text.trim(),
-                              password: _passwordController.text,
-                            ),
-                          );
-                        }
-                      },
-                text: 'Create Account',
+              validator: (value) => Validators.validateConfirmPassword(
+                value,
+                _passwordController.text,
               ),
-            ],
-          ),
-        );
-      },
+            ),
+            SizedBox(height: 32.h),
+            BlocBuilder<AuthCubit, AuthState>(
+              buildWhen: (_, state) => state is AuthLoading,
+              builder: (context, state) {
+                final isLoading = state is AuthLoading;
+                return GlobalButton(
+                  isFilled: true,
+                  isLoading: isLoading,
+                  onTap: isLoading
+                      ? null
+                      : () {
+                          if (_formKey.currentState!.validate()) {
+                            context.read<AuthCubit>().register(
+                              RegisterRequest(
+                                name: _usernameController.text.trim(),
+                                email: _emailController.text.trim(),
+                                password: _passwordController.text,
+                              ),
+                            );
+                          }
+                        },
+                  text: 'Create Account',
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
