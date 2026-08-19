@@ -6,19 +6,24 @@ import 'package:nutq/core/network/token/secure_token_storage.dart';
 class AuthInterceptor extends QueuedInterceptor {
   AuthInterceptor({
     required TokenStorage tokenStorage,
-    required TokenRefresher tokenRefresher,
+    TokenRefresher? tokenRefresher, // nullable for late injection
     required Future<void> Function() onSessionExpired,
   }) : _tokenStorage = tokenStorage,
        _tokenRefresher = tokenRefresher,
        _onSessionExpired = onSessionExpired;
 
   final TokenStorage _tokenStorage;
-  final TokenRefresher _tokenRefresher;
+  TokenRefresher? _tokenRefresher;
   final Future<void> Function() _onSessionExpired;
   late final Dio _dio;
 
   /// Must be called once with the [Dio] instance this interceptor is attached to
   void attach(Dio dio) => _dio = dio;
+
+  /// Inject TokenRefresher after Dio creation (breaks circular dependency)
+  void updateTokenRefresher(TokenRefresher tokenRefresher) {
+    _tokenRefresher = tokenRefresher;
+  }
 
   @override
   Future<void> onRequest(
@@ -48,6 +53,12 @@ class AuthInterceptor extends QueuedInterceptor {
       return;
     }
 
+    // TokenRefresher must be injected before any 401 handling
+    if (_tokenRefresher == null) {
+      await _expireSession(handler, err);
+      return;
+    }
+
     final refreshToken = await _tokenStorage.refreshToken;
     if (refreshToken == null) {
       await _expireSession(handler, err);
@@ -55,7 +66,7 @@ class AuthInterceptor extends QueuedInterceptor {
     }
 
     try {
-      final tokenPair = await _tokenRefresher.refresh(refreshToken);
+      final tokenPair = await _tokenRefresher!.refresh(refreshToken);
       if (tokenPair == null) {
         await _expireSession(handler, err);
         return;

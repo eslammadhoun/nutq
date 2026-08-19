@@ -19,7 +19,7 @@ class DioFactory {
   }) : _config = config ?? const DioConfig();
 
   final TokenStorage _tokenStorage;
-  final TokenRefresher _tokenRefresher;
+  final TokenRefresher? _tokenRefresher; // nullable for late injection
   final NetworkInfo _networkInfo;
   final Future<void> Function() _onSessionExpired;
   final DioConfig _config;
@@ -44,5 +44,15 @@ class DioFactory {
     ]);
 
     return dio;
+  }
+
+  /// Inject TokenRefresher after Dio creation (breaks circular dependency)
+  static void injectTokenRefresher(Dio dio, TokenRefresher tokenRefresher) {
+    for (final interceptor in dio.interceptors) {
+      if (interceptor is AuthInterceptor) {
+        interceptor.updateTokenRefresher(tokenRefresher);
+        break;
+      }
+    }
   }
 }
