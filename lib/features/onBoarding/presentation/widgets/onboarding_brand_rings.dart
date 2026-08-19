@@ -50,8 +50,8 @@ class OnboardingBrandRings extends StatelessWidget {
                   gradient: RadialGradient(
                     radius: 1.5,
                     colors: [
-                      context.colorsTheme.primary.withAlpha(40),
-                      context.colorsTheme.primary.withAlpha(0),
+                      context.appColors.primary.withAlpha(40),
+                      context.appColors.primary.withAlpha(0),
                     ],
                     stops: const [0.0, 1.0],
                   ),
@@ -71,7 +71,7 @@ class OnboardingBrandRings extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: context.colorsTheme.primary.withAlpha(
+                    color: context.appColors.primary.withAlpha(
                       ringsColorOpacity[index],
                     ),
                     width: 1,

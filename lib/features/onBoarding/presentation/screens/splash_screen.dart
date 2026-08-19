@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:nutq/core/di/dependency_injection.dart';
 import 'package:nutq/core/extensions/navigation_extension.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/core/preferences/app_preferences.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/widgets/version_pill.dart';
 import 'package:nutq/features/onBoarding/presentation/widgets/onboarding_brand_rings.dart';
@@ -14,14 +16,37 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final AppPreferences appPreferences = sl<AppPreferences>();
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(milliseconds: 1500), () {
-      if (mounted) {
-        context.pushNamedAndRemoveUntil(Routes.onboarding);
-      }
-    });
+    debugPrint('🔥 SPLASH INIT: ${identityHashCode(this)}');
+    _handleNavigation();
+  }
+
+  Future<void> _handleNavigation() async {
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    if (!mounted) return;
+
+    debugPrint('➡️ isLoggedIn: ${appPreferences.isLoggedIn}');
+
+    debugPrint('➡️ hasSeenOnboarding: ${appPreferences.hasSeenOnboarding}');
+
+    if (appPreferences.isLoggedIn) {
+      context.pushNamedAndRemoveUntil(Routes.home);
+      return;
+    }
+
+    if (appPreferences.hasSeenOnboarding) {
+      debugPrint('➡️ GOING LOGIN');
+      context.pushNamedAndRemoveUntil(Routes.login);
+      return;
+    }
+
+    debugPrint('➡️ GOING ONBOARDING');
+    context.pushNamedAndRemoveUntil(Routes.onboarding);
   }
 
   @override
@@ -51,7 +76,9 @@ class _SplashScreenState extends State<SplashScreen> {
                         Text(
                           'نُطق',
                           style: context.typography.bodyXL.copyWith(
-                            color: context.colorsTheme.primary,
+                            color: context.isDark
+                                ? context.appColors.textBrand
+                                : context.appColors.primary,
                             fontSize: 19,
                           ),
                         ),
@@ -60,7 +87,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           height: 1.h,
                           width: 56.w,
                           decoration: BoxDecoration(
-                            color: context.colorsTheme.onSurfaceVariant,
+                            color: context.appColors.textMuted,
                           ),
                         ),
                       ],
@@ -73,7 +100,7 @@ class _SplashScreenState extends State<SplashScreen> {
                         Text(
                           'Arabic Speech Transcription',
                           style: context.typography.bodySmall.copyWith(
-                            color: context.colorsTheme.onSurfaceVariant,
+                            color: context.appColors.textSecondary,
                           ),
                         ),
                       ],

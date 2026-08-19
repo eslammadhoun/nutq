@@ -28,7 +28,7 @@ class NutqApp extends StatelessWidget {
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: ThemeMode.system,
-        initialRoute: Routes.splash,
+        initialRoute: Routes.login,
         onGenerateRoute: AppRouter.generateRoute,
         builder: (context, child) {
           final bool isDark = context.isDark;

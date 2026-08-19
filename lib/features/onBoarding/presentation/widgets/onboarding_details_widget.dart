@@ -56,7 +56,7 @@ class OnboardingDetailsWidget extends StatelessWidget {
         Text(
           onBoardingData[selectedIndex]['subTitle']!,
           style: context.typography.bodyBase.copyWith(
-            color: context.colorsTheme.onSurfaceVariant,
+            color: context.appColors.textSecondary,
           ),
           textAlign: TextAlign.center,
         ),

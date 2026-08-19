@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:nutq/core/di/dependency_injection.dart';
 import 'package:nutq/core/extensions/navigation_extension.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/core/preferences/app_preferences.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/widgets/global_button.dart';
 import 'package:nutq/features/onBoarding/presentation/widgets/onboarding_details_widget.dart';
@@ -16,6 +18,7 @@ class OnBoardingScreen extends StatefulWidget {
 
 class _OnBoardingScreenState extends State<OnBoardingScreen> {
   int selectedIndex = 0;
+  final AppPreferences appPreferences = sl<AppPreferences>();
 
   @override
   Widget build(BuildContext context) {
@@ -29,11 +32,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   InkWell(
-                    onTap: () => context.pushNamedAndRemoveUntil(Routes.login),
+                    onTap: () {
+                      context.pushNamedAndRemoveUntil(Routes.login);
+                      appPreferences.setSeenOnboarding();
+                    },
                     child: Text(
                       selectedIndex != 2 ? 'Skip' : '',
                       style: context.typography.bodyMediumLarge.copyWith(
-                        color: context.colorsTheme.onSurfaceVariant,
+                        color: context.appColors.textSecondary,
                       ),
                     ),
                   ),
@@ -59,6 +65,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   void changeSelectedIndex(int newIndex) {
     if (newIndex >= 3) {
       context.pushNamedAndRemoveUntil(Routes.login);
+      appPreferences.setSeenOnboarding();
       return;
     }
 

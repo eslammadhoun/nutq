@@ -21,10 +21,10 @@ class OnboardingScreensDots extends StatelessWidget {
             height: 8.h,
             decoration: BoxDecoration(
               color: isSelected
-                  ? context.colorsTheme.primary
+                  ? context.appColors.primary
                   : context.isDark
-                  ? Colors.white.withValues(alpha: 0.25)
-                  : context.colorsTheme.primary.withValues(alpha: 0.20),
+                  ? context.appColors.card
+                  : context.appColors.primary.withValues(alpha: 0.20),
               borderRadius: BorderRadius.circular(4.r),
             ),
           ),

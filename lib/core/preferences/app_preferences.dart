@@ -10,12 +10,10 @@ class AppPreferences {
 
   bool get isLoggedIn => _prefs.getBool(_keyLoggedIn) ?? false;
 
-  Future<void> setLoggedIn(bool value) =>
-      _prefs.setBool(_keyLoggedIn, value);
+  Future<void> setLoggedIn(bool value) => _prefs.setBool(_keyLoggedIn, value);
 
   /// SRS 4.1: onboarding is shown only on first launch.
   bool get hasSeenOnboarding => _prefs.getBool(_keySeenOnboarding) ?? false;
 
-  Future<void> setSeenOnboarding() =>
-      _prefs.setBool(_keySeenOnboarding, true);
+  Future<void> setSeenOnboarding() => _prefs.setBool(_keySeenOnboarding, true);
 }
