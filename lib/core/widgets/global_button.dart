@@ -6,17 +6,21 @@ class GlobalButton extends StatelessWidget {
   final bool isFilled;
   final void Function()? onTap;
   final String text;
+  final Widget? child;
+  final bool isLoading;
   const GlobalButton({
     super.key,
     required this.isFilled,
     required this.onTap,
     required this.text,
+    this.child,
+    this.isLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: isLoading ? null : onTap,
       child: Container(
         width: 340.w,
         height: 52.h,
@@ -34,7 +38,7 @@ class GlobalButton extends StatelessWidget {
               : context.isDark
               ? Colors.white.withAlpha(20)
               : context.appColors.primary.withAlpha(20),
-          boxShadow: isFilled
+          boxShadow: isFilled && !isLoading
               ? [
                   BoxShadow(
                     color: context.appColors.primary.withValues(alpha: 0.45),
@@ -45,16 +49,29 @@ class GlobalButton extends StatelessWidget {
               : null,
         ),
         child: Center(
-          child: Text(
-            text,
-            style: context.typography.labelLarge.copyWith(
-              color: isFilled
-                  ? Colors.white
-                  : context.isDark
-                  ? context.appColors.textPrimary
-                  : context.appColors.primary,
-            ),
-          ),
+          child:
+              child ??
+              (isLoading
+                  ? SizedBox(
+                      width: 24.w,
+                      height: 24.h,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          isFilled ? Colors.white : context.appColors.primary,
+                        ),
+                      ),
+                    )
+                  : Text(
+                      text,
+                      style: context.typography.labelLarge.copyWith(
+                        color: isFilled
+                            ? Colors.white
+                            : context.isDark
+                            ? context.appColors.textPrimary
+                            : context.appColors.primary,
+                      ),
+                    )),
         ),
       ),
     );
