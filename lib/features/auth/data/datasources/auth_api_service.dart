@@ -9,16 +9,18 @@ import 'package:nutq/features/auth/data/models/register_request.dart';
 
 part 'auth_api_service.g.dart';
 
-/// Retrofit HTTP interface — returns typed responses
+/// Retrofit HTTP interface — typed responses
 @RestApi()
 abstract class AuthApiService {
   factory AuthApiService(Dio dio, {String baseUrl}) = _AuthApiService;
 
+  @Extra({'requiresAuth': false})
   @POST('/auth/login')
   Future<HttpResponse<AuthResponse>> login(
     @Body() LoginRequest request,
   );
 
+  @Extra({'requiresAuth': false})
   @POST('/auth/register')
   Future<HttpResponse<AuthResponse>> register(
     @Body() RegisterRequest request,

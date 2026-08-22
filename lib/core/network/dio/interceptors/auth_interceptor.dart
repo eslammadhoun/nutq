@@ -15,10 +15,19 @@ class AuthInterceptor extends QueuedInterceptor {
   final TokenStorage _tokenStorage;
   TokenRefresher? _tokenRefresher;
   final Future<void> Function() _onSessionExpired;
-  late final Dio _dio;
+
+  /// A bare Dio with no interceptors, used only to replay a request after a
+  /// refresh. Retrying through the main [Dio] would re-enter this same
+  /// QueuedInterceptor's error queue if the retry itself 401s (e.g. a retried
+  /// login with a wrong password) — since the outer onError call is still
+  /// active/unresolved at that point, the retry's error task would sit queued
+  /// behind it forever, deadlocking the request.
+  late final Dio _retryDio;
 
   /// Must be called once with the [Dio] instance this interceptor is attached to
-  void attach(Dio dio) => _dio = dio;
+  void attach(Dio dio) {
+    _retryDio = Dio(dio.options);
+  }
 
   /// Inject TokenRefresher after Dio creation (breaks circular dependency)
   void updateTokenRefresher(TokenRefresher tokenRefresher) {
@@ -30,8 +39,12 @@ class AuthInterceptor extends QueuedInterceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // Skip adding auth header for refresh call itself
-    if (options.extra['isRefreshCall'] != true) {
+    // Skip adding auth header for the refresh call itself and for public
+    // endpoints (login/register) — a stale stored token has no business
+    // being sent there, and can otherwise cause a spurious 401 -> refresh
+    // -> retry cycle on a plain login attempt.
+    final requiresAuth = options.extra['requiresAuth'] != false;
+    if (options.extra['isRefreshCall'] != true && requiresAuth) {
       final token = await _tokenStorage.accessToken;
       if (token != null) {
         options.headers['Authorization'] = 'Bearer $token';
@@ -47,8 +60,14 @@ class AuthInterceptor extends QueuedInterceptor {
   ) async {
     final isRefreshCall = err.requestOptions.extra['isRefreshCall'] == true;
     final alreadyRetried = err.requestOptions.extra['retried'] == true;
+    final requiresAuth = err.requestOptions.extra['requiresAuth'] != false;
 
-    if (err.response?.statusCode != 401 || isRefreshCall || alreadyRetried) {
+    // A 401 on a public endpoint (login/register) means bad credentials, not
+    // an expired session — never attempt a token refresh for it.
+    if (err.response?.statusCode != 401 ||
+        isRefreshCall ||
+        alreadyRetried ||
+        !requiresAuth) {
       handler.next(err);
       return;
     }
@@ -79,7 +98,8 @@ class AuthInterceptor extends QueuedInterceptor {
 
       final retryOptions = err.requestOptions;
       retryOptions.extra['retried'] = true;
-      final retryResponse = await _dio.fetch(retryOptions);
+      retryOptions.headers['Authorization'] = 'Bearer ${tokenPair.accessToken}';
+      final retryResponse = await _retryDio.fetch(retryOptions);
       handler.resolve(retryResponse);
     } on DioException {
       await _expireSession(handler, err);

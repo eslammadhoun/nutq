@@ -21,7 +21,7 @@ class _AuthApiService implements AuthApiService {
 
   @override
   Future<HttpResponse<AuthResponse>> login(LoginRequest request) async {
-    final _extra = <String, dynamic>{};
+    final _extra = <String, dynamic>{'requiresAuth': false};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = request;
@@ -49,7 +49,7 @@ class _AuthApiService implements AuthApiService {
 
   @override
   Future<HttpResponse<AuthResponse>> register(RegisterRequest request) async {
-    final _extra = <String, dynamic>{};
+    final _extra = <String, dynamic>{'requiresAuth': false};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = request;
