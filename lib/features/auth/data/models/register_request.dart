@@ -6,7 +6,7 @@ part 'register_request.g.dart';
 @freezed
 sealed class RegisterRequest with _$RegisterRequest {
   const factory RegisterRequest({
-    required String name,
+    @JsonKey(name: 'username') required String name,
     required String email,
     required String password,
   }) = _RegisterRequest;

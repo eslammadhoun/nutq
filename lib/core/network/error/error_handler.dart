@@ -47,12 +47,15 @@ class ErrorHandler {
         if (errors.isNotEmpty) return ApiError.validation(errors);
       }
       // Fallback: generic message
-      final message = (data?['detail'] ?? data?['message'] ?? 'Validation failed').toString();
+      final message =
+          (data?['detail'] ?? data?['message'] ?? 'Validation failed')
+              .toString();
       return ApiError.server(message, statusCode);
     }
 
     // 5xx or other
-    final message = (data?['detail'] ?? data?['message'] ?? 'Server error').toString();
+    final message = (data?['detail'] ?? data?['message'] ?? 'Server error')
+        .toString();
     return ApiError.server(message, statusCode);
   }
 
@@ -75,6 +78,18 @@ class ErrorHandler {
     if (data['errors'] is Map) {
       for (final entry in (data['errors'] as Map).entries) {
         errors[entry.key.toString()] = entry.value.toString();
+      }
+    }
+
+    // RFC7807-style: {"errors": [{"field": "username", "message": "..."}]}
+    if (data['errors'] is List) {
+      for (final item in data['errors'] as List) {
+        if (item is Map &&
+            item['field'] is String &&
+            item['message'] is String) {
+          errors[item['field'] as String] =
+              '${item['field'] as String} ${item['message'] as String}';
+        }
       }
     }
 

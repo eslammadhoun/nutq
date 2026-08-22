@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RegisterRequest {
 
- String get name; String get email; String get password;
+@JsonKey(name: 'username') String get name; String get email; String get password;
 /// Create a copy of RegisterRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $RegisterRequestCopyWith<$Res>  {
   factory $RegisterRequestCopyWith(RegisterRequest value, $Res Function(RegisterRequest) _then) = _$RegisterRequestCopyWithImpl;
 @useResult
 $Res call({
- String name, String email, String password
+@JsonKey(name: 'username') String name, String email, String password
 });
 
 
@@ -152,7 +152,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String email,  String password)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'username')  String name,  String email,  String password)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RegisterRequest() when $default != null:
 return $default(_that.name,_that.email,_that.password);case _:
@@ -173,7 +173,7 @@ return $default(_that.name,_that.email,_that.password);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String email,  String password)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'username')  String name,  String email,  String password)  $default,) {final _that = this;
 switch (_that) {
 case _RegisterRequest():
 return $default(_that.name,_that.email,_that.password);}
@@ -190,7 +190,7 @@ return $default(_that.name,_that.email,_that.password);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String email,  String password)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'username')  String name,  String email,  String password)?  $default,) {final _that = this;
 switch (_that) {
 case _RegisterRequest() when $default != null:
 return $default(_that.name,_that.email,_that.password);case _:
@@ -205,10 +205,10 @@ return $default(_that.name,_that.email,_that.password);case _:
 @JsonSerializable()
 
 class _RegisterRequest implements RegisterRequest {
-  const _RegisterRequest({required this.name, required this.email, required this.password});
+  const _RegisterRequest({@JsonKey(name: 'username') required this.name, required this.email, required this.password});
   factory _RegisterRequest.fromJson(Map<String, dynamic> json) => _$RegisterRequestFromJson(json);
 
-@override final  String name;
+@override@JsonKey(name: 'username') final  String name;
 @override final  String email;
 @override final  String password;
 
@@ -245,7 +245,7 @@ abstract mixin class _$RegisterRequestCopyWith<$Res> implements $RegisterRequest
   factory _$RegisterRequestCopyWith(_RegisterRequest value, $Res Function(_RegisterRequest) _then) = __$RegisterRequestCopyWithImpl;
 @override @useResult
 $Res call({
- String name, String email, String password
+@JsonKey(name: 'username') String name, String email, String password
 });
 
 

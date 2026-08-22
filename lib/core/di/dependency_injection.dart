@@ -54,7 +54,11 @@ Future<void> setupDI() async {
     () => AuthDataSourceImpl(sl<ApiClient>(), sl<AuthApiService>()),
   );
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(sl<AuthDataSource>(), sl<TokenStorage>()),
+    () => AuthRepositoryImpl(
+      sl<AuthDataSource>(),
+      sl<TokenStorage>(),
+      sl<AppPreferences>(),
+    ),
   );
   sl.registerFactory<AuthCubit>(() => AuthCubit(repo: sl<AuthRepository>()));
 }
