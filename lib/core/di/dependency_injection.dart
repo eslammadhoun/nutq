@@ -100,12 +100,14 @@ class TokenRefresherImpl implements TokenRefresher {
   }
 
   Future<TokenPair?> _doRefresh(String refreshToken) async {
+    // The refresh token goes in the JSON body ({"refresh_token": "..."}),
+    // matching the backend's RefreshRequest schema — NOT an Authorization
+    // header. Sending it as a header instead of a body previously caused
+    // this call to hang indefinitely rather than fail fast.
     final response = await _dio.post<Map<String, dynamic>>(
       '/auth/refresh',
-      options: Options(
-        headers: {'Authorization': 'Bearer $refreshToken'},
-        extra: {'isRefreshCall': true},
-      ),
+      data: {'refresh_token': refreshToken},
+      options: Options(extra: {'isRefreshCall': true}),
     );
     final data = response.data!;
     final accessToken = data['access_token'] as String;
