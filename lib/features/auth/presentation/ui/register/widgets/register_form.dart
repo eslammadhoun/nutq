@@ -164,7 +164,8 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
             SizedBox(height: 32.h),
             BlocBuilder<AuthCubit, AuthState>(
-              buildWhen: (_, state) => state is AuthLoading,
+              buildWhen: (previous, current) =>
+                  previous is AuthLoading || current is AuthLoading,
               builder: (context, state) {
                 final isLoading = state is AuthLoading;
                 return GlobalButton(
