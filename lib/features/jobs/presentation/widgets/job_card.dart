@@ -76,9 +76,7 @@ class JobCard extends StatelessWidget {
             ),
             SizedBox(height: 10.h),
             Text(
-              job.title,
-              textDirection: TextDirection.rtl,
-              textAlign: TextAlign.right,
+              job.subtitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: context.typography.bodySmall.copyWith(
