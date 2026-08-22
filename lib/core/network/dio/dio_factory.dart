@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:nutq/core/network/dio/config/dio_config.dart';
+import 'package:nutq/core/network/dio/dio_config.dart';
 import 'package:nutq/core/network/dio/interceptors/auth_interceptor.dart';
 import 'package:nutq/core/network/dio/interceptors/connectivity_interceptor.dart';
 import 'package:nutq/core/network/dio/interceptors/logging_interceptor.dart';

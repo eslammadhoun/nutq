@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nutq/core/network/api_client.dart';
-import 'package:nutq/core/network/dio/config/dio_config.dart';
+import 'package:nutq/core/network/dio/dio_config.dart';
 import 'package:nutq/core/network/dio/dio_factory.dart';
 import 'package:nutq/core/network/network_info.dart';
 import 'package:nutq/core/network/network_info_impl.dart';
