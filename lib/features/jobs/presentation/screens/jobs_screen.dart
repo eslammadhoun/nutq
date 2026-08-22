@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:nutq/core/widgets/app_bottom_nav_bar.dart';
 import 'package:nutq/features/jobs/presentation/widgets/jobs_filter_chips.dart';
 import 'package:nutq/features/jobs/presentation/widgets/jobs_fab.dart';
 import 'package:nutq/features/jobs/presentation/widgets/jobs_header.dart';
@@ -27,15 +26,6 @@ class JobsScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: const JobsFab(),
-      bottomNavigationBar: AppBottomNavBar(
-        current: AppNavTab.home,
-        onTap: (tab) {
-          if (tab == AppNavTab.home) return;
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Coming soon')));
-        },
-      ),
     );
   }
 }
