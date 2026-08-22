@@ -12,7 +12,7 @@ part 'auth_cubit.freezed.dart';
 part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit(this._repo) : super(const AuthState.initial());
+  AuthCubit({required this._repo}) : super(const AuthState.initial());
 
   final AuthRepository _repo;
 

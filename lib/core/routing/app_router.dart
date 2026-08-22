@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nutq/core/di/dependency_injection.dart';
 import 'package:nutq/core/routing/routes.dart';
+import 'package:nutq/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:nutq/features/auth/presentation/ui/login/screens/login_screen.dart';
 import 'package:nutq/features/auth/presentation/ui/register/screens/register_screen.dart';
 import 'package:nutq/features/home/presentation/screens/home_screen.dart';
@@ -16,10 +19,22 @@ class AppRouter {
         return _buildRoute(settings, const OnBoardingScreen());
 
       case Routes.login:
-        return _buildRoute(settings, const LoginScreen());
+        return _buildRoute(
+          settings,
+          BlocProvider<AuthCubit>(
+            create: (context) => sl<AuthCubit>(),
+            child: LoginScreen(),
+          ),
+        );
 
       case Routes.register:
-        return _buildRoute(settings, const RegisterScreen());
+        return _buildRoute(
+          settings,
+          BlocProvider<AuthCubit>(
+            create: (context) => sl<AuthCubit>(),
+            child: RegisterScreen(),
+          ),
+        );
 
       case Routes.home:
         return _buildRoute(settings, const HomeScreen());
