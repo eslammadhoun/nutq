@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:nutq/features/auth/data/models/logout_request.dart';
 import 'package:retrofit/retrofit.dart';
 
 import 'package:nutq/core/network/api_client.dart';
@@ -16,25 +17,21 @@ abstract class AuthApiService {
 
   @Extra({'requiresAuth': false})
   @POST('/auth/login')
-  Future<HttpResponse<AuthResponse>> login(
-    @Body() LoginRequest request,
-  );
+  Future<HttpResponse<AuthResponse>> login(@Body() LoginRequest request);
 
   @Extra({'requiresAuth': false})
   @POST('/auth/register')
-  Future<HttpResponse<AuthResponse>> register(
-    @Body() RegisterRequest request,
-  );
+  Future<HttpResponse<AuthResponse>> register(@Body() RegisterRequest request);
 
   @POST('/auth/logout')
-  Future<HttpResponse<void>> logout();
+  Future<HttpResponse<void>> logout(@Body() LogoutRequest request);
 }
 
 /// Datasource interface — all callers use this (ApiResult + typed models)
 abstract interface class AuthDataSource {
   Future<ApiResult<AuthResponse>> login(LoginRequest request);
   Future<ApiResult<AuthResponse>> register(RegisterRequest request);
-  Future<ApiResult<void>> logout();
+  Future<ApiResult<void>> logout(LogoutRequest request);
 }
 
 /// Implementation: wraps Retrofit + ApiClient for safe deserialization
@@ -57,8 +54,8 @@ class AuthDataSourceImpl implements AuthDataSource {
   }
 
   @override
-  Future<ApiResult<void>> logout() async {
-    await _apiClient.execute(() => _retrofit.logout());
+  Future<ApiResult<void>> logout(LogoutRequest request) async {
+    await _apiClient.execute(() => _retrofit.logout(request));
     return const ApiResult.success(null);
   }
 }
