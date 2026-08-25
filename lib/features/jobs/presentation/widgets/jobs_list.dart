@@ -138,8 +138,10 @@ class _JobsListState extends State<JobsList> {
           child: Center(
             child: SvgPicture.asset(
               'assets/svgs/nutq-icon.svg',
-              // ignore: deprecated_member_use
-              color: context.appColors.primary.withValues(alpha: 0.50),
+              colorFilter: ColorFilter.mode(
+                context.appColors.primary.withValues(alpha: 0.50),
+                BlendMode.srcIn,
+              ),
             ),
           ),
         ),

@@ -13,7 +13,6 @@ analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
-    - "lib/features/auth/data/models/*.dart"
 
 linter:
   rules:
