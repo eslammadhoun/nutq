@@ -12,6 +12,10 @@ import 'package:nutq/features/onBoarding/presentation/screens/on_boarding_screen
 import 'package:nutq/features/onBoarding/presentation/screens/splash_screen.dart';
 
 class AppRouter {
+  /// Global access to the navigator for imperative navigation from
+  /// non-widget code (e.g. the session-expiry listener in main.dart).
+  static final navigatorKey = GlobalKey<NavigatorState>();
+
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case Routes.splash:

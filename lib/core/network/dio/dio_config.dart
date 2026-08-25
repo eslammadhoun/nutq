@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 class DioConfig {
   const DioConfig({
@@ -25,4 +26,23 @@ class DioConfig {
     sendTimeout: sendTimeout,
     headers: headers,
   );
+
+  /// Fail fast at startup instead of letting every request silently fail
+  /// behind ATS/cleartext rules — catches a forgotten
+  /// `--dart-define=API_BASE_URL=https://…` leaking the localhost debug
+  /// default into a release build.
+  ///
+  /// Deliberately NOT a Dart `assert` — asserts are stripped from release
+  /// builds, which is exactly where this check must run.
+  static void ensureSecureBaseUrl(String baseUrl, {bool? isRelease}) {
+    final release = isRelease ?? kReleaseMode;
+    if (!release) return;
+    if (Uri.tryParse(baseUrl)?.scheme != 'https') {
+      throw StateError(
+        'API_BASE_URL must use HTTPS in release builds '
+        '(got "$baseUrl"). Pass '
+        '--dart-define=API_BASE_URL=https://<host>/v1',
+      );
+    }
+  }
 }

@@ -86,10 +86,6 @@ class AuthInterceptor extends QueuedInterceptor {
 
     try {
       final tokenPair = await _tokenRefresher!.refresh(refreshToken);
-      if (tokenPair == null) {
-        await _expireSession(handler, err);
-        return;
-      }
 
       await _tokenStorage.saveTokens(
         accessToken: tokenPair.accessToken,
@@ -101,8 +97,15 @@ class AuthInterceptor extends QueuedInterceptor {
       retryOptions.headers['Authorization'] = 'Bearer ${tokenPair.accessToken}';
       final retryResponse = await _retryDio.fetch(retryOptions);
       handler.resolve(retryResponse);
-    } on DioException {
+    } on TokenRefreshRejectedException {
+      // Refresh endpoint definitively rejected the refresh token (401/403):
+      // session is dead — clear storage and notify the UI to redirect.
       await _expireSession(handler, err);
+    } on DioException {
+      // Transient failure while refreshing (offline / timeout / 5xx):
+      // tokens are still valid, so DON'T force logout. Surface the original
+      // error; the next request will retry the refresh.
+      handler.next(err);
     }
   }
 
