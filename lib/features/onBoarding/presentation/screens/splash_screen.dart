@@ -67,7 +67,8 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                   Positioned(
                     top: 220.h,
-                    child: Text('Nutq', style: context.typography.display),
+                    child: Text(context.l10n.appTitle,
+                        style: context.typography.display),
                   ),
                   Positioned(
                     bottom: 40,
@@ -98,7 +99,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     child: Column(
                       children: [
                         Text(
-                          'Arabic Speech Transcription',
+                          context.l10n.appTagline,
                           style: context.typography.bodySmall.copyWith(
                             color: context.appColors.textSecondary,
                           ),

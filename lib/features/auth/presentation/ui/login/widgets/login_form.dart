@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:nutq/core/extensions/error_l10n_extension.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/utils/validators.dart';
@@ -39,6 +40,7 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthSuccess) {
@@ -50,7 +52,7 @@ class _LoginFormState extends State<LoginForm> {
         } else if (state is AuthFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.message),
+              content: Text(context.l10n.authErrorMessage(state.error)),
               backgroundColor: context.appColors.statusFailed,
             ),
           );
@@ -70,7 +72,7 @@ class _LoginFormState extends State<LoginForm> {
           children: [
             SizedBox(height: 20.h),
             Text(
-              'Email address',
+              l10n.authEmailLabel,
               style: context.typography.labelSmall.copyWith(
                 color: context.appColors.textSecondary,
               ),
@@ -78,13 +80,13 @@ class _LoginFormState extends State<LoginForm> {
             SizedBox(height: 5.h),
             GlobalTextField(
               controller: _emailController,
-              hintText: 'Enter your email',
+              hintText: l10n.authEmailHint,
               textInputType: TextInputType.emailAddress,
-              validator: Validators.validateEmail,
+              validator: (value) => Validators.validateEmail(value, l10n),
             ),
             SizedBox(height: 24.h),
             Text(
-              'Password',
+              l10n.authPasswordLabel,
               style: context.typography.labelSmall.copyWith(
                 color: context.appColors.textSecondary,
               ),
@@ -92,7 +94,7 @@ class _LoginFormState extends State<LoginForm> {
             SizedBox(height: 5.h),
             GlobalTextField(
               controller: _passwordController,
-              hintText: '••••••••',
+              hintText: l10n.authPasswordHidden,
               textInputType: TextInputType.visiblePassword,
               obscureText: !_showPassword,
               suffixWidget: GestureDetector(
@@ -100,14 +102,14 @@ class _LoginFormState extends State<LoginForm> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Text(
-                    _showPassword ? 'Hide' : 'Show',
+                    _showPassword ? l10n.authHidePassword : l10n.authShowPassword,
                     style: context.typography.labelSmall.copyWith(
                       color: context.appColors.textBrand,
                     ),
                   ),
                 ),
               ),
-              validator: Validators.validatePassword,
+              validator: (value) => Validators.validatePassword(value, l10n),
             ),
             SizedBox(height: 32.h),
             BlocBuilder<AuthCubit, AuthState>(
@@ -130,7 +132,7 @@ class _LoginFormState extends State<LoginForm> {
                             );
                           }
                         },
-                  text: 'Log In',
+                  text: l10n.loginSubmit,
                 );
               },
             ),

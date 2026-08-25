@@ -19,6 +19,7 @@ class AppBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final l10n = context.l10n;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -31,20 +32,23 @@ class AppBottomNavBar extends StatelessWidget {
           children: [
             _NavItem(
               emoji: '🏠',
-              label: 'Home',
+              label: l10n.navHome,
+              tab: AppNavTab.home,
               isActive: current == AppNavTab.home,
               onTap: () => onTap(AppNavTab.home),
             ),
             _NavItem(
               emoji: '🔔',
-              label: 'Alerts',
+              label: l10n.navAlerts,
+              tab: AppNavTab.alerts,
               isActive: current == AppNavTab.alerts,
               badgeCount: alertsBadgeCount,
               onTap: () => onTap(AppNavTab.alerts),
             ),
             _NavItem(
               emoji: '👤',
-              label: 'Profile',
+              label: l10n.navProfile,
+              tab: AppNavTab.profile,
               isActive: current == AppNavTab.profile,
               onTap: () => onTap(AppNavTab.profile),
             ),
@@ -59,6 +63,7 @@ class _NavItem extends StatelessWidget {
   const _NavItem({
     required this.emoji,
     required this.label,
+    required this.tab,
     required this.isActive,
     required this.onTap,
     this.badgeCount = 0,
@@ -66,6 +71,7 @@ class _NavItem extends StatelessWidget {
 
   final String emoji;
   final String label;
+  final AppNavTab tab;
   final bool isActive;
   final VoidCallback onTap;
   final int badgeCount;
@@ -115,7 +121,7 @@ class _NavItem extends StatelessWidget {
               Positioned(
                 top: 12.h,
                 right: 48.w,
-                child: label == 'Alerts'
+                child: tab == AppNavTab.alerts
                     ? Container(
                         width: 16.w,
                         height: 16.h,

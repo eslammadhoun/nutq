@@ -1,0 +1,129 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Nutq",
+  "@appTitle": {
+    "description": "The application title"
+  },
+  "appTagline": "Arabic Speech Transcription",
+
+  "routeNotFound": "Route not found",
+
+  "navHome": "Home",
+  "navAlerts": "Alerts",
+  "navProfile": "Profile",
+
+  "versionLabel": "v {version}",
+  "@versionLabel": {
+    "placeholders": { "version": { "type": "String" } }
+  },
+
+  "retry": "Retry",
+  "somethingWentWrong": "Something went wrong",
+
+  "errorNoConnection": "No internet connection",
+  "errorTimeout": "Request timed out",
+  "errorInvalidCredentials": "Invalid credentials",
+  "errorLoginAgain": "Please log in again",
+
+  "jobFallbackTitle": "Job #{id}",
+  "@jobFallbackTitle": {
+    "placeholders": { "id": { "type": "String" } }
+  },
+  "jobTodayLabel": "Today, {time}",
+  "@jobTodayLabel": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "jobYesterdayLabel": "Yesterday",
+  "languageArabic": "Arabic",
+  "languageEnglish": "English",
+
+  "validationFieldRequired": "{field} is required",
+  "@validationFieldRequired": {
+    "placeholders": { "field": { "type": "String" } }
+  },
+  "validationMinLength": "{field} must be at least {min} characters",
+  "@validationMinLength": {
+    "placeholders": {
+      "field": { "type": "String" },
+      "min": { "type": "int" }
+    }
+  },
+  "validationMaxLength": "{field} must not exceed {max} characters",
+  "@validationMaxLength": {
+    "placeholders": {
+      "field": { "type": "String" },
+      "max": { "type": "int" }
+    }
+  },
+  "validationEmailInvalid": "Please enter a valid email address",
+  "validationPasswordLowercase": "Password must contain at least one lowercase letter",
+  "validationPasswordUppercase": "Password must contain at least one uppercase letter",
+  "validationPasswordNumber": "Password must contain at least one number",
+  "validationPasswordsMismatch": "Passwords do not match",
+  "validationNameChars": "Name can only contain letters, spaces, hyphens, and apostrophes",
+  "validationUsernameChars": "Username can only contain letters, numbers, underscores, and hyphens",
+
+  "authEmailLabel": "Email address",
+  "authEmailHint": "Enter your email",
+  "authPasswordLabel": "Password",
+  "authPasswordHidden": "••••••••",
+  "authShowPassword": "Show",
+  "authHidePassword": "Hide",
+
+  "loginWelcomeTitle": "Welcome back",
+  "loginWelcomeSubtitle": "Sign in to your account to continue",
+  "loginSubmit": "Log In",
+  "loginFooterPrompt": "Don't have an account? ",
+  "loginFooterAction": "Sign up",
+
+  "registerWelcomeTitle": "Create Account",
+  "registerWelcomeSubtitle": "Join Nutq to start transcribing Arabic speech",
+  "registerUsernameLabel": "Username",
+  "registerUsernameHint": "e.g. ahmed_ali",
+  "registerConfirmPasswordLabel": "Confirm password",
+  "registerConfirmPasswordHint": "Repeat your password",
+  "registerSubmit": "Create Account",
+  "registerFooterPrompt": "Already have an account? ",
+  "registerFooterAction": "Log in",
+
+  "jobsHistoryTitle": "History",
+  "jobsSearchHint": "Search transcriptions...",
+  "jobsFilterAll": "All",
+
+  "jobsEmptyTitle": "No transcriptions yet",
+  "jobsEmptySubtitle": "Submit your first Arabic audio, video, \nor text to get started",
+
+  "sourceAudioFile": "Audio File",
+  "sourceVideo": "Video",
+  "sourceYoutube": "YouTube",
+  "sourceWebUrl": "Web URL",
+  "sourceText": "Text",
+
+  "statusDone": "Done",
+  "statusProcessing": "Processing",
+  "statusQueued": "Queued",
+  "statusFailed": "Failed",
+  "statusCancelled": "Cancelled",
+
+  "newJobTitle": "New Job",
+  "newJobLanguageLabel": "Language",
+  "newJobLanguageArabic": "Arabic (AR)",
+  "newJobLanguageEnglish": "English (EN)",
+  "newJobIdempotencyKeyLabel": "Idempotency Key",
+
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingGetStarted": "Get Started",
+  "onboardingSlide1Title": "Turn Arabic Speech\ninto Text",
+  "onboardingSlide1Subtitle": "Record or upload any audio — Nutq\ntranscribes it in seconds with precision.",
+  "onboardingSlide2Title": "AI-Powered\nSummaries",
+  "onboardingSlide2Subtitle": "Get smart summaries, key takeaways,\nand insights from every transcription.",
+  "onboardingSlide3Title": "Browse Your\nHistory",
+  "onboardingSlide3Subtitle": "Search, share, and export all your\npast transcriptions with ease.",
+
+  "alertsComingSoon": "Alerts — coming soon",
+
+  "profileComingSoon": "Profile — coming soon",
+  "profileLogOut": "Log out"
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nutq/core/di/dependency_injection.dart';
+import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:nutq/features/auth/presentation/ui/login/screens/login_screen.dart';
@@ -48,7 +49,13 @@ class AppRouter {
       default:
         return _buildRoute(
           settings,
-          const Scaffold(body: Center(child: Text('Route not found'))),
+          Scaffold(
+            body: Center(
+              child: Builder(
+                builder: (context) => Text(context.l10n.routeNotFound),
+              ),
+            ),
+          ),
         );
     }
   }

@@ -13,7 +13,7 @@ class AlertsScreen extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: Text(
-            'Alerts — coming soon',
+            context.l10n.alertsComingSoon,
             style: context.typography.bodyBase.copyWith(
               color: context.appColors.textSecondary,
             ),

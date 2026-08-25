@@ -11,6 +11,7 @@ import 'package:nutq/core/network/network_info_impl.dart';
 import 'package:nutq/core/network/token/token_refresher.dart';
 import 'package:nutq/core/network/token/secure_token_storage.dart';
 import 'package:nutq/core/preferences/app_preferences.dart';
+import 'package:nutq/core/locale/locale_cubit.dart';
 import 'package:nutq/features/auth/data/datasources/auth_api_service.dart';
 import 'package:nutq/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:nutq/features/auth/domain/repositories/auth_repository.dart';
@@ -26,6 +27,7 @@ Future<void> setupDI() async {
   final prefs = await SharedPreferences.getInstance();
 
   sl.registerLazySingleton<AppPreferences>(() => AppPreferences(prefs));
+  sl.registerLazySingleton<LocaleCubit>(() => LocaleCubit(sl<AppPreferences>()));
 
   // Network stack
   sl.registerLazySingleton<TokenStorage>(() => SecureTokenStorage());

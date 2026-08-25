@@ -7,19 +7,20 @@ class RegisterWelcome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 26.h),
         Text(
-          'Create Account',
+          l10n.registerWelcomeTitle,
           style: context.typography.heading1.copyWith(
             color: context.appColors.textPrimary,
           ),
         ),
         SizedBox(height: 8.h),
         Text(
-          'Join Nutq to start transcribing Arabic speech',
+          l10n.registerWelcomeSubtitle,
           style: context.typography.bodyBase.copyWith(
             color: context.appColors.textSecondary,
           ),

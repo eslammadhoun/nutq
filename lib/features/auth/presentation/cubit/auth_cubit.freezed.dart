@@ -131,14 +131,14 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function()?  success,TResult Function( Map<String, String> errors)?  fieldErrors,TResult Function( String message)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function()?  success,TResult Function( Map<String, String> errors)?  fieldErrors,TResult Function( ApiError error)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AuthInitial() when initial != null:
 return initial();case AuthLoading() when loading != null:
 return loading();case AuthSuccess() when success != null:
 return success();case AuthFieldErrors() when fieldErrors != null:
 return fieldErrors(_that.errors);case AuthFailure() when failure != null:
-return failure(_that.message);case _:
+return failure(_that.error);case _:
   return orElse();
 
 }
@@ -156,14 +156,14 @@ return failure(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function()  success,required TResult Function( Map<String, String> errors)  fieldErrors,required TResult Function( String message)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function()  success,required TResult Function( Map<String, String> errors)  fieldErrors,required TResult Function( ApiError error)  failure,}) {final _that = this;
 switch (_that) {
 case AuthInitial():
 return initial();case AuthLoading():
 return loading();case AuthSuccess():
 return success();case AuthFieldErrors():
 return fieldErrors(_that.errors);case AuthFailure():
-return failure(_that.message);case _:
+return failure(_that.error);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -180,14 +180,14 @@ return failure(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function()?  success,TResult? Function( Map<String, String> errors)?  fieldErrors,TResult? Function( String message)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function()?  success,TResult? Function( Map<String, String> errors)?  fieldErrors,TResult? Function( ApiError error)?  failure,}) {final _that = this;
 switch (_that) {
 case AuthInitial() when initial != null:
 return initial();case AuthLoading() when loading != null:
 return loading();case AuthSuccess() when success != null:
 return success();case AuthFieldErrors() when fieldErrors != null:
 return fieldErrors(_that.errors);case AuthFailure() when failure != null:
-return failure(_that.message);case _:
+return failure(_that.error);case _:
   return null;
 
 }
@@ -367,10 +367,10 @@ as Map<String, String>,
 
 
 class AuthFailure implements AuthState {
-  const AuthFailure(this.message);
+  const AuthFailure(this.error);
   
 
- final  String message;
+ final  ApiError error;
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
@@ -382,16 +382,16 @@ $AuthFailureCopyWith<AuthFailure> get copyWith => _$AuthFailureCopyWithImpl<Auth
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthFailure&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthFailure&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode => Object.hash(runtimeType,error);
 
 @override
 String toString() {
-  return 'AuthState.failure(message: $message)';
+  return 'AuthState.failure(error: $error)';
 }
 
 
@@ -402,11 +402,11 @@ abstract mixin class $AuthFailureCopyWith<$Res> implements $AuthStateCopyWith<$R
   factory $AuthFailureCopyWith(AuthFailure value, $Res Function(AuthFailure) _then) = _$AuthFailureCopyWithImpl;
 @useResult
 $Res call({
- String message
+ ApiError error
 });
 
 
-
+$ApiErrorCopyWith<$Res> get error;
 
 }
 /// @nodoc
@@ -419,14 +419,23 @@ class _$AuthFailureCopyWithImpl<$Res>
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? error = null,}) {
   return _then(AuthFailure(
-null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
+null == error ? _self.error : error // ignore: cast_nullable_to_non_nullable
+as ApiError,
   ));
 }
 
-
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ApiErrorCopyWith<$Res> get error {
+  
+  return $ApiErrorCopyWith<$Res>(_self.error, (value) {
+    return _then(_self.copyWith(error: value));
+  });
+}
 }
 
 // dart format on

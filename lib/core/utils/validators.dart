@@ -1,78 +1,102 @@
-class Validators {
-  static String? validateName(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Name is required';
-    }
-    if (value.length < 2) {
-      return 'Name must be at least 2 characters';
-    }
-    if (value.length > 50) {
-      return 'Name must not exceed 50 characters';
-    }
-    if (!RegExp(r'^[a-zA-Z\s\-]+$').hasMatch(value)) {
-      return 'Name can only contain letters, spaces, hyphens, and apostrophes';
-    }
-    return null;
-  }
+import 'package:nutq/l10n/app_localizations.dart';
 
-  static String? validateEmail(String? value) {
+class Validators {
+  /// Unicode letters (incl. Arabic), spaces, hyphens, straight/curly
+  /// apostrophes — iOS autocorrect often replaces ' with ’.
+  static final _namePattern = RegExp(r"^[\p{L}\s\-''’]+$", unicode: true);
+
+  static String? validateName(String? value, AppLocalizations l10n) =>
+      _validate(
+        value,
+        l10n,
+        field: l10n.registerUsernameLabel,
+        minLength: 2,
+        maxLength: 50,
+        extra: (v) => _namePattern.hasMatch(v)
+            ? null
+            : l10n.validationNameChars,
+      );
+
+  static String? validateEmail(String? value, AppLocalizations l10n) {
     if (value == null || value.isEmpty) {
-      return 'Email is required';
+      return l10n.validationFieldRequired(l10n.authEmailLabel);
     }
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9.!#$%&\*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$',
     );
     if (!emailRegex.hasMatch(value)) {
-      return 'Please enter a valid email address';
+      return l10n.validationEmailInvalid;
     }
     return null;
   }
 
-  static String? validatePassword(String? value) {
+  static String? validatePassword(String? value, AppLocalizations l10n) {
     if (value == null || value.isEmpty) {
-      return 'Password is required';
+      return l10n.validationFieldRequired(l10n.authPasswordLabel);
     }
     if (value.length < 8) {
-      return 'Password must be at least 8 characters';
+      return l10n.validationMinLength(l10n.authPasswordLabel, 8);
     }
     if (value.length > 128) {
-      return 'Password must not exceed 128 characters';
+      return l10n.validationMaxLength(l10n.authPasswordLabel, 128);
     }
     if (!RegExp(r'[a-z]').hasMatch(value)) {
-      return 'Password must contain at least one lowercase letter';
+      return l10n.validationPasswordLowercase;
     }
     if (!RegExp(r'[A-Z]').hasMatch(value)) {
-      return 'Password must contain at least one uppercase letter';
+      return l10n.validationPasswordUppercase;
     }
     if (!RegExp(r'[0-9]').hasMatch(value)) {
-      return 'Password must contain at least one number';
+      return l10n.validationPasswordNumber;
     }
     return null;
   }
 
-  static String? validateUsername(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Username is required';
-    }
-    if (value.length < 3) {
-      return 'Username must be at least 3 characters';
-    }
-    if (value.length > 30) {
-      return 'Username must not exceed 30 characters';
-    }
-    if (!RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(value)) {
-      return 'Username can only contain letters, numbers, underscores, and hyphens';
-    }
-    return null;
-  }
+  static String? validateUsername(String? value, AppLocalizations l10n) =>
+      _validate(
+        value,
+        l10n,
+        field: l10n.registerUsernameLabel,
+        minLength: 3,
+        maxLength: 30,
+        extra: (v) => RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(v)
+            ? null
+            : l10n.validationUsernameChars,
+      );
 
-  static String? validateConfirmPassword(String? value, String password) {
+  static String? validateConfirmPassword(
+    String? value,
+    String password,
+    AppLocalizations l10n,
+  ) {
     if (value == null || value.isEmpty) {
-      return 'Confirm password is required';
+      return l10n.validationFieldRequired(l10n.registerConfirmPasswordLabel);
     }
     if (value != password) {
-      return 'Passwords do not match';
+      return l10n.validationPasswordsMismatch;
     }
+    return null;
+  }
+
+  static String? _validate(
+    String? value,
+    AppLocalizations l10n, {
+    required String field,
+    required int minLength,
+    required int maxLength,
+    String? Function(String value)? extra,
+  }) {
+    if (value == null || value.trim().isEmpty) {
+      return l10n.validationFieldRequired(field);
+    }
+    if (value.length < minLength) {
+      return l10n.validationMinLength(field, minLength);
+    }
+    if (value.length > maxLength) {
+      return l10n.validationMaxLength(field, maxLength);
+    }
+    final extraError = extra?.call(value);
+    if (extraError != null) return extraError;
     return null;
   }
 }

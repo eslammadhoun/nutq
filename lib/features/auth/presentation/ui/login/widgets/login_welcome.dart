@@ -7,19 +7,20 @@ class LoginWelcome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 26.h),
         Text(
-          'Welcome back',
+          l10n.loginWelcomeTitle,
           style: context.typography.heading1.copyWith(
             color: context.appColors.textPrimary,
           ),
         ),
         SizedBox(height: 8.h),
         Text(
-          'Sign in to your account to continue',
+          l10n.loginWelcomeSubtitle,
           style: context.typography.bodyBase.copyWith(
             color: context.appColors.textSecondary,
           ),
