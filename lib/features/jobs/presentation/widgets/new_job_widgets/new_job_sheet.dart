@@ -59,7 +59,10 @@ class NewJobSheet extends StatelessWidget {
                     child: Center(
                       child: SvgPicture.asset(
                         'assets/svgs/close.svg',
-                        color: colors.textSecondary,
+                        colorFilter: ColorFilter.mode(
+                          colors.textSecondary,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                   ),
