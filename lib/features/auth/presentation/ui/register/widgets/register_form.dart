@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:nutq/core/extensions/error_l10n_extension.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/utils/validators.dart';
@@ -47,6 +48,7 @@ class _RegisterFormState extends State<RegisterForm> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthSuccess) {
@@ -58,7 +60,7 @@ class _RegisterFormState extends State<RegisterForm> {
         } else if (state is AuthFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.message),
+              content: Text(context.l10n.authErrorMessage(state.error)),
               backgroundColor: context.appColors.statusFailed,
             ),
           );
@@ -78,7 +80,7 @@ class _RegisterFormState extends State<RegisterForm> {
           children: [
             SizedBox(height: 20.h),
             Text(
-              'Username',
+              l10n.registerUsernameLabel,
               style: context.typography.labelSmall.copyWith(
                 color: context.appColors.textSecondary,
               ),
@@ -86,13 +88,13 @@ class _RegisterFormState extends State<RegisterForm> {
             SizedBox(height: 5.h),
             GlobalTextField(
               controller: _usernameController,
-              hintText: 'e.g. ahmed_ali',
+              hintText: l10n.registerUsernameHint,
               textInputType: TextInputType.text,
-              validator: Validators.validateUsername,
+              validator: (value) => Validators.validateUsername(value, l10n),
             ),
             SizedBox(height: 24.h),
             Text(
-              'Email address',
+              l10n.authEmailLabel,
               style: context.typography.labelSmall.copyWith(
                 color: context.appColors.textSecondary,
               ),
@@ -100,13 +102,13 @@ class _RegisterFormState extends State<RegisterForm> {
             SizedBox(height: 5.h),
             GlobalTextField(
               controller: _emailController,
-              hintText: 'Enter your email',
+              hintText: l10n.authEmailHint,
               textInputType: TextInputType.emailAddress,
-              validator: Validators.validateEmail,
+              validator: (value) => Validators.validateEmail(value, l10n),
             ),
             SizedBox(height: 24.h),
             Text(
-              'Password',
+              l10n.authPasswordLabel,
               style: context.typography.labelSmall.copyWith(
                 color: context.appColors.textSecondary,
               ),
@@ -114,7 +116,7 @@ class _RegisterFormState extends State<RegisterForm> {
             SizedBox(height: 5.h),
             GlobalTextField(
               controller: _passwordController,
-              hintText: '••••••••',
+              hintText: l10n.authPasswordHidden,
               textInputType: TextInputType.visiblePassword,
               obscureText: !_showPassword,
               suffixWidget: GestureDetector(
@@ -122,18 +124,18 @@ class _RegisterFormState extends State<RegisterForm> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Text(
-                    _showPassword ? 'Hide' : 'Show',
+                    _showPassword ? l10n.authHidePassword : l10n.authShowPassword,
                     style: context.typography.labelSmall.copyWith(
                       color: context.appColors.textBrand,
                     ),
                   ),
                 ),
               ),
-              validator: Validators.validatePassword,
+              validator: (value) => Validators.validatePassword(value, l10n),
             ),
             SizedBox(height: 24.h),
             Text(
-              'Confirm password',
+              l10n.registerConfirmPasswordLabel,
               style: context.typography.labelSmall.copyWith(
                 color: context.appColors.textSecondary,
               ),
@@ -141,7 +143,7 @@ class _RegisterFormState extends State<RegisterForm> {
             SizedBox(height: 5.h),
             GlobalTextField(
               controller: _confirmPasswordController,
-              hintText: 'Repeat your password',
+              hintText: l10n.registerConfirmPasswordHint,
               textInputType: TextInputType.visiblePassword,
               obscureText: !_showConfirmPassword,
               suffixWidget: GestureDetector(
@@ -150,7 +152,7 @@ class _RegisterFormState extends State<RegisterForm> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Text(
-                    _showConfirmPassword ? 'Hide' : 'Show',
+                    _showConfirmPassword ? l10n.authHidePassword : l10n.authShowPassword,
                     style: context.typography.labelSmall.copyWith(
                       color: context.appColors.textBrand,
                     ),
@@ -160,6 +162,7 @@ class _RegisterFormState extends State<RegisterForm> {
               validator: (value) => Validators.validateConfirmPassword(
                 value,
                 _passwordController.text,
+                l10n,
               ),
             ),
             SizedBox(height: 32.h),
@@ -184,7 +187,7 @@ class _RegisterFormState extends State<RegisterForm> {
                             );
                           }
                         },
-                  text: 'Create Account',
+                  text: l10n.registerSubmit,
                 );
               },
             ),

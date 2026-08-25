@@ -29,7 +29,7 @@ class VersionPill extends StatelessWidget {
         ),
       ),
       child: Text(
-        'v $version',
+        context.l10n.versionLabel(version),
         style: AppTypography.caption.copyWith(
           fontWeight: FontWeight.w500,
           color: context.isDark

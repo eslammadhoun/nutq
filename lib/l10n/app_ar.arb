@@ -1,0 +1,102 @@
+{
+  "@@locale": "ar",
+
+  "appTitle": "نطق",
+  "appTagline": "تحويل الكلام العربي إلى نص",
+
+  "routeNotFound": "المسار غير موجود",
+
+  "navHome": "الرئيسية",
+  "navAlerts": "التنبيهات",
+  "navProfile": "الملف الشخصي",
+
+  "versionLabel": "الإصدار {version}",
+
+  "retry": "إعادة المحاولة",
+  "somethingWentWrong": "حدث خطأ ما",
+
+  "errorNoConnection": "لا يوجد اتصال بالإنترنت",
+  "errorTimeout": "انتهت مهلة الطلب",
+  "errorInvalidCredentials": "بيانات الدخول غير صحيحة",
+  "errorLoginAgain": "يرجى تسجيل الدخول مرة أخرى",
+
+  "jobFallbackTitle": "مهمة #{id}",
+  "jobTodayLabel": "اليوم، {time}",
+  "jobYesterdayLabel": "أمس",
+  "languageArabic": "العربية",
+  "languageEnglish": "الإنجليزية",
+
+  "validationFieldRequired": "{field} مطلوب",
+  "validationMinLength": "يجب ألا يقل {field} عن {min} من الأحرف",
+  "validationMaxLength": "يجب ألا يتجاوز {field} {max} من الأحرف",
+  "validationEmailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
+  "validationPasswordLowercase": "يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل",
+  "validationPasswordUppercase": "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل",
+  "validationPasswordNumber": "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل",
+  "validationPasswordsMismatch": "كلمتا المرور غير متطابقتين",
+  "validationNameChars": "يمكن أن يحتوي الاسم على الأحرف والمسافات والشرطات والفواصل العليا فقط",
+  "validationUsernameChars": "يمكن أن يحتوي اسم المستخدم على الأحرف والأرقام و الشرطات السفلية والشرطات فقط",
+
+  "authEmailLabel": "البريد الإلكتروني",
+  "authEmailHint": "أدخل بريدك الإلكتروني",
+  "authPasswordLabel": "كلمة المرور",
+  "authPasswordHidden": "••••••••",
+  "authShowPassword": "إظهار",
+  "authHidePassword": "إخفاء",
+
+  "loginWelcomeTitle": "أهلاً بعودتك",
+  "loginWelcomeSubtitle": "سجّل الدخول إلى حسابك للمتابعة",
+  "loginSubmit": "تسجيل الدخول",
+  "loginFooterPrompt": "ليس لديك حساب؟ ",
+  "loginFooterAction": "إنشاء حساب",
+
+  "registerWelcomeTitle": "إنشاء حساب",
+  "registerWelcomeSubtitle": "انضم إلى نطق لبدء تحويل الكلام العربي إلى نص",
+  "registerUsernameLabel": "اسم المستخدم",
+  "registerUsernameHint": "مثال: ahmed_ali",
+  "registerConfirmPasswordLabel": "تأكيد كلمة المرور",
+  "registerConfirmPasswordHint": "أعد كتابة كلمة المرور",
+  "registerSubmit": "إنشاء حساب",
+  "registerFooterPrompt": "لديك حساب بالفعل؟ ",
+  "registerFooterAction": "تسجيل الدخول",
+
+  "jobsHistoryTitle": "السجل",
+  "jobsSearchHint": "ابحث في التفريغات...",
+  "jobsFilterAll": "الكل",
+
+  "jobsEmptyTitle": "لا توجد تفريغات بعد",
+  "jobsEmptySubtitle": "أرسل أول ملف صوتي أو فيديو أو نص عربي للبدء",
+
+  "sourceAudioFile": "ملف صوتي",
+  "sourceVideo": "فيديو",
+  "sourceYoutube": "يوتيوب",
+  "sourceWebUrl": "رابط ويب",
+  "sourceText": "نص",
+
+  "statusDone": "منجز",
+  "statusProcessing": "قيد المعالجة",
+  "statusQueued": "في الانتظار",
+  "statusFailed": "فشل",
+  "statusCancelled": "ملغى",
+
+  "newJobTitle": "مهمة جديدة",
+  "newJobLanguageLabel": "اللغة",
+  "newJobLanguageArabic": "العربية (AR)",
+  "newJobLanguageEnglish": "الإنجليزية (EN)",
+  "newJobIdempotencyKeyLabel": "مفتاح عدم التكرار",
+
+  "onboardingSkip": "تخطي",
+  "onboardingNext": "التالي",
+  "onboardingGetStarted": "ابدأ الآن",
+  "onboardingSlide1Title": "حوّل الكلام العربي\nإلى نص",
+  "onboardingSlide1Subtitle": "سجّل أو ارفع أي ملف صوتي — يقوم نطق\nبتفريغه في ثوانٍ وبدقة عالية.",
+  "onboardingSlide2Title": "ملخصات\nبالذكاء الاصطناعي",
+  "onboardingSlide2Subtitle": "احصل على ملخصات ذكية وأهم النقاط\nورؤى من كل عملية تفريغ.",
+  "onboardingSlide3Title": "تصفّح\nسجلّك",
+  "onboardingSlide3Subtitle": "ابحث وشارك وصدّر كل تفريغاتك\nالسابقة بسهولة.",
+
+  "alertsComingSoon": "التنبيهات — قريباً",
+
+  "profileComingSoon": "الملف الشخصي — قريباً",
+  "profileLogOut": "تسجيل الخروج"
+}

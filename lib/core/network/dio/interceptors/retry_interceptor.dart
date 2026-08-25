@@ -44,6 +44,17 @@ class RetryInterceptor extends Interceptor {
   bool _shouldRetry(DioException err, int retryCount) {
     if (retryCount >= maxRetries) return false;
 
+    // Never auto-retry non-idempotent methods — a retried POST can create
+    // duplicate registrations or duplicate jobs server-side.
+    switch (err.requestOptions.method.toUpperCase()) {
+      case 'GET':
+      case 'HEAD':
+      case 'OPTIONS':
+        break;
+      default:
+        return false;
+    }
+
     // Only retry transient errors
     switch (err.type) {
       case DioExceptionType.connectionError:

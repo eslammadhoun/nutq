@@ -7,6 +7,7 @@ class AppPreferences {
 
   static const _keyLoggedIn = 'is_logged_in';
   static const _keySeenOnboarding = 'has_seen_onboarding';
+  static const _keyLanguageCode = 'language_code';
 
   bool get isLoggedIn => _prefs.getBool(_keyLoggedIn) ?? false;
 
@@ -16,4 +17,10 @@ class AppPreferences {
   bool get hasSeenOnboarding => _prefs.getBool(_keySeenOnboarding) ?? false;
 
   Future<void> setSeenOnboarding() => _prefs.setBool(_keySeenOnboarding, true);
+
+  /// null means "no explicit choice yet" — fall back to device locale.
+  String? get languageCode => _prefs.getString(_keyLanguageCode);
+
+  Future<void> setLanguageCode(String code) =>
+      _prefs.setString(_keyLanguageCode, code);
 }

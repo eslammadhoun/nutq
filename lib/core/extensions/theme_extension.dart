@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nutq/core/theme/app_colors.dart';
 import 'package:nutq/core/theme/app_typography.dart';
+import 'package:nutq/l10n/app_localizations.dart';
 
 /// Instance facade over the static [AppTypography] scale, so styles can be read
 /// from `context.typography.<getter>` (e.g. `context.typography.heading1`).
@@ -58,4 +59,7 @@ extension ThemeExtension on BuildContext {
 
   /// Custom Nutq typography scale (see [AppTypographyRef]).
   AppTypographyRef get typography => const AppTypographyRef();
+
+  /// Localized strings for the active locale (see [AppLocalizations]).
+  AppLocalizations get l10n => AppLocalizations.of(this);
 }

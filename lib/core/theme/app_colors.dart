@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 /// carries a light and a dark value and is resolved from the active theme:
 ///
 /// ```dart
-/// context.appColors.primary      // #1A56DB light · #4F83F1 dark
-/// context.appColors.statusFailed  // #DC2626 light · #F87171 dark
+/// context.appColors.primary      // #1A56DB (same brand blue in both modes)
+/// context.appColors.statusFailed  // #DC2626 (same red in both modes)
 /// ```
 ///
 /// Registered in [ThemeData] via `ThemeData.extensions`, so it switches
@@ -58,6 +58,9 @@ final class AppColors extends ThemeExtension<AppColors> {
   final Color statusWarning;
   final Color statusWarningBg;
 
+  // ── job source ───────────────────────────────────────────────────────────
+  final Color sourceWeb;
+
   // ── nav ──────────────────────────────────────────────────────────────────
   final Color navBarBg;
   final Color navIndicator;
@@ -97,6 +100,7 @@ final class AppColors extends ThemeExtension<AppColors> {
     required this.statusCancelledBg,
     required this.statusWarning,
     required this.statusWarningBg,
+    required this.sourceWeb,
     required this.navBarBg,
     required this.navIndicator,
     required this.scrimOverlay,
@@ -110,13 +114,13 @@ final class AppColors extends ThemeExtension<AppColors> {
     primaryLighter: Color(0xFFEBF5FF),
     primary300: Color(0xFF76A9FA),
     base: Color(0xFFFFFFFF),
-    surface: Color(0xFFF8FAFC),
+    surface: Color(0xFFFFFFFF),
     card: Color(0xFFFFFFFF),
     subtle: Color(0xFFF3F4F6),
     page: Color(0xFFF8FAFC),
     overlay: Color(0xFF11182A),
     textPrimary: Color(0xFF111827),
-    textSecondary: Color(0xFF6B7280),
+    textSecondary: Color(0xFF6B7380),
     textBrand: Color(0xFF1A56DB),
     textInverse: Color(0xFFFFFFFF),
     textMuted: Color(0xFF9CA3AF),
@@ -135,6 +139,7 @@ final class AppColors extends ThemeExtension<AppColors> {
     statusCancelledBg: Color(0xFFF3F4F6),
     statusWarning: Color(0xFFC27803),
     statusWarningBg: Color(0xFFFDF3D3),
+    sourceWeb: Color(0xFF0891B2),
     navBarBg: Color(0xFFFFFFFF),
     navIndicator: Color(0xFF1A56DB),
     scrimOverlay: Color(0xFF11182A),
@@ -148,9 +153,9 @@ final class AppColors extends ThemeExtension<AppColors> {
     primaryLighter: Color(0xFF0F2040),
     primary300: Color(0xFF93C5FD),
     base: Color(0xFF111928),
-    surface: Color(0xFF1F2A37),
+    surface: Color(0xFF1F2937),
     card: Color(0xFF374151),
-    subtle: Color(0xFF1F2A37),
+    subtle: Color(0xFF161F2C),
     page: Color(0xFF0D1117),
     overlay: Color(0xFF000000),
     textPrimary: Color(0xFFF9FAFB),
@@ -167,12 +172,13 @@ final class AppColors extends ThemeExtension<AppColors> {
     statusProcessingBg: Color(0xFF1E3A5F),
     statusQueued: Color(0xFF9CA3AF),
     statusQueuedBg: Color(0xFF1F2A37),
-    statusFailed: Color(0xFFF87171),
+    statusFailed: Color(0xFFDC2626),
     statusFailedBg: Color(0xFF450A0A),
     statusCancelled: Color(0xFF6B7280),
     statusCancelledBg: Color(0xFF1F2A37),
     statusWarning: Color(0xFFFBBF24),
     statusWarningBg: Color(0xFF451A03),
+    sourceWeb: Color(0xFF22D3EE),
     navBarBg: Color(0xFF1F2A37),
     navIndicator: Color(0xFF4F83F1),
     scrimOverlay: Color(0xFF000000),
@@ -211,6 +217,7 @@ final class AppColors extends ThemeExtension<AppColors> {
     Color? statusCancelledBg,
     Color? statusWarning,
     Color? statusWarningBg,
+    Color? sourceWeb,
     Color? navBarBg,
     Color? navIndicator,
     Color? scrimOverlay,
@@ -247,6 +254,7 @@ final class AppColors extends ThemeExtension<AppColors> {
       statusCancelledBg: statusCancelledBg ?? this.statusCancelledBg,
       statusWarning: statusWarning ?? this.statusWarning,
       statusWarningBg: statusWarningBg ?? this.statusWarningBg,
+      sourceWeb: sourceWeb ?? this.sourceWeb,
       navBarBg: navBarBg ?? this.navBarBg,
       navIndicator: navIndicator ?? this.navIndicator,
       scrimOverlay: scrimOverlay ?? this.scrimOverlay,
@@ -289,6 +297,7 @@ final class AppColors extends ThemeExtension<AppColors> {
       statusCancelledBg: l(statusCancelledBg, other.statusCancelledBg),
       statusWarning: l(statusWarning, other.statusWarning),
       statusWarningBg: l(statusWarningBg, other.statusWarningBg),
+      sourceWeb: l(sourceWeb, other.sourceWeb),
       navBarBg: l(navBarBg, other.navBarBg),
       navIndicator: l(navIndicator, other.navIndicator),
       scrimOverlay: l(scrimOverlay, other.scrimOverlay),

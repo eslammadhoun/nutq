@@ -6,8 +6,10 @@ class GlobalTextField extends StatelessWidget {
   final TextInputType textInputType;
   final TextEditingController? controller;
   final bool obscureText;
+  final Widget? prefixWidget;
   final Widget? suffixWidget;
-  final String? Function(String?) validator;
+  final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
 
   const GlobalTextField({
     super.key,
@@ -15,8 +17,10 @@ class GlobalTextField extends StatelessWidget {
     required this.textInputType,
     this.controller,
     this.obscureText = false,
+    this.prefixWidget,
     this.suffixWidget,
-    required this.validator,
+    this.validator,
+    this.onChanged,
   });
 
   @override
@@ -28,10 +32,11 @@ class GlobalTextField extends StatelessWidget {
       keyboardType: textInputType,
       obscureText: obscureText,
       validator: validator,
+      onChanged: onChanged,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         filled: true,
-        fillColor: colors.card,
+        fillColor: colors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.borderDefault),
@@ -48,10 +53,10 @@ class GlobalTextField extends StatelessWidget {
         hintStyle: context.typography.bodyBase.copyWith(
           color: context.appColors.textMuted,
         ),
-        suffixIcon: Padding(
-          padding: EdgeInsets.only(top: 12),
-          child: suffixWidget,
-        ),
+        prefixIcon: prefixWidget,
+        suffixIcon: suffixWidget == null
+            ? null
+            : Padding(padding: EdgeInsets.only(top: 12), child: suffixWidget),
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );

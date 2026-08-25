@@ -7,5 +7,8 @@ class AuthState with _$AuthState {
   const factory AuthState.success() = AuthSuccess;
   const factory AuthState.fieldErrors(Map<String, String> errors) =
       AuthFieldErrors;
-  const factory AuthState.failure(String message) = AuthFailure;
+
+  /// Carries the raw [ApiError] so the UI can localize it via
+  /// `context.l10n.authErrorMessage(error)` — cubits have no BuildContext.
+  const factory AuthState.failure(ApiError error) = AuthFailure;
 }

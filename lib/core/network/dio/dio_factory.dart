@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:nutq/core/network/dio/dio_config.dart';
 import 'package:nutq/core/network/dio/interceptors/auth_interceptor.dart';
 import 'package:nutq/core/network/dio/interceptors/connectivity_interceptor.dart';
@@ -25,6 +26,7 @@ class DioFactory {
   final DioConfig _config;
 
   Dio create() {
+    DioConfig.ensureSecureBaseUrl(_config.baseUrl);
     final dio = Dio(_config.baseOptions);
 
     // Order matters: connectivity → auth → retry → logging (outermost)
@@ -40,7 +42,8 @@ class DioFactory {
       ConnectivityInterceptor(_networkInfo),
       authInterceptor,
       retryInterceptor,
-      LoggingInterceptor(),
+      // Debug-only: logs headers (JWTs) and bodies (passwords) — never in release
+      if (!kReleaseMode) LoggingInterceptor(),
     ]);
 
     return dio;

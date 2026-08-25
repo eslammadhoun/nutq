@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/features/auth/presentation/ui/login/widgets/login_form.dart';
 import 'package:nutq/features/auth/presentation/ui/login/widgets/login_welcome.dart';
@@ -11,6 +12,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -24,8 +26,8 @@ class LoginScreen extends StatelessWidget {
               const LoginWelcome(),
               const LoginForm(),
               AuthFooter(
-                staticText: "Don't have an account? ",
-                actionText: 'Sign up',
+                staticText: l10n.loginFooterPrompt,
+                actionText: l10n.loginFooterAction,
                 onActionTap: () =>
                     Navigator.pushNamed(context, Routes.register),
               ),

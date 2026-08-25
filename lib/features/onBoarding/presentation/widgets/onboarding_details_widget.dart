@@ -2,34 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/onBoarding/presentation/widgets/onboarding_brand_rings.dart';
+import 'package:nutq/l10n/app_localizations.dart';
 
 class OnboardingDetailsWidget extends StatelessWidget {
   final int selectedIndex;
   const OnboardingDetailsWidget({super.key, required this.selectedIndex});
 
-  static const List<Map<String, String>> onBoardingData = [
-    {
-      'icon-path': 'assets/svgs/nutq-icon.svg',
-      'title': 'Turn Arabic Speech\ninto Text',
-      'subTitle':
-          'Record or upload any audio — Nutq\ntranscribes it in seconds with precision.',
-    },
-    {
-      'icon-path': 'assets/svgs/onBoarding-2-icon.svg',
-      'title': 'AI-Powered\nSummaries',
-      'subTitle':
-          'Get smart summaries, key takeaways,\nand insights from every transcription.',
-    },
-    {
-      'icon-path': 'assets/svgs/onBoarding-3-icon.svg',
-      'title': 'Browse Your\nHistory',
-      'subTitle':
-          'Search, share, and export all your\npast transcriptions with ease.',
-    },
+  static const List<String> _iconPaths = [
+    'assets/svgs/nutq-icon.svg',
+    'assets/svgs/onBoarding-2-icon.svg',
+    'assets/svgs/onBoarding-3-icon.svg',
+  ];
+
+  List<({String title, String subTitle})> _slides(AppLocalizations l10n) => [
+    (title: l10n.onboardingSlide1Title, subTitle: l10n.onboardingSlide1Subtitle),
+    (title: l10n.onboardingSlide2Title, subTitle: l10n.onboardingSlide2Subtitle),
+    (title: l10n.onboardingSlide3Title, subTitle: l10n.onboardingSlide3Subtitle),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final slide = _slides(context.l10n)[selectedIndex];
     return Column(
       children: [
         SizedBox(
@@ -39,12 +32,12 @@ class OnboardingDetailsWidget extends StatelessWidget {
             children: [
               OnboardingBrandRings(
                 isSplash: false,
-                iconPath: onBoardingData[selectedIndex]['icon-path']!,
+                iconPath: _iconPaths[selectedIndex],
               ),
               Positioned(
                 bottom: 0,
                 child: Text(
-                  onBoardingData[selectedIndex]['title']!,
+                  slide.title,
                   style: context.typography.heading1.copyWith(),
                   textAlign: TextAlign.center,
                 ),
@@ -54,7 +47,7 @@ class OnboardingDetailsWidget extends StatelessWidget {
         ),
         SizedBox(height: 22.h),
         Text(
-          onBoardingData[selectedIndex]['subTitle']!,
+          slide.subTitle,
           style: context.typography.bodyBase.copyWith(
             color: context.appColors.textSecondary,
           ),

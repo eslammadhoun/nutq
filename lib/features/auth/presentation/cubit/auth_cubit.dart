@@ -44,16 +44,9 @@ class AuthCubit extends Cubit<AuthState> {
     switch (error) {
       case ValidationError(:final fieldErrors):
         emit(AuthState.fieldErrors(fieldErrors));
-      case NetworkError():
-        emit(const AuthState.failure('No internet connection'));
-      case TimeoutError():
-        emit(const AuthState.failure('Request timed out'));
-      case UnauthorizedError():
-        emit(const AuthState.failure('Invalid credentials'));
-      case ServerError(:final message):
-        emit(AuthState.failure(message));
-      case UnknownError(:final message):
-        emit(AuthState.failure(message));
+      default:
+        // Raw error travels to the UI, which localizes it at display time.
+        emit(AuthState.failure(error));
     }
   }
 }

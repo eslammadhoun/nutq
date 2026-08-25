@@ -22,6 +22,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -37,7 +38,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                       appPreferences.setSeenOnboarding();
                     },
                     child: Text(
-                      selectedIndex != 2 ? 'Skip' : '',
+                      selectedIndex != 2 ? l10n.onboardingSkip : '',
                       style: context.typography.bodyMediumLarge.copyWith(
                         color: context.appColors.textSecondary,
                       ),
@@ -54,7 +55,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             GlobalButton(
               isFilled: selectedIndex == 2,
               onTap: () => changeSelectedIndex(selectedIndex + 1),
-              text: selectedIndex != 2 ? 'Next' : 'Get Started',
+              text: selectedIndex != 2 ? l10n.onboardingNext : l10n.onboardingGetStarted,
             ),
           ],
         ),
