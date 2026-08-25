@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:nutq/core/network/error/api_error.dart';
 import 'package:nutq/core/network/result/api_result.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
@@ -28,7 +27,7 @@ class JobsCubit extends Cubit<JobsState> {
       failure: (error) => emit(
         state.copyWith(
           status: JobsStatus.failure,
-          errorMessage: _messageFor(error),
+          lastError: error,
         ),
       ),
     );
@@ -67,17 +66,5 @@ class JobsCubit extends Cubit<JobsState> {
 
   void search(String query) {
     emit(state.copyWith(searchQuery: query));
-  }
-
-  String _messageFor(ApiError error) {
-    return switch (error) {
-      NetworkError() => 'No internet connection',
-      TimeoutError() => 'Request timed out',
-      UnauthorizedError() => 'Please log in again',
-      ValidationError(:final fieldErrors) =>
-        fieldErrors.values.isNotEmpty ? fieldErrors.values.first : 'Invalid request',
-      ServerError(:final message) => message,
-      UnknownError(:final message) => message,
-    };
   }
 }

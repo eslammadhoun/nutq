@@ -15,39 +15,36 @@ class JobsFilterChips extends StatelessWidget {
       buildWhen: (previous, current) =>
           previous.selectedFilter != current.selectedFilter,
       builder: (context, state) {
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: Row(
-            children: [
-              _FilterChip(
-                label: 'All',
-                isSelected: state.selectedFilter == null,
-                onTap: () => context.read<JobsCubit>().selectFilter(null),
-              ),
-              SizedBox(width: 8.w),
-              _FilterChip(
-                label: 'Done',
-                isSelected: state.selectedFilter == JobStatus.done,
-                onTap: () =>
-                    context.read<JobsCubit>().selectFilter(JobStatus.done),
-              ),
-              SizedBox(width: 8.w),
-              _FilterChip(
-                label: 'Processing',
-                isSelected: state.selectedFilter == JobStatus.processing,
-                onTap: () => context
-                    .read<JobsCubit>()
-                    .selectFilter(JobStatus.processing),
-              ),
-              SizedBox(width: 8.w),
-              _FilterChip(
-                label: 'Failed',
-                isSelected: state.selectedFilter == JobStatus.failed,
-                onTap: () =>
-                    context.read<JobsCubit>().selectFilter(JobStatus.failed),
-              ),
-            ],
-          ),
+        final l10n = context.l10n;
+        return Row(
+          children: [
+            _FilterChip(
+              label: l10n.jobsFilterAll,
+              isSelected: state.selectedFilter == null,
+              onTap: () => context.read<JobsCubit>().selectFilter(null),
+            ),
+            SizedBox(width: 8.w),
+            _FilterChip(
+              label: l10n.statusDone,
+              isSelected: state.selectedFilter == JobStatus.done,
+              onTap: () =>
+                  context.read<JobsCubit>().selectFilter(JobStatus.done),
+            ),
+            SizedBox(width: 8.w),
+            _FilterChip(
+              label: l10n.statusProcessing,
+              isSelected: state.selectedFilter == JobStatus.processing,
+              onTap: () =>
+                  context.read<JobsCubit>().selectFilter(JobStatus.processing),
+            ),
+            SizedBox(width: 8.w),
+            _FilterChip(
+              label: l10n.statusFailed,
+              isSelected: state.selectedFilter == JobStatus.failed,
+              onTap: () =>
+                  context.read<JobsCubit>().selectFilter(JobStatus.failed),
+            ),
+          ],
         );
       },
     );

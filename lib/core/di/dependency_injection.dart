@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nutq/core/network/api_client.dart';
 import 'package:nutq/core/network/dio/dio_config.dart';
@@ -82,6 +83,7 @@ Future<void> setupDI() async {
     () => JobsRepositoryImpl(sl<JobsDataSource>()),
   );
   sl.registerFactory<JobsCubit>(() => JobsCubit(repo: sl<JobsRepository>()));
+  sl.registerLazySingleton<NewJobCubit>(() => NewJobCubit());
 }
 
 /// Implementation of TokenRefresher — depends on Dio (lazy)

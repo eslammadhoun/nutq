@@ -10,19 +10,19 @@ void main() {
     'primaryLighter': '#EBF5FF',
     'primary300': '#76A9FA',
     'base': '#FFFFFF',
-    'surface': '#F8FAFC',
+    'surface': '#FFFFFF',
     'card': '#FFFFFF',
     'subtle': '#F3F4F6',
     'page': '#F8FAFC',
     'overlay': '#11182A',
-    'textPrimary': '#0F172A',
-    'textSecondary': '#64748B',
+    'textPrimary': '#111827',
+    'textSecondary': '#6B7380',
     'textBrand': '#1A56DB',
     'textInverse': '#FFFFFF',
     'textMuted': '#9CA3AF',
     'textTertiary': '#374151',
     'borderSubtle': '#E2E8F0',
-    'borderDefault': '#CBD5E1',
+    'borderDefault': '#E5E7EB',
     'statusDone': '#059669',
     'statusDoneBg': '#ECFDF5',
     'statusProcessing': '#2563EB',
@@ -35,28 +35,29 @@ void main() {
     'statusCancelledBg': '#F3F4F6',
     'statusWarning': '#C27803',
     'statusWarningBg': '#FDF3D3',
+    'sourceWeb': '#0891B2',
     'navBarBg': '#FFFFFF',
     'navIndicator': '#1A56DB',
     'scrimOverlay': '#11182A',
   };
 
   const darkHex = {
-    'primary': '#4F83F1',
+    'primary': '#1A56DB',
     'primaryDark': '#76A9FA',
     'primaryLight': '#1E3A5F',
     'primaryLighter': '#0F2040',
     'primary300': '#93C5FD',
     'base': '#111928',
-    'surface': '#1F2A37',
+    'surface': '#1F2937',
     'card': '#374151',
-    'subtle': '#1F2A37',
+    'subtle': '#161F2C',
     'page': '#0D1117',
     'overlay': '#000000',
     'textPrimary': '#F9FAFB',
     'textSecondary': '#9CA3AF',
     'textBrand': '#76A9FA',
-    'textInverse': '#111928',
-    'textMuted': '#4B5563',
+    'textInverse': '#FFFFFF',
+    'textMuted': '#6B7280',
     'textTertiary': '#6B7280',
     'borderSubtle': '#1F2A37',
     'borderDefault': '#374151',
@@ -66,12 +67,13 @@ void main() {
     'statusProcessingBg': '#1E3A5F',
     'statusQueued': '#9CA3AF',
     'statusQueuedBg': '#1F2A37',
-    'statusFailed': '#F87171',
+    'statusFailed': '#DC2626',
     'statusFailedBg': '#450A0A',
     'statusCancelled': '#6B7280',
     'statusCancelledBg': '#1F2A37',
     'statusWarning': '#FBBF24',
     'statusWarningBg': '#451A03',
+    'sourceWeb': '#22D3EE',
     'navBarBg': '#1F2A37',
     'navIndicator': '#4F83F1',
     'scrimOverlay': '#000000',
@@ -141,6 +143,8 @@ void main() {
         return c.statusWarning;
       case 'statusWarningBg':
         return c.statusWarningBg;
+      case 'sourceWeb':
+        return c.sourceWeb;
       case 'navBarBg':
         return c.navBarBg;
       case 'navIndicator':
@@ -161,8 +165,8 @@ void main() {
     final mode = identical(colors, AppColors.light) ? 'light' : 'dark';
     expect(
       expected.keys.length,
-      34,
-      reason: 'expected exactly 34 color tokens to be checked',
+      35,
+      reason: 'expected exactly 35 color tokens to be checked',
     );
     for (final entry in expected.entries) {
       expect(
@@ -184,7 +188,9 @@ void main() {
 
     test('light and dark are distinct const instances', () {
       expect(identical(AppColors.light, AppColors.dark), isFalse);
-      expect(AppColors.light.primary, isNot(AppColors.dark.primary));
+      // primary is intentionally the same brand blue in both modes;
+      // base (white vs dark navy) is what flips.
+      expect(AppColors.light.base, isNot(AppColors.dark.base));
     });
 
     test('copyWith overrides only the requested field', () {
@@ -198,8 +204,8 @@ void main() {
 
     test('lerp blends toward the other instance', () {
       final mid = AppColors.light.lerp(AppColors.dark, 0.5);
-      expect(mid.primary, isNot(AppColors.light.primary));
-      expect(mid.primary, isNot(AppColors.dark.primary));
+      expect(mid.base, isNot(AppColors.light.base));
+      expect(mid.base, isNot(AppColors.dark.base));
     });
 
     test('resolves from ThemeData.extensions', () {

@@ -60,7 +60,7 @@ final class AppTypography {
 
   /// `Nutq/Label/3XL` — sub-section labels.
   static TextStyle get heading4 =>
-      _s(size: 18, lineHeight: 24, weight: FontWeight.w600);
+      _s(size: 22, lineHeight: 28, weight: FontWeight.w600);
 
   /// `Nutq/Heading/6` — compact section headings (18/700).
   static TextStyle get heading5 =>

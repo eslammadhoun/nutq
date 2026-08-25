@@ -7,7 +7,6 @@ import 'package:nutq/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:nutq/features/auth/presentation/ui/login/screens/login_screen.dart';
 import 'package:nutq/features/auth/presentation/ui/register/screens/register_screen.dart';
 import 'package:nutq/features/home/presentation/screens/home_screen.dart';
-import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/onBoarding/presentation/screens/on_boarding_screen.dart';
 import 'package:nutq/features/onBoarding/presentation/screens/splash_screen.dart';
 
@@ -43,13 +42,7 @@ class AppRouter {
         );
 
       case Routes.home:
-        return _buildRoute(
-          settings,
-          BlocProvider<JobsCubit>(
-            create: (context) => sl<JobsCubit>(),
-            child: const HomeScreen(),
-          ),
-        );
+        return _buildRoute(settings, HomeScreen());
       default:
         return _buildRoute(
           settings,

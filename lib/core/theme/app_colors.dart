@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 /// carries a light and a dark value and is resolved from the active theme:
 ///
 /// ```dart
-/// context.appColors.primary      // #1A56DB light · #4F83F1 dark
-/// context.appColors.statusFailed  // #DC2626 light · #F87171 dark
+/// context.appColors.primary      // #1A56DB (same brand blue in both modes)
+/// context.appColors.statusFailed  // #DC2626 (same red in both modes)
 /// ```
 ///
 /// Registered in [ThemeData] via `ThemeData.extensions`, so it switches
@@ -155,7 +155,7 @@ final class AppColors extends ThemeExtension<AppColors> {
     base: Color(0xFF111928),
     surface: Color(0xFF1F2937),
     card: Color(0xFF374151),
-    subtle: Color(0xFF1F2A37),
+    subtle: Color(0xFF161F2C),
     page: Color(0xFF0D1117),
     overlay: Color(0xFF000000),
     textPrimary: Color(0xFFF9FAFB),
