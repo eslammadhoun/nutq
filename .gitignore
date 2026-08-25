@@ -44,5 +44,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Claude Code local session settings (not shared across contributors)
-.claude/
+# Claude Code — share skills/agents/settings.json, keep per-machine settings local
+.claude/settings.local.json
