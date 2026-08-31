@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -7,6 +9,7 @@ import 'package:nutq/features/jobs/data/models/job_detail_response.dart';
 import 'package:nutq/features/jobs/data/models/job_list_response.dart';
 import 'package:nutq/features/jobs/data/models/job_response.dart';
 import 'package:nutq/features/jobs/data/models/submit_job_request.dart';
+import 'package:nutq/features/jobs/data/models/upload_file.dart';
 
 part 'jobs_api_service.g.dart';
 
@@ -41,14 +44,19 @@ abstract interface class JobsDataSource {
   Future<ApiResult<JobDetailResponse>> getJob(String jobId);
   Future<ApiResult<JobResponse>> cancelJob(String jobId);
   Future<ApiResult<JobResponse>> confirmUpload(String jobId);
+
+  /// Streams [file] to the presigned slot URL (PUT /dev-storage/{token}).
+  /// The token in the URL authorizes the request; no bearer token needed.
+  Future<ApiResult<void>> uploadToSlot(String uploadUrl, UploadFile file);
 }
 
 /// Implementation: wraps Retrofit + ApiClient for safe deserialization
 class JobsDataSourceImpl implements JobsDataSource {
-  JobsDataSourceImpl(this._apiClient, this._retrofit);
+  JobsDataSourceImpl(this._apiClient, this._retrofit, this._dio);
 
   final ApiClient _apiClient;
   final JobsApiService _retrofit;
+  final Dio _dio;
 
   @override
   Future<ApiResult<JobListResponse>> listJobs({
@@ -83,5 +91,30 @@ class JobsDataSourceImpl implements JobsDataSource {
   Future<ApiResult<JobResponse>> confirmUpload(String jobId) async {
     final res = await _apiClient.execute(() => _retrofit.confirmUpload(jobId));
     return res.mapSuccess((http) => http.data);
+  }
+
+  @override
+  Future<ApiResult<void>> uploadToSlot(String uploadUrl, UploadFile file) {
+    return _apiClient.execute<void>(() async {
+      await _dio.put<dynamic>(
+        _resolveAgainstBaseUrl(uploadUrl),
+        data: File(file.path).openRead(),
+        options: Options(
+          headers: <String, String>{
+            'content-type': file.contentType,
+            'content-length': file.sizeBytes.toString(),
+          },
+        ),
+      );
+    });
+  }
+
+  /// upload_url comes back relative ("/v1/dev-storage/{token}"); resolve it
+  /// against the API host so the /v1 prefix isn't doubled.
+  String _resolveAgainstBaseUrl(String url) {
+    if (!url.startsWith('/')) return url;
+    final base = Uri.tryParse(_dio.options.baseUrl);
+    if (base == null || !base.hasScheme || base.host.isEmpty) return url;
+    return base.replace(path: url, query: null).toString();
   }
 }

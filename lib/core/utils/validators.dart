@@ -1,6 +1,18 @@
 import 'package:nutq/l10n/app_localizations.dart';
 
 class Validators {
+  static final RegExp _httpUrlPattern = RegExp(r'^https?://\S+$');
+
+  static final RegExp _youTubeUrlPattern = RegExp(
+    r'^(https?://)?(www\.)?(youtube\.com/(watch\?v=|shorts/|embed/)|youtu\.be/)\S+$',
+    caseSensitive: false,
+  );
+
+  static bool isValidHttpUrl(String value) => _httpUrlPattern.hasMatch(value.trim());
+
+  static bool isValidYouTubeUrl(String value) =>
+      _youTubeUrlPattern.hasMatch(value.trim());
+
   /// Unicode letters (incl. Arabic), spaces, hyphens, straight/curly
   /// apostrophes — iOS autocorrect often replaces ' with ’.
   static final _namePattern = RegExp(r"^[\p{L}\s\-''’]+$", unicode: true);

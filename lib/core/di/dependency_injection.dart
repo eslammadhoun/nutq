@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:uuid/uuid.dart';
+import 'package:nutq/features/jobs/data/datasources/file_picker_service.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nutq/core/network/api_client.dart';
@@ -77,13 +79,20 @@ Future<void> setupDI() async {
   // Jobs feature
   sl.registerLazySingleton<JobsApiService>(() => JobsApiService(sl<Dio>()));
   sl.registerLazySingleton<JobsDataSource>(
-    () => JobsDataSourceImpl(sl<ApiClient>(), sl<JobsApiService>()),
+    () => JobsDataSourceImpl(sl<ApiClient>(), sl<JobsApiService>(), sl<Dio>()),
   );
   sl.registerLazySingleton<JobsRepository>(
     () => JobsRepositoryImpl(sl<JobsDataSource>()),
   );
   sl.registerFactory<JobsCubit>(() => JobsCubit(repo: sl<JobsRepository>()));
-  sl.registerLazySingleton<NewJobCubit>(() => NewJobCubit());
+  sl.registerLazySingleton<FilePickerService>(() => FilePickerServiceImpl());
+  sl.registerFactory<NewJobCubit>(
+    () => NewJobCubit(
+      repository: sl<JobsRepository>(),
+      filePicker: sl<FilePickerService>(),
+      generateIdempotencyKey: () => const Uuid().v4(),
+    ),
+  );
 }
 
 /// Implementation of TokenRefresher — depends on Dio (lazy)

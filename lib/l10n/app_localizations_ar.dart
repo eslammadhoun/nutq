@@ -231,6 +231,55 @@ class AppLocalizationsAr extends AppLocalizations {
   String get newJobIdempotencyKeyLabel => 'مفتاح عدم التكرار';
 
   @override
+  String get newJobTextLabel => 'أدخل أو الصق نصك العربي';
+
+  @override
+  String get newJobTextPlaceholder =>
+      'مثال: أدخل النص العربي هنا للحصول على ملخص...';
+
+  @override
+  String newJobCharCounter(int count, int max) {
+    return '$count / $max';
+  }
+
+  @override
+  String get newJobChooseAudioFile => 'اختر ملف صوتي';
+
+  @override
+  String get newJobChooseVideoFile => 'اختر ملف فيديو';
+
+  @override
+  String get newJobFormatsAudio => 'MP3 وWAV وM4A · حتى 500 ميجابايت';
+
+  @override
+  String get newJobFormatsVideo => 'MP4 وWebM وMOV · حتى 500 ميجابايت';
+
+  @override
+  String get newJobFileNameLabel => 'اسم الملف (اختياري)';
+
+  @override
+  String get newJobFileNameHint => 'مثال: interview-2026-08-09.mp3';
+
+  @override
+  String get newJobYoutubeUrlLabel => 'رابط يوتيوب';
+
+  @override
+  String get newJobYoutubeUrlHint => 'https://youtube.com/watch?v=...';
+
+  @override
+  String get newJobForceWhisper => 'إجبار Whisper';
+
+  @override
+  String get newJobForceWhisperSubtitle =>
+      'تجاوز الكشف التلقائي واستخدام نموذج Whisper';
+
+  @override
+  String get newJobSubmit => 'إرسال المهمة';
+
+  @override
+  String get newJobFileTooLarge => 'حجم الملف المحدد يتجاوز 500 ميجابايت';
+
+  @override
   String get onboardingSkip => 'تخطي';
 
   @override

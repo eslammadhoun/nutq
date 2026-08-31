@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -21,7 +20,6 @@ void main() async {
 
 class NutqApp extends StatefulWidget {
   const NutqApp({super.key});
-
   @override
   State<NutqApp> createState() => _NutqAppState();
 }
@@ -69,34 +67,33 @@ class _NutqAppState extends State<NutqApp> {
         designSize: const Size(390, 844),
         minTextAdapt: true,
         splitScreenMode: true,
-        builder: (context, child) =>
-            BlocBuilder<LocaleCubit, Locale?>(
-              builder: (context, locale) => MaterialApp(
-                title: 'Nutq',
-                debugShowCheckedModeBanner: false,
-                navigatorKey: AppRouter.navigatorKey,
-                theme: AppTheme.light,
-                darkTheme: AppTheme.dark,
-                themeMode: ThemeMode.system,
-                locale: locale,
-                supportedLocales: supportedLocales,
-                localizationsDelegates: const [
-                  AppLocalizations.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                initialRoute: Routes.splash,
-                onGenerateRoute: AppRouter.generateRoute,
-                builder: (context, child) {
-                  final bool isDark = context.isDark;
-                  return DecoratedBox(
-                    decoration: AppTheme.backgroundDecoration(isDark),
-                    child: child!,
-                  );
-                },
-              ),
-            ),
+        builder: (context, child) => BlocBuilder<LocaleCubit, Locale?>(
+          builder: (context, locale) => MaterialApp(
+            title: 'Nutq',
+            debugShowCheckedModeBanner: false,
+            navigatorKey: AppRouter.navigatorKey,
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: ThemeMode.system,
+            locale: locale,
+            supportedLocales: supportedLocales,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            initialRoute: Routes.splash,
+            onGenerateRoute: AppRouter.generateRoute,
+            builder: (context, child) {
+              final bool isDark = context.isDark;
+              return DecoratedBox(
+                decoration: AppTheme.backgroundDecoration(isDark),
+                child: child!,
+              );
+            },
+          ),
+        ),
       ),
     );
   }

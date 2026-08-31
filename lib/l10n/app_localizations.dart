@@ -506,6 +506,96 @@ abstract class AppLocalizations {
   /// **'Idempotency Key'**
   String get newJobIdempotencyKeyLabel;
 
+  /// No description provided for @newJobTextLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter or paste your Arabic text'**
+  String get newJobTextLabel;
+
+  /// No description provided for @newJobTextPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: enter Arabic text here to get a summary...'**
+  String get newJobTextPlaceholder;
+
+  /// No description provided for @newJobCharCounter.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} / {max}'**
+  String newJobCharCounter(int count, int max);
+
+  /// No description provided for @newJobChooseAudioFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose audio file'**
+  String get newJobChooseAudioFile;
+
+  /// No description provided for @newJobChooseVideoFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose video file'**
+  String get newJobChooseVideoFile;
+
+  /// No description provided for @newJobFormatsAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'MP3, WAV, M4A · up to 500MB'**
+  String get newJobFormatsAudio;
+
+  /// No description provided for @newJobFormatsVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'MP4, WebM, MOV · up to 500MB'**
+  String get newJobFormatsVideo;
+
+  /// No description provided for @newJobFileNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Filename (optional)'**
+  String get newJobFileNameLabel;
+
+  /// No description provided for @newJobFileNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. interview-2026-08-09.mp3'**
+  String get newJobFileNameHint;
+
+  /// No description provided for @newJobYoutubeUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'YouTube URL'**
+  String get newJobYoutubeUrlLabel;
+
+  /// No description provided for @newJobYoutubeUrlHint.
+  ///
+  /// In en, this message translates to:
+  /// **'https://youtube.com/watch?v=...'**
+  String get newJobYoutubeUrlHint;
+
+  /// No description provided for @newJobForceWhisper.
+  ///
+  /// In en, this message translates to:
+  /// **'Force Whisper'**
+  String get newJobForceWhisper;
+
+  /// No description provided for @newJobForceWhisperSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bypass auto-detection, use Whisper model'**
+  String get newJobForceWhisperSubtitle;
+
+  /// No description provided for @newJobSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Job'**
+  String get newJobSubmit;
+
+  /// No description provided for @newJobFileTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected file exceeds the 500 MB limit'**
+  String get newJobFileTooLarge;
+
   /// No description provided for @onboardingSkip.
   ///
   /// In en, this message translates to:

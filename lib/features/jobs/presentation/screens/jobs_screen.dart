@@ -132,11 +132,17 @@ class _JobsScreenState extends State<JobsScreen> {
   }
 
   void _openNewJobSheet(BuildContext context) {
+    final jobsCubit = context.read<JobsCubit>();
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (sheetContext) => const NewJobSheet(),
+      builder: (sheetContext) => NewJobSheet(
+        onSubmitted: () {
+          Navigator.of(sheetContext).pop();
+          jobsCubit.refresh();
+        },
+      ),
     );
   }
 }

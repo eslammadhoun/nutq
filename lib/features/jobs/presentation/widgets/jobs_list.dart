@@ -101,7 +101,7 @@ class _JobsListState extends State<JobsList> {
           onRefresh: () => context.read<JobsCubit>().refresh(),
           child: ListView.separated(
             controller: _scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+            padding: EdgeInsets.symmetric(horizontal: 0.w, vertical: 16.h),
             itemCount: jobs.length + (state.isLoadingMore ? 1 : 0),
             separatorBuilder: (_, _) => SizedBox(height: 12.h),
             itemBuilder: (context, index) {

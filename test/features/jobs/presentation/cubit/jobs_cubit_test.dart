@@ -5,6 +5,7 @@ import 'package:nutq/features/jobs/data/models/job_detail_response.dart';
 import 'package:nutq/features/jobs/data/models/job_list_response.dart';
 import 'package:nutq/features/jobs/data/models/job_response.dart';
 import 'package:nutq/features/jobs/data/models/submit_job_request.dart';
+import 'package:nutq/features/jobs/data/models/upload_file.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
@@ -42,6 +43,14 @@ class _FakeJobsRepository implements JobsRepository {
 
   @override
   Future<ApiResult<JobResponse>> cancelJob(String jobId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<ApiResult<JobResponse>> confirmUpload(String jobId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<ApiResult<void>> uploadToSlot(String uploadUrl, UploadFile file) =>
       throw UnimplementedError();
 }
 

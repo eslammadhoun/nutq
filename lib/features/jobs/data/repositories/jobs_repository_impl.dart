@@ -4,6 +4,7 @@ import 'package:nutq/features/jobs/data/models/job_detail_response.dart';
 import 'package:nutq/features/jobs/data/models/job_list_response.dart';
 import 'package:nutq/features/jobs/data/models/job_response.dart';
 import 'package:nutq/features/jobs/data/models/submit_job_request.dart';
+import 'package:nutq/features/jobs/data/models/upload_file.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 
 class JobsRepositoryImpl implements JobsRepository {
@@ -29,5 +30,15 @@ class JobsRepositoryImpl implements JobsRepository {
   @override
   Future<ApiResult<JobResponse>> cancelJob(String jobId) {
     return _dataSource.cancelJob(jobId);
+  }
+
+  @override
+  Future<ApiResult<JobResponse>> confirmUpload(String jobId) {
+    return _dataSource.confirmUpload(jobId);
+  }
+
+  @override
+  Future<ApiResult<void>> uploadToSlot(String uploadUrl, UploadFile file) {
+    return _dataSource.uploadToSlot(uploadUrl, file);
   }
 }

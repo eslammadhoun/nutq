@@ -111,6 +111,27 @@
   "newJobLanguageArabic": "Arabic (AR)",
   "newJobLanguageEnglish": "English (EN)",
   "newJobIdempotencyKeyLabel": "Idempotency Key",
+  "newJobTextLabel": "Enter or paste your Arabic text",
+  "newJobTextPlaceholder": "Example: enter Arabic text here to get a summary...",
+  "newJobCharCounter": "{count} / {max}",
+  "@newJobCharCounter": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "newJobChooseAudioFile": "Choose audio file",
+  "newJobChooseVideoFile": "Choose video file",
+  "newJobFormatsAudio": "MP3, WAV, M4A · up to 500MB",
+  "newJobFormatsVideo": "MP4, WebM, MOV · up to 500MB",
+  "newJobFileNameLabel": "Filename (optional)",
+  "newJobFileNameHint": "e.g. interview-2026-08-09.mp3",
+  "newJobYoutubeUrlLabel": "YouTube URL",
+  "newJobYoutubeUrlHint": "https://youtube.com/watch?v=...",
+  "newJobForceWhisper": "Force Whisper",
+  "newJobForceWhisperSubtitle": "Bypass auto-detection, use Whisper model",
+  "newJobSubmit": "Submit Job",
+  "newJobFileTooLarge": "Selected file exceeds the 500 MB limit",
 
   "onboardingSkip": "Skip",
   "onboardingNext": "Next",

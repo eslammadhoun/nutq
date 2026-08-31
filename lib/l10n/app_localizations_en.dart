@@ -232,6 +232,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newJobIdempotencyKeyLabel => 'Idempotency Key';
 
   @override
+  String get newJobTextLabel => 'Enter or paste your Arabic text';
+
+  @override
+  String get newJobTextPlaceholder =>
+      'Example: enter Arabic text here to get a summary...';
+
+  @override
+  String newJobCharCounter(int count, int max) {
+    return '$count / $max';
+  }
+
+  @override
+  String get newJobChooseAudioFile => 'Choose audio file';
+
+  @override
+  String get newJobChooseVideoFile => 'Choose video file';
+
+  @override
+  String get newJobFormatsAudio => 'MP3, WAV, M4A · up to 500MB';
+
+  @override
+  String get newJobFormatsVideo => 'MP4, WebM, MOV · up to 500MB';
+
+  @override
+  String get newJobFileNameLabel => 'Filename (optional)';
+
+  @override
+  String get newJobFileNameHint => 'e.g. interview-2026-08-09.mp3';
+
+  @override
+  String get newJobYoutubeUrlLabel => 'YouTube URL';
+
+  @override
+  String get newJobYoutubeUrlHint => 'https://youtube.com/watch?v=...';
+
+  @override
+  String get newJobForceWhisper => 'Force Whisper';
+
+  @override
+  String get newJobForceWhisperSubtitle =>
+      'Bypass auto-detection, use Whisper model';
+
+  @override
+  String get newJobSubmit => 'Submit Job';
+
+  @override
+  String get newJobFileTooLarge => 'Selected file exceeds the 500 MB limit';
+
+  @override
   String get onboardingSkip => 'Skip';
 
   @override
