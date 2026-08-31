@@ -46,17 +46,26 @@ class ErrorHandler {
         final errors = _extractFieldErrors(data);
         if (errors.isNotEmpty) return ApiError.validation(errors);
       }
-      // Fallback: generic message
-      final message =
-          (data?['detail'] ?? data?['message'] ?? 'Validation failed')
-              .toString();
-      return ApiError.server(message, statusCode);
+      return ApiError.server(_extractMessage(data, 'Validation failed'), statusCode);
     }
 
     // 5xx or other
-    final message = (data?['detail'] ?? data?['message'] ?? 'Server error')
-        .toString();
-    return ApiError.server(message, statusCode);
+    return ApiError.server(_extractMessage(data, 'Server error'), statusCode);
+  }
+
+  /// Safely pulls `detail`/`message` out of an error body. The body is NOT
+  /// guaranteed to be JSON [Map] — proxies/load balancers can return plain
+  /// strings or HTML pages, and indexing those with `[]` would throw inside
+  /// this mapper, escaping the caller's catch block.
+  static String _extractMessage(Object? data, String fallback) {
+    if (data is Map) {
+      final detail = data['detail'] ?? data['message'];
+      if (detail != null && detail.toString().isNotEmpty) {
+        return detail.toString();
+      }
+    }
+    if (data is String && data.trim().isNotEmpty) return data;
+    return fallback;
   }
 
   static Map<String, String> _extractFieldErrors(Map data) {
