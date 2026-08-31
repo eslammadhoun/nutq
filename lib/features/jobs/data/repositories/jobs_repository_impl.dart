@@ -1,10 +1,11 @@
 import 'package:nutq/core/network/result/api_result.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_api_service.dart';
-import 'package:nutq/features/jobs/data/models/job_detail_response.dart';
-import 'package:nutq/features/jobs/data/models/job_list_response.dart';
-import 'package:nutq/features/jobs/data/models/job_response.dart';
-import 'package:nutq/features/jobs/data/models/submit_job_request.dart';
-import 'package:nutq/features/jobs/data/models/upload_file.dart';
+import 'package:nutq/features/jobs/data/mappers/job_mappers.dart';
+import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/jobs_page.dart';
+import 'package:nutq/features/jobs/domain/entities/submit_job_params.dart';
+import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 
 class JobsRepositoryImpl implements JobsRepository {
@@ -13,28 +14,33 @@ class JobsRepositoryImpl implements JobsRepository {
   final JobsDataSource _dataSource;
 
   @override
-  Future<ApiResult<JobListResponse>> listJobs({String? cursor, int limit = 20}) {
-    return _dataSource.listJobs(cursor: cursor, limit: limit);
+  Future<ApiResult<JobsPage>> listJobs({String? cursor, int limit = 20}) async {
+    final result = await _dataSource.listJobs(cursor: cursor, limit: limit);
+    return result.mapSuccess((page) => page.toEntity());
   }
 
   @override
-  Future<ApiResult<JobResponse>> submitJob(SubmitJobRequest request) {
-    return _dataSource.submitJob(request);
+  Future<ApiResult<JobEntity>> submitJob(SubmitJobParams params) async {
+    final result = await _dataSource.submitJob(params.toRequest());
+    return result.mapSuccess((job) => job.toEntity());
   }
 
   @override
-  Future<ApiResult<JobDetailResponse>> getJob(String jobId) {
-    return _dataSource.getJob(jobId);
+  Future<ApiResult<JobDetailEntity>> getJob(String jobId) async {
+    final result = await _dataSource.getJob(jobId);
+    return result.mapSuccess((job) => job.toEntity());
   }
 
   @override
-  Future<ApiResult<JobResponse>> cancelJob(String jobId) {
-    return _dataSource.cancelJob(jobId);
+  Future<ApiResult<JobEntity>> cancelJob(String jobId) async {
+    final result = await _dataSource.cancelJob(jobId);
+    return result.mapSuccess((job) => job.toEntity());
   }
 
   @override
-  Future<ApiResult<JobResponse>> confirmUpload(String jobId) {
-    return _dataSource.confirmUpload(jobId);
+  Future<ApiResult<JobEntity>> confirmUpload(String jobId) async {
+    final result = await _dataSource.confirmUpload(jobId);
+    return result.mapSuccess((job) => job.toEntity());
   }
 
   @override

@@ -19,7 +19,7 @@ class JobsCubit extends Cubit<JobsState> {
       success: (page) => emit(
         state.copyWith(
           status: JobsStatus.success,
-          allJobs: page.items.map(Job.fromResponse).toList(),
+          allJobs: page.items.map(Job.fromEntity).toList(),
           nextCursor: page.nextCursor,
           clearNextCursor: page.nextCursor == null,
         ),
@@ -46,7 +46,7 @@ class JobsCubit extends Cubit<JobsState> {
     result.when(
       success: (page) => emit(
         state.copyWith(
-          allJobs: [...state.allJobs, ...page.items.map(Job.fromResponse)],
+          allJobs: [...state.allJobs, ...page.items.map(Job.fromEntity)],
           nextCursor: page.nextCursor,
           clearNextCursor: page.nextCursor == null,
           isLoadingMore: false,

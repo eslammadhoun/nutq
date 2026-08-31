@@ -1,17 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/network/error/api_error.dart';
 import 'package:nutq/core/network/result/api_result.dart';
-import 'package:nutq/features/jobs/data/models/job_detail_response.dart';
-import 'package:nutq/features/jobs/data/models/job_list_response.dart';
-import 'package:nutq/features/jobs/data/models/job_response.dart';
-import 'package:nutq/features/jobs/data/models/submit_job_request.dart';
-import 'package:nutq/features/jobs/data/models/upload_file.dart';
+import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/jobs_page.dart';
+import 'package:nutq/features/jobs/domain/entities/submit_job_params.dart';
+import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
 import 'package:nutq/features/jobs/presentation/models/job.dart';
 
-JobResponse _job(String id, {String status = 'done'}) => JobResponse(
+JobEntity _job(String id, {String status = 'done'}) => JobEntity(
   id: id,
   status: status,
   sourceType: 'text',
@@ -24,29 +24,29 @@ class _FakeJobsRepository implements JobsRepository {
   _FakeJobsRepository(this._pages);
 
   /// Consumed in order — one result per listJobs call.
-  final List<ApiResult<JobListResponse>> _pages;
+  final List<ApiResult<JobsPage>> _pages;
   final List<String?> requestedCursors = [];
 
   @override
-  Future<ApiResult<JobListResponse>> listJobs({String? cursor, int limit = 20}) async {
+  Future<ApiResult<JobsPage>> listJobs({String? cursor, int limit = 20}) async {
     requestedCursors.add(cursor);
     return _pages.removeAt(0);
   }
 
   @override
-  Future<ApiResult<JobResponse>> submitJob(SubmitJobRequest request) =>
+  Future<ApiResult<JobEntity>> submitJob(SubmitJobParams params) =>
       throw UnimplementedError();
 
   @override
-  Future<ApiResult<JobDetailResponse>> getJob(String jobId) =>
+  Future<ApiResult<JobDetailEntity>> getJob(String jobId) =>
       throw UnimplementedError();
 
   @override
-  Future<ApiResult<JobResponse>> cancelJob(String jobId) =>
+  Future<ApiResult<JobEntity>> cancelJob(String jobId) =>
       throw UnimplementedError();
 
   @override
-  Future<ApiResult<JobResponse>> confirmUpload(String jobId) =>
+  Future<ApiResult<JobEntity>> confirmUpload(String jobId) =>
       throw UnimplementedError();
 
   @override
@@ -59,7 +59,7 @@ void main() {
     test('fetchJobs success emits loading then success with mapped jobs', () async {
       final repo = _FakeJobsRepository([
         ApiResult.success(
-          JobListResponse(items: [_job('a'), _job('b')], nextCursor: 'cur-1'),
+          JobsPage(items: [_job('a'), _job('b')], nextCursor: 'cur-1'),
         ),
       ]);
       final cubit = JobsCubit(repo: repo);
@@ -93,10 +93,10 @@ void main() {
     test('loadMore appends the next page using the stored cursor', () async {
       final repo = _FakeJobsRepository([
         ApiResult.success(
-          JobListResponse(items: [_job('a')], nextCursor: 'cur-1'),
+          JobsPage(items: [_job('a')], nextCursor: 'cur-1'),
         ),
         ApiResult.success(
-          JobListResponse(items: [_job('b')], nextCursor: null),
+          JobsPage(items: [_job('b')], nextCursor: null),
         ),
       ]);
       final cubit = JobsCubit(repo: repo);
@@ -112,7 +112,7 @@ void main() {
 
     test('loadMore does nothing when there is no next cursor', () async {
       final repo = _FakeJobsRepository([
-        ApiResult.success(JobListResponse(items: [_job('a')], nextCursor: null)),
+        ApiResult.success(JobsPage(items: [_job('a')], nextCursor: null)),
       ]);
       final cubit = JobsCubit(repo: repo);
 
@@ -126,7 +126,7 @@ void main() {
     test('selectFilter and search narrow filteredJobs', () async {
       final repo = _FakeJobsRepository([
         ApiResult.success(
-          JobListResponse(
+          JobsPage(
             items: [_job('aaaa1111'), _job('bbbb2222', status: 'failed')],
             nextCursor: null,
           ),

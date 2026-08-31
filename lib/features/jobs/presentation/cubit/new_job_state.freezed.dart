@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NewJobState {
 
- JobSourceType get sourceType; JobLanguage get language; String get text; UploadFile? get pickedFile; String get filename; String get sourceUrl; bool get forceWhisper; bool get idempotencyEnabled; String? get idempotencyKey; bool get fileTooLarge; NewJobStatus get status; ApiError? get lastError; String? get submittedJobId;
+ NewJobSourceType get sourceType; JobLanguage get language; String get text; UploadFile? get pickedFile; String get filename; String get sourceUrl; bool get forceWhisper; bool get idempotencyEnabled; String? get idempotencyKey; bool get fileTooLarge; NewJobStatus get status; ApiError? get lastError; String? get submittedJobId;
 /// Create a copy of NewJobState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -45,7 +45,7 @@ abstract mixin class $NewJobStateCopyWith<$Res>  {
   factory $NewJobStateCopyWith(NewJobState value, $Res Function(NewJobState) _then) = _$NewJobStateCopyWithImpl;
 @useResult
 $Res call({
- JobSourceType sourceType, JobLanguage language, String text, UploadFile? pickedFile, String filename, String sourceUrl, bool forceWhisper, bool idempotencyEnabled, String? idempotencyKey, bool fileTooLarge, NewJobStatus status, ApiError? lastError, String? submittedJobId
+ NewJobSourceType sourceType, JobLanguage language, String text, UploadFile? pickedFile, String filename, String sourceUrl, bool forceWhisper, bool idempotencyEnabled, String? idempotencyKey, bool fileTooLarge, NewJobStatus status, ApiError? lastError, String? submittedJobId
 });
 
 
@@ -65,7 +65,7 @@ class _$NewJobStateCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? sourceType = null,Object? language = null,Object? text = null,Object? pickedFile = freezed,Object? filename = null,Object? sourceUrl = null,Object? forceWhisper = null,Object? idempotencyEnabled = null,Object? idempotencyKey = freezed,Object? fileTooLarge = null,Object? status = null,Object? lastError = freezed,Object? submittedJobId = freezed,}) {
   return _then(_self.copyWith(
 sourceType: null == sourceType ? _self.sourceType : sourceType // ignore: cast_nullable_to_non_nullable
-as JobSourceType,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
+as NewJobSourceType,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
 as JobLanguage,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,pickedFile: freezed == pickedFile ? _self.pickedFile : pickedFile // ignore: cast_nullable_to_non_nullable
 as UploadFile?,filename: null == filename ? _self.filename : filename // ignore: cast_nullable_to_non_nullable
@@ -186,7 +186,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( JobSourceType sourceType,  JobLanguage language,  String text,  UploadFile? pickedFile,  String filename,  String sourceUrl,  bool forceWhisper,  bool idempotencyEnabled,  String? idempotencyKey,  bool fileTooLarge,  NewJobStatus status,  ApiError? lastError,  String? submittedJobId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( NewJobSourceType sourceType,  JobLanguage language,  String text,  UploadFile? pickedFile,  String filename,  String sourceUrl,  bool forceWhisper,  bool idempotencyEnabled,  String? idempotencyKey,  bool fileTooLarge,  NewJobStatus status,  ApiError? lastError,  String? submittedJobId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NewJobState() when $default != null:
 return $default(_that.sourceType,_that.language,_that.text,_that.pickedFile,_that.filename,_that.sourceUrl,_that.forceWhisper,_that.idempotencyEnabled,_that.idempotencyKey,_that.fileTooLarge,_that.status,_that.lastError,_that.submittedJobId);case _:
@@ -207,7 +207,7 @@ return $default(_that.sourceType,_that.language,_that.text,_that.pickedFile,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( JobSourceType sourceType,  JobLanguage language,  String text,  UploadFile? pickedFile,  String filename,  String sourceUrl,  bool forceWhisper,  bool idempotencyEnabled,  String? idempotencyKey,  bool fileTooLarge,  NewJobStatus status,  ApiError? lastError,  String? submittedJobId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( NewJobSourceType sourceType,  JobLanguage language,  String text,  UploadFile? pickedFile,  String filename,  String sourceUrl,  bool forceWhisper,  bool idempotencyEnabled,  String? idempotencyKey,  bool fileTooLarge,  NewJobStatus status,  ApiError? lastError,  String? submittedJobId)  $default,) {final _that = this;
 switch (_that) {
 case _NewJobState():
 return $default(_that.sourceType,_that.language,_that.text,_that.pickedFile,_that.filename,_that.sourceUrl,_that.forceWhisper,_that.idempotencyEnabled,_that.idempotencyKey,_that.fileTooLarge,_that.status,_that.lastError,_that.submittedJobId);case _:
@@ -227,7 +227,7 @@ return $default(_that.sourceType,_that.language,_that.text,_that.pickedFile,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( JobSourceType sourceType,  JobLanguage language,  String text,  UploadFile? pickedFile,  String filename,  String sourceUrl,  bool forceWhisper,  bool idempotencyEnabled,  String? idempotencyKey,  bool fileTooLarge,  NewJobStatus status,  ApiError? lastError,  String? submittedJobId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( NewJobSourceType sourceType,  JobLanguage language,  String text,  UploadFile? pickedFile,  String filename,  String sourceUrl,  bool forceWhisper,  bool idempotencyEnabled,  String? idempotencyKey,  bool fileTooLarge,  NewJobStatus status,  ApiError? lastError,  String? submittedJobId)?  $default,) {final _that = this;
 switch (_that) {
 case _NewJobState() when $default != null:
 return $default(_that.sourceType,_that.language,_that.text,_that.pickedFile,_that.filename,_that.sourceUrl,_that.forceWhisper,_that.idempotencyEnabled,_that.idempotencyKey,_that.fileTooLarge,_that.status,_that.lastError,_that.submittedJobId);case _:
@@ -242,10 +242,10 @@ return $default(_that.sourceType,_that.language,_that.text,_that.pickedFile,_tha
 
 
 class _NewJobState extends NewJobState {
-  const _NewJobState({this.sourceType = JobSourceType.text, this.language = JobLanguage.ar, this.text = '', this.pickedFile, this.filename = '', this.sourceUrl = '', this.forceWhisper = false, this.idempotencyEnabled = false, this.idempotencyKey, this.fileTooLarge = false, this.status = NewJobStatus.idle, this.lastError, this.submittedJobId}): super._();
+  const _NewJobState({this.sourceType = NewJobSourceType.text, this.language = JobLanguage.ar, this.text = '', this.pickedFile, this.filename = '', this.sourceUrl = '', this.forceWhisper = false, this.idempotencyEnabled = false, this.idempotencyKey, this.fileTooLarge = false, this.status = NewJobStatus.idle, this.lastError, this.submittedJobId}): super._();
   
 
-@override@JsonKey() final  JobSourceType sourceType;
+@override@JsonKey() final  NewJobSourceType sourceType;
 @override@JsonKey() final  JobLanguage language;
 @override@JsonKey() final  String text;
 @override final  UploadFile? pickedFile;
@@ -289,7 +289,7 @@ abstract mixin class _$NewJobStateCopyWith<$Res> implements $NewJobStateCopyWith
   factory _$NewJobStateCopyWith(_NewJobState value, $Res Function(_NewJobState) _then) = __$NewJobStateCopyWithImpl;
 @override @useResult
 $Res call({
- JobSourceType sourceType, JobLanguage language, String text, UploadFile? pickedFile, String filename, String sourceUrl, bool forceWhisper, bool idempotencyEnabled, String? idempotencyKey, bool fileTooLarge, NewJobStatus status, ApiError? lastError, String? submittedJobId
+ NewJobSourceType sourceType, JobLanguage language, String text, UploadFile? pickedFile, String filename, String sourceUrl, bool forceWhisper, bool idempotencyEnabled, String? idempotencyKey, bool fileTooLarge, NewJobStatus status, ApiError? lastError, String? submittedJobId
 });
 
 
@@ -309,7 +309,7 @@ class __$NewJobStateCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? sourceType = null,Object? language = null,Object? text = null,Object? pickedFile = freezed,Object? filename = null,Object? sourceUrl = null,Object? forceWhisper = null,Object? idempotencyEnabled = null,Object? idempotencyKey = freezed,Object? fileTooLarge = null,Object? status = null,Object? lastError = freezed,Object? submittedJobId = freezed,}) {
   return _then(_NewJobState(
 sourceType: null == sourceType ? _self.sourceType : sourceType // ignore: cast_nullable_to_non_nullable
-as JobSourceType,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
+as NewJobSourceType,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
 as JobLanguage,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,pickedFile: freezed == pickedFile ? _self.pickedFile : pickedFile // ignore: cast_nullable_to_non_nullable
 as UploadFile?,filename: null == filename ? _self.filename : filename // ignore: cast_nullable_to_non_nullable

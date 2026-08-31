@@ -1,10 +1,10 @@
-import 'package:nutq/features/jobs/data/models/job_response.dart';
+import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 
 enum JobStatus { done, processing, queued, failed, cancelled }
 
 enum JobSourceType { upload, youtube, url, text }
 
-/// UI-facing view of a [JobResponse].
+/// UI-facing view of a [JobEntity].
 ///
 /// Deliberately free of display strings (dates, language names, titles):
 /// those are locale-dependent, and this model is built inside the cubit
@@ -19,20 +19,20 @@ class Job {
     required this.languageCode,
   });
 
-  factory Job.fromResponse(JobResponse response) {
-    final status = _statusFromRaw(response.status);
+  factory Job.fromEntity(JobEntity entity) {
+    final status = _statusFromRaw(entity.status);
     return Job(
-      id: response.id,
+      id: entity.id,
       // The list endpoint has no title/preview; only failed jobs carry a
       // server-provided error detail worth showing as the subtitle.
       subtitle:
-          status == JobStatus.failed && response.errorDetail != null
-              ? response.errorDetail!
+          status == JobStatus.failed && entity.errorDetail != null
+              ? entity.errorDetail!
               : null,
-      sourceType: _sourceTypeFromRaw(response.sourceType),
+      sourceType: _sourceTypeFromRaw(entity.sourceType),
       status: status,
-      createdAt: response.createdAt,
-      languageCode: response.language,
+      createdAt: entity.createdAt,
+      languageCode: entity.language,
     );
   }
 

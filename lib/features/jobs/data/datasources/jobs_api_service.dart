@@ -9,7 +9,7 @@ import 'package:nutq/features/jobs/data/models/job_detail_response.dart';
 import 'package:nutq/features/jobs/data/models/job_list_response.dart';
 import 'package:nutq/features/jobs/data/models/job_response.dart';
 import 'package:nutq/features/jobs/data/models/submit_job_request.dart';
-import 'package:nutq/features/jobs/data/models/upload_file.dart';
+import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 
 part 'jobs_api_service.g.dart';
 

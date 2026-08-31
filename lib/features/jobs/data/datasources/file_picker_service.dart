@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:nutq/features/jobs/data/models/upload_file.dart';
+import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 
 enum PickableMedia { audio, video }
 

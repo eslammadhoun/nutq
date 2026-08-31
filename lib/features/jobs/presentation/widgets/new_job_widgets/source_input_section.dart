@@ -23,12 +23,12 @@ class SourceInputSection extends StatelessWidget {
           transitionBuilder: (child, animation) =>
               FadeTransition(opacity: animation, child: child),
           child: KeyedSubtree(
-            key: ValueKey<JobSourceType>(state.sourceType),
+            key: ValueKey<NewJobSourceType>(state.sourceType),
             child: switch (state.sourceType) {
-              JobSourceType.text => const TextSourceSection(),
-              JobSourceType.video ||
-              JobSourceType.audio => const FileSourceSection(),
-              JobSourceType.youtube => const YoutubeSourceSection(),
+              NewJobSourceType.text => const TextSourceSection(),
+              NewJobSourceType.video ||
+              NewJobSourceType.audio => const FileSourceSection(),
+              NewJobSourceType.youtube => const YoutubeSourceSection(),
             },
           ),
         );

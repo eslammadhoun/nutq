@@ -2,9 +2,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nutq/core/network/error/api_error.dart';
 import 'package:nutq/core/network/result/api_result.dart';
 import 'package:nutq/features/jobs/data/datasources/file_picker_service.dart';
-import 'package:nutq/features/jobs/data/models/job_response.dart';
-import 'package:nutq/features/jobs/data/models/submit_job_request.dart';
-import 'package:nutq/features/jobs/data/models/upload_file.dart';
+import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/submit_job_params.dart';
+import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
 
@@ -20,7 +20,7 @@ class NewJobCubit extends Cubit<NewJobState> {
   final String Function() generateIdempotencyKey;
 
   void changeSourceType(int index) {
-    final newType = JobSourceType.values[index];
+    final newType = NewJobSourceType.values[index];
     if (newType == state.sourceType) return;
     emit(state.copyWith(sourceType: newType, fileTooLarge: false));
   }
@@ -56,10 +56,11 @@ class NewJobCubit extends Cubit<NewJobState> {
 
   Future<void> pickMedia() async {
     final sourceType = state.sourceType;
-    if (sourceType != JobSourceType.video && sourceType != JobSourceType.audio) {
+    if (sourceType != NewJobSourceType.video &&
+        sourceType != NewJobSourceType.audio) {
       return;
     }
-    final media = sourceType == JobSourceType.audio
+    final media = sourceType == NewJobSourceType.audio
         ? PickableMedia.audio
         : PickableMedia.video;
 
@@ -99,7 +100,7 @@ class NewJobCubit extends Cubit<NewJobState> {
       ),
     );
 
-    final created = await repository.submitJob(_buildRequest(snapshot));
+    final created = await repository.submitJob(_buildParams(snapshot));
     final job = switch (created) {
       Success(:final data) => data,
       Failure(:final error) => _fail(error),
@@ -139,35 +140,35 @@ class NewJobCubit extends Cubit<NewJobState> {
     );
   }
 
-  JobResponse? _fail(ApiError error) {
+  JobEntity? _fail(ApiError error) {
     if (isClosed) return null;
     emit(state.copyWith(status: NewJobStatus.failure, lastError: error));
     return null;
   }
 
-  SubmitJobRequest _buildRequest(NewJobState snapshot) {
+  SubmitJobParams _buildParams(NewJobState snapshot) {
     final language = snapshot.language.wireValue;
     final idempotencyKey = snapshot.idempotencyEnabled ? snapshot.idempotencyKey : null;
 
     return switch (snapshot.sourceType) {
-      JobSourceType.text => SubmitJobRequest(
+      NewJobSourceType.text => SubmitJobParams(
         sourceType: 'text',
         language: language,
         text: snapshot.text.trim(),
         idempotencyKey: idempotencyKey,
       ),
-      JobSourceType.youtube => SubmitJobRequest(
+      NewJobSourceType.youtube => SubmitJobParams(
         sourceType: 'youtube',
         language: language,
         sourceUrl: snapshot.sourceUrl.trim(),
         forceWhisper: snapshot.forceWhisper,
         idempotencyKey: idempotencyKey,
       ),
-      JobSourceType.video ||
-      JobSourceType.audio => () {
+      NewJobSourceType.video ||
+      NewJobSourceType.audio => () {
         final file = snapshot.pickedFile!;
         final hasOverride = snapshot.filename.trim().isNotEmpty;
-        return SubmitJobRequest(
+        return SubmitJobParams(
           sourceType: 'upload',
           language: language,
           filename: hasOverride ? snapshot.filename.trim() : file.name,

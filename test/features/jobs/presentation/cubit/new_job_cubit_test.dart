@@ -2,12 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/network/error/api_error.dart';
 import 'package:nutq/core/network/result/api_result.dart';
 import 'package:nutq/features/jobs/data/datasources/file_picker_service.dart';
-import 'package:nutq/features/jobs/data/models/job_detail_response.dart';
-import 'package:nutq/features/jobs/data/models/job_list_response.dart';
-import 'package:nutq/features/jobs/data/models/job_response.dart';
-import 'package:nutq/features/jobs/data/models/submit_job_request.dart';
-import 'package:nutq/features/jobs/data/models/upload_file.dart';
-import 'package:nutq/features/jobs/data/models/upload_slot_response.dart';
+import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/jobs_page.dart';
+import 'package:nutq/features/jobs/domain/entities/submit_job_params.dart';
+import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
+import 'package:nutq/features/jobs/domain/entities/upload_slot.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
@@ -19,7 +19,7 @@ const _audioFile = UploadFile(
   contentType: 'audio/mpeg',
 );
 
-JobResponse _job(String id, {UploadSlotResponse? slot}) => JobResponse(
+JobEntity _job(String id, {UploadSlot? slot}) => JobEntity(
   id: id,
   status: 'pending',
   sourceType: 'upload',
@@ -32,39 +32,39 @@ JobResponse _job(String id, {UploadSlotResponse? slot}) => JobResponse(
 class _FakeJobsRepository implements JobsRepository {
   _FakeJobsRepository({this.submitResults});
 
-  final List<ApiResult<JobResponse>>? submitResults;
+  final List<ApiResult<JobEntity>>? submitResults;
 
-  final List<SubmitJobRequest> requests = [];
+  final List<SubmitJobParams> requests = [];
   final List<(String, UploadFile)> uploadedSlots = [];
   final List<String> confirmedJobIds = [];
   int submitCalls = 0;
   int uploadCalls = 0;
 
   @override
-  Future<ApiResult<JobListResponse>> listJobs({
+  Future<ApiResult<JobsPage>> listJobs({
     String? cursor,
     int limit = 20,
   }) => throw UnimplementedError();
 
   @override
-  Future<ApiResult<JobResponse>> submitJob(SubmitJobRequest request) async {
+  Future<ApiResult<JobEntity>> submitJob(SubmitJobParams params) async {
     submitCalls++;
-    requests.add(request);
+    requests.add(params);
     final results = submitResults;
     if (results == null || results.isEmpty) throw UnimplementedError();
     return results.removeAt(0);
   }
 
   @override
-  Future<ApiResult<JobDetailResponse>> getJob(String jobId) =>
+  Future<ApiResult<JobDetailEntity>> getJob(String jobId) =>
       throw UnimplementedError();
 
   @override
-  Future<ApiResult<JobResponse>> cancelJob(String jobId) =>
+  Future<ApiResult<JobEntity>> cancelJob(String jobId) =>
       throw UnimplementedError();
 
   @override
-  Future<ApiResult<JobResponse>> confirmUpload(String jobId) async {
+  Future<ApiResult<JobEntity>> confirmUpload(String jobId) async {
     confirmedJobIds.add(jobId);
     return ApiResult.success(_job(jobId));
   }
@@ -136,7 +136,7 @@ void main() {
         submitResults: [ApiResult.success(_job('job-yt'))],
       );
       final cubit = _buildCubit(repo);
-      cubit.changeSourceType(JobSourceType.youtube.index);
+      cubit.changeSourceType(NewJobSourceType.youtube.index);
 
       cubit.setSourceUrl('not-a-youtube-link');
       await cubit.submit();
@@ -161,7 +161,7 @@ void main() {
           ApiResult.success(
             _job(
               'job-up',
-              slot: const UploadSlotResponse(
+              slot: const UploadSlot(
                 uploadUrl: '/v1/dev-storage/token123',
                 uploadToken: 'token123',
                 expiresInSeconds: 300,
@@ -172,7 +172,7 @@ void main() {
       );
       final cubit = _buildCubit(repo, pickedFile: _audioFile);
 
-      cubit.changeSourceType(JobSourceType.audio.index);
+      cubit.changeSourceType(NewJobSourceType.audio.index);
       await cubit.pickMedia();
       await cubit.submit();
 
@@ -196,7 +196,7 @@ void main() {
       );
       final cubit = _buildCubit(repo, pickedFile: _audioFile);
 
-      cubit.changeSourceType(JobSourceType.audio.index);
+      cubit.changeSourceType(NewJobSourceType.audio.index);
       await cubit.pickMedia();
       cubit.setFilename('interview-final.mp3');
       await cubit.submit();
@@ -259,7 +259,7 @@ void main() {
       final repo = _FakeJobsRepository();
       final cubit = _buildCubit(repo, pickedFile: oversized);
 
-      cubit.changeSourceType(JobSourceType.audio.index);
+      cubit.changeSourceType(NewJobSourceType.audio.index);
       await cubit.pickMedia();
 
       expect(cubit.state.fileTooLarge, isTrue);
