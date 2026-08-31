@@ -8,7 +8,7 @@ import 'package:nutq/core/utils/validators.dart';
 import 'package:nutq/core/widgets/global_button.dart';
 import 'package:nutq/core/widgets/global_text_field.dart';
 import 'package:nutq/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:nutq/features/auth/data/models/register_request.dart';
+import 'package:nutq/features/auth/domain/params/register_params.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});
@@ -179,7 +179,7 @@ class _RegisterFormState extends State<RegisterForm> {
                       : () {
                           if (_formKey.currentState!.validate()) {
                             context.read<AuthCubit>().register(
-                              RegisterRequest(
+                              RegisterParams(
                                 name: _usernameController.text.trim(),
                                 email: _emailController.text.trim(),
                                 password: _passwordController.text,

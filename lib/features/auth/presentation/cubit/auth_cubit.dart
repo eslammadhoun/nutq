@@ -3,9 +3,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:nutq/core/network/error/api_error.dart';
 import 'package:nutq/core/network/result/api_result.dart';
-import 'package:nutq/features/auth/data/models/auth_response.dart';
-import 'package:nutq/features/auth/data/models/login_request.dart';
-import 'package:nutq/features/auth/data/models/register_request.dart';
+import 'package:nutq/features/auth/domain/params/login_params.dart';
+import 'package:nutq/features/auth/domain/params/register_params.dart';
 import 'package:nutq/features/auth/domain/repositories/auth_repository.dart';
 
 part 'auth_cubit.freezed.dart';
@@ -16,15 +15,15 @@ class AuthCubit extends Cubit<AuthState> {
 
   final AuthRepository _repo;
 
-  Future<void> login(LoginRequest request) async {
+  Future<void> login(LoginParams params) async {
     emit(const AuthState.loading());
-    final result = await _repo.login(request);
+    final result = await _repo.login(params);
     _emitFromResult(result);
   }
 
-  Future<void> register(RegisterRequest request) async {
+  Future<void> register(RegisterParams params) async {
     emit(const AuthState.loading());
-    final result = await _repo.register(request);
+    final result = await _repo.register(params);
     _emitFromResult(result);
   }
 
@@ -33,7 +32,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(const AuthState.initial());
   }
 
-  void _emitFromResult(ApiResult<AuthResponse> result) {
+  void _emitFromResult(ApiResult<void> result) {
     result.when(
       success: (_) => emit(const AuthState.success()),
       failure: (error) => _emitFromError(error),

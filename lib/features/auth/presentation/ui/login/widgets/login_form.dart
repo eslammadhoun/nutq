@@ -8,7 +8,7 @@ import 'package:nutq/core/utils/validators.dart';
 import 'package:nutq/core/widgets/global_button.dart';
 import 'package:nutq/core/widgets/global_text_field.dart';
 import 'package:nutq/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:nutq/features/auth/data/models/login_request.dart';
+import 'package:nutq/features/auth/domain/params/login_params.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -125,7 +125,7 @@ class _LoginFormState extends State<LoginForm> {
                       : () {
                           if (_formKey.currentState!.validate()) {
                             context.read<AuthCubit>().login(
-                              LoginRequest(
+                              LoginParams(
                                 email: _emailController.text.trim(),
                                 password: _passwordController.text,
                               ),
