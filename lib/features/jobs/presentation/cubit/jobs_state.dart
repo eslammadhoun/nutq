@@ -14,6 +14,8 @@ class JobsState {
     this.nextCursor,
     this.isLoadingMore = false,
     this.lastError,
+    this.deleteError,
+    this.deleteErrorToken = 0,
   });
 
   final JobsStatus status;
@@ -26,6 +28,13 @@ class JobsState {
   /// Raw error from the last failed fetch — localized at display time via
   /// `context.l10n.jobsErrorMessage(error)` (cubits have no BuildContext).
   final ApiError? lastError;
+
+  /// Raw error from the last failed [deleteJob] call — a transient signal
+  /// for a one-off SnackBar, not the list-level [lastError]. Paired with
+  /// [deleteErrorToken] (bumped on every failure) so the UI's `listenWhen`
+  /// still fires when the same error repeats back to back.
+  final ApiError? deleteError;
+  final int deleteErrorToken;
 
   bool get hasMore => nextCursor != null;
 
@@ -51,6 +60,8 @@ class JobsState {
     bool clearNextCursor = false,
     bool? isLoadingMore,
     ApiError? lastError,
+    ApiError? deleteError,
+    int? deleteErrorToken,
   }) {
     return JobsState(
       status: status ?? this.status,
@@ -60,6 +71,8 @@ class JobsState {
       nextCursor: clearNextCursor ? null : (nextCursor ?? this.nextCursor),
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       lastError: lastError,
+      deleteError: deleteError ?? this.deleteError,
+      deleteErrorToken: deleteErrorToken ?? this.deleteErrorToken,
     );
   }
 }

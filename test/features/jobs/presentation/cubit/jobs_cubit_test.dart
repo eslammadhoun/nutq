@@ -11,7 +11,7 @@ import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
 import 'package:nutq/features/jobs/presentation/models/job.dart';
 
-JobEntity _job(String id, {String status = 'done'}) => JobEntity(
+JobEntity _job(String id, {String status = 'completed'}) => JobEntity(
   id: id,
   status: status,
   sourceType: 'text',
@@ -26,11 +26,19 @@ class _FakeJobsRepository implements JobsRepository {
   /// Consumed in order — one result per listJobs call.
   final List<ApiResult<JobsPage>> _pages;
   final List<String?> requestedCursors = [];
+  final List<String> deletedJobIds = [];
+  ApiResult<void> deleteResult = const ApiResult.success(null);
 
   @override
   Future<ApiResult<JobsPage>> listJobs({String? cursor, int limit = 20}) async {
     requestedCursors.add(cursor);
     return _pages.removeAt(0);
+  }
+
+  @override
+  Future<ApiResult<void>> deleteJob(String jobId) async {
+    deletedJobIds.add(jobId);
+    return deleteResult;
   }
 
   @override
@@ -92,12 +100,8 @@ void main() {
 
     test('loadMore appends the next page using the stored cursor', () async {
       final repo = _FakeJobsRepository([
-        ApiResult.success(
-          JobsPage(items: [_job('a')], nextCursor: 'cur-1'),
-        ),
-        ApiResult.success(
-          JobsPage(items: [_job('b')], nextCursor: null),
-        ),
+        ApiResult.success(JobsPage(items: [_job('a')], nextCursor: 'cur-1')),
+        ApiResult.success(JobsPage(items: [_job('b')], nextCursor: null)),
       ]);
       final cubit = JobsCubit(repo: repo);
 
@@ -141,6 +145,42 @@ void main() {
       cubit.selectFilter(null);
       cubit.search('aaaa');
       expect(cubit.state.filteredJobs.map((j) => j.id), ['aaaa1111']);
+      await cubit.close();
+    });
+
+    test('deleteJob optimistically removes the job and forwards the id', () async {
+      final repo = _FakeJobsRepository([
+        ApiResult.success(
+          JobsPage(items: [_job('a'), _job('b')], nextCursor: null),
+        ),
+      ]);
+      final cubit = JobsCubit(repo: repo);
+      await cubit.fetchJobs();
+
+      await cubit.deleteJob('a');
+
+      expect(repo.deletedJobIds, ['a']);
+      expect(cubit.state.allJobs.map((j) => j.id), ['b']);
+      expect(cubit.state.deleteError, isNull);
+      await cubit.close();
+    });
+
+    test('deleteJob rolls back the list and surfaces the error on failure', () async {
+      final repo = _FakeJobsRepository([
+        ApiResult.success(
+          JobsPage(items: [_job('a'), _job('b')], nextCursor: null),
+        ),
+      ]);
+      repo.deleteResult = const ApiResult.failure(ApiError.network());
+      final cubit = JobsCubit(repo: repo);
+      await cubit.fetchJobs();
+
+      await cubit.deleteJob('a');
+
+      expect(repo.deletedJobIds, ['a']);
+      expect(cubit.state.allJobs.map((j) => j.id), ['a', 'b']);
+      expect(cubit.state.deleteError, const ApiError.network());
+      expect(cubit.state.deleteErrorToken, 1);
       await cubit.close();
     });
   });

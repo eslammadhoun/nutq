@@ -24,12 +24,8 @@ class JobsCubit extends Cubit<JobsState> {
           clearNextCursor: page.nextCursor == null,
         ),
       ),
-      failure: (error) => emit(
-        state.copyWith(
-          status: JobsStatus.failure,
-          lastError: error,
-        ),
-      ),
+      failure: (error) =>
+          emit(state.copyWith(status: JobsStatus.failure, lastError: error)),
     );
   }
 
@@ -66,5 +62,30 @@ class JobsCubit extends Cubit<JobsState> {
 
   void search(String query) {
     emit(state.copyWith(searchQuery: query));
+  }
+
+  /// Optimistically removes [jobId] from the list — the swipe-to-delete
+  /// gesture already animates the row away, so the state needs to agree
+  /// before the next rebuild or the row would reappear. Rolled back with
+  /// [deleteError] surfaced if the server call fails.
+  Future<void> deleteJob(String jobId) async {
+    final previousJobs = state.allJobs;
+    emit(
+      state.copyWith(
+        allJobs: previousJobs.where((job) => job.id != jobId).toList(),
+      ),
+    );
+
+    final result = await _repo.deleteJob(jobId);
+    result.when(
+      success: (_) {},
+      failure: (error) => emit(
+        state.copyWith(
+          allJobs: previousJobs,
+          deleteError: error,
+          deleteErrorToken: state.deleteErrorToken + 1,
+        ),
+      ),
+    );
   }
 }

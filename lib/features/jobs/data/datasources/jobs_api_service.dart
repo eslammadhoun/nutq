@@ -33,6 +33,9 @@ abstract class JobsApiService {
   @POST('/jobs/{jobId}/cancel')
   Future<HttpResponse<JobResponse>> cancelJob(@Path('jobId') String jobId);
 
+  @DELETE('/jobs/{jobId}')
+  Future<HttpResponse<void>> deleteJob(@Path('jobId') String jobId);
+
   @POST('/jobs/{jobId}/confirm')
   Future<HttpResponse<JobResponse>> confirmUpload(@Path('jobId') String jobId);
 }
@@ -48,6 +51,7 @@ abstract interface class JobsDataSource {
   /// Streams [file] to the presigned slot URL (PUT /dev-storage/{token}).
   /// The token in the URL authorizes the request; no bearer token needed.
   Future<ApiResult<void>> uploadToSlot(String uploadUrl, UploadFile file);
+  Future<ApiResult<void>> deleteJob(String jobId);
 }
 
 /// Implementation: wraps Retrofit + ApiClient for safe deserialization
@@ -116,5 +120,12 @@ class JobsDataSourceImpl implements JobsDataSource {
     final base = Uri.tryParse(_dio.options.baseUrl);
     if (base == null || !base.hasScheme || base.host.isEmpty) return url;
     return base.replace(path: url, query: null).toString();
+  }
+
+  @override
+  Future<ApiResult<void>> deleteJob(String jobId) async {
+    return await _apiClient.execute<void>(
+      () async => _retrofit.deleteJob(jobId),
+    );
   }
 }

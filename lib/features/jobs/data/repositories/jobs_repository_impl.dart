@@ -47,4 +47,9 @@ class JobsRepositoryImpl implements JobsRepository {
   Future<ApiResult<void>> uploadToSlot(String uploadUrl, UploadFile file) {
     return _dataSource.uploadToSlot(uploadUrl, file);
   }
+
+  @override
+  Future<ApiResult<void>> deleteJob(String jobId) async {
+    return _dataSource.deleteJob(jobId);
+  }
 }

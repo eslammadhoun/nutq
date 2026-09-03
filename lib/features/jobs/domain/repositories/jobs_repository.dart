@@ -12,4 +12,5 @@ abstract interface class JobsRepository {
   Future<ApiResult<JobEntity>> cancelJob(String jobId);
   Future<ApiResult<JobEntity>> confirmUpload(String jobId);
   Future<ApiResult<void>> uploadToSlot(String uploadUrl, UploadFile file);
+  Future<ApiResult<void>> deleteJob(String jobId);
 }
