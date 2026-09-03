@@ -16,6 +16,7 @@ _JobDetailResponse _$JobDetailResponseFromJson(Map<String, dynamic> json) =>
       updatedAt: DateTime.parse(json['updated_at'] as String),
       errorCode: json['error_code'] as String?,
       errorDetail: json['error_detail'] as String?,
+      contentType: json['content_type'] as String?,
       uploadSlot: json['upload_slot'] == null
           ? null
           : UploadSlotResponse.fromJson(
@@ -41,6 +42,7 @@ Map<String, dynamic> _$JobDetailResponseToJson(_JobDetailResponse instance) =>
       'updated_at': instance.updatedAt.toIso8601String(),
       'error_code': instance.errorCode,
       'error_detail': instance.errorDetail,
+      'content_type': instance.contentType,
       'upload_slot': instance.uploadSlot,
       'transcript': instance.transcript,
       'summary': instance.summary,

@@ -14,7 +14,7 @@ class JobCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final l10n = context.l10n;
-    final source = _sourceVisual(context, job.sourceType);
+    final source = _sourceVisual(context, job);
     final status = _statusVisual(context, job.status);
 
     return RepaintBoundary(
@@ -79,7 +79,7 @@ class JobCard extends StatelessWidget {
             ),
             SizedBox(height: 10.h),
             Text(
-              job.subtitle ?? l10n.jobFallbackTitle(_shortId(job.id)),
+              job.preview ?? l10n.jobFallbackTitle(_shortId(job.id)),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: context.typography.bodySmall.copyWith(
@@ -123,21 +123,26 @@ class JobCard extends StatelessWidget {
     _ => code,
   };
 
-  String _shortId(String id) =>
-      id.length < 8 ? id : id.substring(0, 8);
+  String _shortId(String id) => id.length < 8 ? id : id.substring(0, 8);
 
   ({IconData icon, Color color, String label}) _sourceVisual(
     BuildContext context,
-    JobSourceType type,
+    Job job,
   ) {
     final colors = context.appColors;
     final l10n = context.l10n;
-    return switch (type) {
-      JobSourceType.upload => (
-        icon: Icons.graphic_eq_rounded,
-        color: colors.primary,
-        label: l10n.sourceAudioFile,
-      ),
+    return switch (job.sourceType) {
+      JobSourceType.upload => job.isVideoUpload == true
+          ? (
+              icon: Icons.slow_motion_video_outlined,
+              color: colors.primary,
+              label: l10n.sourceVideo,
+            )
+          : (
+              icon: Icons.graphic_eq_rounded,
+              color: colors.primary,
+              label: l10n.sourceAudioFile,
+            ),
       JobSourceType.youtube => (
         icon: Icons.play_arrow_rounded,
         color: colors.statusFailed,

@@ -15,6 +15,8 @@ sealed class JobEntity with _$JobEntity {
     required DateTime updatedAt,
     String? errorCode,
     String? errorDetail,
+    String? contentType,
     UploadSlot? uploadSlot,
+    String? preview,
   }) = _JobEntity;
 }

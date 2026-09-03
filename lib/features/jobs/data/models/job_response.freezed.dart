@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$JobResponse {
 
- String get id; String get status;@JsonKey(name: 'source_type') String get sourceType; String get language;@JsonKey(name: 'created_at') DateTime get createdAt;@JsonKey(name: 'updated_at') DateTime get updatedAt;@JsonKey(name: 'error_code') String? get errorCode;@JsonKey(name: 'error_detail') String? get errorDetail;@JsonKey(name: 'upload_slot') UploadSlotResponse? get uploadSlot;
+ String get id; String get status;@JsonKey(name: 'source_type') String get sourceType; String get language;@JsonKey(name: 'created_at') DateTime get createdAt;@JsonKey(name: 'updated_at') DateTime get updatedAt;@JsonKey(name: 'error_code') String? get errorCode;@JsonKey(name: 'error_detail') String? get errorDetail;@JsonKey(name: 'content_type') String? get contentType;@JsonKey(name: 'upload_slot') UploadSlotResponse? get uploadSlot;@JsonKey(name: 'preview') String? get preview;
 /// Create a copy of JobResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $JobResponseCopyWith<JobResponse> get copyWith => _$JobResponseCopyWithImpl<JobR
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is JobResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.errorDetail, errorDetail) || other.errorDetail == errorDetail)&&(identical(other.uploadSlot, uploadSlot) || other.uploadSlot == uploadSlot));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is JobResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.errorDetail, errorDetail) || other.errorDetail == errorDetail)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.uploadSlot, uploadSlot) || other.uploadSlot == uploadSlot)&&(identical(other.preview, preview) || other.preview == preview));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,errorCode,errorDetail,uploadSlot);
+int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,errorCode,errorDetail,contentType,uploadSlot,preview);
 
 @override
 String toString() {
-  return 'JobResponse(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, errorCode: $errorCode, errorDetail: $errorDetail, uploadSlot: $uploadSlot)';
+  return 'JobResponse(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, errorCode: $errorCode, errorDetail: $errorDetail, contentType: $contentType, uploadSlot: $uploadSlot, preview: $preview)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $JobResponseCopyWith<$Res>  {
   factory $JobResponseCopyWith(JobResponse value, $Res Function(JobResponse) _then) = _$JobResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String status,@JsonKey(name: 'source_type') String sourceType, String language,@JsonKey(name: 'created_at') DateTime createdAt,@JsonKey(name: 'updated_at') DateTime updatedAt,@JsonKey(name: 'error_code') String? errorCode,@JsonKey(name: 'error_detail') String? errorDetail,@JsonKey(name: 'upload_slot') UploadSlotResponse? uploadSlot
+ String id, String status,@JsonKey(name: 'source_type') String sourceType, String language,@JsonKey(name: 'created_at') DateTime createdAt,@JsonKey(name: 'updated_at') DateTime updatedAt,@JsonKey(name: 'error_code') String? errorCode,@JsonKey(name: 'error_detail') String? errorDetail,@JsonKey(name: 'content_type') String? contentType,@JsonKey(name: 'upload_slot') UploadSlotResponse? uploadSlot,@JsonKey(name: 'preview') String? preview
 });
 
 
@@ -65,7 +65,7 @@ class _$JobResponseCopyWithImpl<$Res>
 
 /// Create a copy of JobResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? errorCode = freezed,Object? errorDetail = freezed,Object? uploadSlot = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? errorCode = freezed,Object? errorDetail = freezed,Object? contentType = freezed,Object? uploadSlot = freezed,Object? preview = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -75,8 +75,10 @@ as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: 
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
 as String?,errorDetail: freezed == errorDetail ? _self.errorDetail : errorDetail // ignore: cast_nullable_to_non_nullable
+as String?,contentType: freezed == contentType ? _self.contentType : contentType // ignore: cast_nullable_to_non_nullable
 as String?,uploadSlot: freezed == uploadSlot ? _self.uploadSlot : uploadSlot // ignore: cast_nullable_to_non_nullable
-as UploadSlotResponse?,
+as UploadSlotResponse?,preview: freezed == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of JobResponse
@@ -170,10 +172,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'source_type')  String sourceType,  String language, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'updated_at')  DateTime updatedAt, @JsonKey(name: 'error_code')  String? errorCode, @JsonKey(name: 'error_detail')  String? errorDetail, @JsonKey(name: 'upload_slot')  UploadSlotResponse? uploadSlot)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'source_type')  String sourceType,  String language, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'updated_at')  DateTime updatedAt, @JsonKey(name: 'error_code')  String? errorCode, @JsonKey(name: 'error_detail')  String? errorDetail, @JsonKey(name: 'content_type')  String? contentType, @JsonKey(name: 'upload_slot')  UploadSlotResponse? uploadSlot, @JsonKey(name: 'preview')  String? preview)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _JobResponse() when $default != null:
-return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.uploadSlot);case _:
+return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.contentType,_that.uploadSlot,_that.preview);case _:
   return orElse();
 
 }
@@ -191,10 +193,10 @@ return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.crea
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'source_type')  String sourceType,  String language, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'updated_at')  DateTime updatedAt, @JsonKey(name: 'error_code')  String? errorCode, @JsonKey(name: 'error_detail')  String? errorDetail, @JsonKey(name: 'upload_slot')  UploadSlotResponse? uploadSlot)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'source_type')  String sourceType,  String language, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'updated_at')  DateTime updatedAt, @JsonKey(name: 'error_code')  String? errorCode, @JsonKey(name: 'error_detail')  String? errorDetail, @JsonKey(name: 'content_type')  String? contentType, @JsonKey(name: 'upload_slot')  UploadSlotResponse? uploadSlot, @JsonKey(name: 'preview')  String? preview)  $default,) {final _that = this;
 switch (_that) {
 case _JobResponse():
-return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.uploadSlot);}
+return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.contentType,_that.uploadSlot,_that.preview);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -208,10 +210,10 @@ return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.crea
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String status, @JsonKey(name: 'source_type')  String sourceType,  String language, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'updated_at')  DateTime updatedAt, @JsonKey(name: 'error_code')  String? errorCode, @JsonKey(name: 'error_detail')  String? errorDetail, @JsonKey(name: 'upload_slot')  UploadSlotResponse? uploadSlot)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String status, @JsonKey(name: 'source_type')  String sourceType,  String language, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'updated_at')  DateTime updatedAt, @JsonKey(name: 'error_code')  String? errorCode, @JsonKey(name: 'error_detail')  String? errorDetail, @JsonKey(name: 'content_type')  String? contentType, @JsonKey(name: 'upload_slot')  UploadSlotResponse? uploadSlot, @JsonKey(name: 'preview')  String? preview)?  $default,) {final _that = this;
 switch (_that) {
 case _JobResponse() when $default != null:
-return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.uploadSlot);case _:
+return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.contentType,_that.uploadSlot,_that.preview);case _:
   return null;
 
 }
@@ -223,7 +225,7 @@ return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.crea
 @JsonSerializable()
 
 class _JobResponse implements JobResponse {
-  const _JobResponse({required this.id, required this.status, @JsonKey(name: 'source_type') required this.sourceType, required this.language, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'updated_at') required this.updatedAt, @JsonKey(name: 'error_code') this.errorCode, @JsonKey(name: 'error_detail') this.errorDetail, @JsonKey(name: 'upload_slot') this.uploadSlot});
+  const _JobResponse({required this.id, required this.status, @JsonKey(name: 'source_type') required this.sourceType, required this.language, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'updated_at') required this.updatedAt, @JsonKey(name: 'error_code') this.errorCode, @JsonKey(name: 'error_detail') this.errorDetail, @JsonKey(name: 'content_type') this.contentType, @JsonKey(name: 'upload_slot') this.uploadSlot, @JsonKey(name: 'preview') this.preview});
   factory _JobResponse.fromJson(Map<String, dynamic> json) => _$JobResponseFromJson(json);
 
 @override final  String id;
@@ -234,7 +236,9 @@ class _JobResponse implements JobResponse {
 @override@JsonKey(name: 'updated_at') final  DateTime updatedAt;
 @override@JsonKey(name: 'error_code') final  String? errorCode;
 @override@JsonKey(name: 'error_detail') final  String? errorDetail;
+@override@JsonKey(name: 'content_type') final  String? contentType;
 @override@JsonKey(name: 'upload_slot') final  UploadSlotResponse? uploadSlot;
+@override@JsonKey(name: 'preview') final  String? preview;
 
 /// Create a copy of JobResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -249,16 +253,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _JobResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.errorDetail, errorDetail) || other.errorDetail == errorDetail)&&(identical(other.uploadSlot, uploadSlot) || other.uploadSlot == uploadSlot));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _JobResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.errorDetail, errorDetail) || other.errorDetail == errorDetail)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.uploadSlot, uploadSlot) || other.uploadSlot == uploadSlot)&&(identical(other.preview, preview) || other.preview == preview));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,errorCode,errorDetail,uploadSlot);
+int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,errorCode,errorDetail,contentType,uploadSlot,preview);
 
 @override
 String toString() {
-  return 'JobResponse(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, errorCode: $errorCode, errorDetail: $errorDetail, uploadSlot: $uploadSlot)';
+  return 'JobResponse(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, errorCode: $errorCode, errorDetail: $errorDetail, contentType: $contentType, uploadSlot: $uploadSlot, preview: $preview)';
 }
 
 
@@ -269,7 +273,7 @@ abstract mixin class _$JobResponseCopyWith<$Res> implements $JobResponseCopyWith
   factory _$JobResponseCopyWith(_JobResponse value, $Res Function(_JobResponse) _then) = __$JobResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String status,@JsonKey(name: 'source_type') String sourceType, String language,@JsonKey(name: 'created_at') DateTime createdAt,@JsonKey(name: 'updated_at') DateTime updatedAt,@JsonKey(name: 'error_code') String? errorCode,@JsonKey(name: 'error_detail') String? errorDetail,@JsonKey(name: 'upload_slot') UploadSlotResponse? uploadSlot
+ String id, String status,@JsonKey(name: 'source_type') String sourceType, String language,@JsonKey(name: 'created_at') DateTime createdAt,@JsonKey(name: 'updated_at') DateTime updatedAt,@JsonKey(name: 'error_code') String? errorCode,@JsonKey(name: 'error_detail') String? errorDetail,@JsonKey(name: 'content_type') String? contentType,@JsonKey(name: 'upload_slot') UploadSlotResponse? uploadSlot,@JsonKey(name: 'preview') String? preview
 });
 
 
@@ -286,7 +290,7 @@ class __$JobResponseCopyWithImpl<$Res>
 
 /// Create a copy of JobResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? errorCode = freezed,Object? errorDetail = freezed,Object? uploadSlot = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? errorCode = freezed,Object? errorDetail = freezed,Object? contentType = freezed,Object? uploadSlot = freezed,Object? preview = freezed,}) {
   return _then(_JobResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -296,8 +300,10 @@ as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: 
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
 as String?,errorDetail: freezed == errorDetail ? _self.errorDetail : errorDetail // ignore: cast_nullable_to_non_nullable
+as String?,contentType: freezed == contentType ? _self.contentType : contentType // ignore: cast_nullable_to_non_nullable
 as String?,uploadSlot: freezed == uploadSlot ? _self.uploadSlot : uploadSlot // ignore: cast_nullable_to_non_nullable
-as UploadSlotResponse?,
+as UploadSlotResponse?,preview: freezed == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

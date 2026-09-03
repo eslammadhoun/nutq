@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$JobEntity {
 
- String get id; String get status; String get sourceType; String get language; DateTime get createdAt; DateTime get updatedAt; String? get errorCode; String? get errorDetail; UploadSlot? get uploadSlot;
+ String get id; String get status; String get sourceType; String get language; DateTime get createdAt; DateTime get updatedAt; String? get errorCode; String? get errorDetail; String? get contentType; UploadSlot? get uploadSlot; String? get preview;
 /// Create a copy of JobEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $JobEntityCopyWith<JobEntity> get copyWith => _$JobEntityCopyWithImpl<JobEntity>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is JobEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.errorDetail, errorDetail) || other.errorDetail == errorDetail)&&(identical(other.uploadSlot, uploadSlot) || other.uploadSlot == uploadSlot));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is JobEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.errorDetail, errorDetail) || other.errorDetail == errorDetail)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.uploadSlot, uploadSlot) || other.uploadSlot == uploadSlot)&&(identical(other.preview, preview) || other.preview == preview));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,errorCode,errorDetail,uploadSlot);
+int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,errorCode,errorDetail,contentType,uploadSlot,preview);
 
 @override
 String toString() {
-  return 'JobEntity(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, errorCode: $errorCode, errorDetail: $errorDetail, uploadSlot: $uploadSlot)';
+  return 'JobEntity(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, errorCode: $errorCode, errorDetail: $errorDetail, contentType: $contentType, uploadSlot: $uploadSlot, preview: $preview)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $JobEntityCopyWith<$Res>  {
   factory $JobEntityCopyWith(JobEntity value, $Res Function(JobEntity) _then) = _$JobEntityCopyWithImpl;
 @useResult
 $Res call({
- String id, String status, String sourceType, String language, DateTime createdAt, DateTime updatedAt, String? errorCode, String? errorDetail, UploadSlot? uploadSlot
+ String id, String status, String sourceType, String language, DateTime createdAt, DateTime updatedAt, String? errorCode, String? errorDetail, String? contentType, UploadSlot? uploadSlot, String? preview
 });
 
 
@@ -62,7 +62,7 @@ class _$JobEntityCopyWithImpl<$Res>
 
 /// Create a copy of JobEntity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? errorCode = freezed,Object? errorDetail = freezed,Object? uploadSlot = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? errorCode = freezed,Object? errorDetail = freezed,Object? contentType = freezed,Object? uploadSlot = freezed,Object? preview = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -72,8 +72,10 @@ as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: 
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
 as String?,errorDetail: freezed == errorDetail ? _self.errorDetail : errorDetail // ignore: cast_nullable_to_non_nullable
+as String?,contentType: freezed == contentType ? _self.contentType : contentType // ignore: cast_nullable_to_non_nullable
 as String?,uploadSlot: freezed == uploadSlot ? _self.uploadSlot : uploadSlot // ignore: cast_nullable_to_non_nullable
-as UploadSlot?,
+as UploadSlot?,preview: freezed == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of JobEntity
@@ -167,10 +169,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String status,  String sourceType,  String language,  DateTime createdAt,  DateTime updatedAt,  String? errorCode,  String? errorDetail,  UploadSlot? uploadSlot)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String status,  String sourceType,  String language,  DateTime createdAt,  DateTime updatedAt,  String? errorCode,  String? errorDetail,  String? contentType,  UploadSlot? uploadSlot,  String? preview)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _JobEntity() when $default != null:
-return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.uploadSlot);case _:
+return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.contentType,_that.uploadSlot,_that.preview);case _:
   return orElse();
 
 }
@@ -188,10 +190,10 @@ return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.crea
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String status,  String sourceType,  String language,  DateTime createdAt,  DateTime updatedAt,  String? errorCode,  String? errorDetail,  UploadSlot? uploadSlot)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String status,  String sourceType,  String language,  DateTime createdAt,  DateTime updatedAt,  String? errorCode,  String? errorDetail,  String? contentType,  UploadSlot? uploadSlot,  String? preview)  $default,) {final _that = this;
 switch (_that) {
 case _JobEntity():
-return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.uploadSlot);}
+return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.contentType,_that.uploadSlot,_that.preview);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -205,10 +207,10 @@ return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.crea
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String status,  String sourceType,  String language,  DateTime createdAt,  DateTime updatedAt,  String? errorCode,  String? errorDetail,  UploadSlot? uploadSlot)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String status,  String sourceType,  String language,  DateTime createdAt,  DateTime updatedAt,  String? errorCode,  String? errorDetail,  String? contentType,  UploadSlot? uploadSlot,  String? preview)?  $default,) {final _that = this;
 switch (_that) {
 case _JobEntity() when $default != null:
-return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.uploadSlot);case _:
+return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.contentType,_that.uploadSlot,_that.preview);case _:
   return null;
 
 }
@@ -220,7 +222,7 @@ return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.crea
 
 
 class _JobEntity implements JobEntity {
-  const _JobEntity({required this.id, required this.status, required this.sourceType, required this.language, required this.createdAt, required this.updatedAt, this.errorCode, this.errorDetail, this.uploadSlot});
+  const _JobEntity({required this.id, required this.status, required this.sourceType, required this.language, required this.createdAt, required this.updatedAt, this.errorCode, this.errorDetail, this.contentType, this.uploadSlot, this.preview});
   
 
 @override final  String id;
@@ -231,7 +233,9 @@ class _JobEntity implements JobEntity {
 @override final  DateTime updatedAt;
 @override final  String? errorCode;
 @override final  String? errorDetail;
+@override final  String? contentType;
 @override final  UploadSlot? uploadSlot;
+@override final  String? preview;
 
 /// Create a copy of JobEntity
 /// with the given fields replaced by the non-null parameter values.
@@ -243,16 +247,16 @@ _$JobEntityCopyWith<_JobEntity> get copyWith => __$JobEntityCopyWithImpl<_JobEnt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _JobEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.errorDetail, errorDetail) || other.errorDetail == errorDetail)&&(identical(other.uploadSlot, uploadSlot) || other.uploadSlot == uploadSlot));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _JobEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.errorDetail, errorDetail) || other.errorDetail == errorDetail)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.uploadSlot, uploadSlot) || other.uploadSlot == uploadSlot)&&(identical(other.preview, preview) || other.preview == preview));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,errorCode,errorDetail,uploadSlot);
+int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,errorCode,errorDetail,contentType,uploadSlot,preview);
 
 @override
 String toString() {
-  return 'JobEntity(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, errorCode: $errorCode, errorDetail: $errorDetail, uploadSlot: $uploadSlot)';
+  return 'JobEntity(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, errorCode: $errorCode, errorDetail: $errorDetail, contentType: $contentType, uploadSlot: $uploadSlot, preview: $preview)';
 }
 
 
@@ -263,7 +267,7 @@ abstract mixin class _$JobEntityCopyWith<$Res> implements $JobEntityCopyWith<$Re
   factory _$JobEntityCopyWith(_JobEntity value, $Res Function(_JobEntity) _then) = __$JobEntityCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String status, String sourceType, String language, DateTime createdAt, DateTime updatedAt, String? errorCode, String? errorDetail, UploadSlot? uploadSlot
+ String id, String status, String sourceType, String language, DateTime createdAt, DateTime updatedAt, String? errorCode, String? errorDetail, String? contentType, UploadSlot? uploadSlot, String? preview
 });
 
 
@@ -280,7 +284,7 @@ class __$JobEntityCopyWithImpl<$Res>
 
 /// Create a copy of JobEntity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? errorCode = freezed,Object? errorDetail = freezed,Object? uploadSlot = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? errorCode = freezed,Object? errorDetail = freezed,Object? contentType = freezed,Object? uploadSlot = freezed,Object? preview = freezed,}) {
   return _then(_JobEntity(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -290,8 +294,10 @@ as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: 
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,errorCode: freezed == errorCode ? _self.errorCode : errorCode // ignore: cast_nullable_to_non_nullable
 as String?,errorDetail: freezed == errorDetail ? _self.errorDetail : errorDetail // ignore: cast_nullable_to_non_nullable
+as String?,contentType: freezed == contentType ? _self.contentType : contentType // ignore: cast_nullable_to_non_nullable
 as String?,uploadSlot: freezed == uploadSlot ? _self.uploadSlot : uploadSlot // ignore: cast_nullable_to_non_nullable
-as UploadSlot?,
+as UploadSlot?,preview: freezed == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

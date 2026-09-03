@@ -17,6 +17,8 @@ class Job {
     required this.status,
     required this.createdAt,
     required this.languageCode,
+    this.preview,
+    this.contentType,
   });
 
   factory Job.fromEntity(JobEntity entity) {
@@ -25,14 +27,15 @@ class Job {
       id: entity.id,
       // The list endpoint has no title/preview; only failed jobs carry a
       // server-provided error detail worth showing as the subtitle.
-      subtitle:
-          status == JobStatus.failed && entity.errorDetail != null
-              ? entity.errorDetail!
-              : null,
+      subtitle: status == JobStatus.failed && entity.errorDetail != null
+          ? entity.errorDetail!
+          : null,
       sourceType: _sourceTypeFromRaw(entity.sourceType),
       status: status,
       createdAt: entity.createdAt,
       languageCode: entity.language,
+      preview: entity.preview,
+      contentType: entity.contentType,
     );
   }
 
@@ -44,6 +47,22 @@ class Job {
   final JobStatus status;
   final DateTime createdAt;
   final String languageCode;
+  final String? preview;
+
+  /// MIME type of the uploaded file (e.g. 'audio/mpeg', 'video/mp4').
+  /// Only set when [sourceType] is [JobSourceType.upload]; null otherwise,
+  /// including for upload jobs created before the server started
+  /// persisting this field.
+  final String? contentType;
+
+  /// Whether this upload job's file is a video, based on [contentType].
+  /// Null (unknown) when contentType wasn't reported by the server.
+  bool? get isVideoUpload {
+    if (sourceType != JobSourceType.upload || contentType == null) {
+      return null;
+    }
+    return contentType!.startsWith('video/');
+  }
 
   static JobStatus _statusFromRaw(String raw) {
     switch (raw) {

@@ -57,7 +57,9 @@ extension JobResponseMapper on JobResponse {
     updatedAt: updatedAt,
     errorCode: errorCode,
     errorDetail: errorDetail,
+    contentType: contentType,
     uploadSlot: uploadSlot?.toEntity(),
+    preview: preview,
   );
 }
 
@@ -71,6 +73,7 @@ extension JobDetailResponseMapper on JobDetailResponse {
     updatedAt: updatedAt,
     errorCode: errorCode,
     errorDetail: errorDetail,
+    contentType: contentType,
     uploadSlot: uploadSlot?.toEntity(),
     transcript: transcript?.toEntity(),
     summary: summary?.toEntity(),

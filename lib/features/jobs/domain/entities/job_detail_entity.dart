@@ -17,6 +17,7 @@ sealed class JobDetailEntity with _$JobDetailEntity {
     required DateTime updatedAt,
     String? errorCode,
     String? errorDetail,
+    String? contentType,
     UploadSlot? uploadSlot,
     Transcript? transcript,
     Summary? summary,

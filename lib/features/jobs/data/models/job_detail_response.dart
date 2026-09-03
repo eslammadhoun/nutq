@@ -17,6 +17,7 @@ sealed class JobDetailResponse with _$JobDetailResponse {
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
     @JsonKey(name: 'error_code') String? errorCode,
     @JsonKey(name: 'error_detail') String? errorDetail,
+    @JsonKey(name: 'content_type') String? contentType,
     @JsonKey(name: 'upload_slot') UploadSlotResponse? uploadSlot,
     TranscriptResponse? transcript,
     SummaryResponse? summary,
