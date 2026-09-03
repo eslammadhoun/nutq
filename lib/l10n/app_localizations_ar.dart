@@ -259,23 +259,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get newJobFormatsVideo => 'MP4 وWebM وMOV · حتى 500 ميجابايت';
 
   @override
-  String get newJobFileNameLabel => 'اسم الملف (اختياري)';
-
-  @override
-  String get newJobFileNameHint => 'مثال: interview-2026-08-09.mp3';
-
-  @override
   String get newJobYoutubeUrlLabel => 'رابط يوتيوب';
 
   @override
   String get newJobYoutubeUrlHint => 'https://youtube.com/watch?v=...';
-
-  @override
-  String get newJobForceWhisper => 'إجبار Whisper';
-
-  @override
-  String get newJobForceWhisperSubtitle =>
-      'تجاوز الكشف التلقائي واستخدام نموذج Whisper';
 
   @override
   String get newJobSubmit => 'إرسال المهمة';

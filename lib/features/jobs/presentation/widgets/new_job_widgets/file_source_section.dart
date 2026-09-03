@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
-import 'package:nutq/core/widgets/global_text_field.dart';
 import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
@@ -37,19 +36,6 @@ class FileSourceSection extends StatelessWidget {
                 ),
               ),
             ],
-            SizedBox(height: 12.h),
-            Text(
-              context.l10n.newJobFileNameLabel,
-              style: context.typography.bodyMediumTiny.copyWith(
-                color: context.appColors.textSecondary,
-              ),
-            ),
-            SizedBox(height: 6.h),
-            GlobalTextField(
-              hintText: context.l10n.newJobFileNameHint,
-              textInputType: TextInputType.text,
-              onChanged: context.read<NewJobCubit>().setFilename,
-            ),
           ],
         );
       },

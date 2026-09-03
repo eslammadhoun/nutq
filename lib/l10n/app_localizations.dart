@@ -554,18 +554,6 @@ abstract class AppLocalizations {
   /// **'MP4, WebM, MOV · up to 500MB'**
   String get newJobFormatsVideo;
 
-  /// No description provided for @newJobFileNameLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Filename (optional)'**
-  String get newJobFileNameLabel;
-
-  /// No description provided for @newJobFileNameHint.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. interview-2026-08-09.mp3'**
-  String get newJobFileNameHint;
-
   /// No description provided for @newJobYoutubeUrlLabel.
   ///
   /// In en, this message translates to:
@@ -577,18 +565,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'https://youtube.com/watch?v=...'**
   String get newJobYoutubeUrlHint;
-
-  /// No description provided for @newJobForceWhisper.
-  ///
-  /// In en, this message translates to:
-  /// **'Force Whisper'**
-  String get newJobForceWhisper;
-
-  /// No description provided for @newJobForceWhisperSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Bypass auto-detection, use Whisper model'**
-  String get newJobForceWhisperSubtitle;
 
   /// No description provided for @newJobSubmit.
   ///

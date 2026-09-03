@@ -13,7 +13,7 @@ class NewJobCubit extends Cubit<NewJobState> {
     required this.repository,
     required this.filePicker,
     required this.generateIdempotencyKey,
-  }) : super(const NewJobState());
+  }) : super(NewJobState(idempotencyKey: generateIdempotencyKey()));
 
   final JobsRepository repository;
   final FilePickerService filePicker;
@@ -34,12 +34,7 @@ class NewJobCubit extends Cubit<NewJobState> {
 
   void setText(String value) => emit(state.copyWith(text: value));
 
-  void setFilename(String value) => emit(state.copyWith(filename: value));
-
   void setSourceUrl(String value) => emit(state.copyWith(sourceUrl: value));
-
-  void toggleForceWhisper() =>
-      emit(state.copyWith(forceWhisper: !state.forceWhisper));
 
   void toggleIdempotency() {
     if (state.idempotencyEnabled) {
@@ -70,7 +65,6 @@ class NewJobCubit extends Cubit<NewJobState> {
     emit(
       state.copyWith(
         pickedFile: file,
-        filename: '',
         fileTooLarge: file.sizeBytes > UploadFile.maxBytes,
         status: NewJobStatus.idle,
       ),
@@ -78,7 +72,7 @@ class NewJobCubit extends Cubit<NewJobState> {
   }
 
   void clearPickedFile() =>
-      emit(state.copyWith(pickedFile: null, filename: '', fileTooLarge: false));
+      emit(state.copyWith(pickedFile: null, fileTooLarge: false));
 
   Future<void> submit() async {
     final snapshot = state;
@@ -90,7 +84,6 @@ class NewJobCubit extends Cubit<NewJobState> {
         language: snapshot.language,
         text: snapshot.text,
         pickedFile: snapshot.pickedFile,
-        filename: snapshot.filename,
         sourceUrl: snapshot.sourceUrl,
         forceWhisper: snapshot.forceWhisper,
         idempotencyEnabled: snapshot.idempotencyEnabled,
@@ -164,14 +157,12 @@ class NewJobCubit extends Cubit<NewJobState> {
         forceWhisper: snapshot.forceWhisper,
         idempotencyKey: idempotencyKey,
       ),
-      NewJobSourceType.video ||
-      NewJobSourceType.audio => () {
+      NewJobSourceType.video || NewJobSourceType.audio => () {
         final file = snapshot.pickedFile!;
-        final hasOverride = snapshot.filename.trim().isNotEmpty;
         return SubmitJobParams(
           sourceType: 'upload',
           language: language,
-          filename: hasOverride ? snapshot.filename.trim() : file.name,
+          filename: file.name,
           contentType: file.contentType,
           sizeHint: file.sizeBytes,
           idempotencyKey: idempotencyKey,
