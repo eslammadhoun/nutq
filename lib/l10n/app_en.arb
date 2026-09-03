@@ -22,6 +22,7 @@
   "somethingWentWrong": "Something went wrong",
 
   "errorNoConnection": "No internet connection",
+  "errorServerUnreachable": "Can't reach the server. Please try again later.",
   "errorTimeout": "Request timed out",
   "errorInvalidCredentials": "Invalid credentials",
   "errorLoginAgain": "Please log in again",

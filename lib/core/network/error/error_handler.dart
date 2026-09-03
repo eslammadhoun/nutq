@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:nutq/core/network/error/api_error.dart';
 
@@ -16,7 +18,7 @@ class ErrorHandler {
         return ApiError.timeout();
 
       case DioExceptionType.connectionError:
-        return ApiError.network();
+        return _isConnectionRefused(error) ? ApiError.serverUnreachable() : ApiError.network();
 
       case DioExceptionType.badResponse:
         return _handleBadResponse(error);
@@ -30,6 +32,23 @@ class ErrorHandler {
       default:
         return ApiError.unknown('Unexpected error');
     }
+  }
+
+  /// Distinguishes "server process is down" from "device has no internet".
+  /// Dio wraps both as [DioExceptionType.connectionError], but only the
+  /// former carries a [SocketException] with `errno == ECONNREFUSED`
+  /// (the OS actively rejected the connection, meaning the host was
+  /// reachable — the API just wasn't listening). This is checked directly
+  /// against the failed request's own error rather than a separate
+  /// pre-flight probe, so the result is never stale.
+  static bool _isConnectionRefused(DioException error) {
+    final inner = error.error;
+    if (inner is SocketException) {
+      return inner.osError?.errorCode == 61 || // macOS/iOS ECONNREFUSED
+          inner.osError?.errorCode == 111 || // Android/Linux ECONNREFUSED
+          inner.message.contains('Connection refused');
+    }
+    return false;
   }
 
   static ApiError _handleBadResponse(DioException error) {

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/network/error/api_error.dart';
@@ -71,6 +73,23 @@ void main() {
           ),
         ),
         isA<NetworkError>(),
+      );
+    });
+
+    test('connection refused (server down) maps to ServerUnreachableError', () {
+      final refused = SocketException(
+        'Connection refused',
+        osError: const OSError('Connection refused', 61),
+      );
+      expect(
+        ErrorHandler.map(
+          DioException(
+            requestOptions: RequestOptions(path: '/x'),
+            type: DioExceptionType.connectionError,
+            error: refused,
+          ),
+        ),
+        isA<ServerUnreachableError>(),
       );
     });
   });

@@ -158,6 +158,12 @@ abstract class AppLocalizations {
   /// **'No internet connection'**
   String get errorNoConnection;
 
+  /// No description provided for @errorServerUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach the server. Please try again later.'**
+  String get errorServerUnreachable;
+
   /// No description provided for @errorTimeout.
   ///
   /// In en, this message translates to:

@@ -41,6 +41,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorNoConnection => 'No internet connection';
 
   @override
+  String get errorServerUnreachable =>
+      'Can\'t reach the server. Please try again later.';
+
+  @override
   String get errorTimeout => 'Request timed out';
 
   @override

@@ -13,6 +13,7 @@ extension AuthErrorL10n on AppLocalizations {
 
   String _map(ApiError error, String unauthorizedMessage) => switch (error) {
     NetworkError() => errorNoConnection,
+    ServerUnreachableError() => errorServerUnreachable,
     TimeoutError() => errorTimeout,
     UnauthorizedError() => unauthorizedMessage,
     ValidationError(:final fieldErrors) =>

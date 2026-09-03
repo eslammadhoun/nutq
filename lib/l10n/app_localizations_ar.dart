@@ -41,6 +41,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get errorNoConnection => 'لا يوجد اتصال بالإنترنت';
 
   @override
+  String get errorServerUnreachable =>
+      'تعذر الوصول إلى الخادم. حاول مرة أخرى لاحقًا.';
+
+  @override
   String get errorTimeout => 'انتهت مهلة الطلب';
 
   @override

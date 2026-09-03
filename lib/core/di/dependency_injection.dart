@@ -8,8 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nutq/core/network/api_client.dart';
 import 'package:nutq/core/network/dio/dio_config.dart';
 import 'package:nutq/core/network/dio/dio_factory.dart';
-import 'package:nutq/core/network/network_info.dart';
-import 'package:nutq/core/network/network_info_impl.dart';
 import 'package:nutq/core/network/token/token_refresher.dart';
 import 'package:nutq/core/network/token/secure_token_storage.dart';
 import 'package:nutq/core/preferences/app_preferences.dart';
@@ -35,13 +33,11 @@ Future<void> setupDI() async {
 
   // Network stack
   sl.registerLazySingleton<TokenStorage>(() => SecureTokenStorage());
-  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl());
 
   // Create Dio FIRST without TokenRefresher (breaks circular dependency)
   final dio = DioFactory(
     tokenStorage: sl<TokenStorage>(),
     tokenRefresher: null, // will be injected after creation
-    networkInfo: sl<NetworkInfo>(),
     onSessionExpired: () async {
       await sl<AppPreferences>().setLoggedIn(false);
       // Tell the UI layer to redirect to login (main.dart listens).

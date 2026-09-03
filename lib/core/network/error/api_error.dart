@@ -4,8 +4,12 @@ part 'api_error.freezed.dart';
 
 @freezed
 sealed class ApiError with _$ApiError {
-  /// No internet / DNS failure / connection refused
+  /// No internet / DNS failure
   const factory ApiError.network() = NetworkError;
+
+  /// Connection actively refused — device is online but the API server
+  /// process isn't listening (e.g. backend stopped/crashed).
+  const factory ApiError.serverUnreachable() = ServerUnreachableError;
 
   /// Connection / send / receive timeout
   const factory ApiError.timeout() = TimeoutError;

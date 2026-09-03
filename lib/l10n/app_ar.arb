@@ -16,6 +16,7 @@
   "somethingWentWrong": "حدث خطأ ما",
 
   "errorNoConnection": "لا يوجد اتصال بالإنترنت",
+  "errorServerUnreachable": "تعذر الوصول إلى الخادم. حاول مرة أخرى لاحقًا.",
   "errorTimeout": "انتهت مهلة الطلب",
   "errorInvalidCredentials": "بيانات الدخول غير صحيحة",
   "errorLoginAgain": "يرجى تسجيل الدخول مرة أخرى",

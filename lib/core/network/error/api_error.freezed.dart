@@ -55,11 +55,12 @@ extension ApiErrorPatterns on ApiError {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NetworkError value)?  network,TResult Function( TimeoutError value)?  timeout,TResult Function( UnauthorizedError value)?  unauthorized,TResult Function( ValidationError value)?  validation,TResult Function( ServerError value)?  server,TResult Function( UnknownError value)?  unknown,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NetworkError value)?  network,TResult Function( ServerUnreachableError value)?  serverUnreachable,TResult Function( TimeoutError value)?  timeout,TResult Function( UnauthorizedError value)?  unauthorized,TResult Function( ValidationError value)?  validation,TResult Function( ServerError value)?  server,TResult Function( UnknownError value)?  unknown,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case NetworkError() when network != null:
-return network(_that);case TimeoutError() when timeout != null:
+return network(_that);case ServerUnreachableError() when serverUnreachable != null:
+return serverUnreachable(_that);case TimeoutError() when timeout != null:
 return timeout(_that);case UnauthorizedError() when unauthorized != null:
 return unauthorized(_that);case ValidationError() when validation != null:
 return validation(_that);case ServerError() when server != null:
@@ -82,11 +83,12 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NetworkError value)  network,required TResult Function( TimeoutError value)  timeout,required TResult Function( UnauthorizedError value)  unauthorized,required TResult Function( ValidationError value)  validation,required TResult Function( ServerError value)  server,required TResult Function( UnknownError value)  unknown,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NetworkError value)  network,required TResult Function( ServerUnreachableError value)  serverUnreachable,required TResult Function( TimeoutError value)  timeout,required TResult Function( UnauthorizedError value)  unauthorized,required TResult Function( ValidationError value)  validation,required TResult Function( ServerError value)  server,required TResult Function( UnknownError value)  unknown,}){
 final _that = this;
 switch (_that) {
 case NetworkError():
-return network(_that);case TimeoutError():
+return network(_that);case ServerUnreachableError():
+return serverUnreachable(_that);case TimeoutError():
 return timeout(_that);case UnauthorizedError():
 return unauthorized(_that);case ValidationError():
 return validation(_that);case ServerError():
@@ -105,11 +107,12 @@ return unknown(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NetworkError value)?  network,TResult? Function( TimeoutError value)?  timeout,TResult? Function( UnauthorizedError value)?  unauthorized,TResult? Function( ValidationError value)?  validation,TResult? Function( ServerError value)?  server,TResult? Function( UnknownError value)?  unknown,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NetworkError value)?  network,TResult? Function( ServerUnreachableError value)?  serverUnreachable,TResult? Function( TimeoutError value)?  timeout,TResult? Function( UnauthorizedError value)?  unauthorized,TResult? Function( ValidationError value)?  validation,TResult? Function( ServerError value)?  server,TResult? Function( UnknownError value)?  unknown,}){
 final _that = this;
 switch (_that) {
 case NetworkError() when network != null:
-return network(_that);case TimeoutError() when timeout != null:
+return network(_that);case ServerUnreachableError() when serverUnreachable != null:
+return serverUnreachable(_that);case TimeoutError() when timeout != null:
 return timeout(_that);case UnauthorizedError() when unauthorized != null:
 return unauthorized(_that);case ValidationError() when validation != null:
 return validation(_that);case ServerError() when server != null:
@@ -131,10 +134,11 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  network,TResult Function()?  timeout,TResult Function()?  unauthorized,TResult Function( Map<String, String> fieldErrors)?  validation,TResult Function( String message,  int? statusCode)?  server,TResult Function( String message)?  unknown,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  network,TResult Function()?  serverUnreachable,TResult Function()?  timeout,TResult Function()?  unauthorized,TResult Function( Map<String, String> fieldErrors)?  validation,TResult Function( String message,  int? statusCode)?  server,TResult Function( String message)?  unknown,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case NetworkError() when network != null:
-return network();case TimeoutError() when timeout != null:
+return network();case ServerUnreachableError() when serverUnreachable != null:
+return serverUnreachable();case TimeoutError() when timeout != null:
 return timeout();case UnauthorizedError() when unauthorized != null:
 return unauthorized();case ValidationError() when validation != null:
 return validation(_that.fieldErrors);case ServerError() when server != null:
@@ -157,10 +161,11 @@ return unknown(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  network,required TResult Function()  timeout,required TResult Function()  unauthorized,required TResult Function( Map<String, String> fieldErrors)  validation,required TResult Function( String message,  int? statusCode)  server,required TResult Function( String message)  unknown,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  network,required TResult Function()  serverUnreachable,required TResult Function()  timeout,required TResult Function()  unauthorized,required TResult Function( Map<String, String> fieldErrors)  validation,required TResult Function( String message,  int? statusCode)  server,required TResult Function( String message)  unknown,}) {final _that = this;
 switch (_that) {
 case NetworkError():
-return network();case TimeoutError():
+return network();case ServerUnreachableError():
+return serverUnreachable();case TimeoutError():
 return timeout();case UnauthorizedError():
 return unauthorized();case ValidationError():
 return validation(_that.fieldErrors);case ServerError():
@@ -179,10 +184,11 @@ return unknown(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  network,TResult? Function()?  timeout,TResult? Function()?  unauthorized,TResult? Function( Map<String, String> fieldErrors)?  validation,TResult? Function( String message,  int? statusCode)?  server,TResult? Function( String message)?  unknown,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  network,TResult? Function()?  serverUnreachable,TResult? Function()?  timeout,TResult? Function()?  unauthorized,TResult? Function( Map<String, String> fieldErrors)?  validation,TResult? Function( String message,  int? statusCode)?  server,TResult? Function( String message)?  unknown,}) {final _that = this;
 switch (_that) {
 case NetworkError() when network != null:
-return network();case TimeoutError() when timeout != null:
+return network();case ServerUnreachableError() when serverUnreachable != null:
+return serverUnreachable();case TimeoutError() when timeout != null:
 return timeout();case UnauthorizedError() when unauthorized != null:
 return unauthorized();case ValidationError() when validation != null:
 return validation(_that.fieldErrors);case ServerError() when server != null:
@@ -219,6 +225,38 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
   return 'ApiError.network()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class ServerUnreachableError implements ApiError {
+  const ServerUnreachableError();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ServerUnreachableError);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ApiError.serverUnreachable()';
 }
 
 

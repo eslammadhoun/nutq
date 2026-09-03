@@ -16,6 +16,10 @@ void main() {
   group('AuthErrorL10n.authErrorMessage', () {
     test('maps network/timeout/unauthorized to localized strings', () {
       expect(en.authErrorMessage(const ApiError.network()), en.errorNoConnection);
+      expect(
+        en.authErrorMessage(const ApiError.serverUnreachable()),
+        en.errorServerUnreachable,
+      );
       expect(en.authErrorMessage(const ApiError.timeout()), en.errorTimeout);
       expect(
         en.authErrorMessage(const ApiError.unauthorized()),
