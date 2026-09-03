@@ -6,8 +6,6 @@ part 'jobs_page.freezed.dart';
 /// Domain equivalent of [JobListResponse].
 @freezed
 sealed class JobsPage with _$JobsPage {
-  const factory JobsPage({
-    required List<JobEntity> items,
-    String? nextCursor,
-  }) = _JobsPage;
+  const factory JobsPage({required List<JobEntity> items, String? nextCursor}) =
+      _JobsPage;
 }
