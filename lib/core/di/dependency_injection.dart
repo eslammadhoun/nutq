@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:uuid/uuid.dart';
+import 'package:nutq/core/database/app_database.dart';
+import 'package:nutq/core/database/daos/jobs_dao.dart';
 import 'package:nutq/features/jobs/data/datasources/file_picker_service.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
@@ -10,7 +12,7 @@ import 'package:nutq/core/network/dio/dio_config.dart';
 import 'package:nutq/core/network/dio/dio_factory.dart';
 import 'package:nutq/core/preferences/app_preferences.dart';
 import 'package:nutq/core/locale/locale_cubit.dart';
-import 'package:nutq/features/jobs/data/datasources/jobs_api_service.dart';
+import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
 import 'package:nutq/features/jobs/data/sockets/job_updates_socket_service.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
@@ -24,16 +26,20 @@ Future<void> setupDI() async {
   sl.registerLazySingleton<AppPreferences>(() => AppPreferences(prefs));
   sl.registerLazySingleton<LocaleCubit>(() => LocaleCubit(sl<AppPreferences>()));
 
-  // Network stack
+  // Network stack — kept for the WS job-updates service (replaced by a
+  // local orchestrator in a later workstream) and future URL/YouTube fetch.
   final dio = DioFactory(config: const DioConfig()).create();
 
   sl.registerLazySingleton<Dio>(() => dio);
   sl.registerLazySingleton<ApiClient>(() => ApiClient(sl<Dio>()));
 
+  // Local database
+  sl.registerLazySingleton<AppDatabase>(() => AppDatabase());
+  sl.registerLazySingleton<JobsDao>(() => sl<AppDatabase>().jobsDao);
+
   // Jobs feature
-  sl.registerLazySingleton<JobsApiService>(() => JobsApiService(sl<Dio>()));
   sl.registerLazySingleton<JobsDataSource>(
-    () => JobsDataSourceImpl(sl<ApiClient>(), sl<JobsApiService>(), sl<Dio>()),
+    () => JobsDataSourceImpl(sl<JobsDao>()),
   );
   sl.registerLazySingleton<JobsRepository>(
     () => JobsRepositoryImpl(sl<JobsDataSource>()),
