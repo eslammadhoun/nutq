@@ -3,7 +3,10 @@ import 'package:get_it/get_it.dart';
 import 'package:uuid/uuid.dart';
 import 'package:nutq/core/database/app_database.dart';
 import 'package:nutq/core/database/daos/jobs_dao.dart';
+import 'package:nutq/core/database/daos/models_dao.dart';
+import 'package:nutq/core/ml/models/model_download_service.dart';
 import 'package:nutq/features/jobs/data/datasources/file_picker_service.dart';
+import 'package:nutq/features/models/presentation/cubit/models_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,6 +39,16 @@ Future<void> setupDI() async {
   // Local database
   sl.registerLazySingleton<AppDatabase>(() => AppDatabase());
   sl.registerLazySingleton<JobsDao>(() => sl<AppDatabase>().jobsDao);
+  sl.registerLazySingleton<ModelsDao>(() => sl<AppDatabase>().modelsDao);
+
+  // On-device ASR model management (Models screen). `AsrPipeline`/
+  // `WhisperIsolateEngine` are constructed by whoever runs a transcription
+  // (a later workstream's `JobOrchestrator`) — not registered here since
+  // nothing in this workstream drives them from the UI yet.
+  sl.registerLazySingleton<ModelDownloadService>(
+    () => ModelDownloadService(dio: sl<Dio>(), modelsDao: sl<ModelsDao>()),
+  );
+  sl.registerFactory<ModelsCubit>(() => ModelsCubit(downloadService: sl<ModelDownloadService>()));
 
   // Jobs feature
   sl.registerLazySingleton<JobsDataSource>(

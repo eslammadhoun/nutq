@@ -393,4 +393,61 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileLogOut => 'تسجيل الخروج';
+
+  @override
+  String get profileModels => 'نماذج التفريغ الصوتي';
+
+  @override
+  String get modelsScreenTitle => 'نماذج التفريغ الصوتي';
+
+  @override
+  String get modelsTierBase => 'أساسي';
+
+  @override
+  String get modelsTierBaseDescription => 'الأسرع، وأقل استخداماً للتخزين';
+
+  @override
+  String get modelsTierSmall => 'صغير';
+
+  @override
+  String get modelsTierSmallDescription => 'موصى به — توازن بين الدقة والحجم';
+
+  @override
+  String get modelsTierMedium => 'متوسط';
+
+  @override
+  String get modelsTierMediumDescription => 'أفضل دقة، وأكبر حجم تحميل';
+
+  @override
+  String get modelsDefaultBadge => 'افتراضي';
+
+  @override
+  String get modelsInstalled => 'مثبّت';
+
+  @override
+  String get modelsNotInstalled => 'غير محمّل';
+
+  @override
+  String get modelsDownload => 'تحميل';
+
+  @override
+  String get modelsDelete => 'حذف';
+
+  @override
+  String get modelsCancelDownload => 'إلغاء';
+
+  @override
+  String modelsDownloading(int percent) {
+    return 'جارٍ التحميل… $percent%';
+  }
+
+  @override
+  String modelsSizeMb(String size) {
+    return '$size ميغابايت';
+  }
+
+  @override
+  String modelsSizeGb(String size) {
+    return '$size غيغابايت';
+  }
 }

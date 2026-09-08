@@ -181,5 +181,32 @@
   "jobDetailShowLess": "Show less",
 
   "profileComingSoon": "Profile — coming soon",
-  "profileLogOut": "Log out"
+  "profileLogOut": "Log out",
+  "profileModels": "Speech models",
+
+  "modelsScreenTitle": "Speech Models",
+  "modelsTierBase": "Base",
+  "modelsTierBaseDescription": "Fastest, lowest storage use",
+  "modelsTierSmall": "Small",
+  "modelsTierSmallDescription": "Recommended — balanced accuracy and size",
+  "modelsTierMedium": "Medium",
+  "modelsTierMediumDescription": "Best accuracy, largest download",
+  "modelsDefaultBadge": "Default",
+  "modelsInstalled": "Installed",
+  "modelsNotInstalled": "Not downloaded",
+  "modelsDownload": "Download",
+  "modelsDelete": "Delete",
+  "modelsCancelDownload": "Cancel",
+  "modelsDownloading": "Downloading… {percent}%",
+  "@modelsDownloading": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "modelsSizeMb": "{size} MB",
+  "@modelsSizeMb": {
+    "placeholders": { "size": { "type": "String" } }
+  },
+  "modelsSizeGb": "{size} GB",
+  "@modelsSizeGb": {
+    "placeholders": { "size": { "type": "String" } }
+  }
 }

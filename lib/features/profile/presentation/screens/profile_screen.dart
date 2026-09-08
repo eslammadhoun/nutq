@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/locale/locale_cubit.dart';
+import 'package:nutq/core/routing/routes.dart';
 
 // TODO(profile): placeholder until the Profile screen is designed.
 class ProfileScreen extends StatelessWidget {
@@ -22,6 +23,10 @@ class ProfileScreen extends StatelessWidget {
                 style: context.typography.bodyBase.copyWith(
                   color: context.appColors.textSecondary,
                 ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pushNamed(Routes.models),
+                child: Text(l10n.profileModels),
               ),
               // TODO: temporary language toggle for testing — remove before release.
               BlocBuilder<LocaleCubit, Locale?>(

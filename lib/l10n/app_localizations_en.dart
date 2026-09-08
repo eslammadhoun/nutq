@@ -396,4 +396,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileLogOut => 'Log out';
+
+  @override
+  String get profileModels => 'Speech models';
+
+  @override
+  String get modelsScreenTitle => 'Speech Models';
+
+  @override
+  String get modelsTierBase => 'Base';
+
+  @override
+  String get modelsTierBaseDescription => 'Fastest, lowest storage use';
+
+  @override
+  String get modelsTierSmall => 'Small';
+
+  @override
+  String get modelsTierSmallDescription =>
+      'Recommended — balanced accuracy and size';
+
+  @override
+  String get modelsTierMedium => 'Medium';
+
+  @override
+  String get modelsTierMediumDescription => 'Best accuracy, largest download';
+
+  @override
+  String get modelsDefaultBadge => 'Default';
+
+  @override
+  String get modelsInstalled => 'Installed';
+
+  @override
+  String get modelsNotInstalled => 'Not downloaded';
+
+  @override
+  String get modelsDownload => 'Download';
+
+  @override
+  String get modelsDelete => 'Delete';
+
+  @override
+  String get modelsCancelDownload => 'Cancel';
+
+  @override
+  String modelsDownloading(int percent) {
+    return 'Downloading… $percent%';
+  }
+
+  @override
+  String modelsSizeMb(String size) {
+    return '$size MB';
+  }
+
+  @override
+  String modelsSizeGb(String size) {
+    return '$size GB';
+  }
 }

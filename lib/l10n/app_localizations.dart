@@ -799,6 +799,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log out'**
   String get profileLogOut;
+
+  /// No description provided for @profileModels.
+  ///
+  /// In en, this message translates to:
+  /// **'Speech models'**
+  String get profileModels;
+
+  /// No description provided for @modelsScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Speech Models'**
+  String get modelsScreenTitle;
+
+  /// No description provided for @modelsTierBase.
+  ///
+  /// In en, this message translates to:
+  /// **'Base'**
+  String get modelsTierBase;
+
+  /// No description provided for @modelsTierBaseDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Fastest, lowest storage use'**
+  String get modelsTierBaseDescription;
+
+  /// No description provided for @modelsTierSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Small'**
+  String get modelsTierSmall;
+
+  /// No description provided for @modelsTierSmallDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended — balanced accuracy and size'**
+  String get modelsTierSmallDescription;
+
+  /// No description provided for @modelsTierMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get modelsTierMedium;
+
+  /// No description provided for @modelsTierMediumDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Best accuracy, largest download'**
+  String get modelsTierMediumDescription;
+
+  /// No description provided for @modelsDefaultBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get modelsDefaultBadge;
+
+  /// No description provided for @modelsInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed'**
+  String get modelsInstalled;
+
+  /// No description provided for @modelsNotInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Not downloaded'**
+  String get modelsNotInstalled;
+
+  /// No description provided for @modelsDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get modelsDownload;
+
+  /// No description provided for @modelsDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get modelsDelete;
+
+  /// No description provided for @modelsCancelDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get modelsCancelDownload;
+
+  /// No description provided for @modelsDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading… {percent}%'**
+  String modelsDownloading(int percent);
+
+  /// No description provided for @modelsSizeMb.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} MB'**
+  String modelsSizeMb(String size);
+
+  /// No description provided for @modelsSizeGb.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} GB'**
+  String modelsSizeGb(String size);
 }
 
 class _AppLocalizationsDelegate

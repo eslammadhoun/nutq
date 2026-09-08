@@ -145,5 +145,32 @@
   "jobDetailShowLess": "عرض أقل",
 
   "profileComingSoon": "الملف الشخصي — قريباً",
-  "profileLogOut": "تسجيل الخروج"
+  "profileLogOut": "تسجيل الخروج",
+  "profileModels": "نماذج التفريغ الصوتي",
+
+  "modelsScreenTitle": "نماذج التفريغ الصوتي",
+  "modelsTierBase": "أساسي",
+  "modelsTierBaseDescription": "الأسرع، وأقل استخداماً للتخزين",
+  "modelsTierSmall": "صغير",
+  "modelsTierSmallDescription": "موصى به — توازن بين الدقة والحجم",
+  "modelsTierMedium": "متوسط",
+  "modelsTierMediumDescription": "أفضل دقة، وأكبر حجم تحميل",
+  "modelsDefaultBadge": "افتراضي",
+  "modelsInstalled": "مثبّت",
+  "modelsNotInstalled": "غير محمّل",
+  "modelsDownload": "تحميل",
+  "modelsDelete": "حذف",
+  "modelsCancelDownload": "إلغاء",
+  "modelsDownloading": "جارٍ التحميل… {percent}%",
+  "@modelsDownloading": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "modelsSizeMb": "{size} ميغابايت",
+  "@modelsSizeMb": {
+    "placeholders": { "size": { "type": "String" } }
+  },
+  "modelsSizeGb": "{size} غيغابايت",
+  "@modelsSizeGb": {
+    "placeholders": { "size": { "type": "String" } }
+  }
 }
