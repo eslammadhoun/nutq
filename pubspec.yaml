@@ -39,6 +39,7 @@ dependencies:
   path: ^1.9.1
   whisper_ggml: ^2.6.0
   ffmpeg_kit_flutter_new_min: ^2.0.0
+  llama_cpp_dart: ^0.9.0-dev.12
 
 dev_dependencies:
   flutter_test:
