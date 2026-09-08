@@ -5,6 +5,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:nutq/core/database/app_database.dart';
+import 'package:nutq/core/ml/models/llm_model_spec.dart';
 import 'package:nutq/core/ml/models/model_download_service.dart';
 import 'package:nutq/core/ml/models/whisper_model_spec.dart';
 import 'package:nutq/core/network/error/api_error.dart';
@@ -93,6 +94,38 @@ void main() {
       expect(result, isA<Failure<InstalledModelRow>>());
       final error = (result as Failure<InstalledModelRow>).error;
       expect(error, isA<DeviceOfflineError>());
+    });
+
+    test('download records an llm-kind row for an LlmModelSpec (shared machinery, not duplicated)', () async {
+      when(
+        () => dio.download(
+          any(),
+          any(),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+          cancelToken: any(named: 'cancelToken'),
+        ),
+      ).thenAnswer((invocation) async {
+        final savePath = invocation.positionalArguments[1] as String;
+        await File(savePath).writeAsBytes(List<int>.filled(1000, 1));
+        final onProgress = invocation.namedArguments[#onReceiveProgress] as void Function(int, int)?;
+        onProgress?.call(1000, 1000);
+        return Response<void>(requestOptions: RequestOptions(path: savePath), statusCode: 200);
+      });
+
+      final result = await service.download(LlmModelSpec.oneB);
+
+      final row = switch (result) {
+        Success(:final data) => data,
+        Failure(:final error) => throw StateError('download failed: $error'),
+      };
+
+      expect(row.modelId, '1b');
+      expect(row.kind, 'llm');
+      expect(row.tier, '1b');
+
+      final stored = await db.modelsDao.getInstalled('1b');
+      expect(stored, isNotNull);
+      expect(stored!.kind, 'llm');
     });
 
     test('deleteModel removes the file and the DB row', () async {
