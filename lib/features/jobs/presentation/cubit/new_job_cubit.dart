@@ -99,33 +99,6 @@ class NewJobCubit extends Cubit<NewJobState> {
       Failure(:final error) => _fail(error),
     };
     if (job == null) return;
-    if (snapshot.sourceType.wireValue == 'upload') {
-      final slot = job.uploadSlot;
-      if (slot == null) {
-        _fail(const ApiError.server('missing upload_slot', null));
-        return;
-      }
-
-      final uploaded = await repository.uploadToSlot(slot.uploadUrl, snapshot.pickedFile!);
-      final failureAfterUpload = switch (uploaded) {
-        Failure(:final error) => error,
-        Success() => null,
-      };
-      if (failureAfterUpload != null) {
-        _fail(failureAfterUpload);
-        return;
-      }
-
-      final confirmed = await repository.confirmUpload(job.id);
-      final confirmFailure = switch (confirmed) {
-        Failure(:final error) => error,
-        Success() => null,
-      };
-      if (confirmFailure != null) {
-        _fail(confirmFailure);
-        return;
-      }
-    }
 
     if (isClosed) return;
     emit(
@@ -166,6 +139,7 @@ class NewJobCubit extends Cubit<NewJobState> {
           contentType: file.contentType,
           sizeHint: file.sizeBytes,
           idempotencyKey: idempotencyKey,
+          file: file,
         );
       }(),
     };
