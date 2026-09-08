@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:nutq/core/database/daos/jobs_dao.dart';
+import 'package:nutq/core/database/daos/models_dao.dart';
 import 'package:nutq/core/database/tables.dart';
 
 part 'app_database.g.dart';
@@ -9,7 +10,10 @@ part 'app_database.g.dart';
 /// feature — replaces the backend as the single source of truth for
 /// job/transcript/summary/takeaway data. See `lib/core/database/tables.dart`
 /// for the schema.
-@DriftDatabase(tables: [Jobs, Transcripts, Summaries, Takeaways, InstalledModels], daos: [JobsDao])
+@DriftDatabase(
+  tables: [Jobs, Transcripts, Summaries, Takeaways, InstalledModels],
+  daos: [JobsDao, ModelsDao],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
   AppDatabase.forTesting(super.connection);
