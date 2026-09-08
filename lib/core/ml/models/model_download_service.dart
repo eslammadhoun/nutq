@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:nutq/core/database/app_database.dart';
 import 'package:nutq/core/database/daos/models_dao.dart';
-import 'package:nutq/core/ml/models/whisper_model_spec.dart';
+import 'package:nutq/core/ml/models/model_spec.dart';
 import 'package:nutq/core/network/error/api_error.dart';
 import 'package:nutq/core/network/result/api_result.dart';
 import 'package:path/path.dart' as p;
@@ -13,9 +13,13 @@ import 'package:path_provider/path_provider.dart' as path_provider;
 /// Download progress for a single model, 0.0–1.0.
 typedef ModelDownloadProgress = double;
 
-/// Downloads a whisper GGML model tier, verifies it, stores it under
-/// `getApplicationSupportDirectory()/models/`, and records the result in
-/// the `installed_models` table via [ModelsDao].
+/// Downloads a model tier — whisper GGML ([WhisperModelSpec]) or Gemma GGUF
+/// (`LlmModelSpec`), anything implementing [ModelSpec] — verifies it,
+/// stores it under `getApplicationSupportDirectory()/models/`, and records
+/// the result in the `installed_models` table via [ModelsDao]. One
+/// download/verify/DB-record path for every model kind — the
+/// `installed_models.kind` column (populated from [ModelSpec.kind]) is what
+/// tells whisper and llm rows apart, not a second copy of this class.
 ///
 /// Uses `dio` (already a dependency) rather than `http`/`dart:io` directly,
 /// matching the rest of the app's network stack, and reports progress so a
@@ -57,7 +61,7 @@ class ModelDownloadService {
   /// `size:<bytes>` sentinel to make the verification method explicit to
   /// readers of the stored row).
   Future<ApiResult<InstalledModelRow>> download(
-    WhisperModelSpec spec, {
+    ModelSpec spec, {
     void Function(ModelDownloadProgress progress)? onProgress,
   }) async {
     final cancelToken = CancelToken();
@@ -93,7 +97,7 @@ class ModelDownloadService {
 
       final row = InstalledModelRow(
         modelId: spec.id,
-        kind: 'whisper',
+        kind: spec.kind,
         tier: spec.id,
         filePath: destination.path,
         downloadedAt: DateTime.now(),

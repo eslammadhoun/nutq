@@ -1,3 +1,5 @@
+import 'package:nutq/core/ml/models/model_spec.dart';
+
 /// Static metadata for the three whisper.cpp GGML model tiers offered to
 /// the user, per the plan's accuracy/size trade-off (not `tiny` — Arabic
 /// WER is materially worse at that tier).
@@ -6,7 +8,7 @@
 /// itself resolves against (`WhisperModel.modelUri`,
 /// `ggerganov/whisper.cpp` on Hugging Face) — full-precision (non-quantized)
 /// `ggml-{tier}.bin` files, matching the plan's stated approximate sizes.
-class WhisperModelSpec {
+class WhisperModelSpec implements ModelSpec {
   const WhisperModelSpec({
     required this.id,
     required this.displayName,
@@ -17,11 +19,19 @@ class WhisperModelSpec {
 
   /// Stable id, also used as the `modelId` in the `installed_models` table
   /// and as the on-disk filename (`ggml-{id}.bin`).
+  @override
   final String id;
+  @override
   final String displayName;
+  @override
   final int approxSizeBytes;
+  @override
   final Uri downloadUrl;
+  @override
   final bool isDefault;
+
+  @override
+  String get kind => 'whisper';
 
   static final base = WhisperModelSpec(
     id: 'base',
@@ -56,5 +66,6 @@ class WhisperModelSpec {
     return null;
   }
 
+  @override
   String get fileName => 'ggml-$id.bin';
 }
