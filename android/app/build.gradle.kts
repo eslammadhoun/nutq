@@ -14,6 +14,16 @@ android {
     compileSdk = maxOf(flutter.compileSdkVersion, 34)
     ndkVersion = "29.0.13113456"
 
+    // `llama_cpp_dart` (Gemma summarization) bundles its Android
+    // `libllama.so` via Flutter's native-assets build hook rather than a
+    // Gradle/CMake step — no further config needed here, but the *Flutter
+    // SDK/toolchain* running the build must have that feature turned on:
+    // `flutter config --enable-native-assets`. This is a machine-level
+    // toolchain flag, not a project file, so it can't be pinned in this
+    // repo — CI/dev machines building this app for Android need to have run
+    // it once. Not verified against a real Android build in this
+    // workstream (no device/emulator available).
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
