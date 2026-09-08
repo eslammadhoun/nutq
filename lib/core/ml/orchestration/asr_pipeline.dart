@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:nutq/core/ml/models/model_download_service.dart';
 import 'package:nutq/core/ml/models/whisper_model_spec.dart';
 import 'package:nutq/core/ml/orchestration/asr_pipeline_event.dart';
+import 'package:nutq/core/ml/orchestration/inference_lock.dart';
 import 'package:nutq/core/ml/whisper/audio_chunker.dart';
 import 'package:nutq/core/ml/whisper/whisper_engine.dart';
 import 'package:nutq/core/ml/whisper/whisper_engine_event.dart';
@@ -47,12 +48,19 @@ class AsrPipeline {
     this.chunker = const AudioChunker(),
     this.batchWindow = const Duration(milliseconds: 150),
     this.batchWordCount = 5,
+    InferenceLock? inferenceLock,
     Future<Directory> Function()? tempDirectory,
-  }) : _tempDirectory = tempDirectory ?? path_provider.getTemporaryDirectory;
+  }) : _inferenceLock = inferenceLock ?? InferenceLock.shared,
+       _tempDirectory = tempDirectory ?? path_provider.getTemporaryDirectory;
 
   final WhisperEngine _engine;
   final ModelDownloadService _modelDownloadService;
   final AudioChunker chunker;
+
+  /// Held around each chunk's [WhisperEngine.transcribe] call so llama.cpp
+  /// inference (`SummarizationPipeline`) never runs concurrently with
+  /// whisper.cpp on the same device — see [InferenceLock]'s doc comment.
+  final InferenceLock _inferenceLock;
 
   /// Batch coalescing window — whichever of this or [batchWordCount] is
   /// reached first flushes a [AsrPipelineEvent.transcriptBatch].
@@ -153,28 +161,36 @@ class AsrPipeline {
         }
 
         final chunkText = StringBuffer();
-        await for (final event in _engine.transcribe(chunkPaths[i], language: language)) {
-          switch (event) {
-            case WhisperEngineProgress(:final percent):
-              controller.add(AsrPipelineEvent.progress(chunkIndex: i, chunkTotal: chunkPaths.length, percent: percent));
-            case WhisperEngineSegment(:final text):
-              chunkText.write(chunkText.isEmpty ? text : ' $text');
-              // Streamed live as each segment is enumerated — note this
-              // preview is not itself boundary-deduped (only the final
-              // `done` transcript is, via `dedupedText` below); whisper
-              // segments arrive in one burst per chunk (see
-              // WhisperEngineImpl's doc comment), not truly incrementally,
-              // but the `await for` still yields control between
-              // iterations so the batch window/word-count coalescing below
-              // has real segments to coalesce rather than one giant flush.
-              addToBatch(text);
-            case WhisperEngineDone():
-              break;
-            case WhisperEngineError(:final message):
-              controller.add(AsrPipelineEvent.error(error: ApiError.nativeEngineFailure(message)));
-              await controller.close();
-              return;
+        // Held for this chunk's whole transcribe() call — see
+        // `_inferenceLock`'s doc comment: llama.cpp must never decode while
+        // whisper.cpp is mid-chunk.
+        await _inferenceLock.acquire();
+        try {
+          await for (final event in _engine.transcribe(chunkPaths[i], language: language)) {
+            switch (event) {
+              case WhisperEngineProgress(:final percent):
+                controller.add(AsrPipelineEvent.progress(chunkIndex: i, chunkTotal: chunkPaths.length, percent: percent));
+              case WhisperEngineSegment(:final text):
+                chunkText.write(chunkText.isEmpty ? text : ' $text');
+                // Streamed live as each segment is enumerated — note this
+                // preview is not itself boundary-deduped (only the final
+                // `done` transcript is, via `dedupedText` below); whisper
+                // segments arrive in one burst per chunk (see
+                // WhisperEngineImpl's doc comment), not truly incrementally,
+                // but the `await for` still yields control between
+                // iterations so the batch window/word-count coalescing below
+                // has real segments to coalesce rather than one giant flush.
+                addToBatch(text);
+              case WhisperEngineDone():
+                break;
+              case WhisperEngineError(:final message):
+                controller.add(AsrPipelineEvent.error(error: ApiError.nativeEngineFailure(message)));
+                await controller.close();
+                return;
+            }
           }
+        } finally {
+          _inferenceLock.release();
         }
 
         var dedupedText = chunkText.toString();
