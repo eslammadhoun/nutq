@@ -21,7 +21,6 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('🔥 SPLASH INIT: ${identityHashCode(this)}');
     _handleNavigation();
   }
 
@@ -30,22 +29,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
-    debugPrint('➡️ isLoggedIn: ${appPreferences.isLoggedIn}');
-
-    debugPrint('➡️ hasSeenOnboarding: ${appPreferences.hasSeenOnboarding}');
-
-    if (appPreferences.isLoggedIn) {
+    if (appPreferences.hasSeenOnboarding) {
       context.pushNamedAndRemoveUntil(Routes.home);
       return;
     }
 
-    if (appPreferences.hasSeenOnboarding) {
-      debugPrint('➡️ GOING LOGIN');
-      context.pushNamedAndRemoveUntil(Routes.login);
-      return;
-    }
-
-    debugPrint('➡️ GOING ONBOARDING');
     context.pushNamedAndRemoveUntil(Routes.onboarding);
   }
 
