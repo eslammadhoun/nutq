@@ -32,6 +32,7 @@ extension TranscriptResponseMapper on TranscriptResponse {
     modelVersion: modelVersion,
     quantization: quantization,
     downloadUrl: downloadUrl,
+    text: text,
   );
 }
 

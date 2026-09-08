@@ -52,6 +52,10 @@ abstract interface class JobsDataSource {
   /// The token in the URL authorizes the request; no bearer token needed.
   Future<ApiResult<void>> uploadToSlot(String uploadUrl, UploadFile file);
   Future<ApiResult<void>> deleteJob(String jobId);
+
+  /// Fetches the raw transcript body from [Transcript.downloadUrl] — same
+  /// presigned-URL pattern as [uploadToSlot], no bearer token needed.
+  Future<ApiResult<String>> fetchTranscriptText(String downloadUrl);
 }
 
 /// Implementation: wraps Retrofit + ApiClient for safe deserialization
@@ -126,6 +130,14 @@ class JobsDataSourceImpl implements JobsDataSource {
   Future<ApiResult<void>> deleteJob(String jobId) async {
     return await _apiClient.execute<void>(
       () async => _retrofit.deleteJob(jobId),
+    );
+  }
+
+  @override
+  Future<ApiResult<String>> fetchTranscriptText(String downloadUrl) {
+    return _apiClient.get<String>(
+      _resolveAgainstBaseUrl(downloadUrl),
+      options: Options(responseType: ResponseType.plain),
     );
   }
 }

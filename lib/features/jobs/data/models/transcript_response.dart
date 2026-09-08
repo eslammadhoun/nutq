@@ -13,6 +13,7 @@ sealed class TranscriptResponse with _$TranscriptResponse {
     @JsonKey(name: 'model_version') required String modelVersion,
     String? quantization,
     @JsonKey(name: 'download_url') String? downloadUrl,
+    String? text,
   }) = _TranscriptResponse;
 
   factory TranscriptResponse.fromJson(Map<String, dynamic> json) =>

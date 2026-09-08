@@ -21,5 +21,13 @@ sealed class JobDetailEntity with _$JobDetailEntity {
     UploadSlot? uploadSlot,
     Transcript? transcript,
     Summary? summary,
+    // Progress fields the REST `GET /jobs/{id}` response does not return
+    // (verified against `job_detail_response.dart`/`job_mappers.dart`) —
+    // populated only via the `/jobs/{id}/ws` live-update stream.
+    bool? isTerminal,
+    int? stageIndex,
+    int? stageTotal,
+    List<String>? stages,
+    double? progress,
   }) = _JobDetailEntity;
 }

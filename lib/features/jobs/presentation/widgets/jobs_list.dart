@@ -4,6 +4,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:nutq/core/extensions/error_l10n_extension.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/widgets/global_button.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
@@ -153,7 +154,14 @@ class _JobsListState extends State<JobsList> {
                       color: context.appColors.statusFailed,
                     ),
                   ),
-                  child: JobCard(job: job),
+                  child: GestureDetector(
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      Routes.jobDetail,
+                      arguments: job.id,
+                    ),
+                    child: JobCard(job: job),
+                  ),
                 );
               },
             ),

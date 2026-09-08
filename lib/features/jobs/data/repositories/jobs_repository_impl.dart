@@ -52,4 +52,9 @@ class JobsRepositoryImpl implements JobsRepository {
   Future<ApiResult<void>> deleteJob(String jobId) async {
     return _dataSource.deleteJob(jobId);
   }
+
+  @override
+  Future<ApiResult<String>> fetchTranscriptText(String downloadUrl) {
+    return _dataSource.fetchTranscriptText(downloadUrl);
+  }
 }

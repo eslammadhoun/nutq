@@ -22,7 +22,7 @@ class Job {
   });
 
   factory Job.fromEntity(JobEntity entity) {
-    final status = _statusFromRaw(entity.status);
+    final status = statusFromRaw(entity.status);
     return Job(
       id: entity.id,
       // The list endpoint has no title/preview; only failed jobs carry a
@@ -30,7 +30,7 @@ class Job {
       subtitle: status == JobStatus.failed && entity.errorDetail != null
           ? entity.errorDetail!
           : null,
-      sourceType: _sourceTypeFromRaw(entity.sourceType),
+      sourceType: sourceTypeFromRaw(entity.sourceType),
       status: status,
       createdAt: entity.createdAt,
       languageCode: entity.language,
@@ -64,7 +64,9 @@ class Job {
     return contentType!.startsWith('video/');
   }
 
-  static JobStatus _statusFromRaw(String raw) {
+  /// Shared with the Job Detail screen, which maps the same raw backend
+  /// status string on a [JobDetailEntity] rather than a [JobEntity].
+  static JobStatus statusFromRaw(String raw) {
     switch (raw) {
       case 'completed':
         return JobStatus.done;
@@ -81,7 +83,7 @@ class Job {
     }
   }
 
-  static JobSourceType _sourceTypeFromRaw(String raw) {
+  static JobSourceType sourceTypeFromRaw(String raw) {
     return JobSourceType.values.firstWhere(
       (type) => type.name == raw,
       orElse: () => JobSourceType.text,

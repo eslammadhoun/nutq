@@ -14,7 +14,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$JobDetailEntity {
 
- String get id; String get status; String get sourceType; String get language; DateTime get createdAt; DateTime get updatedAt; String? get errorCode; String? get errorDetail; String? get contentType; UploadSlot? get uploadSlot; Transcript? get transcript; Summary? get summary;
+ String get id; String get status; String get sourceType; String get language; DateTime get createdAt; DateTime get updatedAt; String? get errorCode; String? get errorDetail; String? get contentType; UploadSlot? get uploadSlot; Transcript? get transcript; Summary? get summary;// Progress fields the REST `GET /jobs/{id}` response does not return
+// (verified against `job_detail_response.dart`/`job_mappers.dart`) —
+// populated only via the `/jobs/{id}/ws` live-update stream.
+ bool? get isTerminal; int? get stageIndex; int? get stageTotal; List<String>? get stages; double? get progress;
 /// Create a copy of JobDetailEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +28,16 @@ $JobDetailEntityCopyWith<JobDetailEntity> get copyWith => _$JobDetailEntityCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is JobDetailEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.errorDetail, errorDetail) || other.errorDetail == errorDetail)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.uploadSlot, uploadSlot) || other.uploadSlot == uploadSlot)&&(identical(other.transcript, transcript) || other.transcript == transcript)&&(identical(other.summary, summary) || other.summary == summary));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is JobDetailEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.errorDetail, errorDetail) || other.errorDetail == errorDetail)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.uploadSlot, uploadSlot) || other.uploadSlot == uploadSlot)&&(identical(other.transcript, transcript) || other.transcript == transcript)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.isTerminal, isTerminal) || other.isTerminal == isTerminal)&&(identical(other.stageIndex, stageIndex) || other.stageIndex == stageIndex)&&(identical(other.stageTotal, stageTotal) || other.stageTotal == stageTotal)&&const DeepCollectionEquality().equals(other.stages, stages)&&(identical(other.progress, progress) || other.progress == progress));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,errorCode,errorDetail,contentType,uploadSlot,transcript,summary);
+int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,errorCode,errorDetail,contentType,uploadSlot,transcript,summary,isTerminal,stageIndex,stageTotal,const DeepCollectionEquality().hash(stages),progress);
 
 @override
 String toString() {
-  return 'JobDetailEntity(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, errorCode: $errorCode, errorDetail: $errorDetail, contentType: $contentType, uploadSlot: $uploadSlot, transcript: $transcript, summary: $summary)';
+  return 'JobDetailEntity(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, errorCode: $errorCode, errorDetail: $errorDetail, contentType: $contentType, uploadSlot: $uploadSlot, transcript: $transcript, summary: $summary, isTerminal: $isTerminal, stageIndex: $stageIndex, stageTotal: $stageTotal, stages: $stages, progress: $progress)';
 }
 
 
@@ -45,7 +48,7 @@ abstract mixin class $JobDetailEntityCopyWith<$Res>  {
   factory $JobDetailEntityCopyWith(JobDetailEntity value, $Res Function(JobDetailEntity) _then) = _$JobDetailEntityCopyWithImpl;
 @useResult
 $Res call({
- String id, String status, String sourceType, String language, DateTime createdAt, DateTime updatedAt, String? errorCode, String? errorDetail, String? contentType, UploadSlot? uploadSlot, Transcript? transcript, Summary? summary
+ String id, String status, String sourceType, String language, DateTime createdAt, DateTime updatedAt, String? errorCode, String? errorDetail, String? contentType, UploadSlot? uploadSlot, Transcript? transcript, Summary? summary, bool? isTerminal, int? stageIndex, int? stageTotal, List<String>? stages, double? progress
 });
 
 
@@ -62,7 +65,7 @@ class _$JobDetailEntityCopyWithImpl<$Res>
 
 /// Create a copy of JobDetailEntity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? errorCode = freezed,Object? errorDetail = freezed,Object? contentType = freezed,Object? uploadSlot = freezed,Object? transcript = freezed,Object? summary = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? errorCode = freezed,Object? errorDetail = freezed,Object? contentType = freezed,Object? uploadSlot = freezed,Object? transcript = freezed,Object? summary = freezed,Object? isTerminal = freezed,Object? stageIndex = freezed,Object? stageTotal = freezed,Object? stages = freezed,Object? progress = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -76,7 +79,12 @@ as String?,contentType: freezed == contentType ? _self.contentType : contentType
 as String?,uploadSlot: freezed == uploadSlot ? _self.uploadSlot : uploadSlot // ignore: cast_nullable_to_non_nullable
 as UploadSlot?,transcript: freezed == transcript ? _self.transcript : transcript // ignore: cast_nullable_to_non_nullable
 as Transcript?,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
-as Summary?,
+as Summary?,isTerminal: freezed == isTerminal ? _self.isTerminal : isTerminal // ignore: cast_nullable_to_non_nullable
+as bool?,stageIndex: freezed == stageIndex ? _self.stageIndex : stageIndex // ignore: cast_nullable_to_non_nullable
+as int?,stageTotal: freezed == stageTotal ? _self.stageTotal : stageTotal // ignore: cast_nullable_to_non_nullable
+as int?,stages: freezed == stages ? _self.stages : stages // ignore: cast_nullable_to_non_nullable
+as List<String>?,progress: freezed == progress ? _self.progress : progress // ignore: cast_nullable_to_non_nullable
+as double?,
   ));
 }
 /// Create a copy of JobDetailEntity
@@ -194,10 +202,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String status,  String sourceType,  String language,  DateTime createdAt,  DateTime updatedAt,  String? errorCode,  String? errorDetail,  String? contentType,  UploadSlot? uploadSlot,  Transcript? transcript,  Summary? summary)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String status,  String sourceType,  String language,  DateTime createdAt,  DateTime updatedAt,  String? errorCode,  String? errorDetail,  String? contentType,  UploadSlot? uploadSlot,  Transcript? transcript,  Summary? summary,  bool? isTerminal,  int? stageIndex,  int? stageTotal,  List<String>? stages,  double? progress)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _JobDetailEntity() when $default != null:
-return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.contentType,_that.uploadSlot,_that.transcript,_that.summary);case _:
+return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.contentType,_that.uploadSlot,_that.transcript,_that.summary,_that.isTerminal,_that.stageIndex,_that.stageTotal,_that.stages,_that.progress);case _:
   return orElse();
 
 }
@@ -215,10 +223,10 @@ return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.crea
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String status,  String sourceType,  String language,  DateTime createdAt,  DateTime updatedAt,  String? errorCode,  String? errorDetail,  String? contentType,  UploadSlot? uploadSlot,  Transcript? transcript,  Summary? summary)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String status,  String sourceType,  String language,  DateTime createdAt,  DateTime updatedAt,  String? errorCode,  String? errorDetail,  String? contentType,  UploadSlot? uploadSlot,  Transcript? transcript,  Summary? summary,  bool? isTerminal,  int? stageIndex,  int? stageTotal,  List<String>? stages,  double? progress)  $default,) {final _that = this;
 switch (_that) {
 case _JobDetailEntity():
-return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.contentType,_that.uploadSlot,_that.transcript,_that.summary);}
+return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.contentType,_that.uploadSlot,_that.transcript,_that.summary,_that.isTerminal,_that.stageIndex,_that.stageTotal,_that.stages,_that.progress);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -232,10 +240,10 @@ return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.crea
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String status,  String sourceType,  String language,  DateTime createdAt,  DateTime updatedAt,  String? errorCode,  String? errorDetail,  String? contentType,  UploadSlot? uploadSlot,  Transcript? transcript,  Summary? summary)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String status,  String sourceType,  String language,  DateTime createdAt,  DateTime updatedAt,  String? errorCode,  String? errorDetail,  String? contentType,  UploadSlot? uploadSlot,  Transcript? transcript,  Summary? summary,  bool? isTerminal,  int? stageIndex,  int? stageTotal,  List<String>? stages,  double? progress)?  $default,) {final _that = this;
 switch (_that) {
 case _JobDetailEntity() when $default != null:
-return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.contentType,_that.uploadSlot,_that.transcript,_that.summary);case _:
+return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.errorCode,_that.errorDetail,_that.contentType,_that.uploadSlot,_that.transcript,_that.summary,_that.isTerminal,_that.stageIndex,_that.stageTotal,_that.stages,_that.progress);case _:
   return null;
 
 }
@@ -247,7 +255,7 @@ return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.crea
 
 
 class _JobDetailEntity implements JobDetailEntity {
-  const _JobDetailEntity({required this.id, required this.status, required this.sourceType, required this.language, required this.createdAt, required this.updatedAt, this.errorCode, this.errorDetail, this.contentType, this.uploadSlot, this.transcript, this.summary});
+  const _JobDetailEntity({required this.id, required this.status, required this.sourceType, required this.language, required this.createdAt, required this.updatedAt, this.errorCode, this.errorDetail, this.contentType, this.uploadSlot, this.transcript, this.summary, this.isTerminal, this.stageIndex, this.stageTotal, final  List<String>? stages, this.progress}): _stages = stages;
   
 
 @override final  String id;
@@ -262,6 +270,22 @@ class _JobDetailEntity implements JobDetailEntity {
 @override final  UploadSlot? uploadSlot;
 @override final  Transcript? transcript;
 @override final  Summary? summary;
+// Progress fields the REST `GET /jobs/{id}` response does not return
+// (verified against `job_detail_response.dart`/`job_mappers.dart`) —
+// populated only via the `/jobs/{id}/ws` live-update stream.
+@override final  bool? isTerminal;
+@override final  int? stageIndex;
+@override final  int? stageTotal;
+ final  List<String>? _stages;
+@override List<String>? get stages {
+  final value = _stages;
+  if (value == null) return null;
+  if (_stages is EqualUnmodifiableListView) return _stages;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(value);
+}
+
+@override final  double? progress;
 
 /// Create a copy of JobDetailEntity
 /// with the given fields replaced by the non-null parameter values.
@@ -273,16 +297,16 @@ _$JobDetailEntityCopyWith<_JobDetailEntity> get copyWith => __$JobDetailEntityCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _JobDetailEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.errorDetail, errorDetail) || other.errorDetail == errorDetail)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.uploadSlot, uploadSlot) || other.uploadSlot == uploadSlot)&&(identical(other.transcript, transcript) || other.transcript == transcript)&&(identical(other.summary, summary) || other.summary == summary));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _JobDetailEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.errorCode, errorCode) || other.errorCode == errorCode)&&(identical(other.errorDetail, errorDetail) || other.errorDetail == errorDetail)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.uploadSlot, uploadSlot) || other.uploadSlot == uploadSlot)&&(identical(other.transcript, transcript) || other.transcript == transcript)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.isTerminal, isTerminal) || other.isTerminal == isTerminal)&&(identical(other.stageIndex, stageIndex) || other.stageIndex == stageIndex)&&(identical(other.stageTotal, stageTotal) || other.stageTotal == stageTotal)&&const DeepCollectionEquality().equals(other._stages, _stages)&&(identical(other.progress, progress) || other.progress == progress));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,errorCode,errorDetail,contentType,uploadSlot,transcript,summary);
+int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,errorCode,errorDetail,contentType,uploadSlot,transcript,summary,isTerminal,stageIndex,stageTotal,const DeepCollectionEquality().hash(_stages),progress);
 
 @override
 String toString() {
-  return 'JobDetailEntity(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, errorCode: $errorCode, errorDetail: $errorDetail, contentType: $contentType, uploadSlot: $uploadSlot, transcript: $transcript, summary: $summary)';
+  return 'JobDetailEntity(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, errorCode: $errorCode, errorDetail: $errorDetail, contentType: $contentType, uploadSlot: $uploadSlot, transcript: $transcript, summary: $summary, isTerminal: $isTerminal, stageIndex: $stageIndex, stageTotal: $stageTotal, stages: $stages, progress: $progress)';
 }
 
 
@@ -293,7 +317,7 @@ abstract mixin class _$JobDetailEntityCopyWith<$Res> implements $JobDetailEntity
   factory _$JobDetailEntityCopyWith(_JobDetailEntity value, $Res Function(_JobDetailEntity) _then) = __$JobDetailEntityCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String status, String sourceType, String language, DateTime createdAt, DateTime updatedAt, String? errorCode, String? errorDetail, String? contentType, UploadSlot? uploadSlot, Transcript? transcript, Summary? summary
+ String id, String status, String sourceType, String language, DateTime createdAt, DateTime updatedAt, String? errorCode, String? errorDetail, String? contentType, UploadSlot? uploadSlot, Transcript? transcript, Summary? summary, bool? isTerminal, int? stageIndex, int? stageTotal, List<String>? stages, double? progress
 });
 
 
@@ -310,7 +334,7 @@ class __$JobDetailEntityCopyWithImpl<$Res>
 
 /// Create a copy of JobDetailEntity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? errorCode = freezed,Object? errorDetail = freezed,Object? contentType = freezed,Object? uploadSlot = freezed,Object? transcript = freezed,Object? summary = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? errorCode = freezed,Object? errorDetail = freezed,Object? contentType = freezed,Object? uploadSlot = freezed,Object? transcript = freezed,Object? summary = freezed,Object? isTerminal = freezed,Object? stageIndex = freezed,Object? stageTotal = freezed,Object? stages = freezed,Object? progress = freezed,}) {
   return _then(_JobDetailEntity(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -324,7 +348,12 @@ as String?,contentType: freezed == contentType ? _self.contentType : contentType
 as String?,uploadSlot: freezed == uploadSlot ? _self.uploadSlot : uploadSlot // ignore: cast_nullable_to_non_nullable
 as UploadSlot?,transcript: freezed == transcript ? _self.transcript : transcript // ignore: cast_nullable_to_non_nullable
 as Transcript?,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
-as Summary?,
+as Summary?,isTerminal: freezed == isTerminal ? _self.isTerminal : isTerminal // ignore: cast_nullable_to_non_nullable
+as bool?,stageIndex: freezed == stageIndex ? _self.stageIndex : stageIndex // ignore: cast_nullable_to_non_nullable
+as int?,stageTotal: freezed == stageTotal ? _self.stageTotal : stageTotal // ignore: cast_nullable_to_non_nullable
+as int?,stages: freezed == stages ? _self._stages : stages // ignore: cast_nullable_to_non_nullable
+as List<String>?,progress: freezed == progress ? _self.progress : progress // ignore: cast_nullable_to_non_nullable
+as double?,
   ));
 }
 

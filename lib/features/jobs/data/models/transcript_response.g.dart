@@ -15,6 +15,7 @@ _TranscriptResponse _$TranscriptResponseFromJson(Map<String, dynamic> json) =>
       modelVersion: json['model_version'] as String,
       quantization: json['quantization'] as String?,
       downloadUrl: json['download_url'] as String?,
+      text: json['text'] as String?,
     );
 
 Map<String, dynamic> _$TranscriptResponseToJson(_TranscriptResponse instance) =>
@@ -26,4 +27,5 @@ Map<String, dynamic> _$TranscriptResponseToJson(_TranscriptResponse instance) =>
       'model_version': instance.modelVersion,
       'quantization': instance.quantization,
       'download_url': instance.downloadUrl,
+      'text': instance.text,
     };

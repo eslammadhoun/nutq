@@ -13,5 +13,10 @@ sealed class Transcript with _$Transcript {
     required String modelVersion,
     String? quantization,
     String? downloadUrl,
+
+    /// Inlined by the REST detail response and the WS `snapshot`/`done`
+    /// frames — the presigned [downloadUrl] fetch is now only a fallback
+    /// for when the backend hasn't inlined the body.
+    String? text,
   }) = _Transcript;
 }

@@ -58,6 +58,10 @@ class _FakeJobsRepository implements JobsRepository {
       throw UnimplementedError();
 
   @override
+  Future<ApiResult<String>> fetchTranscriptText(String downloadUrl) =>
+      throw UnimplementedError();
+
+  @override
   Future<ApiResult<void>> uploadToSlot(String uploadUrl, UploadFile file) =>
       throw UnimplementedError();
 }
