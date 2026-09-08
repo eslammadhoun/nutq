@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -8,7 +7,6 @@ import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/locale/locale_cubit.dart';
 import 'package:nutq/core/routing/app_router.dart';
 import 'package:nutq/core/routing/routes.dart';
-import 'package:nutq/core/session/session_manager.dart';
 import 'package:nutq/core/theme/app_theme.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
@@ -18,45 +16,8 @@ void main() async {
   runApp(const NutqApp());
 }
 
-class NutqApp extends StatefulWidget {
+class NutqApp extends StatelessWidget {
   const NutqApp({super.key});
-  @override
-  State<NutqApp> createState() => _NutqAppState();
-}
-
-class _NutqAppState extends State<NutqApp> {
-  StreamSubscription<SessionEvent>? _sessionSub;
-
-  @override
-  void initState() {
-    super.initState();
-    _sessionSub = sl<SessionManager>().events.listen(_onSessionEvent);
-  }
-
-  /// When the token-refresh chain gives up, send the user to login no matter
-  /// where they are — otherwise they stay stranded on a screen whose every
-  /// request keeps failing.
-  void _onSessionEvent(SessionEvent event) {
-    final nav = AppRouter.navigatorKey.currentState;
-    if (nav == null) return;
-
-    // Read the top route without popping (predicate returns true immediately).
-    var alreadyOnAuth = false;
-    nav.popUntil((route) {
-      final name = route.settings.name;
-      alreadyOnAuth = name == Routes.login || name == Routes.register;
-      return true;
-    });
-    if (alreadyOnAuth) return;
-
-    nav.pushNamedAndRemoveUntil(Routes.login, (route) => false);
-  }
-
-  @override
-  void dispose() {
-    unawaited(_sessionSub?.cancel());
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

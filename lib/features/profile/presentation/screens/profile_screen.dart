@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nutq/core/di/dependency_injection.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/locale/locale_cubit.dart';
-import 'package:nutq/core/routing/routes.dart';
-import 'package:nutq/core/widgets/global_button.dart';
-import 'package:nutq/features/auth/domain/repositories/auth_repository.dart';
 
 // TODO(profile): placeholder until the Profile screen is designed.
 class ProfileScreen extends StatelessWidget {
@@ -36,20 +32,6 @@ class ProfileScreen extends StatelessWidget {
                           Locale(isAr ? 'en' : 'ar'),
                         ),
                     child: Text(isAr ? 'Switch to English' : 'التبديل إلى العربية'),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              GlobalButton(
-                isFilled: false,
-                text: l10n.profileLogOut,
-                onTap: () async {
-                  await sl<AuthRepository>().logout();
-                  if (!context.mounted) return;
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    Routes.login,
-                    (route) => false,
                   );
                 },
               ),
