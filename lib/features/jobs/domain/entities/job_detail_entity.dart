@@ -1,11 +1,11 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/domain/entities/transcript.dart';
-import 'package:nutq/features/jobs/domain/entities/upload_slot.dart';
 
 part 'job_detail_entity.freezed.dart';
 
-/// Domain equivalent of [JobDetailResponse].
+/// Domain job detail — backed by a `Jobs` DB row joined with its optional
+/// `Transcripts`/`Summaries`/`Takeaways` rows.
 @freezed
 sealed class JobDetailEntity with _$JobDetailEntity {
   const factory JobDetailEntity({
@@ -18,12 +18,10 @@ sealed class JobDetailEntity with _$JobDetailEntity {
     String? errorCode,
     String? errorDetail,
     String? contentType,
-    UploadSlot? uploadSlot,
     Transcript? transcript,
     Summary? summary,
-    // Progress fields the REST `GET /jobs/{id}` response does not return
-    // (verified against `job_detail_response.dart`/`job_mappers.dart`) —
-    // populated only via the `/jobs/{id}/ws` live-update stream.
+    // Progress fields with no local processing pipeline yet (Workstream 5)
+    // to populate them — left null/default until then.
     bool? isTerminal,
     int? stageIndex,
     int? stageTotal,

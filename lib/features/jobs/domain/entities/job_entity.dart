@@ -1,9 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:nutq/features/jobs/domain/entities/upload_slot.dart';
 
 part 'job_entity.freezed.dart';
 
-/// Domain equivalent of [JobResponse].
+/// Domain job summary — list-view shape, backed by a `Jobs` DB row.
 @freezed
 sealed class JobEntity with _$JobEntity {
   const factory JobEntity({
@@ -16,7 +15,6 @@ sealed class JobEntity with _$JobEntity {
     String? errorCode,
     String? errorDetail,
     String? contentType,
-    UploadSlot? uploadSlot,
     String? preview,
   }) = _JobEntity;
 }

@@ -14,7 +14,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SubmitJobParams {
 
- String get sourceType; String get language; String? get sourceUrl; bool get forceWhisper; String? get text; String? get filename; String? get contentType; int? get sizeHint; String? get idempotencyKey;
+ String get sourceType; String get language; String? get sourceUrl; bool get forceWhisper; String? get text; String? get filename; String? get contentType; int? get sizeHint; String? get idempotencyKey;/// The locally-picked file for `sourceType: upload` — its cache path
+/// is copied into permanent app storage during submission.
+ UploadFile? get file;
 /// Create a copy of SubmitJobParams
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +27,16 @@ $SubmitJobParamsCopyWith<SubmitJobParams> get copyWith => _$SubmitJobParamsCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmitJobParams&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.forceWhisper, forceWhisper) || other.forceWhisper == forceWhisper)&&(identical(other.text, text) || other.text == text)&&(identical(other.filename, filename) || other.filename == filename)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.sizeHint, sizeHint) || other.sizeHint == sizeHint)&&(identical(other.idempotencyKey, idempotencyKey) || other.idempotencyKey == idempotencyKey));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmitJobParams&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.forceWhisper, forceWhisper) || other.forceWhisper == forceWhisper)&&(identical(other.text, text) || other.text == text)&&(identical(other.filename, filename) || other.filename == filename)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.sizeHint, sizeHint) || other.sizeHint == sizeHint)&&(identical(other.idempotencyKey, idempotencyKey) || other.idempotencyKey == idempotencyKey)&&(identical(other.file, file) || other.file == file));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,sourceType,language,sourceUrl,forceWhisper,text,filename,contentType,sizeHint,idempotencyKey);
+int get hashCode => Object.hash(runtimeType,sourceType,language,sourceUrl,forceWhisper,text,filename,contentType,sizeHint,idempotencyKey,file);
 
 @override
 String toString() {
-  return 'SubmitJobParams(sourceType: $sourceType, language: $language, sourceUrl: $sourceUrl, forceWhisper: $forceWhisper, text: $text, filename: $filename, contentType: $contentType, sizeHint: $sizeHint, idempotencyKey: $idempotencyKey)';
+  return 'SubmitJobParams(sourceType: $sourceType, language: $language, sourceUrl: $sourceUrl, forceWhisper: $forceWhisper, text: $text, filename: $filename, contentType: $contentType, sizeHint: $sizeHint, idempotencyKey: $idempotencyKey, file: $file)';
 }
 
 
@@ -45,11 +47,11 @@ abstract mixin class $SubmitJobParamsCopyWith<$Res>  {
   factory $SubmitJobParamsCopyWith(SubmitJobParams value, $Res Function(SubmitJobParams) _then) = _$SubmitJobParamsCopyWithImpl;
 @useResult
 $Res call({
- String sourceType, String language, String? sourceUrl, bool forceWhisper, String? text, String? filename, String? contentType, int? sizeHint, String? idempotencyKey
+ String sourceType, String language, String? sourceUrl, bool forceWhisper, String? text, String? filename, String? contentType, int? sizeHint, String? idempotencyKey, UploadFile? file
 });
 
 
-
+$UploadFileCopyWith<$Res>? get file;
 
 }
 /// @nodoc
@@ -62,7 +64,7 @@ class _$SubmitJobParamsCopyWithImpl<$Res>
 
 /// Create a copy of SubmitJobParams
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? sourceType = null,Object? language = null,Object? sourceUrl = freezed,Object? forceWhisper = null,Object? text = freezed,Object? filename = freezed,Object? contentType = freezed,Object? sizeHint = freezed,Object? idempotencyKey = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? sourceType = null,Object? language = null,Object? sourceUrl = freezed,Object? forceWhisper = null,Object? text = freezed,Object? filename = freezed,Object? contentType = freezed,Object? sizeHint = freezed,Object? idempotencyKey = freezed,Object? file = freezed,}) {
   return _then(_self.copyWith(
 sourceType: null == sourceType ? _self.sourceType : sourceType // ignore: cast_nullable_to_non_nullable
 as String,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
@@ -73,10 +75,23 @@ as String?,filename: freezed == filename ? _self.filename : filename // ignore: 
 as String?,contentType: freezed == contentType ? _self.contentType : contentType // ignore: cast_nullable_to_non_nullable
 as String?,sizeHint: freezed == sizeHint ? _self.sizeHint : sizeHint // ignore: cast_nullable_to_non_nullable
 as int?,idempotencyKey: freezed == idempotencyKey ? _self.idempotencyKey : idempotencyKey // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,file: freezed == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
+as UploadFile?,
   ));
 }
+/// Create a copy of SubmitJobParams
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$UploadFileCopyWith<$Res>? get file {
+    if (_self.file == null) {
+    return null;
+  }
 
+  return $UploadFileCopyWith<$Res>(_self.file!, (value) {
+    return _then(_self.copyWith(file: value));
+  });
+}
 }
 
 
@@ -155,10 +170,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String sourceType,  String language,  String? sourceUrl,  bool forceWhisper,  String? text,  String? filename,  String? contentType,  int? sizeHint,  String? idempotencyKey)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String sourceType,  String language,  String? sourceUrl,  bool forceWhisper,  String? text,  String? filename,  String? contentType,  int? sizeHint,  String? idempotencyKey,  UploadFile? file)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SubmitJobParams() when $default != null:
-return $default(_that.sourceType,_that.language,_that.sourceUrl,_that.forceWhisper,_that.text,_that.filename,_that.contentType,_that.sizeHint,_that.idempotencyKey);case _:
+return $default(_that.sourceType,_that.language,_that.sourceUrl,_that.forceWhisper,_that.text,_that.filename,_that.contentType,_that.sizeHint,_that.idempotencyKey,_that.file);case _:
   return orElse();
 
 }
@@ -176,10 +191,10 @@ return $default(_that.sourceType,_that.language,_that.sourceUrl,_that.forceWhisp
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String sourceType,  String language,  String? sourceUrl,  bool forceWhisper,  String? text,  String? filename,  String? contentType,  int? sizeHint,  String? idempotencyKey)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String sourceType,  String language,  String? sourceUrl,  bool forceWhisper,  String? text,  String? filename,  String? contentType,  int? sizeHint,  String? idempotencyKey,  UploadFile? file)  $default,) {final _that = this;
 switch (_that) {
 case _SubmitJobParams():
-return $default(_that.sourceType,_that.language,_that.sourceUrl,_that.forceWhisper,_that.text,_that.filename,_that.contentType,_that.sizeHint,_that.idempotencyKey);}
+return $default(_that.sourceType,_that.language,_that.sourceUrl,_that.forceWhisper,_that.text,_that.filename,_that.contentType,_that.sizeHint,_that.idempotencyKey,_that.file);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -193,10 +208,10 @@ return $default(_that.sourceType,_that.language,_that.sourceUrl,_that.forceWhisp
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String sourceType,  String language,  String? sourceUrl,  bool forceWhisper,  String? text,  String? filename,  String? contentType,  int? sizeHint,  String? idempotencyKey)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String sourceType,  String language,  String? sourceUrl,  bool forceWhisper,  String? text,  String? filename,  String? contentType,  int? sizeHint,  String? idempotencyKey,  UploadFile? file)?  $default,) {final _that = this;
 switch (_that) {
 case _SubmitJobParams() when $default != null:
-return $default(_that.sourceType,_that.language,_that.sourceUrl,_that.forceWhisper,_that.text,_that.filename,_that.contentType,_that.sizeHint,_that.idempotencyKey);case _:
+return $default(_that.sourceType,_that.language,_that.sourceUrl,_that.forceWhisper,_that.text,_that.filename,_that.contentType,_that.sizeHint,_that.idempotencyKey,_that.file);case _:
   return null;
 
 }
@@ -208,7 +223,7 @@ return $default(_that.sourceType,_that.language,_that.sourceUrl,_that.forceWhisp
 
 
 class _SubmitJobParams implements SubmitJobParams {
-  const _SubmitJobParams({required this.sourceType, this.language = 'ar', this.sourceUrl, this.forceWhisper = false, this.text, this.filename, this.contentType, this.sizeHint, this.idempotencyKey});
+  const _SubmitJobParams({required this.sourceType, this.language = 'ar', this.sourceUrl, this.forceWhisper = false, this.text, this.filename, this.contentType, this.sizeHint, this.idempotencyKey, this.file});
   
 
 @override final  String sourceType;
@@ -220,6 +235,9 @@ class _SubmitJobParams implements SubmitJobParams {
 @override final  String? contentType;
 @override final  int? sizeHint;
 @override final  String? idempotencyKey;
+/// The locally-picked file for `sourceType: upload` — its cache path
+/// is copied into permanent app storage during submission.
+@override final  UploadFile? file;
 
 /// Create a copy of SubmitJobParams
 /// with the given fields replaced by the non-null parameter values.
@@ -231,16 +249,16 @@ _$SubmitJobParamsCopyWith<_SubmitJobParams> get copyWith => __$SubmitJobParamsCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmitJobParams&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.forceWhisper, forceWhisper) || other.forceWhisper == forceWhisper)&&(identical(other.text, text) || other.text == text)&&(identical(other.filename, filename) || other.filename == filename)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.sizeHint, sizeHint) || other.sizeHint == sizeHint)&&(identical(other.idempotencyKey, idempotencyKey) || other.idempotencyKey == idempotencyKey));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmitJobParams&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.forceWhisper, forceWhisper) || other.forceWhisper == forceWhisper)&&(identical(other.text, text) || other.text == text)&&(identical(other.filename, filename) || other.filename == filename)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.sizeHint, sizeHint) || other.sizeHint == sizeHint)&&(identical(other.idempotencyKey, idempotencyKey) || other.idempotencyKey == idempotencyKey)&&(identical(other.file, file) || other.file == file));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,sourceType,language,sourceUrl,forceWhisper,text,filename,contentType,sizeHint,idempotencyKey);
+int get hashCode => Object.hash(runtimeType,sourceType,language,sourceUrl,forceWhisper,text,filename,contentType,sizeHint,idempotencyKey,file);
 
 @override
 String toString() {
-  return 'SubmitJobParams(sourceType: $sourceType, language: $language, sourceUrl: $sourceUrl, forceWhisper: $forceWhisper, text: $text, filename: $filename, contentType: $contentType, sizeHint: $sizeHint, idempotencyKey: $idempotencyKey)';
+  return 'SubmitJobParams(sourceType: $sourceType, language: $language, sourceUrl: $sourceUrl, forceWhisper: $forceWhisper, text: $text, filename: $filename, contentType: $contentType, sizeHint: $sizeHint, idempotencyKey: $idempotencyKey, file: $file)';
 }
 
 
@@ -251,11 +269,11 @@ abstract mixin class _$SubmitJobParamsCopyWith<$Res> implements $SubmitJobParams
   factory _$SubmitJobParamsCopyWith(_SubmitJobParams value, $Res Function(_SubmitJobParams) _then) = __$SubmitJobParamsCopyWithImpl;
 @override @useResult
 $Res call({
- String sourceType, String language, String? sourceUrl, bool forceWhisper, String? text, String? filename, String? contentType, int? sizeHint, String? idempotencyKey
+ String sourceType, String language, String? sourceUrl, bool forceWhisper, String? text, String? filename, String? contentType, int? sizeHint, String? idempotencyKey, UploadFile? file
 });
 
 
-
+@override $UploadFileCopyWith<$Res>? get file;
 
 }
 /// @nodoc
@@ -268,7 +286,7 @@ class __$SubmitJobParamsCopyWithImpl<$Res>
 
 /// Create a copy of SubmitJobParams
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? sourceType = null,Object? language = null,Object? sourceUrl = freezed,Object? forceWhisper = null,Object? text = freezed,Object? filename = freezed,Object? contentType = freezed,Object? sizeHint = freezed,Object? idempotencyKey = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? sourceType = null,Object? language = null,Object? sourceUrl = freezed,Object? forceWhisper = null,Object? text = freezed,Object? filename = freezed,Object? contentType = freezed,Object? sizeHint = freezed,Object? idempotencyKey = freezed,Object? file = freezed,}) {
   return _then(_SubmitJobParams(
 sourceType: null == sourceType ? _self.sourceType : sourceType // ignore: cast_nullable_to_non_nullable
 as String,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
@@ -279,11 +297,24 @@ as String?,filename: freezed == filename ? _self.filename : filename // ignore: 
 as String?,contentType: freezed == contentType ? _self.contentType : contentType // ignore: cast_nullable_to_non_nullable
 as String?,sizeHint: freezed == sizeHint ? _self.sizeHint : sizeHint // ignore: cast_nullable_to_non_nullable
 as int?,idempotencyKey: freezed == idempotencyKey ? _self.idempotencyKey : idempotencyKey // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,file: freezed == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
+as UploadFile?,
   ));
 }
 
+/// Create a copy of SubmitJobParams
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$UploadFileCopyWith<$Res>? get file {
+    if (_self.file == null) {
+    return null;
+  }
 
+  return $UploadFileCopyWith<$Res>(_self.file!, (value) {
+    return _then(_self.copyWith(file: value));
+  });
+}
 }
 
 // dart format on

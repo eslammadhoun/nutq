@@ -2,7 +2,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'transcript.freezed.dart';
 
-/// Domain equivalent of [TranscriptResponse].
+/// Domain transcript — backed by a `Transcripts` DB row when the job has
+/// completed local processing.
 @freezed
 sealed class Transcript with _$Transcript {
   const factory Transcript({
@@ -12,11 +13,12 @@ sealed class Transcript with _$Transcript {
     required String modelName,
     required String modelVersion,
     String? quantization,
-    String? downloadUrl,
 
-    /// Inlined by the REST detail response and the WS `snapshot`/`done`
-    /// frames — the presigned [downloadUrl] fetch is now only a fallback
-    /// for when the backend hasn't inlined the body.
+    /// Always null for a locally-stored transcript — [text] is inlined
+    /// directly from the DB. Kept only so `JobDetailCubit`'s WS-frame
+    /// fallback path (`_maybeFetchTranscriptText`), which still parses the
+    /// legacy `snapshot`/`done` wire shape, keeps compiling unchanged.
+    String? downloadUrl,
     String? text,
   }) = _Transcript;
 }

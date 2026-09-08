@@ -14,10 +14,11 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Transcript {
 
- String get language; int? get wordCount; double? get durationSeconds; String get modelName; String get modelVersion; String? get quantization; String? get downloadUrl;/// Inlined by the REST detail response and the WS `snapshot`/`done`
-/// frames — the presigned [downloadUrl] fetch is now only a fallback
-/// for when the backend hasn't inlined the body.
- String? get text;
+ String get language; int? get wordCount; double? get durationSeconds; String get modelName; String get modelVersion; String? get quantization;/// Always null for a locally-stored transcript — [text] is inlined
+/// directly from the DB. Kept only so `JobDetailCubit`'s WS-frame
+/// fallback path (`_maybeFetchTranscriptText`), which still parses the
+/// legacy `snapshot`/`done` wire shape, keeps compiling unchanged.
+ String? get downloadUrl; String? get text;
 /// Create a copy of Transcript
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -219,10 +220,11 @@ class _Transcript implements Transcript {
 @override final  String modelName;
 @override final  String modelVersion;
 @override final  String? quantization;
+/// Always null for a locally-stored transcript — [text] is inlined
+/// directly from the DB. Kept only so `JobDetailCubit`'s WS-frame
+/// fallback path (`_maybeFetchTranscriptText`), which still parses the
+/// legacy `snapshot`/`done` wire shape, keeps compiling unchanged.
 @override final  String? downloadUrl;
-/// Inlined by the REST detail response and the WS `snapshot`/`done`
-/// frames — the presigned [downloadUrl] fetch is now only a fallback
-/// for when the backend hasn't inlined the body.
 @override final  String? text;
 
 /// Create a copy of Transcript
