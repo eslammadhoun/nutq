@@ -55,9 +55,6 @@ class ErrorHandler {
     final statusCode = error.response?.statusCode;
     final data = error.response?.data;
 
-    // 401 handled by AuthInterceptor — shouldn't reach here, but fallback
-    if (statusCode == 401) return ApiError.unauthorized();
-
     // 422 / 400 — validation errors
     if (statusCode == 422 || statusCode == 400) {
       if (data is Map) {

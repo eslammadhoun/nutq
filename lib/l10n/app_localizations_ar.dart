@@ -48,10 +48,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get errorTimeout => 'انتهت مهلة الطلب';
 
   @override
-  String get errorInvalidCredentials => 'بيانات الدخول غير صحيحة';
+  String get errorModelNotDownloaded => 'لم يتم تنزيل هذا النموذج بعد';
 
   @override
-  String get errorLoginAgain => 'يرجى تسجيل الدخول مرة أخرى';
+  String get errorInsufficientStorage =>
+      'لا توجد مساحة تخزين كافية على هذا الجهاز';
+
+  @override
+  String get errorInsufficientMemory =>
+      'لا توجد ذاكرة كافية متاحة لإتمام هذه العملية';
+
+  @override
+  String get errorProcessingCancelled => 'تم إلغاء المعالجة';
+
+  @override
+  String get errorAudioDecodeFailed => 'تعذّرت قراءة ملف الصوت هذا';
+
+  @override
+  String get errorNativeEngineFailure => 'حدث خطأ ما أثناء المعالجة';
+
+  @override
+  String get errorDeviceOffline => 'جهازك غير متصل بالإنترنت';
 
   @override
   String jobFallbackTitle(String id) {
@@ -302,6 +319,74 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get alertsComingSoon => 'التنبيهات — قريباً';
+
+  @override
+  String get jobDetailTitle => 'تفاصيل المهمة';
+
+  @override
+  String get jobDetailTranscriptionComplete => 'اكتمل النسخ';
+
+  @override
+  String get jobDetailTranscript => 'النص المفرَّغ';
+
+  @override
+  String get jobDetailTranscriptPending => 'النص المفرَّغ غير جاهز بعد.';
+
+  @override
+  String get jobDetailAiSummary => 'ملخص الذكاء الاصطناعي';
+
+  @override
+  String get jobDetailSummaryPending => 'الملخص غير جاهز بعد.';
+
+  @override
+  String get jobDetailDownloadTranscript => 'تنزيل النص';
+
+  @override
+  String get jobDetailShare => 'مشاركة';
+
+  @override
+  String get jobDetailCopyText => 'نسخ النص';
+
+  @override
+  String get jobDetailKeyTakeaways => 'أبرز النقاط';
+
+  @override
+  String jobDetailWordCount(int count) {
+    return '$count كلمة';
+  }
+
+  @override
+  String get jobDetailCancelJob => 'إلغاء المهمة';
+
+  @override
+  String get jobDetailCancelling => 'جارٍ الإلغاء...';
+
+  @override
+  String get jobDetailReconnecting => 'جارٍ إعادة الاتصال...';
+
+  @override
+  String get jobDetailJustNow => 'الآن';
+
+  @override
+  String jobDetailMinutesAgo(int count) {
+    return 'منذ $count دقيقة';
+  }
+
+  @override
+  String jobDetailHoursAgo(int count) {
+    return 'منذ $count ساعة';
+  }
+
+  @override
+  String jobDetailDaysAgo(int count) {
+    return 'منذ $count يوم';
+  }
+
+  @override
+  String get jobDetailShowMore => 'عرض المزيد';
+
+  @override
+  String get jobDetailShowLess => 'عرض أقل';
 
   @override
   String get profileComingSoon => 'الملف الشخصي — قريباً';

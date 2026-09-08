@@ -170,17 +170,47 @@ abstract class AppLocalizations {
   /// **'Request timed out'**
   String get errorTimeout;
 
-  /// No description provided for @errorInvalidCredentials.
+  /// No description provided for @errorModelNotDownloaded.
   ///
   /// In en, this message translates to:
-  /// **'Invalid credentials'**
-  String get errorInvalidCredentials;
+  /// **'This model hasn\'t been downloaded yet'**
+  String get errorModelNotDownloaded;
 
-  /// No description provided for @errorLoginAgain.
+  /// No description provided for @errorInsufficientStorage.
   ///
   /// In en, this message translates to:
-  /// **'Please log in again'**
-  String get errorLoginAgain;
+  /// **'Not enough free storage on this device'**
+  String get errorInsufficientStorage;
+
+  /// No description provided for @errorInsufficientMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough available memory to do this'**
+  String get errorInsufficientMemory;
+
+  /// No description provided for @errorProcessingCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing was cancelled'**
+  String get errorProcessingCancelled;
+
+  /// No description provided for @errorAudioDecodeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'This audio file couldn\'t be read'**
+  String get errorAudioDecodeFailed;
+
+  /// No description provided for @errorNativeEngineFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong during processing'**
+  String get errorNativeEngineFailure;
+
+  /// No description provided for @errorDeviceOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Your device is offline'**
+  String get errorDeviceOffline;
 
   /// No description provided for @jobFallbackTitle.
   ///
@@ -637,6 +667,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Alerts — coming soon'**
   String get alertsComingSoon;
+
+  /// No description provided for @jobDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Job Detail'**
+  String get jobDetailTitle;
+
+  /// No description provided for @jobDetailTranscriptionComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcription Complete'**
+  String get jobDetailTranscriptionComplete;
+
+  /// No description provided for @jobDetailTranscript.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcript'**
+  String get jobDetailTranscript;
+
+  /// No description provided for @jobDetailTranscriptPending.
+  ///
+  /// In en, this message translates to:
+  /// **'The transcript isn\'t ready yet.'**
+  String get jobDetailTranscriptPending;
+
+  /// No description provided for @jobDetailAiSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Summary'**
+  String get jobDetailAiSummary;
+
+  /// No description provided for @jobDetailSummaryPending.
+  ///
+  /// In en, this message translates to:
+  /// **'The summary isn\'t ready yet.'**
+  String get jobDetailSummaryPending;
+
+  /// No description provided for @jobDetailDownloadTranscript.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Transcript'**
+  String get jobDetailDownloadTranscript;
+
+  /// No description provided for @jobDetailShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get jobDetailShare;
+
+  /// No description provided for @jobDetailCopyText.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Text'**
+  String get jobDetailCopyText;
+
+  /// No description provided for @jobDetailKeyTakeaways.
+  ///
+  /// In en, this message translates to:
+  /// **'KEY TAKEAWAYS'**
+  String get jobDetailKeyTakeaways;
+
+  /// No description provided for @jobDetailWordCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} words'**
+  String jobDetailWordCount(int count);
+
+  /// No description provided for @jobDetailCancelJob.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Job'**
+  String get jobDetailCancelJob;
+
+  /// No description provided for @jobDetailCancelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelling…'**
+  String get jobDetailCancelling;
+
+  /// No description provided for @jobDetailReconnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnecting…'**
+  String get jobDetailReconnecting;
+
+  /// No description provided for @jobDetailJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get jobDetailJustNow;
+
+  /// No description provided for @jobDetailMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} minutes ago'**
+  String jobDetailMinutesAgo(int count);
+
+  /// No description provided for @jobDetailHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hours ago'**
+  String jobDetailHoursAgo(int count);
+
+  /// No description provided for @jobDetailDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days ago'**
+  String jobDetailDaysAgo(int count);
+
+  /// No description provided for @jobDetailShowMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get jobDetailShowMore;
+
+  /// No description provided for @jobDetailShowLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get jobDetailShowLess;
 
   /// No description provided for @profileComingSoon.
   ///

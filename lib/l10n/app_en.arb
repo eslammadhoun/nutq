@@ -24,8 +24,13 @@
   "errorNoConnection": "No internet connection",
   "errorServerUnreachable": "Can't reach the server. Please try again later.",
   "errorTimeout": "Request timed out",
-  "errorInvalidCredentials": "Invalid credentials",
-  "errorLoginAgain": "Please log in again",
+  "errorModelNotDownloaded": "This model hasn't been downloaded yet",
+  "errorInsufficientStorage": "Not enough free storage on this device",
+  "errorInsufficientMemory": "Not enough available memory to do this",
+  "errorProcessingCancelled": "Processing was cancelled",
+  "errorAudioDecodeFailed": "This audio file couldn't be read",
+  "errorNativeEngineFailure": "Something went wrong during processing",
+  "errorDeviceOffline": "Your device is offline",
 
   "jobFallbackTitle": "Job #{id}",
   "@jobFallbackTitle": {
@@ -141,6 +146,39 @@
   "onboardingSlide3Subtitle": "Search, share, and export all your\npast transcriptions with ease.",
 
   "alertsComingSoon": "Alerts — coming soon",
+
+  "jobDetailTitle": "Job Detail",
+  "jobDetailTranscriptionComplete": "Transcription Complete",
+  "jobDetailTranscript": "Transcript",
+  "jobDetailTranscriptPending": "The transcript isn't ready yet.",
+  "jobDetailAiSummary": "AI Summary",
+  "jobDetailSummaryPending": "The summary isn't ready yet.",
+  "jobDetailDownloadTranscript": "Download Transcript",
+  "jobDetailShare": "Share",
+  "jobDetailCopyText": "Copy Text",
+  "jobDetailKeyTakeaways": "KEY TAKEAWAYS",
+  "jobDetailWordCount": "{count} words",
+  "@jobDetailWordCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailCancelJob": "Cancel Job",
+  "jobDetailCancelling": "Cancelling…",
+  "jobDetailReconnecting": "Reconnecting…",
+  "jobDetailJustNow": "Just now",
+  "jobDetailMinutesAgo": "{count} minutes ago",
+  "@jobDetailMinutesAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailHoursAgo": "{count} hours ago",
+  "@jobDetailHoursAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailDaysAgo": "{count} days ago",
+  "@jobDetailDaysAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailShowMore": "Show more",
+  "jobDetailShowLess": "Show less",
 
   "profileComingSoon": "Profile — coming soon",
   "profileLogOut": "Log out"

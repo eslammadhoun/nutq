@@ -48,10 +48,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorTimeout => 'Request timed out';
 
   @override
-  String get errorInvalidCredentials => 'Invalid credentials';
+  String get errorModelNotDownloaded =>
+      'This model hasn\'t been downloaded yet';
 
   @override
-  String get errorLoginAgain => 'Please log in again';
+  String get errorInsufficientStorage =>
+      'Not enough free storage on this device';
+
+  @override
+  String get errorInsufficientMemory =>
+      'Not enough available memory to do this';
+
+  @override
+  String get errorProcessingCancelled => 'Processing was cancelled';
+
+  @override
+  String get errorAudioDecodeFailed => 'This audio file couldn\'t be read';
+
+  @override
+  String get errorNativeEngineFailure =>
+      'Something went wrong during processing';
+
+  @override
+  String get errorDeviceOffline => 'Your device is offline';
 
   @override
   String jobFallbackTitle(String id) {
@@ -303,6 +322,74 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alertsComingSoon => 'Alerts — coming soon';
+
+  @override
+  String get jobDetailTitle => 'Job Detail';
+
+  @override
+  String get jobDetailTranscriptionComplete => 'Transcription Complete';
+
+  @override
+  String get jobDetailTranscript => 'Transcript';
+
+  @override
+  String get jobDetailTranscriptPending => 'The transcript isn\'t ready yet.';
+
+  @override
+  String get jobDetailAiSummary => 'AI Summary';
+
+  @override
+  String get jobDetailSummaryPending => 'The summary isn\'t ready yet.';
+
+  @override
+  String get jobDetailDownloadTranscript => 'Download Transcript';
+
+  @override
+  String get jobDetailShare => 'Share';
+
+  @override
+  String get jobDetailCopyText => 'Copy Text';
+
+  @override
+  String get jobDetailKeyTakeaways => 'KEY TAKEAWAYS';
+
+  @override
+  String jobDetailWordCount(int count) {
+    return '$count words';
+  }
+
+  @override
+  String get jobDetailCancelJob => 'Cancel Job';
+
+  @override
+  String get jobDetailCancelling => 'Cancelling…';
+
+  @override
+  String get jobDetailReconnecting => 'Reconnecting…';
+
+  @override
+  String get jobDetailJustNow => 'Just now';
+
+  @override
+  String jobDetailMinutesAgo(int count) {
+    return '$count minutes ago';
+  }
+
+  @override
+  String jobDetailHoursAgo(int count) {
+    return '$count hours ago';
+  }
+
+  @override
+  String jobDetailDaysAgo(int count) {
+    return '$count days ago';
+  }
+
+  @override
+  String get jobDetailShowMore => 'Show more';
+
+  @override
+  String get jobDetailShowLess => 'Show less';
 
   @override
   String get profileComingSoon => 'Profile — coming soon';

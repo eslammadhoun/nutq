@@ -18,8 +18,13 @@
   "errorNoConnection": "لا يوجد اتصال بالإنترنت",
   "errorServerUnreachable": "تعذر الوصول إلى الخادم. حاول مرة أخرى لاحقًا.",
   "errorTimeout": "انتهت مهلة الطلب",
-  "errorInvalidCredentials": "بيانات الدخول غير صحيحة",
-  "errorLoginAgain": "يرجى تسجيل الدخول مرة أخرى",
+  "errorModelNotDownloaded": "لم يتم تنزيل هذا النموذج بعد",
+  "errorInsufficientStorage": "لا توجد مساحة تخزين كافية على هذا الجهاز",
+  "errorInsufficientMemory": "لا توجد ذاكرة كافية متاحة لإتمام هذه العملية",
+  "errorProcessingCancelled": "تم إلغاء المعالجة",
+  "errorAudioDecodeFailed": "تعذّرت قراءة ملف الصوت هذا",
+  "errorNativeEngineFailure": "حدث خطأ ما أثناء المعالجة",
+  "errorDeviceOffline": "جهازك غير متصل بالإنترنت",
 
   "jobFallbackTitle": "مهمة #{id}",
   "jobTodayLabel": "اليوم، {time}",
@@ -108,6 +113,36 @@
   "onboardingSlide3Subtitle": "ابحث وشارك وصدّر كل تفريغاتك\nالسابقة بسهولة.",
 
   "alertsComingSoon": "التنبيهات — قريباً",
+
+  "jobDetailTitle": "تفاصيل المهمة",
+  "jobDetailTranscriptionComplete": "اكتمل النسخ",
+  "jobDetailTranscript": "النص المفرَّغ",
+  "jobDetailTranscriptPending": "النص المفرَّغ غير جاهز بعد.",
+  "jobDetailAiSummary": "ملخص الذكاء الاصطناعي",
+  "jobDetailSummaryPending": "الملخص غير جاهز بعد.",
+  "jobDetailDownloadTranscript": "تنزيل النص",
+  "jobDetailShare": "مشاركة",
+  "jobDetailCopyText": "نسخ النص",
+  "jobDetailKeyTakeaways": "أبرز النقاط",
+  "jobDetailWordCount": "{count} كلمة",
+  "jobDetailCancelJob": "إلغاء المهمة",
+  "jobDetailCancelling": "جارٍ الإلغاء...",
+  "jobDetailReconnecting": "جارٍ إعادة الاتصال...",
+  "jobDetailJustNow": "الآن",
+  "jobDetailMinutesAgo": "منذ {count} دقيقة",
+  "@jobDetailMinutesAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailHoursAgo": "منذ {count} ساعة",
+  "@jobDetailHoursAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailDaysAgo": "منذ {count} يوم",
+  "@jobDetailDaysAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailShowMore": "عرض المزيد",
+  "jobDetailShowLess": "عرض أقل",
 
   "profileComingSoon": "الملف الشخصي — قريباً",
   "profileLogOut": "تسجيل الخروج"

@@ -13,55 +13,73 @@ void main() {
     ar = await AppLocalizations.delegate.load(const Locale('ar'));
   });
 
-  group('AuthErrorL10n.authErrorMessage', () {
-    test('maps network/timeout/unauthorized to localized strings', () {
-      expect(en.authErrorMessage(const ApiError.network()), en.errorNoConnection);
+  group('ApiErrorL10n.jobsErrorMessage', () {
+    test('maps network/timeout/server-unreachable to localized strings', () {
+      expect(en.jobsErrorMessage(const ApiError.network()), en.errorNoConnection);
       expect(
-        en.authErrorMessage(const ApiError.serverUnreachable()),
+        en.jobsErrorMessage(const ApiError.serverUnreachable()),
         en.errorServerUnreachable,
       );
-      expect(en.authErrorMessage(const ApiError.timeout()), en.errorTimeout);
-      expect(
-        en.authErrorMessage(const ApiError.unauthorized()),
-        en.errorInvalidCredentials,
-      );
+      expect(en.jobsErrorMessage(const ApiError.timeout()), en.errorTimeout);
     });
 
     test('server/unknown messages pass through, empty falls back', () {
       expect(
-        en.authErrorMessage(const ApiError.server('Quota exceeded', 503)),
+        en.jobsErrorMessage(const ApiError.server('Quota exceeded', 503)),
         'Quota exceeded',
       );
       expect(
-        en.authErrorMessage(const ApiError.unknown('')),
+        en.jobsErrorMessage(const ApiError.unknown('')),
         en.somethingWentWrong,
       );
     });
 
     test('validation uses first field error when present', () {
       expect(
-        en.authErrorMessage(
+        en.jobsErrorMessage(
           const ApiError.validation({'email': 'Email taken'}),
         ),
         'Email taken',
       );
       expect(
-        en.authErrorMessage(const ApiError.validation({})),
+        en.jobsErrorMessage(const ApiError.validation({})),
         en.somethingWentWrong,
       );
     });
 
-    test('Arabic locale returns Arabic copy', () {
-      expect(ar.authErrorMessage(const ApiError.network()), contains('الإنترنت'));
-    });
-  });
-
-  group('AuthErrorL10n.jobsErrorMessage', () {
-    test('unauthorized asks for re-login in a jobs context', () {
+    test('maps the local-processing error variants to localized strings', () {
       expect(
-        en.jobsErrorMessage(const ApiError.unauthorized()),
-        en.errorLoginAgain,
+        en.jobsErrorMessage(const ApiError.modelNotDownloaded('whisper-base')),
+        en.errorModelNotDownloaded,
       );
+      expect(
+        en.jobsErrorMessage(const ApiError.insufficientStorage()),
+        en.errorInsufficientStorage,
+      );
+      expect(
+        en.jobsErrorMessage(const ApiError.insufficientMemory()),
+        en.errorInsufficientMemory,
+      );
+      expect(
+        en.jobsErrorMessage(const ApiError.processingCancelled()),
+        en.errorProcessingCancelled,
+      );
+      expect(
+        en.jobsErrorMessage(const ApiError.audioDecodeFailed('bad header')),
+        en.errorAudioDecodeFailed,
+      );
+      expect(
+        en.jobsErrorMessage(const ApiError.nativeEngineFailure('crash')),
+        en.errorNativeEngineFailure,
+      );
+      expect(
+        en.jobsErrorMessage(const ApiError.deviceOffline()),
+        en.errorDeviceOffline,
+      );
+    });
+
+    test('Arabic locale returns Arabic copy', () {
+      expect(ar.jobsErrorMessage(const ApiError.network()), contains('الإنترنت'));
     });
   });
 }
