@@ -208,5 +208,19 @@
   "modelsSizeGb": "{size} GB",
   "@modelsSizeGb": {
     "placeholders": { "size": { "type": "String" } }
+  },
+  "modelsSectionAsr": "Speech-to-text",
+  "modelsSectionSummarization": "Summarization",
+  "modelsTierGemma1b": "Gemma 3 1B",
+  "modelsTierGemma1bDescription": "Fast, on-device summaries — recommended",
+  "modelsTierGemma4b": "Gemma 3 4B",
+  "modelsTierGemma4bDescription": "Higher-quality summaries, larger download",
+  "modelsRamGateBlocked": "Requires a device with at least {gbRequired} GB of RAM",
+  "@modelsRamGateBlocked": {
+    "placeholders": { "gbRequired": { "type": "String" } }
+  },
+  "modelsRamUnknownWarning": "Could not verify available device memory — this model needs {gbRequired} GB of RAM to run smoothly",
+  "@modelsRamUnknownWarning": {
+    "placeholders": { "gbRequired": { "type": "String" } }
   }
 }

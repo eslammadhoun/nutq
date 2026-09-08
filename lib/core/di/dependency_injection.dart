@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import 'package:nutq/core/database/app_database.dart';
 import 'package:nutq/core/database/daos/jobs_dao.dart';
 import 'package:nutq/core/database/daos/models_dao.dart';
+import 'package:nutq/core/ml/models/device_memory_info.dart';
 import 'package:nutq/core/ml/models/model_download_service.dart';
 import 'package:nutq/features/jobs/data/datasources/file_picker_service.dart';
 import 'package:nutq/features/models/presentation/cubit/models_cubit.dart';
@@ -41,14 +42,21 @@ Future<void> setupDI() async {
   sl.registerLazySingleton<JobsDao>(() => sl<AppDatabase>().jobsDao);
   sl.registerLazySingleton<ModelsDao>(() => sl<AppDatabase>().modelsDao);
 
-  // On-device ASR model management (Models screen). `AsrPipeline`/
-  // `WhisperIsolateEngine` are constructed by whoever runs a transcription
-  // (a later workstream's `JobOrchestrator`) — not registered here since
-  // nothing in this workstream drives them from the UI yet.
+  // On-device ASR + summarization model management (Models screen).
+  // `AsrPipeline`/`WhisperIsolateEngine` and `SummarizationPipeline`/
+  // `LlmEngineImpl` are constructed by whoever runs a transcription or
+  // summarization (a later workstream's `JobOrchestrator`) — not
+  // registered here since nothing in this workstream drives them from the
+  // UI yet; both default their `InferenceLock` to the process-wide
+  // `InferenceLock.shared` instance so a future orchestrator gets mutual
+  // exclusion between them for free without any DI wiring.
   sl.registerLazySingleton<ModelDownloadService>(
     () => ModelDownloadService(dio: sl<Dio>(), modelsDao: sl<ModelsDao>()),
   );
-  sl.registerFactory<ModelsCubit>(() => ModelsCubit(downloadService: sl<ModelDownloadService>()));
+  sl.registerLazySingleton<DeviceMemoryInfo>(() => const DeviceMemoryInfoImpl());
+  sl.registerFactory<ModelsCubit>(
+    () => ModelsCubit(downloadService: sl<ModelDownloadService>(), deviceMemoryInfo: sl<DeviceMemoryInfo>()),
+  );
 
   // Jobs feature
   sl.registerLazySingleton<JobsDataSource>(

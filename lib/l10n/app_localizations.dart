@@ -901,6 +901,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{size} GB'**
   String modelsSizeGb(String size);
+
+  /// No description provided for @modelsSectionAsr.
+  ///
+  /// In en, this message translates to:
+  /// **'Speech-to-text'**
+  String get modelsSectionAsr;
+
+  /// No description provided for @modelsSectionSummarization.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarization'**
+  String get modelsSectionSummarization;
+
+  /// No description provided for @modelsTierGemma1b.
+  ///
+  /// In en, this message translates to:
+  /// **'Gemma 3 1B'**
+  String get modelsTierGemma1b;
+
+  /// No description provided for @modelsTierGemma1bDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Fast, on-device summaries — recommended'**
+  String get modelsTierGemma1bDescription;
+
+  /// No description provided for @modelsTierGemma4b.
+  ///
+  /// In en, this message translates to:
+  /// **'Gemma 3 4B'**
+  String get modelsTierGemma4b;
+
+  /// No description provided for @modelsTierGemma4bDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher-quality summaries, larger download'**
+  String get modelsTierGemma4bDescription;
+
+  /// No description provided for @modelsRamGateBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Requires a device with at least {gbRequired} GB of RAM'**
+  String modelsRamGateBlocked(String gbRequired);
+
+  /// No description provided for @modelsRamUnknownWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not verify available device memory — this model needs {gbRequired} GB of RAM to run smoothly'**
+  String modelsRamUnknownWarning(String gbRequired);
 }
 
 class _AppLocalizationsDelegate

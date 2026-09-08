@@ -172,5 +172,19 @@
   "modelsSizeGb": "{size} غيغابايت",
   "@modelsSizeGb": {
     "placeholders": { "size": { "type": "String" } }
+  },
+  "modelsSectionAsr": "تحويل الكلام إلى نص",
+  "modelsSectionSummarization": "التلخيص",
+  "modelsTierGemma1b": "جيما 3 - 1 مليار",
+  "modelsTierGemma1bDescription": "تلخيص سريع على الجهاز — موصى به",
+  "modelsTierGemma4b": "جيما 3 - 4 مليار",
+  "modelsTierGemma4bDescription": "تلخيص أعلى جودة، وحجم تحميل أكبر",
+  "modelsRamGateBlocked": "يتطلب جهازاً بذاكرة وصول عشوائي لا تقل عن {gbRequired} غيغابايت",
+  "@modelsRamGateBlocked": {
+    "placeholders": { "gbRequired": { "type": "String" } }
+  },
+  "modelsRamUnknownWarning": "تعذّر التحقق من ذاكرة الجهاز المتوفرة — يحتاج هذا النموذج إلى {gbRequired} غيغابايت من الذاكرة للعمل بسلاسة",
+  "@modelsRamUnknownWarning": {
+    "placeholders": { "gbRequired": { "type": "String" } }
   }
 }

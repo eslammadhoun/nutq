@@ -454,4 +454,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String modelsSizeGb(String size) {
     return '$size GB';
   }
+
+  @override
+  String get modelsSectionAsr => 'Speech-to-text';
+
+  @override
+  String get modelsSectionSummarization => 'Summarization';
+
+  @override
+  String get modelsTierGemma1b => 'Gemma 3 1B';
+
+  @override
+  String get modelsTierGemma1bDescription =>
+      'Fast, on-device summaries — recommended';
+
+  @override
+  String get modelsTierGemma4b => 'Gemma 3 4B';
+
+  @override
+  String get modelsTierGemma4bDescription =>
+      'Higher-quality summaries, larger download';
+
+  @override
+  String modelsRamGateBlocked(String gbRequired) {
+    return 'Requires a device with at least $gbRequired GB of RAM';
+  }
+
+  @override
+  String modelsRamUnknownWarning(String gbRequired) {
+    return 'Could not verify available device memory — this model needs $gbRequired GB of RAM to run smoothly';
+  }
 }

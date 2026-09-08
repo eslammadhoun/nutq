@@ -450,4 +450,32 @@ class AppLocalizationsAr extends AppLocalizations {
   String modelsSizeGb(String size) {
     return '$size غيغابايت';
   }
+
+  @override
+  String get modelsSectionAsr => 'تحويل الكلام إلى نص';
+
+  @override
+  String get modelsSectionSummarization => 'التلخيص';
+
+  @override
+  String get modelsTierGemma1b => 'جيما 3 - 1 مليار';
+
+  @override
+  String get modelsTierGemma1bDescription => 'تلخيص سريع على الجهاز — موصى به';
+
+  @override
+  String get modelsTierGemma4b => 'جيما 3 - 4 مليار';
+
+  @override
+  String get modelsTierGemma4bDescription => 'تلخيص أعلى جودة، وحجم تحميل أكبر';
+
+  @override
+  String modelsRamGateBlocked(String gbRequired) {
+    return 'يتطلب جهازاً بذاكرة وصول عشوائي لا تقل عن $gbRequired غيغابايت';
+  }
+
+  @override
+  String modelsRamUnknownWarning(String gbRequired) {
+    return 'تعذّر التحقق من ذاكرة الجهاز المتوفرة — يحتاج هذا النموذج إلى $gbRequired غيغابايت من الذاكرة للعمل بسلاسة';
+  }
 }

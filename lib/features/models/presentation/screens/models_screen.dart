@@ -7,9 +7,10 @@ import 'package:nutq/features/models/presentation/cubit/model_tile_status.dart';
 import 'package:nutq/features/models/presentation/cubit/models_cubit.dart';
 import 'package:nutq/features/models/presentation/cubit/models_state.dart';
 
-/// Minimal model-management screen (SRS: Models screen) — list the 3
-/// whisper tiers with download/delete + progress, per CLAUDE.md's
-/// "keep it minimal, it's a placeholder feature" guidance.
+/// Minimal model-management screen (SRS: Models screen) — list the whisper
+/// ASR tiers and the Gemma summarization tiers with download/delete +
+/// progress, per CLAUDE.md's "keep it minimal, it's a placeholder feature"
+/// guidance.
 class ModelsScreen extends StatefulWidget {
   const ModelsScreen({super.key});
 
@@ -50,11 +51,23 @@ class _ModelsScreenState extends State<ModelsScreen> {
         body: SafeArea(
           child: BlocBuilder<ModelsCubit, ModelsState>(
             builder: (context, state) {
-              return ListView.separated(
+              final asrTiers = state.tiers.where((t) => t.kind == 'whisper').toList();
+              final llmTiers = state.tiers.where((t) => t.kind == 'llm').toList();
+              return ListView(
                 padding: EdgeInsets.all(16.w),
-                itemCount: state.tiers.length,
-                separatorBuilder: (_, _) => SizedBox(height: 12.h),
-                itemBuilder: (context, index) => _ModelTile(tier: state.tiers[index]),
+                children: [
+                  if (asrTiers.isNotEmpty) ...[
+                    Text(l10n.modelsSectionAsr, style: context.typography.heading6),
+                    SizedBox(height: 8.h),
+                    for (final tier in asrTiers) ...[_ModelTile(tier: tier), SizedBox(height: 12.h)],
+                    SizedBox(height: 12.h),
+                  ],
+                  if (llmTiers.isNotEmpty) ...[
+                    Text(l10n.modelsSectionSummarization, style: context.typography.heading6),
+                    SizedBox(height: 8.h),
+                    for (final tier in llmTiers) ...[_ModelTile(tier: tier), SizedBox(height: 12.h)],
+                  ],
+                ],
               );
             },
           ),
@@ -73,6 +86,8 @@ class _ModelTile extends StatelessWidget {
     'base' => context.l10n.modelsTierBase,
     'small' => context.l10n.modelsTierSmall,
     'medium' => context.l10n.modelsTierMedium,
+    '1b' => context.l10n.modelsTierGemma1b,
+    '4b' => context.l10n.modelsTierGemma4b,
     _ => tier.displayName,
   };
 
@@ -80,11 +95,13 @@ class _ModelTile extends StatelessWidget {
     'base' => context.l10n.modelsTierBaseDescription,
     'small' => context.l10n.modelsTierSmallDescription,
     'medium' => context.l10n.modelsTierMediumDescription,
+    '1b' => context.l10n.modelsTierGemma1bDescription,
+    '4b' => context.l10n.modelsTierGemma4bDescription,
     _ => '',
   };
 
-  String _sizeLabel(BuildContext context) {
-    final mb = tier.approxSizeBytes / (1000 * 1000);
+  String _sizeLabel(BuildContext context, int approxSizeBytes) {
+    final mb = approxSizeBytes / (1000 * 1000);
     if (mb >= 1000) {
       return context.l10n.modelsSizeGb((mb / 1000).toStringAsFixed(1));
     }
@@ -94,6 +111,7 @@ class _ModelTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final ramGated = tier.ramBlocked;
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -101,48 +119,63 @@ class _ModelTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: context.appColors.borderSubtle),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Text(_tierName(context), style: context.typography.heading6),
-                    if (tier.isDefault) ...[
-                      SizedBox(width: 8.w),
-                      Container(
-                        padding: EdgeInsetsDirectional.symmetric(horizontal: 8.w, vertical: 2.h),
-                        decoration: BoxDecoration(
-                          color: context.appColors.primaryLighter,
-                          borderRadius: BorderRadius.circular(6.r),
+      child: Opacity(
+        opacity: ramGated ? 0.6 : 1,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text(_tierName(context), style: context.typography.heading6),
+                      if (tier.isDefault) ...[
+                        SizedBox(width: 8.w),
+                        Container(
+                          padding: EdgeInsetsDirectional.symmetric(horizontal: 8.w, vertical: 2.h),
+                          decoration: BoxDecoration(
+                            color: context.appColors.primaryLighter,
+                            borderRadius: BorderRadius.circular(6.r),
+                          ),
+                          child: Text(
+                            l10n.modelsDefaultBadge,
+                            style: context.typography.captionSmall.copyWith(color: context.appColors.textBrand),
+                          ),
                         ),
-                        child: Text(
-                          l10n.modelsDefaultBadge,
-                          style: context.typography.captionSmall.copyWith(color: context.appColors.textBrand),
-                        ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
+                Text(
+                  _sizeLabel(context, tier.approxSizeBytes),
+                  style: context.typography.bodySmall.copyWith(color: context.appColors.textSecondary),
+                ),
+              ],
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              _tierDescription(context),
+              style: context.typography.bodySmall.copyWith(color: context.appColors.textSecondary),
+            ),
+            if (tier.ramBlocked || tier.ramUnknown) ...[
+              SizedBox(height: 4.h),
+              Text(
+                tier.ramBlocked
+                    ? l10n.modelsRamGateBlocked((tier.minRamBytes / (1000 * 1000 * 1000)).toStringAsFixed(0))
+                    : l10n.modelsRamUnknownWarning((tier.minRamBytes / (1000 * 1000 * 1000)).toStringAsFixed(0)),
+                style: context.typography.captionSmall.copyWith(color: context.appColors.statusFailed),
               ),
-              Text(_sizeLabel(context), style: context.typography.bodySmall.copyWith(color: context.appColors.textSecondary)),
             ],
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            _tierDescription(context),
-            style: context.typography.bodySmall.copyWith(color: context.appColors.textSecondary),
-          ),
-          SizedBox(height: 12.h),
-          _statusRow(context),
-        ],
+            SizedBox(height: 12.h),
+            _statusRow(context, disabled: ramGated),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _statusRow(BuildContext context) {
+  Widget _statusRow(BuildContext context, {required bool disabled}) {
     final l10n = context.l10n;
     final cubit = context.read<ModelsCubit>();
 
@@ -196,7 +229,7 @@ class _ModelTile extends StatelessWidget {
               style: context.typography.bodySmall.copyWith(color: context.appColors.textTertiary),
             ),
             TextButton(
-              onPressed: () => cubit.download(tier.id),
+              onPressed: disabled ? null : () => cubit.download(tier.id),
               child: Text(l10n.modelsDownload),
             ),
           ],
