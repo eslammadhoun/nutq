@@ -11,7 +11,6 @@ import 'package:nutq/features/jobs/domain/entities/job_update_event.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_page.dart';
 import 'package:nutq/features/jobs/domain/entities/submit_job_params.dart';
 import 'package:nutq/features/jobs/domain/entities/transcript.dart';
-import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_state.dart';
@@ -70,22 +69,14 @@ class _FakeJobsRepository implements JobsRepository {
       throw UnimplementedError();
 
   @override
-  Future<ApiResult<JobEntity>> confirmUpload(String jobId) =>
-      throw UnimplementedError();
-
-  @override
-  Future<ApiResult<void>> uploadToSlot(String uploadUrl, UploadFile file) =>
-      throw UnimplementedError();
-
-  @override
   Future<ApiResult<void>> deleteJob(String jobId) => throw UnimplementedError();
 
   ApiResult<String>? transcriptTextResult;
   final List<String> fetchedTranscriptUrls = [];
 
   @override
-  Future<ApiResult<String>> fetchTranscriptText(String downloadUrl) async {
-    fetchedTranscriptUrls.add(downloadUrl);
+  Future<ApiResult<String>> fetchTranscriptText(String jobId) async {
+    fetchedTranscriptUrls.add(jobId);
     return transcriptTextResult ?? const ApiResult.success('');
   }
 }
