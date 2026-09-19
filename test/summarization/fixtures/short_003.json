@@ -1,0 +1,27 @@
+{
+  "id": "short_003",
+  "title": "مقدمة عن إدارة الحالة في فلاتر",
+  "language": "ar",
+  "size": "short",
+  "category": "technical,english_terms",
+  "duration_minutes": 1,
+  "transcript": "في تطبيقات Flutter الكبيرة نحتاج إلى فصل منطق العمل عن واجهة المستخدم. مكتبة BLoC تعتمد على مفهوم Events و States، بينما Cubit أبسط لأنه يستخدم دوال مباشرة بدل الأحداث. ننصح باستخدام الإصدار 9 من مكتبة flutter_bloc مع Dart 3 لأنه يدعم الـ sealed classes بشكل ممتاز.",
+  "reference_summary": "في تطبيقات Flutter الكبيرة يُفصل منطق العمل عن الواجهة باستخدام BLoC القائم على الأحداث والحالات، أو Cubit الأبسط الذي يستخدم دوال مباشرة. يُنصح بالإصدار 9 من flutter_bloc مع Dart 3 لدعم sealed classes.",
+  "reference_author": "مسودة كتبها Claude كبنية اختبار؛ تحتاج إلى مراجعة أو استبدال بملخص بشري قبل اعتماد أي نتائج جودة",
+  "important_facts": [
+    "فصل منطق العمل عن واجهة المستخدم",
+    "BLoC يعتمد على Events و States",
+    "Cubit أبسط ويستخدم دوال مباشرة",
+    "الإصدار 9 من flutter_bloc مع Dart 3"
+  ],
+  "important_entities": [
+    "Flutter",
+    "BLoC",
+    "Cubit",
+    "flutter_bloc",
+    "Dart 3"
+  ],
+  "important_numbers": [
+    "9"
+  ]
+}
