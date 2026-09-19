@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:nutq/core/network/error/api_error.dart';
-import 'package:nutq/features/jobs/data/sockets/job_updates_socket_service.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
+
+enum JobConnectionStatus { idle, connecting, connected, reconnecting, failed }
 
 enum JobDetailStatus { loading, success, failure }
 

@@ -28,11 +28,10 @@ class AppRouter {
         return _buildRoute(settings, HomeScreen());
 
       case Routes.jobDetail:
-        final jobId = settings.arguments as String;
         return _buildRoute(
           settings,
           BlocProvider<JobDetailCubit>(
-            create: (_) => sl<JobDetailCubit>(param1: jobId),
+            create: (_) => sl<JobDetailCubit>(),
             child: const JobDetailScreen(),
           ),
         );

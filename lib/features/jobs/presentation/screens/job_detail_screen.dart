@@ -4,7 +4,6 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/error_l10n_extension.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/widgets/global_button.dart';
-import 'package:nutq/features/jobs/data/sockets/job_updates_socket_service.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_state.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_action_bar.dart';
