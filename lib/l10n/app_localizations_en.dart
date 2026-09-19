@@ -484,4 +484,84 @@ class AppLocalizationsEn extends AppLocalizations {
   String modelsRamUnknownWarning(String gbRequired) {
     return 'Could not verify available device memory — this model needs $gbRequired GB of RAM to run smoothly';
   }
+
+  @override
+  String get summarizeScreenTitle => 'Summarize';
+
+  @override
+  String get summarizeTranscriptHint => 'Paste or type the transcript here';
+
+  @override
+  String get summarizeLengthShort => 'Short';
+
+  @override
+  String get summarizeLengthMedium => 'Medium';
+
+  @override
+  String get summarizeLengthDetailed => 'Detailed';
+
+  @override
+  String get summarizeAction => 'Summarize';
+
+  @override
+  String get summarizeCancel => 'Cancel';
+
+  @override
+  String get summarizeNewSummary => 'New summary';
+
+  @override
+  String get summarizeStagePreparing => 'Preparing transcript';
+
+  @override
+  String get summarizeStageAnalyzing => 'Analyzing transcript';
+
+  @override
+  String get summarizeStageSummarizing => 'Summarizing sections';
+
+  @override
+  String get summarizeStageCombining => 'Combining information';
+
+  @override
+  String get summarizeStageChecking => 'Checking summary';
+
+  @override
+  String get summarizeStageFinalizing => 'Finalizing';
+
+  @override
+  String get summarizeStageCompleted => 'Completed';
+
+  @override
+  String summarizeChunkProgress(int processed, int total) {
+    return '$processed of $total sections';
+  }
+
+  @override
+  String get summarizeResultTitle => 'Summary';
+
+  @override
+  String get summarizeKeyPoints => 'Key points';
+
+  @override
+  String get summarizeImportantFacts => 'Important facts';
+
+  @override
+  String get summarizeCheckWarning =>
+      'Some details in this summary could not be verified against the transcript. Please review it.';
+
+  @override
+  String get summarizeCancelled => 'Summarization was cancelled.';
+
+  @override
+  String get summarizeErrorEmpty => 'There is no transcript text to summarize.';
+
+  @override
+  String get summarizeErrorModel =>
+      'The on-device summarization model isn\'t available.';
+
+  @override
+  String get summarizeErrorGeneration =>
+      'The summary could not be generated. Please try again.';
+
+  @override
+  String get profileSummarize => 'Summarize text';
 }

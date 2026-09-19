@@ -222,5 +222,32 @@
   "modelsRamUnknownWarning": "Could not verify available device memory — this model needs {gbRequired} GB of RAM to run smoothly",
   "@modelsRamUnknownWarning": {
     "placeholders": { "gbRequired": { "type": "String" } }
-  }
+  },
+
+  "summarizeScreenTitle": "Summarize",
+  "summarizeTranscriptHint": "Paste or type the transcript here",
+  "summarizeLengthShort": "Short",
+  "summarizeLengthMedium": "Medium",
+  "summarizeLengthDetailed": "Detailed",
+  "summarizeAction": "Summarize",
+  "summarizeCancel": "Cancel",
+  "summarizeNewSummary": "New summary",
+  "summarizeStagePreparing": "Preparing transcript",
+  "summarizeStageAnalyzing": "Analyzing transcript",
+  "summarizeStageSummarizing": "Summarizing sections",
+  "summarizeStageCombining": "Combining information",
+  "summarizeStageChecking": "Checking summary",
+  "summarizeStageFinalizing": "Finalizing",
+  "summarizeStageCompleted": "Completed",
+  "summarizeChunkProgress": "{processed} of {total} sections",
+  "@summarizeChunkProgress": {"placeholders": {"processed": {"type": "int"}, "total": {"type": "int"}}},
+  "summarizeResultTitle": "Summary",
+  "summarizeKeyPoints": "Key points",
+  "summarizeImportantFacts": "Important facts",
+  "summarizeCheckWarning": "Some details in this summary could not be verified against the transcript. Please review it.",
+  "summarizeCancelled": "Summarization was cancelled.",
+  "summarizeErrorEmpty": "There is no transcript text to summarize.",
+  "summarizeErrorModel": "The on-device summarization model isn't available.",
+  "summarizeErrorGeneration": "The summary could not be generated. Please try again.",
+  "profileSummarize": "Summarize text"
 }

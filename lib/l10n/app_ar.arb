@@ -186,5 +186,32 @@
   "modelsRamUnknownWarning": "تعذّر التحقق من ذاكرة الجهاز المتوفرة — يحتاج هذا النموذج إلى {gbRequired} غيغابايت من الذاكرة للعمل بسلاسة",
   "@modelsRamUnknownWarning": {
     "placeholders": { "gbRequired": { "type": "String" } }
-  }
+  },
+
+  "summarizeScreenTitle": "التلخيص",
+  "summarizeTranscriptHint": "الصق النص أو اكتبه هنا",
+  "summarizeLengthShort": "قصير",
+  "summarizeLengthMedium": "متوسط",
+  "summarizeLengthDetailed": "مفصّل",
+  "summarizeAction": "لخّص",
+  "summarizeCancel": "إلغاء",
+  "summarizeNewSummary": "تلخيص جديد",
+  "summarizeStagePreparing": "تجهيز النص",
+  "summarizeStageAnalyzing": "تحليل النص",
+  "summarizeStageSummarizing": "تلخيص الأقسام",
+  "summarizeStageCombining": "دمج المعلومات",
+  "summarizeStageChecking": "مراجعة الملخص",
+  "summarizeStageFinalizing": "إنهاء الملخص",
+  "summarizeStageCompleted": "اكتمل",
+  "summarizeChunkProgress": "{processed} من {total} أقسام",
+  "@summarizeChunkProgress": {"placeholders": {"processed": {"type": "int"}, "total": {"type": "int"}}},
+  "summarizeResultTitle": "الملخص",
+  "summarizeKeyPoints": "النقاط الرئيسية",
+  "summarizeImportantFacts": "معلومات مهمة",
+  "summarizeCheckWarning": "تعذّر التحقق من بعض التفاصيل في هذا الملخص مقابل النص الأصلي. يُرجى مراجعته.",
+  "summarizeCancelled": "تم إلغاء التلخيص.",
+  "summarizeErrorEmpty": "لا يوجد نص لتلخيصه.",
+  "summarizeErrorModel": "نموذج التلخيص على الجهاز غير متاح.",
+  "summarizeErrorGeneration": "تعذّر إنشاء الملخص. يُرجى المحاولة مرة أخرى.",
+  "profileSummarize": "تلخيص نص"
 }

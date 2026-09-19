@@ -25,6 +25,10 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
               TextButton(
+                onPressed: () => Navigator.of(context).pushNamed(Routes.summarization),
+                child: Text(l10n.profileSummarize),
+              ),
+              TextButton(
                 onPressed: () => Navigator.of(context).pushNamed(Routes.models),
                 child: Text(l10n.profileModels),
               ),

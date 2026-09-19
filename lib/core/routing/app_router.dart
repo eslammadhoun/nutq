@@ -10,6 +10,8 @@ import 'package:nutq/features/models/presentation/cubit/models_cubit.dart';
 import 'package:nutq/features/models/presentation/screens/models_screen.dart';
 import 'package:nutq/features/onBoarding/presentation/screens/on_boarding_screen.dart';
 import 'package:nutq/features/onBoarding/presentation/screens/splash_screen.dart';
+import 'package:nutq/features/summarization/presentation/bloc/summarization_bloc.dart';
+import 'package:nutq/features/summarization/presentation/pages/summarization_page.dart';
 
 class AppRouter {
   /// Global access to the navigator for imperative navigation from
@@ -41,6 +43,15 @@ class AppRouter {
           BlocProvider<ModelsCubit>(
             create: (_) => sl<ModelsCubit>(),
             child: const ModelsScreen(),
+          ),
+        );
+
+      case Routes.summarization:
+        return _buildRoute(
+          settings,
+          BlocProvider<SummarizationBloc>(
+            create: (_) => sl<SummarizationBloc>(),
+            child: const SummarizationPage(),
           ),
         );
 

@@ -949,6 +949,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not verify available device memory — this model needs {gbRequired} GB of RAM to run smoothly'**
   String modelsRamUnknownWarning(String gbRequired);
+
+  /// No description provided for @summarizeScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarize'**
+  String get summarizeScreenTitle;
+
+  /// No description provided for @summarizeTranscriptHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste or type the transcript here'**
+  String get summarizeTranscriptHint;
+
+  /// No description provided for @summarizeLengthShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get summarizeLengthShort;
+
+  /// No description provided for @summarizeLengthMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get summarizeLengthMedium;
+
+  /// No description provided for @summarizeLengthDetailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed'**
+  String get summarizeLengthDetailed;
+
+  /// No description provided for @summarizeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarize'**
+  String get summarizeAction;
+
+  /// No description provided for @summarizeCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get summarizeCancel;
+
+  /// No description provided for @summarizeNewSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'New summary'**
+  String get summarizeNewSummary;
+
+  /// No description provided for @summarizeStagePreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing transcript'**
+  String get summarizeStagePreparing;
+
+  /// No description provided for @summarizeStageAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing transcript'**
+  String get summarizeStageAnalyzing;
+
+  /// No description provided for @summarizeStageSummarizing.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarizing sections'**
+  String get summarizeStageSummarizing;
+
+  /// No description provided for @summarizeStageCombining.
+  ///
+  /// In en, this message translates to:
+  /// **'Combining information'**
+  String get summarizeStageCombining;
+
+  /// No description provided for @summarizeStageChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking summary'**
+  String get summarizeStageChecking;
+
+  /// No description provided for @summarizeStageFinalizing.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalizing'**
+  String get summarizeStageFinalizing;
+
+  /// No description provided for @summarizeStageCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get summarizeStageCompleted;
+
+  /// No description provided for @summarizeChunkProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{processed} of {total} sections'**
+  String summarizeChunkProgress(int processed, int total);
+
+  /// No description provided for @summarizeResultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get summarizeResultTitle;
+
+  /// No description provided for @summarizeKeyPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Key points'**
+  String get summarizeKeyPoints;
+
+  /// No description provided for @summarizeImportantFacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Important facts'**
+  String get summarizeImportantFacts;
+
+  /// No description provided for @summarizeCheckWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Some details in this summary could not be verified against the transcript. Please review it.'**
+  String get summarizeCheckWarning;
+
+  /// No description provided for @summarizeCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarization was cancelled.'**
+  String get summarizeCancelled;
+
+  /// No description provided for @summarizeErrorEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no transcript text to summarize.'**
+  String get summarizeErrorEmpty;
+
+  /// No description provided for @summarizeErrorModel.
+  ///
+  /// In en, this message translates to:
+  /// **'The on-device summarization model isn\'t available.'**
+  String get summarizeErrorModel;
+
+  /// No description provided for @summarizeErrorGeneration.
+  ///
+  /// In en, this message translates to:
+  /// **'The summary could not be generated. Please try again.'**
+  String get summarizeErrorGeneration;
+
+  /// No description provided for @profileSummarize.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarize text'**
+  String get profileSummarize;
 }
 
 class _AppLocalizationsDelegate

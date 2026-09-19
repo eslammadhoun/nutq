@@ -478,4 +478,83 @@ class AppLocalizationsAr extends AppLocalizations {
   String modelsRamUnknownWarning(String gbRequired) {
     return 'تعذّر التحقق من ذاكرة الجهاز المتوفرة — يحتاج هذا النموذج إلى $gbRequired غيغابايت من الذاكرة للعمل بسلاسة';
   }
+
+  @override
+  String get summarizeScreenTitle => 'التلخيص';
+
+  @override
+  String get summarizeTranscriptHint => 'الصق النص أو اكتبه هنا';
+
+  @override
+  String get summarizeLengthShort => 'قصير';
+
+  @override
+  String get summarizeLengthMedium => 'متوسط';
+
+  @override
+  String get summarizeLengthDetailed => 'مفصّل';
+
+  @override
+  String get summarizeAction => 'لخّص';
+
+  @override
+  String get summarizeCancel => 'إلغاء';
+
+  @override
+  String get summarizeNewSummary => 'تلخيص جديد';
+
+  @override
+  String get summarizeStagePreparing => 'تجهيز النص';
+
+  @override
+  String get summarizeStageAnalyzing => 'تحليل النص';
+
+  @override
+  String get summarizeStageSummarizing => 'تلخيص الأقسام';
+
+  @override
+  String get summarizeStageCombining => 'دمج المعلومات';
+
+  @override
+  String get summarizeStageChecking => 'مراجعة الملخص';
+
+  @override
+  String get summarizeStageFinalizing => 'إنهاء الملخص';
+
+  @override
+  String get summarizeStageCompleted => 'اكتمل';
+
+  @override
+  String summarizeChunkProgress(int processed, int total) {
+    return '$processed من $total أقسام';
+  }
+
+  @override
+  String get summarizeResultTitle => 'الملخص';
+
+  @override
+  String get summarizeKeyPoints => 'النقاط الرئيسية';
+
+  @override
+  String get summarizeImportantFacts => 'معلومات مهمة';
+
+  @override
+  String get summarizeCheckWarning =>
+      'تعذّر التحقق من بعض التفاصيل في هذا الملخص مقابل النص الأصلي. يُرجى مراجعته.';
+
+  @override
+  String get summarizeCancelled => 'تم إلغاء التلخيص.';
+
+  @override
+  String get summarizeErrorEmpty => 'لا يوجد نص لتلخيصه.';
+
+  @override
+  String get summarizeErrorModel => 'نموذج التلخيص على الجهاز غير متاح.';
+
+  @override
+  String get summarizeErrorGeneration =>
+      'تعذّر إنشاء الملخص. يُرجى المحاولة مرة أخرى.';
+
+  @override
+  String get profileSummarize => 'تلخيص نص';
 }
