@@ -51,7 +51,7 @@ class AppRouter {
           settings,
           BlocProvider<SummarizationBloc>(
             create: (_) => sl<SummarizationBloc>(),
-            child: const SummarizationPage(),
+            child: SummarizationPage(initialText: settings.arguments as String?),
           ),
         );
 

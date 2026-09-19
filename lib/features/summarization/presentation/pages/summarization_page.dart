@@ -12,7 +12,10 @@ import 'package:nutq/features/summarization/presentation/widgets/summarization_r
 
 /// On-device summarization screen. Expects a [SummarizationBloc] above it.
 class SummarizationPage extends StatefulWidget {
-  const SummarizationPage({super.key});
+  const SummarizationPage({super.key, this.initialText});
+
+  /// When set, the field is prefilled and summarization starts immediately.
+  final String? initialText;
 
   @override
   State<SummarizationPage> createState() => _SummarizationPageState();
@@ -21,6 +24,20 @@ class SummarizationPage extends StatefulWidget {
 class _SummarizationPageState extends State<SummarizationPage> {
   final _controller = TextEditingController();
   SummaryLength _length = SummaryLength.medium;
+
+  @override
+  void initState() {
+    super.initState();
+    final text = widget.initialText;
+    if (text == null || text.trim().isEmpty) return;
+    _controller.text = text;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<SummarizationBloc>().add(
+        SummarizationStarted(transcript: text, length: _length),
+      );
+    });
+  }
 
   @override
   void dispose() {

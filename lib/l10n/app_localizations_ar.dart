@@ -557,4 +557,8 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileSummarize => 'تلخيص نص';
+
+  @override
+  String get newJobSourceUnavailable =>
+      'يمكن حاليًا تلخيص النص الملصق فقط على هذا الجهاز. مصادر الصوت والفيديو ويوتيوب غير متاحة بعد.';
 }

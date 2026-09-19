@@ -17,8 +17,8 @@ import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/submit_j
 class NewJobSheet extends StatelessWidget {
   const NewJobSheet({super.key, this.onSubmitted});
 
-  /// Called after a job was submitted successfully (upload + confirm done).
-  final VoidCallback? onSubmitted;
+  /// Called with the transcript text after a successful submit.
+  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class NewJobSheet extends StatelessWidget {
         listener: (context, state) {
           switch (state.status) {
             case NewJobStatus.success:
-              onSubmitted?.call();
+              onSubmitted?.call(state.text.trim());
             case NewJobStatus.failure when state.lastError != null:
               ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()
@@ -84,6 +84,20 @@ class NewJobSheet extends StatelessWidget {
                       child: SingleChildScrollView(
                         child: const SourceInputSection(),
                       ),
+                    ),
+                    BlocBuilder<NewJobCubit, NewJobState>(
+                      buildWhen: (p, c) => p.sourceType != c.sourceType,
+                      builder: (context, state) => state.isSourceSupported
+                          ? const SizedBox.shrink()
+                          : Padding(
+                              padding: EdgeInsets.only(top: 12.h),
+                              child: Text(
+                                context.l10n.newJobSourceUnavailable,
+                                style: context.typography.bodySmall.copyWith(
+                                  color: colors.statusWarning,
+                                ),
+                              ),
+                            ),
                     ),
                     Padding(
                       padding: EdgeInsets.fromLTRB(0.w, 16.h, 0.w, 12.h),

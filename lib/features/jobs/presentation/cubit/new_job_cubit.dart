@@ -41,5 +41,10 @@ class NewJobCubit extends Cubit<NewJobState> {
   void clearPickedFile() =>
       emit(state.copyWith(pickedFile: null, fileTooLarge: false));
 
-  Future<void> submit() async {}
+  /// Marks the job as submitted; the sheet then hands [NewJobState.text] to
+  /// the on-device summarizer.
+  Future<void> submit() async {
+    if (!state.canSubmit || state.status == NewJobStatus.success) return;
+    emit(state.copyWith(status: NewJobStatus.success));
+  }
 }

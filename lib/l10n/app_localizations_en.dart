@@ -564,4 +564,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileSummarize => 'Summarize text';
+
+  @override
+  String get newJobSourceUnavailable =>
+      'Only pasted text can be summarized on this device for now. Audio, video and YouTube sources aren\'t available yet.';
 }

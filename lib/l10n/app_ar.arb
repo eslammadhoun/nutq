@@ -213,5 +213,6 @@
   "summarizeErrorEmpty": "لا يوجد نص لتلخيصه.",
   "summarizeErrorModel": "نموذج التلخيص على الجهاز غير متاح.",
   "summarizeErrorGeneration": "تعذّر إنشاء الملخص. يُرجى المحاولة مرة أخرى.",
-  "profileSummarize": "تلخيص نص"
+  "profileSummarize": "تلخيص نص",
+  "newJobSourceUnavailable": "يمكن حاليًا تلخيص النص الملصق فقط على هذا الجهاز. مصادر الصوت والفيديو ويوتيوب غير متاحة بعد."
 }

@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nutq/core/network/error/api_error.dart';
-import 'package:nutq/core/utils/validators.dart';
 import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 
 part 'new_job_state.freezed.dart';
@@ -48,11 +47,10 @@ abstract class NewJobState with _$NewJobState {
 
   static const int maxTextLength = 500000;
 
-  bool get canSubmit => switch (sourceType) {
-    NewJobSourceType.text =>
-      text.trim().isNotEmpty && text.length <= maxTextLength,
-    NewJobSourceType.video ||
-    NewJobSourceType.audio => pickedFile != null && pickedFile!.sizeBytes <= UploadFile.maxBytes,
-    NewJobSourceType.youtube => Validators.isValidYouTubeUrl(sourceUrl),
-  };
+  /// Only pasted text can be processed on-device today; audio, video and
+  /// YouTube sources need transcription, which is not available.
+  bool get isSourceSupported => sourceType == NewJobSourceType.text;
+
+  bool get canSubmit =>
+      isSourceSupported && text.trim().isNotEmpty && text.length <= maxTextLength;
 }

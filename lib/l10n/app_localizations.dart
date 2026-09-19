@@ -1099,6 +1099,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Summarize text'**
   String get profileSummarize;
+
+  /// No description provided for @newJobSourceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Only pasted text can be summarized on this device for now. Audio, video and YouTube sources aren\'t available yet.'**
+  String get newJobSourceUnavailable;
 }
 
 class _AppLocalizationsDelegate
