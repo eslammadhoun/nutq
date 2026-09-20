@@ -1,6 +1,6 @@
 import 'package:nutq/features/summarization/domain/entities/chunk_analysis.dart';
 import 'package:nutq/features/summarization/domain/entities/local_summary.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 import 'package:nutq/features/summarization/domain/entities/transcript_chunk.dart';
 import 'package:nutq/features/summarization/domain/text/token_counter.dart';
@@ -11,7 +11,7 @@ class MergeRequest {
     required this.summaries,
     required this.facts,
     required this.evidence,
-    this.language = SummaryLanguage.ar,
+    this.language = ContentLanguage.ar,
   });
 
   final List<LocalSummary> summaries;
@@ -21,7 +21,7 @@ class MergeRequest {
 
   /// Bounded source excerpts grounding the merge.
   final List<String> evidence;
-  final SummaryLanguage language;
+  final ContentLanguage language;
 }
 
 /// Input for the final synthesis.
@@ -32,7 +32,7 @@ class FinalSummaryRequest {
     required this.entities,
     required this.numbers,
     required this.length,
-    this.language = SummaryLanguage.ar,
+    this.language = ContentLanguage.ar,
   });
 
   final List<LocalSummary> summaries;
@@ -40,7 +40,7 @@ class FinalSummaryRequest {
   final List<String> entities;
   final List<String> numbers;
   final SummaryLength length;
-  final SummaryLanguage language;
+  final ContentLanguage language;
 }
 
 /// Cumulative model usage for one summarization job.
@@ -77,12 +77,12 @@ abstract class SummarizationRepository {
 
   Future<ChunkAnalysis> analyzeChunk(
     TranscriptChunk chunk, {
-    SummaryLanguage language = SummaryLanguage.ar,
+    ContentLanguage language = ContentLanguage.ar,
   });
 
   Future<String> summarizeChunk(
     TranscriptChunk chunk, {
-    SummaryLanguage language = SummaryLanguage.ar,
+    ContentLanguage language = ContentLanguage.ar,
   });
 
   Future<String> mergeSummaries(MergeRequest request);

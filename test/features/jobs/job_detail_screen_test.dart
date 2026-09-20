@@ -18,8 +18,8 @@ import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_p
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_status_hero_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/summary_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/transcript_card.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
 import 'support/job_harness.dart';
@@ -62,7 +62,7 @@ void main() {
   Future<JobDetailCubit> open(
     WidgetTester tester,
     String text, {
-    SummaryLanguage language = SummaryLanguage.ar,
+    ContentLanguage language = ContentLanguage.ar,
     Locale locale = const Locale('en'),
     Future<void> Function(String id)? seed,
   }) async {
@@ -139,7 +139,7 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(cubit.state.job!.failureKind, SummarizationFailureKind.interrupted);
+    expect(cubit.state.job!.failureKind, JobFailureKind.interrupted);
     expect(find.text('This job was interrupted because the app was closed before it finished.'), findsOneWidget);
     expect(find.byType(JobProgressCard), findsNothing);
     expect(find.text('Failed'), findsWidgets);
@@ -300,7 +300,7 @@ void main() {
         if (prompt.contains('final summary of a full lecture')) return summary;
         return null;
       };
-      final cubit = await open(tester, transcript, language: SummaryLanguage.en, locale: const Locale('ar'));
+      final cubit = await open(tester, transcript, language: ContentLanguage.en, locale: const Locale('ar'));
       await untilSettled(tester, cubit);
       expect(cubit.state.job!.status, JobRunStatus.completed);
 

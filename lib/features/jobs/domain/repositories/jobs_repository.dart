@@ -2,7 +2,7 @@ import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_result.dart';
 
 /// Durable storage for summary jobs.
@@ -31,7 +31,7 @@ abstract interface class JobsRepository {
   Future<void> completeJob(String id, SummaryResult result);
 
   /// `pending|running → failed`.
-  Future<void> failJob(String id, SummarizationFailureKind kind);
+  Future<void> failJob(String id, JobFailureKind kind);
 
   /// `pending|running → cancelled`.
   Future<void> cancelJob(String id);

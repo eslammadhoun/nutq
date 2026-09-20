@@ -5,7 +5,7 @@ import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 
 /// SQLite access for jobs, expressed in domain entities.
 ///
@@ -27,7 +27,7 @@ abstract interface class JobsLocalDataSource {
     required Set<JobRunStatus> from,
     required JobRunStatus to,
     required DateTime at,
-    SummarizationFailureKind? failureKind,
+    JobFailureKind? failureKind,
   });
 
   Future<TransitionOutcome> completeJob(
@@ -38,7 +38,7 @@ abstract interface class JobsLocalDataSource {
 
   Future<void> deleteJob(String id);
 
-  Future<int> failActiveJobs(SummarizationFailureKind kind, DateTime at);
+  Future<int> failActiveJobs(JobFailureKind kind, DateTime at);
 }
 
 class JobsLocalDataSourceImpl implements JobsLocalDataSource {
@@ -68,7 +68,7 @@ class JobsLocalDataSourceImpl implements JobsLocalDataSource {
     required Set<JobRunStatus> from,
     required JobRunStatus to,
     required DateTime at,
-    SummarizationFailureKind? failureKind,
+    JobFailureKind? failureKind,
   }) =>
       _dao.transition(id, from: from, to: to, at: at, failureKind: failureKind);
 
@@ -83,6 +83,6 @@ class JobsLocalDataSourceImpl implements JobsLocalDataSource {
   Future<void> deleteJob(String id) => _dao.deleteJob(id);
 
   @override
-  Future<int> failActiveJobs(SummarizationFailureKind kind, DateTime at) =>
+  Future<int> failActiveJobs(JobFailureKind kind, DateTime at) =>
       _dao.failActiveJobs(kind, at);
 }

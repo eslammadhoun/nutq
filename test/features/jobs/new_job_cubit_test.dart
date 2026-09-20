@@ -11,8 +11,8 @@ import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
+import 'package:nutq/core/domain/content_language.dart';
 
 import 'support/job_harness.dart';
 
@@ -53,14 +53,14 @@ void main() {
     final stored = (await h.repo.getJob(id))!;
     expect(stored.status, JobRunStatus.pending, reason: 'processing starts when the job is opened');
     expect(stored.transcript!.text, 'نص للتلخيص');
-    expect(stored.language, SummaryLanguage.ar);
+    expect(stored.language, ContentLanguage.ar);
   });
 
   test('the language toggle is saved with the job', () async {
     cubit.setText('Hello world');
     cubit.toggleLanguage();
     await cubit.submit();
-    expect((await h.repo.getJob(cubit.state.submittedJobId!))!.language, SummaryLanguage.en);
+    expect((await h.repo.getJob(cubit.state.submittedJobId!))!.language, ContentLanguage.en);
   });
 
   test('submitting twice creates one job', () async {
@@ -119,7 +119,7 @@ class _Delegating implements JobsLocalDataSource {
   Future<void> insertJob(JobDetailEntity job) => inner.insertJob(job);
 
   @override
-  Future<TransitionOutcome> transition(String id, {required Set<JobRunStatus> from, required JobRunStatus to, required DateTime at, SummarizationFailureKind? failureKind}) =>
+  Future<TransitionOutcome> transition(String id, {required Set<JobRunStatus> from, required JobRunStatus to, required DateTime at, JobFailureKind? failureKind}) =>
       inner.transition(id, from: from, to: to, at: at, failureKind: failureKind);
 
   @override
@@ -129,5 +129,5 @@ class _Delegating implements JobsLocalDataSource {
   Future<void> deleteJob(String id) => inner.deleteJob(id);
 
   @override
-  Future<int> failActiveJobs(SummarizationFailureKind kind, DateTime at) => inner.failActiveJobs(kind, at);
+  Future<int> failActiveJobs(JobFailureKind kind, DateTime at) => inner.failActiveJobs(kind, at);
 }

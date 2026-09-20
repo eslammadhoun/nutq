@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
-import 'package:nutq/features/summarization/domain/entities/cancellation_token.dart';
+import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
@@ -84,7 +84,7 @@ void main() {
       expect(token.isCancelled, isTrue);
     });
 
-    test('a cancelled token surfaces SummarizationCancelledException as an error', () async {
+    test('a cancelled token surfaces CancelledException as an error', () async {
       final token = CancellationToken();
       gemma.responder = (prompt, call) async {
         if (call == 2) token.cancel();
@@ -92,7 +92,7 @@ void main() {
       };
       await expectLater(
         pipeline.stream(_text, _config, cancellation: token),
-        emitsThrough(emitsError(isA<SummarizationCancelledException>())),
+        emitsThrough(emitsError(isA<CancelledException>())),
       );
     });
   });

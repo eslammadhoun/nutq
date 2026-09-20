@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:nutq/features/summarization/domain/entities/cancellation_token.dart';
+import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/features/summarization/domain/entities/chunk_analysis.dart';
 import 'package:nutq/features/summarization/domain/entities/local_summary.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
@@ -62,7 +62,7 @@ class SummarizeTranscript {
   static const _maxKeyPoints = 5;
   static const _maxImportantFacts = 8;
 
-  /// Throws [SummarizationFailure] or [SummarizationCancelledException].
+  /// Throws [SummarizationFailure] or [CancelledException].
   Future<SummaryResult> call(
     String transcript,
     SummarizationConfig config, {
@@ -142,7 +142,7 @@ class SummarizeTranscript {
         ),
         onPartial: onPartialSummary,
       );
-    } on SummarizationCancelledException {
+    } on CancelledException {
       rethrow;
     } catch (e) {
       throw SummarizationFailure(SummarizationFailureKind.generationFailed, '$e');
@@ -182,7 +182,7 @@ class SummarizeTranscript {
 
   /// Runs the pipeline and streams progress as it happens, ending with one
   /// [SummarizationCompletedUpdate]. Failures arrive as stream errors
-  /// ([SummarizationFailure] / [SummarizationCancelledException]). Cancelling
+  /// ([SummarizationFailure] / [CancelledException]). Cancelling
   /// the subscription cancels the job.
   Stream<SummarizationUpdate> stream(
     String transcript,

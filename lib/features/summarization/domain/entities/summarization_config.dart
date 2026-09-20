@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 
 /// Chunking and pipeline knobs. Values are experimental defaults (plan §11),
@@ -8,7 +8,7 @@ import 'package:nutq/features/summarization/domain/entities/summary_length.dart'
 class SummarizationConfig {
   const SummarizationConfig({
     this.length = SummaryLength.medium,
-    this.language = SummaryLanguage.ar,
+    this.language = ContentLanguage.ar,
     this.targetTokens = 400,
     this.overlapTokens = 50,
     this.minTokens = 250,
@@ -21,7 +21,7 @@ class SummarizationConfig {
   });
 
   final SummaryLength length;
-  final SummaryLanguage language;
+  final ContentLanguage language;
   final int targetTokens;
   final int overlapTokens;
   final int minTokens;
@@ -43,7 +43,7 @@ class SummarizationConfig {
 
   SummarizationConfig copyWith({
     SummaryLength? length,
-    SummaryLanguage? language,
+    ContentLanguage? language,
     int? targetTokens,
     int? overlapTokens,
     int? minTokens,

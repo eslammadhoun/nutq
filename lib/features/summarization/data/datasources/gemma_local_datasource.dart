@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_generation_config.dart';
-import 'package:nutq/features/summarization/domain/entities/cancellation_token.dart';
+import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
 
 class GemmaResponse {
@@ -124,13 +124,13 @@ class GemmaLocalDataSourceImpl implements GemmaLocalDataSource {
     await activate();
     Object? lastError;
     for (var attempt = 1; attempt <= maxAttempts; attempt++) {
-      if (_cancelRequested) throw const SummarizationCancelledException();
+      if (_cancelRequested) throw const CancelledException();
       try {
         return await _generateOnce(prompt, config, onPartial);
-      } on SummarizationCancelledException {
+      } on CancelledException {
         rethrow;
       } catch (e) {
-        if (_cancelRequested) throw const SummarizationCancelledException();
+        if (_cancelRequested) throw const CancelledException();
         lastError = e;
       }
     }
@@ -168,7 +168,7 @@ class GemmaLocalDataSourceImpl implements GemmaLocalDataSource {
         raw = buffer.toString();
       }
       watch.stop();
-      if (_cancelRequested) throw const SummarizationCancelledException();
+      if (_cancelRequested) throw const CancelledException();
 
       final metrics = session.getSessionMetrics();
       final text = cleanResponse(raw);

@@ -1,6 +1,6 @@
 import 'package:nutq/features/summarization/data/datasources/gemma_generation_config.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
-import 'package:nutq/features/summarization/domain/entities/cancellation_token.dart';
+import 'package:nutq/core/domain/cancellation.dart';
 
 /// Scripted stand-in for the on-device model. Responds by prompt type so the
 /// whole pipeline runs without a real model.
@@ -44,7 +44,7 @@ class FakeGemma implements GemmaLocalDataSource {
     GemmaGenerationConfig config, {
     void Function(String partialText)? onPartial,
   }) async {
-    if (cancelled) throw const SummarizationCancelledException();
+    if (cancelled) throw const CancelledException();
     prompts.add(prompt);
     if (failEverything) throw const GemmaGenerationException('boom');
     final scripted = await responder?.call(prompt, prompts.length);
@@ -53,7 +53,7 @@ class FakeGemma implements GemmaLocalDataSource {
       // Stream word by word, yielding between words so events interleave.
       final words = text.split(' ');
       for (var i = 1; i <= words.length; i++) {
-        if (cancelled) throw const SummarizationCancelledException();
+        if (cancelled) throw const CancelledException();
         onPartial(words.take(i).join(' '));
         await Future<void>.delayed(wordDelay);
       }

@@ -1,9 +1,9 @@
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/core/domain/content_language.dart';
 
 class ChunkAnalysisPrompt {
   const ChunkAnalysisPrompt._();
 
-  static String build(String chunkText, {SummaryLanguage language = SummaryLanguage.ar}) =>
+  static String build(String chunkText, {ContentLanguage language = ContentLanguage.ar}) =>
       '''You are an ${language.promptName} information extraction assistant.
 
 Analyze the provided transcript segment.

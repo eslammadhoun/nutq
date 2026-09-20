@@ -7,7 +7,7 @@ import 'package:nutq/features/summarization/data/prompts/merge_prompt.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/features/summarization/domain/entities/local_summary.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
@@ -24,16 +24,16 @@ void main() {
   group('prompts follow the requested language', () {
     test('English prompts name English and never Arabic', () {
       final prompts = [
-        ChunkAnalysisPrompt.build('src', language: SummaryLanguage.en),
-        LocalSummaryPrompt.build('src', language: SummaryLanguage.en),
-        MergePrompt.build(summaries: ['a', 'b'], facts: const [], evidence: const [], language: SummaryLanguage.en),
+        ChunkAnalysisPrompt.build('src', language: ContentLanguage.en),
+        LocalSummaryPrompt.build('src', language: ContentLanguage.en),
+        MergePrompt.build(summaries: ['a', 'b'], facts: const [], evidence: const [], language: ContentLanguage.en),
         FinalSummaryPrompt.build(
           summaries: ['a'],
           keyFacts: const [],
           entities: const [],
           numbers: const [],
           length: SummaryLength.medium,
-          language: SummaryLanguage.en,
+          language: ContentLanguage.en,
         ),
       ];
       for (final p in prompts) {
@@ -48,8 +48,8 @@ void main() {
     test('Arabic remains the default and keeps the Arabic opening rule', () {
       expect(ChunkAnalysisPrompt.build('src'), contains('Write in Arabic.'));
       expect(LocalSummaryPrompt.build('src'), contains('يتحدث النص عن'));
-      expect(SummaryLanguage.fromCode('en'), SummaryLanguage.en);
-      expect(SummaryLanguage.fromCode('xx'), SummaryLanguage.ar);
+      expect(ContentLanguage.fromCode('en'), ContentLanguage.en);
+      expect(ContentLanguage.fromCode('xx'), ContentLanguage.ar);
     });
   });
 
@@ -63,7 +63,7 @@ void main() {
     });
 
     test('language reaches every model call (analysis, local, merge, final)', () async {
-      await pipeline(_text, _config.copyWith(language: SummaryLanguage.en));
+      await pipeline(_text, _config.copyWith(language: ContentLanguage.en));
       expect(gemma.prompts.length, greaterThan(6));
       for (final p in gemma.prompts) {
         expect(p, contains('English'));
@@ -84,7 +84,7 @@ void main() {
       gemma.responder = (prompt, call) async => prompt.contains('final summary of a full lecture')
           ? 'Attendance reached 250 people in 2024 and Dr Smith said the results were good.'
           : null;
-      final result = await pipeline(_text, _config.copyWith(language: SummaryLanguage.en));
+      final result = await pipeline(_text, _config.copyWith(language: ContentLanguage.en));
       expect(result.validation.claims.single.score, greaterThan(0.6));
     });
   });

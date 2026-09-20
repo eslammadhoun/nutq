@@ -12,7 +12,7 @@ import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_result.dart';
 import 'package:nutq/features/summarization/domain/entities/validation_report.dart';
 
@@ -71,13 +71,13 @@ void main() {
 
   test('view models carry the preview, language and failure reason', () async {
     final id = await h.createJob('مرحبا بكم');
-    await h.repo.failJob(id, SummarizationFailureKind.modelUnavailable);
+    await h.repo.failJob(id, JobFailureKind.modelUnavailable);
     await cubit.fetchJobs();
     final job = cubit.state.jobs.single;
     expect(job.preview, 'مرحبا بكم');
     expect(job.language.code, 'ar');
     expect(job.status, JobRunStatus.failed);
-    expect(job.failureKind, SummarizationFailureKind.modelUnavailable);
+    expect(job.failureKind, JobFailureKind.modelUnavailable);
   });
 
   group('filter', () {
@@ -86,7 +86,7 @@ void main() {
       await h.repo.markRunning(done);
       await h.repo.completeJob(done, _summaryResult());
       final failed = await h.createJob('failed job');
-      await h.repo.failJob(failed, SummarizationFailureKind.generationFailed);
+      await h.repo.failJob(failed, JobFailureKind.generationFailed);
       await h.createJob('queued job');
       await cubit.fetchJobs();
     });
@@ -139,7 +139,7 @@ void main() {
 
     test('search combines with the filter', () async {
       final a = await h.createJob('ميزانية أ');
-      await h.repo.failJob(a, SummarizationFailureKind.generationFailed);
+      await h.repo.failJob(a, JobFailureKind.generationFailed);
       await h.createJob('ميزانية ب');
       await cubit.fetchJobs();
       cubit.selectFilter(JobRunStatus.failed);
@@ -265,14 +265,14 @@ class _FailingDeleteDataSource implements JobsLocalDataSource {
   Future<void> insertJob(JobDetailEntity job) => _inner.insertJob(job);
 
   @override
-  Future<TransitionOutcome> transition(String id, {required Set<JobRunStatus> from, required JobRunStatus to, required DateTime at, SummarizationFailureKind? failureKind}) =>
+  Future<TransitionOutcome> transition(String id, {required Set<JobRunStatus> from, required JobRunStatus to, required DateTime at, JobFailureKind? failureKind}) =>
       _inner.transition(id, from: from, to: to, at: at, failureKind: failureKind);
 
   @override
   Future<TransitionOutcome> completeJob(String id, Summary summary, DateTime at) => _inner.completeJob(id, summary, at);
 
   @override
-  Future<int> failActiveJobs(SummarizationFailureKind kind, DateTime at) => _inner.failActiveJobs(kind, at);
+  Future<int> failActiveJobs(JobFailureKind kind, DateTime at) => _inner.failActiveJobs(kind, at);
 }
 
 SummaryResult _summaryResult() => const SummaryResult(

@@ -2,8 +2,8 @@ import 'package:drift/drift.dart';
 import 'package:nutq/features/jobs/data/local/converters/string_list_converter.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 
 /// One row per summary job — only lightweight columns, so list queries never
@@ -18,12 +18,12 @@ class Jobs extends Table {
   TextColumn get id => text()();
   TextColumn get status => textEnum<JobRunStatus>()();
   TextColumn get sourceType => textEnum<JobSourceType>()();
-  TextColumn get language => textEnum<SummaryLanguage>()();
+  TextColumn get language => textEnum<ContentLanguage>()();
   TextColumn get requestedLength => textEnum<SummaryLength>()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   TextColumn get failureKind =>
-      textEnum<SummarizationFailureKind>().nullable()();
+      textEnum<JobFailureKind>().nullable()();
 
   /// First words of the transcript, denormalized for the list row.
   TextColumn get preview => text().nullable()();

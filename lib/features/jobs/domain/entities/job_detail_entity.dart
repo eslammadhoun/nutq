@@ -3,8 +3,8 @@ import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/domain/entities/transcript.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 
 part 'job_detail_entity.freezed.dart';
@@ -16,13 +16,13 @@ sealed class JobDetailEntity with _$JobDetailEntity {
     required String id,
     required JobRunStatus status,
     required JobSourceType sourceType,
-    required SummaryLanguage language,
+    required ContentLanguage language,
 
     /// Length the summary was requested at.
     required SummaryLength requestedLength,
     required DateTime createdAt,
     required DateTime updatedAt,
-    SummarizationFailureKind? failureKind,
+    JobFailureKind? failureKind,
     Transcript? transcript,
     Summary? summary,
   }) = _JobDetailEntity;

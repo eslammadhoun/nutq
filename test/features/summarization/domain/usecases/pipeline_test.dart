@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/features/summarization/data/cache/summarization_cache.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
-import 'package:nutq/features/summarization/domain/entities/cancellation_token.dart';
+import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
@@ -155,7 +155,7 @@ void main() {
     };
     await expectLater(
       pipeline(_transcript(8), _config, cancellation: token),
-      throwsA(isA<SummarizationCancelledException>()),
+      throwsA(isA<CancelledException>()),
     );
     final callsAtCancel = gemma.calls;
     await Future<void>.delayed(const Duration(milliseconds: 20));

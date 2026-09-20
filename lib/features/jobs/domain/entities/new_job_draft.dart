@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 
 /// Everything needed to create a job.
@@ -14,7 +14,7 @@ class NewJobDraft {
   });
 
   final String text;
-  final SummaryLanguage language;
+  final ContentLanguage language;
   final SummaryLength length;
   final JobSourceType sourceType;
 }

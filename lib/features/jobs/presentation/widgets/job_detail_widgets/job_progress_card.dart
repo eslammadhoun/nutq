@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_card.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
-import 'package:nutq/features/summarization/presentation/utils/summarization_labels.dart';
+import 'package:nutq/features/jobs/domain/entities/job_progress.dart';
+import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
 
 /// Live progress of the running summary job: current stage, overall bar and
 /// processed/total sections. Rebuilds on every event of the progress stream.
 class JobProgressCard extends StatelessWidget {
   const JobProgressCard({super.key, required this.progress});
 
-  final SummarizationProgress progress;
+  final JobProgress progress;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final l10n = context.l10n;
-    final processed = progress.processedChunks;
-    final total = progress.totalChunks;
+    final processed = progress.done;
+    final total = progress.total;
     final hasCount = processed != null && total != null && total > 0;
     final percent = (progress.fraction * 100).round();
 
@@ -35,7 +35,7 @@ class JobProgressCard extends StatelessWidget {
               SizedBox(width: 8.w),
               Expanded(
                 child: Text(
-                  summarizationStageLabel(l10n, progress.stage),
+                  jobStageLabel(l10n, progress.stage),
                   style: context.typography.labelMedium.copyWith(color: colors.textPrimary),
                 ),
               ),
@@ -61,7 +61,7 @@ class JobProgressCard extends StatelessWidget {
           if (hasCount) ...[
             SizedBox(height: 8.h),
             Text(
-              l10n.summarizeChunkProgress(processed, total),
+              l10n.jobStageSections(processed, total),
               style: context.typography.captionSmall.copyWith(color: colors.textSecondary),
             ),
           ],

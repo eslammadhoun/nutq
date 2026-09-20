@@ -1,4 +1,4 @@
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/core/domain/content_language.dart';
 
 class MergePrompt {
   const MergePrompt._();
@@ -7,7 +7,7 @@ class MergePrompt {
     required List<String> summaries,
     required List<String> facts,
     required List<String> evidence,
-    SummaryLanguage language = SummaryLanguage.ar,
+    ContentLanguage language = ContentLanguage.ar,
   }) =>
       '''You are merging summaries of an ${language.promptName} lecture.
 

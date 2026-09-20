@@ -5,8 +5,8 @@ import 'package:nutq/features/jobs/data/local/daos/jobs_dao.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 
 import '../support/job_fixtures.dart';
@@ -29,7 +29,7 @@ void main() {
     String text = 'نص',
     String? preview,
     JobRunStatus status = JobRunStatus.pending,
-    SummaryLanguage language = SummaryLanguage.ar,
+    ContentLanguage language = ContentLanguage.ar,
   }) => dao.insertJob(
     JobsCompanion.insert(
       id: id,
@@ -60,10 +60,10 @@ void main() {
 
   group('insert / read', () {
     test('a job and its transcript round-trip through the join', () async {
-      await insert('a', text: 'مرحبا بالعالم', language: SummaryLanguage.en);
+      await insert('a', text: 'مرحبا بالعالم', language: ContentLanguage.en);
       final rows = (await dao.getDetail('a'))!;
       expect(rows.job.status, JobRunStatus.pending);
-      expect(rows.job.language, SummaryLanguage.en);
+      expect(rows.job.language, ContentLanguage.en);
       expect(rows.job.requestedLength, SummaryLength.medium);
       expect(rows.job.createdAt.toUtc(), t0);
       expect(rows.transcript!.content, 'مرحبا بالعالم');
@@ -88,7 +88,7 @@ void main() {
             id: 'x',
             status: JobRunStatus.pending,
             sourceType: JobSourceType.text,
-            language: SummaryLanguage.ar,
+            language: ContentLanguage.ar,
             requestedLength: SummaryLength.medium,
             createdAt: t0,
             updatedAt: t0,
@@ -209,10 +209,10 @@ void main() {
         from: {JobRunStatus.pending},
         to: JobRunStatus.failed,
         at: later,
-        failureKind: SummarizationFailureKind.modelUnavailable,
+        failureKind: JobFailureKind.modelUnavailable,
       );
       final job = (await dao.getDetail('a'))!.job;
-      expect(job.failureKind, SummarizationFailureKind.modelUnavailable);
+      expect(job.failureKind, JobFailureKind.modelUnavailable);
       expect(job.updatedAt.toUtc(), later);
       expect(job.createdAt.toUtc(), t0);
     });
@@ -275,13 +275,13 @@ void main() {
     await insert('r', status: JobRunStatus.running);
     await insert('c', status: JobRunStatus.completed);
     await insert('x', status: JobRunStatus.cancelled);
-    expect(await dao.failActiveJobs(SummarizationFailureKind.interrupted, t0), 2);
+    expect(await dao.failActiveJobs(JobFailureKind.interrupted, t0), 2);
     Future<JobRunStatus> status(String id) async => (await dao.getDetail(id))!.job.status;
     expect(await status('p'), JobRunStatus.failed);
     expect(await status('r'), JobRunStatus.failed);
     expect(await status('c'), JobRunStatus.completed);
     expect(await status('x'), JobRunStatus.cancelled);
-    expect((await dao.getDetail('p'))!.job.failureKind, SummarizationFailureKind.interrupted);
+    expect((await dao.getDetail('p'))!.job.failureKind, JobFailureKind.interrupted);
   });
 
   test('large transcripts survive storage intact', () async {

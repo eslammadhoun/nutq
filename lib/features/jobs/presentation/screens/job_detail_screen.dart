@@ -5,9 +5,12 @@ import 'package:nutq/core/extensions/error_l10n_extension.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/widgets/global_button.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/job_progress.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
+import 'package:nutq/features/jobs/domain/entities/job_stage.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_state.dart';
+import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_action_bar.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_app_bar.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_notice.dart';
@@ -15,8 +18,6 @@ import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_p
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_status_hero_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/summary_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/transcript_card.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
 
 class JobDetailScreen extends StatelessWidget {
   const JobDetailScreen({super.key});
@@ -85,21 +86,21 @@ class _JobContent extends StatelessWidget {
             JobProgressCard(
               progress:
                   state.progress ??
-                  const SummarizationProgress(SummarizationStage.preparing),
+                  const JobProgress(JobStage.preparing, fraction: 0.02),
             ),
             SizedBox(height: 16.h),
           ],
           if (failureKind != null) ...[
             JobDetailNotice(
               kind: JobDetailNoticeKind.error,
-              message: _failureMessage(context, failureKind),
+              message: jobFailureMessage(context.l10n, failureKind),
             ),
             SizedBox(height: 16.h),
           ],
           if (job.summary?.needsReview ?? false) ...[
             JobDetailNotice(
               kind: JobDetailNoticeKind.warning,
-              message: context.l10n.summarizeCheckWarning,
+              message: context.l10n.jobSummaryNeedsReview,
             ),
             SizedBox(height: 16.h),
           ],
@@ -111,16 +112,6 @@ class _JobContent extends StatelessWidget {
       ),
     );
   }
-}
-
-String _failureMessage(BuildContext context, SummarizationFailureKind kind) {
-  final l10n = context.l10n;
-  return switch (kind) {
-    SummarizationFailureKind.emptyTranscript => l10n.summarizeErrorEmpty,
-    SummarizationFailureKind.modelUnavailable => l10n.summarizeErrorModel,
-    SummarizationFailureKind.generationFailed => l10n.summarizeErrorGeneration,
-    SummarizationFailureKind.interrupted => l10n.summarizeErrorInterrupted,
-  };
 }
 
 class _Message extends StatelessWidget {

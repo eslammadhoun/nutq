@@ -596,77 +596,77 @@ abstract class AppLocalizations {
   /// **'Profile — coming soon'**
   String get profileComingSoon;
 
-  /// No description provided for @summarizeStagePreparing.
+  /// No description provided for @jobStagePreparing.
   ///
   /// In en, this message translates to:
   /// **'Preparing transcript'**
-  String get summarizeStagePreparing;
+  String get jobStagePreparing;
 
-  /// No description provided for @summarizeStageAnalyzing.
+  /// No description provided for @jobStageAnalyzing.
   ///
   /// In en, this message translates to:
   /// **'Analyzing transcript'**
-  String get summarizeStageAnalyzing;
+  String get jobStageAnalyzing;
 
-  /// No description provided for @summarizeStageSummarizing.
+  /// No description provided for @jobStageSummarizing.
   ///
   /// In en, this message translates to:
   /// **'Summarizing sections'**
-  String get summarizeStageSummarizing;
+  String get jobStageSummarizing;
 
-  /// No description provided for @summarizeStageCombining.
+  /// No description provided for @jobStageCombining.
   ///
   /// In en, this message translates to:
   /// **'Combining information'**
-  String get summarizeStageCombining;
+  String get jobStageCombining;
 
-  /// No description provided for @summarizeStageChecking.
+  /// No description provided for @jobStageChecking.
   ///
   /// In en, this message translates to:
   /// **'Checking summary'**
-  String get summarizeStageChecking;
+  String get jobStageChecking;
 
-  /// No description provided for @summarizeStageFinalizing.
+  /// No description provided for @jobStageFinalizing.
   ///
   /// In en, this message translates to:
   /// **'Finalizing'**
-  String get summarizeStageFinalizing;
+  String get jobStageFinalizing;
 
-  /// No description provided for @summarizeStageCompleted.
+  /// No description provided for @jobStageCompleted.
   ///
   /// In en, this message translates to:
   /// **'Completed'**
-  String get summarizeStageCompleted;
+  String get jobStageCompleted;
 
-  /// No description provided for @summarizeChunkProgress.
+  /// No description provided for @jobStageSections.
   ///
   /// In en, this message translates to:
   /// **'{processed} of {total} sections'**
-  String summarizeChunkProgress(int processed, int total);
+  String jobStageSections(int processed, int total);
 
-  /// No description provided for @summarizeCheckWarning.
+  /// No description provided for @jobSummaryNeedsReview.
   ///
   /// In en, this message translates to:
   /// **'Some details in this summary could not be verified against the transcript. Please review it.'**
-  String get summarizeCheckWarning;
+  String get jobSummaryNeedsReview;
 
-  /// No description provided for @summarizeErrorEmpty.
+  /// No description provided for @jobFailureEmptyTranscript.
   ///
   /// In en, this message translates to:
   /// **'There is no transcript text to summarize.'**
-  String get summarizeErrorEmpty;
+  String get jobFailureEmptyTranscript;
 
-  /// No description provided for @summarizeErrorModel.
+  /// No description provided for @jobFailureModelUnavailable.
   ///
   /// In en, this message translates to:
   /// **'The on-device summarization model isn\'t available.'**
-  String get summarizeErrorModel;
+  String get jobFailureModelUnavailable;
 
-  /// No description provided for @summarizeErrorGeneration.
+  /// No description provided for @jobFailureGenerationFailed.
   ///
   /// In en, this message translates to:
   /// **'The summary could not be generated. Please try again.'**
-  String get summarizeErrorGeneration;
+  String get jobFailureGenerationFailed;
 
   /// No description provided for @newJobSourceUnavailable.
   ///
@@ -692,11 +692,47 @@ abstract class AppLocalizations {
   /// **'This job no longer exists.'**
   String get jobDetailNotFound;
 
-  /// No description provided for @summarizeErrorInterrupted.
+  /// No description provided for @jobFailureInterrupted.
   ///
   /// In en, this message translates to:
   /// **'This job was interrupted because the app was closed before it finished.'**
-  String get summarizeErrorInterrupted;
+  String get jobFailureInterrupted;
+
+  /// No description provided for @jobStageAcquiring.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching source'**
+  String get jobStageAcquiring;
+
+  /// No description provided for @jobStageTranscribing.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcribing audio'**
+  String get jobStageTranscribing;
+
+  /// No description provided for @jobFailureSourceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The source couldn\'t be reached. Check your connection and try again.'**
+  String get jobFailureSourceUnavailable;
+
+  /// No description provided for @jobFailureUnsupportedMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'This file\'s format isn\'t supported.'**
+  String get jobFailureUnsupportedMedia;
+
+  /// No description provided for @jobFailureTranscriptionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The audio couldn\'t be transcribed.'**
+  String get jobFailureTranscriptionFailed;
+
+  /// No description provided for @jobFailureInsufficientStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'There isn\'t enough free storage to process this job.'**
+  String get jobFailureInsufficientStorage;
 }
 
 class _AppLocalizationsDelegate

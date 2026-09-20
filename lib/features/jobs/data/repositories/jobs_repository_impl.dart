@@ -12,7 +12,7 @@ import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/domain/entities/transcript.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/summarization/data/prompts/prompt_version.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_result.dart';
 
 /// Source of job ids; injectable so tests are deterministic.
@@ -96,7 +96,7 @@ class JobsRepositoryImpl implements JobsRepository {
   });
 
   @override
-  Future<void> failJob(String id, SummarizationFailureKind kind) => _transition(
+  Future<void> failJob(String id, JobFailureKind kind) => _transition(
     id,
     from: _active,
     to: JobRunStatus.failed,
@@ -112,14 +112,14 @@ class JobsRepositoryImpl implements JobsRepository {
 
   @override
   Future<int> recoverInterruptedJobs() => _guard(
-    () => _local.failActiveJobs(SummarizationFailureKind.interrupted, _now()),
+    () => _local.failActiveJobs(JobFailureKind.interrupted, _now()),
   );
 
   Future<void> _transition(
     String id, {
     required Set<JobRunStatus> from,
     required JobRunStatus to,
-    SummarizationFailureKind? failureKind,
+    JobFailureKind? failureKind,
   }) => _guard(() async {
     final outcome = await _local.transition(
       id,

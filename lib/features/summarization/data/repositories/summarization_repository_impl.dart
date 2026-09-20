@@ -9,7 +9,7 @@ import 'package:nutq/features/summarization/data/prompts/local_summary_prompt.da
 import 'package:nutq/features/summarization/data/prompts/merge_prompt.dart';
 import 'package:nutq/features/summarization/data/prompts/prompt_version.dart';
 import 'package:nutq/features/summarization/domain/entities/chunk_analysis.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/transcript_chunk.dart';
 import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
 import 'package:nutq/features/summarization/domain/text/token_counter.dart';
@@ -61,7 +61,7 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
   @override
   Future<ChunkAnalysis> analyzeChunk(
     TranscriptChunk chunk, {
-    SummaryLanguage language = SummaryLanguage.ar,
+    ContentLanguage language = ContentLanguage.ar,
   }) async {
     final response = await _generate(
       stage: 'analysis',
@@ -74,7 +74,7 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
   @override
   Future<String> summarizeChunk(
     TranscriptChunk chunk, {
-    SummaryLanguage language = SummaryLanguage.ar,
+    ContentLanguage language = ContentLanguage.ar,
   }) => _generate(
     stage: 'local',
     prompt: LocalSummaryPrompt.build(chunk.text, language: language),

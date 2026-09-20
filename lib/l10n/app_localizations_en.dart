@@ -290,44 +290,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileComingSoon => 'Profile — coming soon';
 
   @override
-  String get summarizeStagePreparing => 'Preparing transcript';
+  String get jobStagePreparing => 'Preparing transcript';
 
   @override
-  String get summarizeStageAnalyzing => 'Analyzing transcript';
+  String get jobStageAnalyzing => 'Analyzing transcript';
 
   @override
-  String get summarizeStageSummarizing => 'Summarizing sections';
+  String get jobStageSummarizing => 'Summarizing sections';
 
   @override
-  String get summarizeStageCombining => 'Combining information';
+  String get jobStageCombining => 'Combining information';
 
   @override
-  String get summarizeStageChecking => 'Checking summary';
+  String get jobStageChecking => 'Checking summary';
 
   @override
-  String get summarizeStageFinalizing => 'Finalizing';
+  String get jobStageFinalizing => 'Finalizing';
 
   @override
-  String get summarizeStageCompleted => 'Completed';
+  String get jobStageCompleted => 'Completed';
 
   @override
-  String summarizeChunkProgress(int processed, int total) {
+  String jobStageSections(int processed, int total) {
     return '$processed of $total sections';
   }
 
   @override
-  String get summarizeCheckWarning =>
+  String get jobSummaryNeedsReview =>
       'Some details in this summary could not be verified against the transcript. Please review it.';
 
   @override
-  String get summarizeErrorEmpty => 'There is no transcript text to summarize.';
+  String get jobFailureEmptyTranscript =>
+      'There is no transcript text to summarize.';
 
   @override
-  String get summarizeErrorModel =>
+  String get jobFailureModelUnavailable =>
       'The on-device summarization model isn\'t available.';
 
   @override
-  String get summarizeErrorGeneration =>
+  String get jobFailureGenerationFailed =>
       'The summary could not be generated. Please try again.';
 
   @override
@@ -345,6 +346,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jobDetailNotFound => 'This job no longer exists.';
 
   @override
-  String get summarizeErrorInterrupted =>
+  String get jobFailureInterrupted =>
       'This job was interrupted because the app was closed before it finished.';
+
+  @override
+  String get jobStageAcquiring => 'Fetching source';
+
+  @override
+  String get jobStageTranscribing => 'Transcribing audio';
+
+  @override
+  String get jobFailureSourceUnavailable =>
+      'The source couldn\'t be reached. Check your connection and try again.';
+
+  @override
+  String get jobFailureUnsupportedMedia =>
+      'This file\'s format isn\'t supported.';
+
+  @override
+  String get jobFailureTranscriptionFailed =>
+      'The audio couldn\'t be transcribed.';
+
+  @override
+  String get jobFailureInsufficientStorage =>
+      'There isn\'t enough free storage to process this job.';
 }

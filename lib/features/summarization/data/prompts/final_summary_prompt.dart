@@ -1,4 +1,4 @@
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 
 class FinalSummaryPrompt {
@@ -10,12 +10,12 @@ class FinalSummaryPrompt {
     required List<String> entities,
     required List<String> numbers,
     required SummaryLength length,
-    SummaryLanguage language = SummaryLanguage.ar,
+    ContentLanguage language = ContentLanguage.ar,
   }) =>
       '''You are an ${language.promptName} summarization assistant. Write the final summary of a full lecture or recording from the partial summaries below.
 
 Rules:
-- Start directly with the subject; do not start with ${language == SummaryLanguage.ar ? '"يتحدث النص عن"' : '"The text talks about"'}.
+- Start directly with the subject; do not start with ${language == ContentLanguage.ar ? '"يتحدث النص عن"' : '"The text talks about"'}.
 - Explain the main topic, then cover the major themes in order.
 - Preserve important conclusions, numbers, dates, names and technical terms exactly as written.
 - Remove unnecessary examples and repetition.
@@ -38,7 +38,7 @@ ${_bullets(numbers)}
 
 FINAL SUMMARY:''';
 
-  static String _lengthInstruction(SummaryLength length, SummaryLanguage language) => switch (length) {
+  static String _lengthInstruction(SummaryLength length, ContentLanguage language) => switch (length) {
     SummaryLength.short =>
       'Length: 5 to 8 short bullet points (about ${length.minWords}-${length.maxWords} ${language.promptName} words in total).',
     SummaryLength.medium =>

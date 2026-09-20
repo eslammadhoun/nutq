@@ -8,9 +8,9 @@ import 'package:nutq/features/jobs/domain/usecases/run_summary_job.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
+import 'package:nutq/features/jobs/domain/entities/job_stage.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
 
 import '../../summarization/support/fake_gemma.dart';
@@ -55,8 +55,8 @@ void main() {
     expect(job.failureKind, isNull);
 
     final progress = events.whereType<JobRunProgress>().map((e) => e.progress.stage).toList();
-    expect(progress.first, SummarizationStage.preparing);
-    expect(progress, contains(SummarizationStage.finalizing));
+    expect(progress.first, JobStage.preparing);
+    expect(progress, contains(JobStage.finalizing));
     expect(events.whereType<JobRunPartialSummary>(), isNotEmpty, reason: 'the final summary streams as partial text');
     expect(events.whereType<JobRunPartialSummary>().last.text, 'الملخص النهائي للمحاضرة');
   });
@@ -87,7 +87,7 @@ void main() {
 
     final job = (await t.repo.getJob('job-1'))!;
     expect(job.status, JobRunStatus.failed);
-    expect(job.failureKind, SummarizationFailureKind.generationFailed);
+    expect(job.failureKind, JobFailureKind.generationFailed);
     expect(job.summary, isNull);
   });
 
@@ -176,7 +176,7 @@ void main() {
   });
 
   test('the job language and length drive the pipeline', () async {
-    await t.repo.createJob(draft('Attendance reached 250 people in 2024. The team said results were good.', language: SummaryLanguage.en));
+    await t.repo.createJob(draft('Attendance reached 250 people in 2024. The team said results were good.', language: ContentLanguage.en));
     await runJob('job-1').events.drain<void>();
     expect(gemma.prompts.every((p) => p.contains('English')), isTrue);
     expect(gemma.prompts.last, contains('250-400 English words'), reason: 'medium length');

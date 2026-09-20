@@ -1,9 +1,9 @@
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/core/domain/content_language.dart';
 
 class LocalSummaryPrompt {
   const LocalSummaryPrompt._();
 
-  static String build(String chunkText, {SummaryLanguage language = SummaryLanguage.ar}) =>
+  static String build(String chunkText, {ContentLanguage language = ContentLanguage.ar}) =>
       '''You are an ${language.promptName} summarization assistant.
 
 Summarize the provided transcript segment.
@@ -23,8 +23,8 @@ Rules:
 SOURCE:
 $chunkText''';
 
-  static String _openingRule(SummaryLanguage language) => switch (language) {
-    SummaryLanguage.ar => 'Do not start with "يتحدث النص عن".',
-    SummaryLanguage.en => 'Do not start with "The text talks about".',
+  static String _openingRule(ContentLanguage language) => switch (language) {
+    ContentLanguage.ar => 'Do not start with "يتحدث النص عن".',
+    ContentLanguage.en => 'Do not start with "The text talks about".',
   };
 }

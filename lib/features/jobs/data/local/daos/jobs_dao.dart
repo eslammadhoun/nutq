@@ -3,7 +3,7 @@ import 'package:nutq/core/database/app_database.dart';
 import 'package:nutq/features/jobs/data/local/tables/jobs_tables.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 
 part 'jobs_dao.g.dart';
 
@@ -92,7 +92,7 @@ class JobsDao extends DatabaseAccessor<AppDatabase> with _$JobsDaoMixin {
     required Set<JobRunStatus> from,
     required JobRunStatus to,
     required DateTime at,
-    SummarizationFailureKind? failureKind,
+    JobFailureKind? failureKind,
   }) => transaction(() async {
     final updated =
         await (update(jobs)..where(
@@ -133,7 +133,7 @@ class JobsDao extends DatabaseAccessor<AppDatabase> with _$JobsDaoMixin {
       (delete(jobs)..where((j) => j.id.equals(id))).go();
 
   /// Fails every job still pending/running. Returns how many changed.
-  Future<int> failActiveJobs(SummarizationFailureKind kind, DateTime at) =>
+  Future<int> failActiveJobs(JobFailureKind kind, DateTime at) =>
       (update(jobs)..where((j) => j.status.isInValues(_active))).write(
         JobsCompanion(
           status: const Value(JobRunStatus.failed),

@@ -36,14 +36,14 @@ class $JobsTable extends Jobs with TableInfo<$JobsTable, JobRow> {
     requiredDuringInsert: true,
   ).withConverter<JobSourceType>($JobsTable.$convertersourceType);
   @override
-  late final GeneratedColumnWithTypeConverter<SummaryLanguage, String>
+  late final GeneratedColumnWithTypeConverter<ContentLanguage, String>
   language = GeneratedColumn<String>(
     'language',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-  ).withConverter<SummaryLanguage>($JobsTable.$converterlanguage);
+  ).withConverter<ContentLanguage>($JobsTable.$converterlanguage);
   @override
   late final GeneratedColumnWithTypeConverter<SummaryLength, String>
   requestedLength = GeneratedColumn<String>(
@@ -76,14 +76,14 @@ class $JobsTable extends Jobs with TableInfo<$JobsTable, JobRow> {
     requiredDuringInsert: true,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<SummarizationFailureKind?, String>
+  late final GeneratedColumnWithTypeConverter<JobFailureKind?, String>
   failureKind = GeneratedColumn<String>(
     'failure_kind',
     aliasedName,
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-  ).withConverter<SummarizationFailureKind?>($JobsTable.$converterfailureKindn);
+  ).withConverter<JobFailureKind?>($JobsTable.$converterfailureKindn);
   static const VerificationMeta _previewMeta = const VerificationMeta(
     'preview',
   );
@@ -215,19 +215,19 @@ class $JobsTable extends Jobs with TableInfo<$JobsTable, JobRow> {
   $convertersourceType = const EnumNameConverter<JobSourceType>(
     JobSourceType.values,
   );
-  static JsonTypeConverter2<SummaryLanguage, String, String>
-  $converterlanguage = const EnumNameConverter<SummaryLanguage>(
-    SummaryLanguage.values,
+  static JsonTypeConverter2<ContentLanguage, String, String>
+  $converterlanguage = const EnumNameConverter<ContentLanguage>(
+    ContentLanguage.values,
   );
   static JsonTypeConverter2<SummaryLength, String, String>
   $converterrequestedLength = const EnumNameConverter<SummaryLength>(
     SummaryLength.values,
   );
-  static JsonTypeConverter2<SummarizationFailureKind, String, String>
-  $converterfailureKind = const EnumNameConverter<SummarizationFailureKind>(
-    SummarizationFailureKind.values,
+  static JsonTypeConverter2<JobFailureKind, String, String>
+  $converterfailureKind = const EnumNameConverter<JobFailureKind>(
+    JobFailureKind.values,
   );
-  static JsonTypeConverter2<SummarizationFailureKind?, String?, String?>
+  static JsonTypeConverter2<JobFailureKind?, String?, String?>
   $converterfailureKindn = JsonTypeConverter2.asNullable($converterfailureKind);
 }
 
@@ -235,11 +235,11 @@ class JobRow extends DataClass implements Insertable<JobRow> {
   final String id;
   final JobRunStatus status;
   final JobSourceType sourceType;
-  final SummaryLanguage language;
+  final ContentLanguage language;
   final SummaryLength requestedLength;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final SummarizationFailureKind? failureKind;
+  final JobFailureKind? failureKind;
 
   /// First words of the transcript, denormalized for the list row.
   final String? preview;
@@ -366,11 +366,11 @@ class JobRow extends DataClass implements Insertable<JobRow> {
     String? id,
     JobRunStatus? status,
     JobSourceType? sourceType,
-    SummaryLanguage? language,
+    ContentLanguage? language,
     SummaryLength? requestedLength,
     DateTime? createdAt,
     DateTime? updatedAt,
-    Value<SummarizationFailureKind?> failureKind = const Value.absent(),
+    Value<JobFailureKind?> failureKind = const Value.absent(),
     Value<String?> preview = const Value.absent(),
   }) => JobRow(
     id: id ?? this.id,
@@ -450,11 +450,11 @@ class JobsCompanion extends UpdateCompanion<JobRow> {
   final Value<String> id;
   final Value<JobRunStatus> status;
   final Value<JobSourceType> sourceType;
-  final Value<SummaryLanguage> language;
+  final Value<ContentLanguage> language;
   final Value<SummaryLength> requestedLength;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
-  final Value<SummarizationFailureKind?> failureKind;
+  final Value<JobFailureKind?> failureKind;
   final Value<String?> preview;
   final Value<int> rowid;
   const JobsCompanion({
@@ -473,7 +473,7 @@ class JobsCompanion extends UpdateCompanion<JobRow> {
     required String id,
     required JobRunStatus status,
     required JobSourceType sourceType,
-    required SummaryLanguage language,
+    required ContentLanguage language,
     required SummaryLength requestedLength,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -517,11 +517,11 @@ class JobsCompanion extends UpdateCompanion<JobRow> {
     Value<String>? id,
     Value<JobRunStatus>? status,
     Value<JobSourceType>? sourceType,
-    Value<SummaryLanguage>? language,
+    Value<ContentLanguage>? language,
     Value<SummaryLength>? requestedLength,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
-    Value<SummarizationFailureKind?>? failureKind,
+    Value<JobFailureKind?>? failureKind,
     Value<String?>? preview,
     Value<int>? rowid,
   }) {
@@ -1517,11 +1517,11 @@ typedef $$JobsTableCreateCompanionBuilder =
       required String id,
       required JobRunStatus status,
       required JobSourceType sourceType,
-      required SummaryLanguage language,
+      required ContentLanguage language,
       required SummaryLength requestedLength,
       required DateTime createdAt,
       required DateTime updatedAt,
-      Value<SummarizationFailureKind?> failureKind,
+      Value<JobFailureKind?> failureKind,
       Value<String?> preview,
       Value<int> rowid,
     });
@@ -1530,11 +1530,11 @@ typedef $$JobsTableUpdateCompanionBuilder =
       Value<String> id,
       Value<JobRunStatus> status,
       Value<JobSourceType> sourceType,
-      Value<SummaryLanguage> language,
+      Value<ContentLanguage> language,
       Value<SummaryLength> requestedLength,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
-      Value<SummarizationFailureKind?> failureKind,
+      Value<JobFailureKind?> failureKind,
       Value<String?> preview,
       Value<int> rowid,
     });
@@ -1605,7 +1605,7 @@ class $$JobsTableFilterComposer extends Composer<_$AppDatabase, $JobsTable> {
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<SummaryLanguage, SummaryLanguage, String>
+  ColumnWithTypeConverterFilters<ContentLanguage, ContentLanguage, String>
   get language => $composableBuilder(
     column: $table.language,
     builder: (column) => ColumnWithTypeConverterFilters(column),
@@ -1627,11 +1627,7 @@ class $$JobsTableFilterComposer extends Composer<_$AppDatabase, $JobsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<
-    SummarizationFailureKind?,
-    SummarizationFailureKind,
-    String
-  >
+  ColumnWithTypeConverterFilters<JobFailureKind?, JobFailureKind, String>
   get failureKind => $composableBuilder(
     column: $table.failureKind,
     builder: (column) => ColumnWithTypeConverterFilters(column),
@@ -1768,7 +1764,7 @@ class $$JobsTableAnnotationComposer
         builder: (column) => column,
       );
 
-  GeneratedColumnWithTypeConverter<SummaryLanguage, String> get language =>
+  GeneratedColumnWithTypeConverter<ContentLanguage, String> get language =>
       $composableBuilder(column: $table.language, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<SummaryLength, String> get requestedLength =>
@@ -1783,11 +1779,11 @@ class $$JobsTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<SummarizationFailureKind?, String>
-  get failureKind => $composableBuilder(
-    column: $table.failureKind,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<JobFailureKind?, String> get failureKind =>
+      $composableBuilder(
+        column: $table.failureKind,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get preview =>
       $composableBuilder(column: $table.preview, builder: (column) => column);
@@ -1877,12 +1873,11 @@ class $$JobsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<JobRunStatus> status = const Value.absent(),
                 Value<JobSourceType> sourceType = const Value.absent(),
-                Value<SummaryLanguage> language = const Value.absent(),
+                Value<ContentLanguage> language = const Value.absent(),
                 Value<SummaryLength> requestedLength = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
-                Value<SummarizationFailureKind?> failureKind =
-                    const Value.absent(),
+                Value<JobFailureKind?> failureKind = const Value.absent(),
                 Value<String?> preview = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => JobsCompanion(
@@ -1902,12 +1897,11 @@ class $$JobsTableTableManager
                 required String id,
                 required JobRunStatus status,
                 required JobSourceType sourceType,
-                required SummaryLanguage language,
+                required ContentLanguage language,
                 required SummaryLength requestedLength,
                 required DateTime createdAt,
                 required DateTime updatedAt,
-                Value<SummarizationFailureKind?> failureKind =
-                    const Value.absent(),
+                Value<JobFailureKind?> failureKind = const Value.absent(),
                 Value<String?> preview = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => JobsCompanion.insert(

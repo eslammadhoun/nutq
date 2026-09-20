@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
+import 'package:nutq/features/jobs/domain/entities/job_stage.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
 /// Shared job display formatting — used by both [JobCard] (list) and the
@@ -139,3 +141,28 @@ TextDirection jobTextDirection(String languageCode) =>
     const {'ar', 'fa', 'he', 'ur'}.contains(languageCode)
     ? TextDirection.rtl
     : TextDirection.ltr;
+
+/// User-facing name of a job stage (no model or runtime details).
+String jobStageLabel(AppLocalizations l10n, JobStage stage) => switch (stage) {
+  JobStage.preparing => l10n.jobStagePreparing,
+  JobStage.acquiring => l10n.jobStageAcquiring,
+  JobStage.transcribing => l10n.jobStageTranscribing,
+  JobStage.analyzing => l10n.jobStageAnalyzing,
+  JobStage.summarizing => l10n.jobStageSummarizing,
+  JobStage.combining => l10n.jobStageCombining,
+  JobStage.checking => l10n.jobStageChecking,
+  JobStage.finalizing => l10n.jobStageFinalizing,
+  JobStage.completed => l10n.jobStageCompleted,
+};
+
+/// Localized message for why a job failed.
+String jobFailureMessage(AppLocalizations l10n, JobFailureKind kind) => switch (kind) {
+  JobFailureKind.emptyTranscript => l10n.jobFailureEmptyTranscript,
+  JobFailureKind.modelUnavailable => l10n.jobFailureModelUnavailable,
+  JobFailureKind.generationFailed => l10n.jobFailureGenerationFailed,
+  JobFailureKind.interrupted => l10n.jobFailureInterrupted,
+  JobFailureKind.sourceUnavailable => l10n.jobFailureSourceUnavailable,
+  JobFailureKind.unsupportedMedia => l10n.jobFailureUnsupportedMedia,
+  JobFailureKind.transcriptionFailed => l10n.jobFailureTranscriptionFailed,
+  JobFailureKind.insufficientStorage => l10n.jobFailureInsufficientStorage,
+};

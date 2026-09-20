@@ -1,9 +1,12 @@
 import 'dart:async';
 
 import 'package:nutq/features/jobs/domain/entities/job_exceptions.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
+import 'package:nutq/features/jobs/domain/entities/job_progress.dart';
+import 'package:nutq/features/jobs/domain/entities/job_stage.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
-import 'package:nutq/features/summarization/domain/entities/cancellation_token.dart';
+import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
@@ -20,7 +23,7 @@ sealed class JobRunEvent {
 class JobRunProgress extends JobRunEvent {
   const JobRunProgress(this.progress);
 
-  final SummarizationProgress progress;
+  final JobProgress progress;
 }
 
 /// The final summary as generated so far.
@@ -87,7 +90,7 @@ class RunSummaryJob {
       await for (final update in updates) {
         switch (update) {
           case SummarizationProgressUpdate(:final progress):
-            yield JobRunProgress(progress);
+            yield JobRunProgress(_toJobProgress(progress));
           case SummarizationPartialSummaryUpdate(:final text):
             yield JobRunPartialSummary(text);
           case SummarizationCompletedUpdate(:final result):
@@ -95,23 +98,23 @@ class RunSummaryJob {
             settled = true;
         }
       }
-    } on SummarizationCancelledException {
+    } on CancelledException {
       await _settle(() => _jobs.cancelJob(jobId));
       settled = true;
     } on SummarizationFailure catch (failure) {
-      await _settle(() => _jobs.failJob(jobId, failure.kind));
+      await _settle(() => _jobs.failJob(jobId, _toJobFailure(failure.kind)));
       settled = true;
     } on JobStorageException {
       // Could not save the result: record the failure if we still can, then
       // let the caller see the storage error.
       await _settle(
-        () => _jobs.failJob(jobId, SummarizationFailureKind.generationFailed),
+        () => _jobs.failJob(jobId, JobFailureKind.generationFailed),
       );
       settled = true;
       rethrow;
     } catch (_) {
       await _settle(
-        () => _jobs.failJob(jobId, SummarizationFailureKind.generationFailed),
+        () => _jobs.failJob(jobId, JobFailureKind.generationFailed),
       );
       settled = true;
     } finally {
@@ -137,4 +140,26 @@ class RunSummaryJob {
       // Best effort; startup recovery will fail the job if it stays active.
     }
   }
+
+  static JobProgress _toJobProgress(SummarizationProgress p) => JobProgress(
+    switch (p.stage) {
+      SummarizationStage.preparing => JobStage.preparing,
+      SummarizationStage.analyzing => JobStage.analyzing,
+      SummarizationStage.summarizing => JobStage.summarizing,
+      SummarizationStage.combining => JobStage.combining,
+      SummarizationStage.checking => JobStage.checking,
+      SummarizationStage.finalizing => JobStage.finalizing,
+      SummarizationStage.completed => JobStage.completed,
+    },
+    fraction: p.fraction,
+    done: p.processedChunks,
+    total: p.totalChunks,
+  );
+
+  static JobFailureKind _toJobFailure(SummarizationFailureKind kind) => switch (kind) {
+    SummarizationFailureKind.emptyTranscript => JobFailureKind.emptyTranscript,
+    SummarizationFailureKind.modelUnavailable => JobFailureKind.modelUnavailable,
+    SummarizationFailureKind.generationFailed => JobFailureKind.generationFailed,
+    SummarizationFailureKind.interrupted => JobFailureKind.interrupted,
+  };
 }

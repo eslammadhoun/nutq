@@ -4,7 +4,7 @@ import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/core/domain/content_language.dart';
 
 /// State of the New Job sheet: the form fields, and saving the job.
 class NewJobCubit extends Cubit<NewJobState> {
@@ -47,7 +47,7 @@ class NewJobCubit extends Cubit<NewJobState> {
       final job = await _repository.createJob(
         NewJobDraft(
           text: state.text,
-          language: SummaryLanguage.fromCode(state.language.wireValue),
+          language: ContentLanguage.fromCode(state.language.wireValue),
         ),
       );
       if (isClosed) return;

@@ -289,43 +289,43 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileComingSoon => 'الملف الشخصي — قريباً';
 
   @override
-  String get summarizeStagePreparing => 'تجهيز النص';
+  String get jobStagePreparing => 'تجهيز النص';
 
   @override
-  String get summarizeStageAnalyzing => 'تحليل النص';
+  String get jobStageAnalyzing => 'تحليل النص';
 
   @override
-  String get summarizeStageSummarizing => 'تلخيص الأقسام';
+  String get jobStageSummarizing => 'تلخيص الأقسام';
 
   @override
-  String get summarizeStageCombining => 'دمج المعلومات';
+  String get jobStageCombining => 'دمج المعلومات';
 
   @override
-  String get summarizeStageChecking => 'مراجعة الملخص';
+  String get jobStageChecking => 'مراجعة الملخص';
 
   @override
-  String get summarizeStageFinalizing => 'إنهاء الملخص';
+  String get jobStageFinalizing => 'إنهاء الملخص';
 
   @override
-  String get summarizeStageCompleted => 'اكتمل';
+  String get jobStageCompleted => 'اكتمل';
 
   @override
-  String summarizeChunkProgress(int processed, int total) {
+  String jobStageSections(int processed, int total) {
     return '$processed من $total أقسام';
   }
 
   @override
-  String get summarizeCheckWarning =>
+  String get jobSummaryNeedsReview =>
       'تعذّر التحقق من بعض التفاصيل في هذا الملخص مقابل النص الأصلي. يُرجى مراجعته.';
 
   @override
-  String get summarizeErrorEmpty => 'لا يوجد نص لتلخيصه.';
+  String get jobFailureEmptyTranscript => 'لا يوجد نص لتلخيصه.';
 
   @override
-  String get summarizeErrorModel => 'نموذج التلخيص على الجهاز غير متاح.';
+  String get jobFailureModelUnavailable => 'نموذج التلخيص على الجهاز غير متاح.';
 
   @override
-  String get summarizeErrorGeneration =>
+  String get jobFailureGenerationFailed =>
       'تعذّر إنشاء الملخص. يُرجى المحاولة مرة أخرى.';
 
   @override
@@ -343,6 +343,26 @@ class AppLocalizationsAr extends AppLocalizations {
   String get jobDetailNotFound => 'لم تعد هذه المهمة موجودة.';
 
   @override
-  String get summarizeErrorInterrupted =>
+  String get jobFailureInterrupted =>
       'توقفت هذه المهمة لأن التطبيق أُغلق قبل أن تنتهي.';
+
+  @override
+  String get jobStageAcquiring => 'جارٍ جلب المصدر';
+
+  @override
+  String get jobStageTranscribing => 'تفريغ الصوت';
+
+  @override
+  String get jobFailureSourceUnavailable =>
+      'تعذّر الوصول إلى المصدر. تحقق من اتصالك وحاول مرة أخرى.';
+
+  @override
+  String get jobFailureUnsupportedMedia => 'صيغة هذا الملف غير مدعومة.';
+
+  @override
+  String get jobFailureTranscriptionFailed => 'تعذّر تفريغ الصوت.';
+
+  @override
+  String get jobFailureInsufficientStorage =>
+      'لا توجد مساحة تخزين كافية لمعالجة هذه المهمة.';
 }

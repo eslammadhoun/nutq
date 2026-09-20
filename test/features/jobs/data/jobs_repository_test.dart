@@ -11,8 +11,8 @@ import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/summarization/data/prompts/prompt_version.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_result.dart';
 import 'package:nutq/features/summarization/domain/entities/validation_report.dart';
@@ -58,7 +58,7 @@ void main() {
       expect(job.updatedAt, job.createdAt);
       expect(job.transcript!.text, 'مرحبا   بكم\nفي   الدرس', reason: 'trimmed but otherwise verbatim');
       expect(job.transcript!.wordCount, 4);
-      expect(job.language, SummaryLanguage.ar);
+      expect(job.language, ContentLanguage.ar);
       expect(job.requestedLength, SummaryLength.medium);
 
       final stored = (await t.repo.getJob('job-1'))!;
@@ -83,10 +83,10 @@ void main() {
 
     test('keeps the chosen language and length', () async {
       await t.repo.createJob(
-        const NewJobDraft(text: 'hello world', language: SummaryLanguage.en, length: SummaryLength.detailed),
+        const NewJobDraft(text: 'hello world', language: ContentLanguage.en, length: SummaryLength.detailed),
       );
       final job = (await t.repo.getJob('job-1'))!;
-      expect(job.language, SummaryLanguage.en);
+      expect(job.language, ContentLanguage.en);
       expect(job.requestedLength, SummaryLength.detailed);
     });
   });
@@ -121,10 +121,10 @@ void main() {
 
     test('failJob records the failure kind', () async {
       await t.repo.createJob(draft('نص'));
-      await t.repo.failJob('job-1', SummarizationFailureKind.modelUnavailable);
+      await t.repo.failJob('job-1', JobFailureKind.modelUnavailable);
       final job = (await t.repo.getJob('job-1'))!;
       expect(job.status, JobRunStatus.failed);
-      expect(job.failureKind, SummarizationFailureKind.modelUnavailable);
+      expect(job.failureKind, JobFailureKind.modelUnavailable);
     });
 
     test('cancelJob works from pending and running', () async {
@@ -142,7 +142,7 @@ void main() {
       await t.repo.cancelJob('job-1');
 
       await expectLater(t.repo.completeJob('job-1', _result()), throwsA(isA<InvalidJobTransitionException>()));
-      await expectLater(t.repo.failJob('job-1', SummarizationFailureKind.generationFailed), throwsA(isA<InvalidJobTransitionException>()));
+      await expectLater(t.repo.failJob('job-1', JobFailureKind.generationFailed), throwsA(isA<InvalidJobTransitionException>()));
       await expectLater(t.repo.markRunning('job-1'), throwsA(isA<InvalidJobTransitionException>()));
       final job = (await t.repo.getJob('job-1'))!;
       expect(job.status, JobRunStatus.cancelled);
@@ -154,7 +154,7 @@ void main() {
       await t.repo.completeJob('job-1', _result());
 
       await expectLater(t.repo.cancelJob('job-1'), throwsA(isA<InvalidJobTransitionException>()));
-      await expectLater(t.repo.failJob('job-1', SummarizationFailureKind.generationFailed), throwsA(isA<InvalidJobTransitionException>()));
+      await expectLater(t.repo.failJob('job-1', JobFailureKind.generationFailed), throwsA(isA<InvalidJobTransitionException>()));
       expect(await t.repo.recoverInterruptedJobs(), 0);
 
       final job = (await t.repo.getJob('job-1'))!;
@@ -165,7 +165,7 @@ void main() {
 
     test('a failed job cannot later be cancelled or completed', () async {
       await t.repo.createJob(draft('نص'));
-      await t.repo.failJob('job-1', SummarizationFailureKind.generationFailed);
+      await t.repo.failJob('job-1', JobFailureKind.generationFailed);
       await expectLater(t.repo.cancelJob('job-1'), throwsA(isA<InvalidJobTransitionException>()));
       await expectLater(t.repo.completeJob('job-1', _result()), throwsA(isA<InvalidJobTransitionException>()));
       expect((await t.repo.getJob('job-1'))!.status, JobRunStatus.failed);
@@ -180,7 +180,7 @@ void main() {
     test('operations on a missing job throw JobNotFoundException', () async {
       await expectLater(t.repo.markRunning('nope'), throwsA(isA<JobNotFoundException>()));
       await expectLater(t.repo.completeJob('nope', _result()), throwsA(isA<JobNotFoundException>()));
-      await expectLater(t.repo.failJob('nope', SummarizationFailureKind.generationFailed), throwsA(isA<JobNotFoundException>()));
+      await expectLater(t.repo.failJob('nope', JobFailureKind.generationFailed), throwsA(isA<JobNotFoundException>()));
       await expectLater(t.repo.cancelJob('nope'), throwsA(isA<JobNotFoundException>()));
       expect(await t.repo.getJob('nope'), isNull);
     });
@@ -209,8 +209,8 @@ void main() {
 
       Future<JobDetailEntity> job(String id) async => (await t.repo.getJob(id))!;
       expect((await job('job-1')).status, JobRunStatus.failed);
-      expect((await job('job-1')).failureKind, SummarizationFailureKind.interrupted);
-      expect((await job('job-2')).failureKind, SummarizationFailureKind.interrupted);
+      expect((await job('job-1')).failureKind, JobFailureKind.interrupted);
+      expect((await job('job-2')).failureKind, JobFailureKind.interrupted);
       expect((await job('job-3')).status, JobRunStatus.completed);
       expect((await job('job-4')).status, JobRunStatus.cancelled);
       expect(await t.repo.recoverInterruptedJobs(), 0, reason: 'idempotent');
@@ -291,7 +291,7 @@ class _ThrowingDataSource implements JobsLocalDataSource {
   Future<void> insertJob(JobDetailEntity job) => Future.error(_boom);
 
   @override
-  Future<TransitionOutcome> transition(String id, {required Set<JobRunStatus> from, required JobRunStatus to, required DateTime at, SummarizationFailureKind? failureKind}) =>
+  Future<TransitionOutcome> transition(String id, {required Set<JobRunStatus> from, required JobRunStatus to, required DateTime at, JobFailureKind? failureKind}) =>
       Future.error(_boom);
 
   @override
@@ -301,5 +301,5 @@ class _ThrowingDataSource implements JobsLocalDataSource {
   Future<void> deleteJob(String id) => Future.error(_boom);
 
   @override
-  Future<int> failActiveJobs(SummarizationFailureKind kind, DateTime at) => Future.error(_boom);
+  Future<int> failActiveJobs(JobFailureKind kind, DateTime at) => Future.error(_boom);
 }

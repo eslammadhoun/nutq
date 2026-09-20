@@ -1,4 +1,4 @@
-import 'package:nutq/features/summarization/domain/entities/cancellation_token.dart';
+import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/features/summarization/domain/entities/chunk_analysis.dart';
 import 'package:nutq/features/summarization/domain/entities/local_summary.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
@@ -96,7 +96,7 @@ class MergeSummaries {
       if (merged.trim().isNotEmpty) {
         return LocalSummary(chunkIds: ids, text: merged.trim());
       }
-    } on SummarizationCancelledException {
+    } on CancelledException {
       rethrow;
     } catch (_) {
       // Fall back to concatenation below; nothing is dropped.

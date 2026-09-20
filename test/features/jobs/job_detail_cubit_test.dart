@@ -6,9 +6,9 @@ import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_state.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
+import 'package:nutq/features/jobs/domain/entities/job_stage.dart';
+import 'package:nutq/core/domain/content_language.dart';
 
 import 'support/job_harness.dart';
 
@@ -68,9 +68,9 @@ void main() {
     await untilSettled(cubit);
     await sub.cancel();
 
-    final stages = seen.map((s) => s.progress?.stage).whereType<SummarizationStage>().toList();
-    expect(stages, contains(SummarizationStage.analyzing));
-    expect(stages, contains(SummarizationStage.finalizing));
+    final stages = seen.map((s) => s.progress?.stage).whereType<JobStage>().toList();
+    expect(stages, contains(JobStage.analyzing));
+    expect(stages, contains(JobStage.finalizing));
     final fractions = seen.map((s) => s.progress?.fraction).whereType<double>().toList();
     for (var i = 1; i < fractions.length; i++) {
       expect(fractions[i], greaterThanOrEqualTo(fractions[i - 1]));
@@ -117,7 +117,7 @@ void main() {
     final cubit = open(await h.createJob(sampleTranscript));
     await untilSettled(cubit);
     expect(cubit.state.job!.status, JobRunStatus.failed);
-    expect(cubit.state.job!.failureKind, SummarizationFailureKind.generationFailed);
+    expect(cubit.state.job!.failureKind, JobFailureKind.generationFailed);
     expect(cubit.state.progress, isNull);
   });
 
@@ -129,7 +129,7 @@ void main() {
     final cubit = open(id);
     await Future<void>.delayed(const Duration(milliseconds: 50));
     expect(cubit.state.job!.status, JobRunStatus.failed);
-    expect(cubit.state.job!.failureKind, SummarizationFailureKind.interrupted);
+    expect(cubit.state.job!.failureKind, JobFailureKind.interrupted);
     expect(h.gemma.calls, 0, reason: 'a settled job is never re-run');
   });
 
@@ -195,11 +195,11 @@ void main() {
   test('the job language drives the pipeline (English)', () async {
     final id = await h.createJob(
       'Attendance reached 250 people in 2024. The team said results were good.',
-      language: SummaryLanguage.en,
+      language: ContentLanguage.en,
     );
     final cubit = open(id);
     await untilSettled(cubit);
-    expect(cubit.state.job!.language, SummaryLanguage.en);
+    expect(cubit.state.job!.language, ContentLanguage.en);
     expect(h.gemma.prompts, isNotEmpty);
     expect(h.gemma.prompts.every((p) => p.contains('English') && !p.contains('Arabic')), isTrue);
   });

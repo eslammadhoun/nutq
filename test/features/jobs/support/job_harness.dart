@@ -5,7 +5,7 @@ import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
 
 import '../../summarization/support/fake_gemma.dart';
@@ -44,7 +44,7 @@ class JobHarness {
 
   Future<String> createJob(
     String text, {
-    SummaryLanguage language = SummaryLanguage.ar,
+    ContentLanguage language = ContentLanguage.ar,
   }) async => (await repo.createJob(draft(text, language: language))).id;
 
   /// Opening a pending job starts it, so set [gemma]'s responder first.

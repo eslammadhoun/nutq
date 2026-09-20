@@ -4,7 +4,7 @@ import 'package:nutq/core/database/app_database.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
 import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+import 'package:nutq/core/domain/content_language.dart';
 
 /// A fresh in-memory database per test.
 AppDatabase newTestDatabase() {
@@ -37,5 +37,5 @@ class TestRepo {
 
 NewJobDraft draft(
   String text, {
-  SummaryLanguage language = SummaryLanguage.ar,
+  ContentLanguage language = ContentLanguage.ar,
 }) => NewJobDraft(text: text, language: language);

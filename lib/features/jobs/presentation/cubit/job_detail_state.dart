@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
+import 'package:nutq/features/jobs/domain/entities/job_progress.dart';
 
 enum JobDetailStatus { loading, success, notFound, failure }
 
@@ -27,7 +27,7 @@ class JobDetailState {
   final bool isCancelling;
 
   /// Live pipeline progress while the job runs. In-memory only: never stored.
-  final SummarizationProgress? progress;
+  final JobProgress? progress;
 
   /// The summary as it is being generated, word by word. Cleared once the job
   /// settles; the stored summary takes over.
@@ -39,7 +39,7 @@ class JobDetailState {
     AppError? lastError,
     bool clearLastError = false,
     bool? isCancelling,
-    SummarizationProgress? progress,
+    JobProgress? progress,
     String? streamingSummary,
     bool clearLive = false,
   }) => JobDetailState(
