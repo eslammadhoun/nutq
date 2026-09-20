@@ -66,7 +66,7 @@ class JobStatusHeroCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        _headline(l10n, status),
+                        _headline(l10n, status, job.sourceType),
                         style: context.typography.labelLarge.copyWith(
                           color: colors.textInverse,
                         ),
@@ -107,8 +107,8 @@ class JobStatusHeroCard extends StatelessWidget {
     );
   }
 
-  String _headline(AppLocalizations l10n, JobStatus status) => switch (status) {
-    JobStatus.done => l10n.jobDetailTranscriptionComplete,
+  String _headline(AppLocalizations l10n, JobStatus status, String sourceType) => switch (status) {
+    JobStatus.done => sourceType == 'text' ? l10n.jobDetailSummaryComplete : l10n.jobDetailTranscriptionComplete,
     JobStatus.processing => l10n.statusProcessing,
     JobStatus.queued => l10n.statusQueued,
     JobStatus.failed => l10n.statusFailed,

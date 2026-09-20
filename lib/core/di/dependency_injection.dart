@@ -3,6 +3,7 @@ import 'package:nutq/core/locale/locale_cubit.dart';
 import 'package:nutq/core/preferences/app_preferences.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
+import 'package:nutq/features/jobs/presentation/models/job_detail_args.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/models/presentation/cubit/models_cubit.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
@@ -21,7 +22,14 @@ Future<void> setupDI() async {
   sl.registerLazySingleton<LocaleCubit>(() => LocaleCubit(sl<AppPreferences>()));
 
   sl.registerFactory<JobsCubit>(JobsCubit.new);
-  sl.registerFactory<JobDetailCubit>(JobDetailCubit.new);
+  sl.registerFactoryParam<JobDetailCubit, JobDetailArgs, void>(
+    (args, _) => JobDetailCubit(
+      summarize: sl<SummarizeTranscript>(),
+      repository: sl<SummarizationRepository>(),
+      transcript: args.text,
+      language: args.language,
+    ),
+  );
   sl.registerFactory<NewJobCubit>(NewJobCubit.new);
   sl.registerFactory<ModelsCubit>(ModelsCubit.new);
 

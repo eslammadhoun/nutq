@@ -8,9 +8,13 @@ import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_state.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_action_bar.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_app_bar.dart';
+import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_notice.dart';
+import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_progress_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_status_hero_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/summary_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/transcript_card.dart';
+import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
+import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
 
 class JobDetailScreen extends StatelessWidget {
   const JobDetailScreen({super.key});
@@ -86,6 +90,27 @@ class JobDetailScreen extends StatelessWidget {
                             ),
                           JobStatusHeroCard(job: job!),
                           SizedBox(height: 16.h),
+                          if (_isRunning(job.status)) ...[
+                            JobProgressCard(
+                              progress: state.progress ??
+                                  const SummarizationProgress(SummarizationStage.preparing),
+                            ),
+                            SizedBox(height: 16.h),
+                          ],
+                          if (state.failureKind != null) ...[
+                            JobDetailNotice(
+                              kind: JobDetailNoticeKind.error,
+                              message: _failureMessage(context, state.failureKind!),
+                            ),
+                            SizedBox(height: 16.h),
+                          ],
+                          if (state.summaryNeedsReview) ...[
+                            JobDetailNotice(
+                              kind: JobDetailNoticeKind.warning,
+                              message: context.l10n.summarizeCheckWarning,
+                            ),
+                            SizedBox(height: 16.h),
+                          ],
                           TranscriptCard(
                             job: job,
                             transcriptText: state.transcriptText,
@@ -112,6 +137,17 @@ class JobDetailScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+bool _isRunning(String rawStatus) => rawStatus == 'pending' || rawStatus == 'summarizing';
+
+String _failureMessage(BuildContext context, SummarizationFailureKind kind) {
+  final l10n = context.l10n;
+  return switch (kind) {
+    SummarizationFailureKind.emptyTranscript => l10n.summarizeErrorEmpty,
+    SummarizationFailureKind.modelUnavailable => l10n.summarizeErrorModel,
+    SummarizationFailureKind.generationFailed => l10n.summarizeErrorGeneration,
+  };
 }
 
 class _ReconnectingBanner extends StatelessWidget {

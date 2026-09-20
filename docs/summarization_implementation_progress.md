@@ -41,7 +41,7 @@ partial = implemented, part deferred; blocked = needs a physical device or human
 - **`data/models/*`** (JSON models) were not created: nothing is serialized except the dev cache, which stores raw text.
 - **`validation_prompt.dart`** was not created: validation is deterministic (plan §26).
 - **Streaming the final summary** was not implemented (plan §38 allows this when streaming isn't proven stable).
-- **Integration with the old Jobs screens** was not done: after the logic strip they have no data source. The feature is reached from Profile → Summarize text.
+- **Jobs screens integration is partial:** New Job (pasted text only) → Job Detail runs the pipeline and shows live progress via `SummarizeTranscript.stream`. The Jobs list still has no data source, so submitted jobs are not saved or listed; audio/video/YouTube sources are unavailable (no on-device transcription). The standalone page is still reachable from Profile → Summarize text.
 - `GemmaGenerationConfig` exposes `maxOutputTokens` and `contextTokens` separately, because `flutter_gemma`'s `maxTokens` is the context window, not the reply length.
 
 ## Native/platform changes

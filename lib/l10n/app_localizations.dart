@@ -1105,6 +1105,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only pasted text can be summarized on this device for now. Audio, video and YouTube sources aren\'t available yet.'**
   String get newJobSourceUnavailable;
+
+  /// No description provided for @jobDetailSummaryComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary Complete'**
+  String get jobDetailSummaryComplete;
 }
 
 class _AppLocalizationsDelegate

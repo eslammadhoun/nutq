@@ -250,5 +250,6 @@
   "summarizeErrorModel": "The on-device summarization model isn't available.",
   "summarizeErrorGeneration": "The summary could not be generated. Please try again.",
   "profileSummarize": "Summarize text",
-  "newJobSourceUnavailable": "Only pasted text can be summarized on this device for now. Audio, video and YouTube sources aren't available yet."
+  "newJobSourceUnavailable": "Only pasted text can be summarized on this device for now. Audio, video and YouTube sources aren't available yet.",
+  "jobDetailSummaryComplete": "Summary Complete"
 }

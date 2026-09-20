@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:nutq/core/network/error/api_error.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
+import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
+import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
 
 enum JobConnectionStatus { idle, connecting, connected, reconnecting, failed }
 
@@ -21,6 +23,9 @@ class JobDetailState {
     this.streamingTranscript,
     this.streamingSummary,
     this.summaryTakeaways,
+    this.progress,
+    this.failureKind,
+    this.summaryNeedsReview = false,
   });
 
   final JobDetailStatus status;
@@ -66,6 +71,17 @@ class JobDetailState {
   /// `metadata` update that doesn't touch `job`.
   final List<Map<String, dynamic>>? summaryTakeaways;
 
+  /// Latest pipeline progress while the summary job runs; null before it
+  /// starts and after it ends.
+  final SummarizationProgress? progress;
+
+  /// Why the job failed — localized by the UI, never pre-formatted here.
+  final SummarizationFailureKind? failureKind;
+
+  /// True when the finished summary has details the heuristic checks could
+  /// not match to the transcript.
+  final bool summaryNeedsReview;
+
   JobDetailState copyWith({
     JobDetailStatus? status,
     JobDetailEntity? job,
@@ -79,6 +95,10 @@ class JobDetailState {
     String? streamingTranscript,
     String? streamingSummary,
     List<Map<String, dynamic>>? summaryTakeaways,
+    SummarizationProgress? progress,
+    bool clearProgress = false,
+    SummarizationFailureKind? failureKind,
+    bool? summaryNeedsReview,
   }) {
     return JobDetailState(
       status: status ?? this.status,
@@ -93,6 +113,9 @@ class JobDetailState {
       streamingTranscript: streamingTranscript ?? this.streamingTranscript,
       streamingSummary: streamingSummary ?? this.streamingSummary,
       summaryTakeaways: summaryTakeaways ?? this.summaryTakeaways,
+      progress: clearProgress ? null : (progress ?? this.progress),
+      failureKind: failureKind ?? this.failureKind,
+      summaryNeedsReview: summaryNeedsReview ?? this.summaryNeedsReview,
     );
   }
 }

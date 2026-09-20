@@ -77,14 +77,16 @@ class TranscriptCard extends StatelessWidget {
             )
           else ...[
             if (transcript != null) ...[
-              Text(
-                '${transcript.modelName} · ${transcript.modelVersion}'
-                '${transcript.quantization != null ? ' · ${transcript.quantization}' : ''}',
-                style: context.typography.captionSmall.copyWith(
-                  color: colors.textSecondary,
+              if (transcript.modelName.isNotEmpty || transcript.modelVersion.isNotEmpty) ...[
+                Text(
+                  '${transcript.modelName} · ${transcript.modelVersion}'
+                  '${transcript.quantization != null ? ' · ${transcript.quantization}' : ''}',
+                  style: context.typography.captionSmall.copyWith(
+                    color: colors.textSecondary,
+                  ),
                 ),
-              ),
-              SizedBox(height: 4.h),
+                SizedBox(height: 4.h),
+              ],
               Text(
                 [
                   if (transcript.durationSeconds != null)
