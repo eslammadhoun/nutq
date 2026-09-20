@@ -12,6 +12,7 @@ class JobDetailAppBar extends StatelessWidget {
       height: 56.h,
       padding: EdgeInsetsDirectional.symmetric(horizontal: 16.w),
       decoration: BoxDecoration(
+        color: colors.surface,
         border: Border(bottom: BorderSide(color: colors.borderDefault)),
       ),
       child: Row(
@@ -35,7 +36,11 @@ class JobDetailAppBar extends StatelessWidget {
               ),
             ),
           ),
-          Icon(Icons.more_horiz_rounded, size: 24.sp, color: colors.textSecondary),
+          Icon(
+            Icons.more_horiz_rounded,
+            size: 24.sp,
+            color: colors.textSecondary,
+          ),
         ],
       ),
     );

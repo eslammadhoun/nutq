@@ -5,6 +5,7 @@ import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
 import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/expandable_job_text.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_card.dart';
+import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_header.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_tag_chip.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -39,32 +40,15 @@ class TranscriptCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.description_rounded,
-                size: 16.sp,
-                color: colors.textPrimary,
-              ),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: Text(
-                  l10n.jobDetailTranscript,
-                  style: context.typography.labelMedium.copyWith(
-                    color: colors.textPrimary,
-                  ),
-                ),
-              ),
-              JobDetailTagChip(
-                label: languageName(l10n, job.language),
-                background: colors.statusProcessingBg,
-                foreground: colors.statusProcessing,
-              ),
-            ],
+          JobDetailSectionHeader(
+            glyph: '\u{1F4C4}',
+            title: l10n.jobDetailTranscript,
+            tag: JobDetailTagChip(
+              label: languageName(l10n, job.language),
+              background: colors.statusProcessingBg,
+              foreground: colors.textSecondary,
+            ),
           ),
-          SizedBox(height: 12.h),
-          Container(height: 1, color: colors.borderDefault),
-          SizedBox(height: 10.h),
           // Streaming words can arrive before the transcript metadata frame
           // (or the REST payload) does — show the live body regardless of
           // whether [transcript] metadata has landed yet.
@@ -77,7 +61,8 @@ class TranscriptCard extends StatelessWidget {
             )
           else ...[
             if (transcript != null) ...[
-              if (transcript.modelName.isNotEmpty || transcript.modelVersion.isNotEmpty) ...[
+              if (transcript.modelName.isNotEmpty ||
+                  transcript.modelVersion.isNotEmpty) ...[
                 Text(
                   '${transcript.modelName} · ${transcript.modelVersion}'
                   '${transcript.quantization != null ? ' · ${transcript.quantization}' : ''}',
@@ -85,7 +70,7 @@ class TranscriptCard extends StatelessWidget {
                     color: colors.textSecondary,
                   ),
                 ),
-                SizedBox(height: 4.h),
+                SizedBox(height: 5.h),
               ],
               Text(
                 [
@@ -98,12 +83,13 @@ class TranscriptCard extends StatelessWidget {
                   color: colors.textSecondary,
                 ),
               ),
-              SizedBox(height: 12.h),
+              SizedBox(height: 11.h),
             ],
             _transcriptBody(context),
-            SizedBox(height: 16.h),
-            if (transcript?.downloadUrl != null)
+            if (transcript?.downloadUrl != null) ...[
+              SizedBox(height: 6.h),
               _downloadButton(context, transcript!.downloadUrl!),
+            ],
           ],
         ],
       ),
@@ -117,7 +103,9 @@ class TranscriptCard extends StatelessWidget {
     if (liveText != null && liveText.isNotEmpty) {
       return ExpandableJobText(
         liveText,
-        textDirection: job.language == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+        textDirection: job.language == 'ar'
+            ? TextDirection.rtl
+            : TextDirection.ltr,
         style: context.typography.bodyBase.copyWith(color: colors.textPrimary),
       );
     }
@@ -144,7 +132,9 @@ class TranscriptCard extends StatelessWidget {
 
     return ExpandableJobText(
       transcriptText!,
-      textDirection: job.language == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+      textDirection: job.language == 'ar'
+          ? TextDirection.rtl
+          : TextDirection.ltr,
       style: context.typography.bodyBase.copyWith(color: colors.textPrimary),
     );
   }
@@ -159,17 +149,21 @@ class TranscriptCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: colors.statusProcessingBg,
           borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: colors.accentBlue),
+          border: Border.all(color: colors.navIndicator),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.download_rounded, size: 16.sp, color: colors.accentBlue),
+            Icon(
+              Icons.download_rounded,
+              size: 16.sp,
+              color: colors.navIndicator,
+            ),
             SizedBox(width: 8.w),
             Text(
               context.l10n.jobDetailDownloadTranscript,
               style: context.typography.labelXS.copyWith(
-                color: colors.accentBlue,
+                color: colors.navIndicator,
               ),
             ),
           ],

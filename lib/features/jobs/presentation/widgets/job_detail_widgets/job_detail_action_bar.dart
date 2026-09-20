@@ -22,7 +22,8 @@ class JobDetailActionBar extends StatelessWidget {
         if (job == null) return const SizedBox.shrink();
 
         final status = Job.statusFromRaw(job.status);
-        final canCancel = status == JobStatus.queued || status == JobStatus.processing;
+        final canCancel =
+            status == JobStatus.queued || status == JobStatus.processing;
         // The WS path never populates `job.summary` (it arrives as a
         // sibling of `job` in the frame, folded into `streamingSummary`
         // instead) — prefer that, falling back to the REST-fetched entity.
@@ -33,13 +34,13 @@ class JobDetailActionBar extends StatelessWidget {
 
         return Container(
           decoration: BoxDecoration(
-            color: colors.cardMuted,
+            color: colors.surface,
             border: Border(top: BorderSide(color: colors.borderDefault)),
           ),
           child: SafeArea(
             top: false,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+              padding: EdgeInsetsDirectional.fromSTEB(16.w, 13.h, 16.w, 14.h),
               child: canCancel
                   ? _ActionButton(
                       icon: Icons.cancel_outlined,
@@ -59,11 +60,13 @@ class JobDetailActionBar extends StatelessWidget {
                         Expanded(
                           flex: 163,
                           child: _ActionButton(
-                            icon: Icons.ios_share_rounded,
+                            icon: Icons.north_east_rounded,
                             label: context.l10n.jobDetailShare,
                             background: colors.borderDefault,
                             foreground: colors.textPrimary,
-                            onTap: hasSummaryText ? () => _shareSummary(summaryText) : null,
+                            onTap: hasSummaryText
+                                ? () => _shareSummary(summaryText)
+                                : null,
                           ),
                         ),
                         SizedBox(width: 15.w),
@@ -71,7 +74,7 @@ class JobDetailActionBar extends StatelessWidget {
                           flex: 180,
                           child: _ActionButton(
                             label: context.l10n.jobDetailCopyText,
-                            background: colors.accentBlue,
+                            background: colors.navIndicator,
                             foreground: colors.textInverse,
                             onTap: hasSummaryText
                                 ? () => _copySummary(context, summaryText)
@@ -130,8 +133,8 @@ class _ActionButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 16.sp, color: foreground),
-              SizedBox(width: 8.w),
+              Icon(icon, size: 14.sp, color: foreground),
+              SizedBox(width: 6.w),
             ],
             Text(
               label,

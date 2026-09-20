@@ -35,7 +35,16 @@ void main() {
     );
   }
 
-  Future<void> settle() => Future<void>.delayed(const Duration(milliseconds: 100));
+  /// Waits until the job reaches a final state (or 3s), instead of sleeping a
+  /// fixed time that can be too short on a busy machine.
+  Future<void> settle(JobDetailCubit cubit) async {
+    const terminal = {'completed', 'failed', 'cancelled'};
+    final deadline = DateTime.now().add(const Duration(seconds: 3));
+    while (!terminal.contains(cubit.state.job?.status) && DateTime.now().isBefore(deadline)) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+  }
 
   test('immediately exposes a pending text job carrying the submitted transcript', () {
     final cubit = build(_text);
@@ -55,7 +64,7 @@ void main() {
     final cubit = build(_text, language: 'en');
     final seen = <JobDetailState>[];
     final sub = cubit.stream.listen(seen.add);
-    await settle();
+    await settle(cubit);
 
     final stages = seen.map((s) => s.progress?.stage).whereType<SummarizationStage>().toList();
     expect(stages, contains(SummarizationStage.analyzing));
@@ -85,7 +94,7 @@ void main() {
     final cubit = build(_text);
     gemma.responder = (prompt, call) async =>
         prompt.contains('final summary of a full lecture') ? 'شارك 9999 شخصا في الفعالية.' : null;
-    await settle();
+    await settle(cubit);
     expect(cubit.state.job!.status, 'completed');
     expect(cubit.state.summaryNeedsReview, isTrue);
     await cubit.close();
@@ -93,7 +102,7 @@ void main() {
 
   test('a failed job ends as failed with the raw failure kind for the UI to localize', () async {
     final cubit = build('   ');
-    await settle();
+    await settle(cubit);
     expect(cubit.state.job!.status, 'failed');
     expect(cubit.state.failureKind, SummarizationFailureKind.emptyTranscript);
     expect(cubit.state.progress, isNull);
@@ -106,7 +115,7 @@ void main() {
       if (prompt.contains('final summary of a full lecture')) throw const GemmaGenerationException('x');
       return null;
     };
-    await settle();
+    await settle(cubit);
     expect(cubit.state.job!.status, 'failed');
     expect(cubit.state.failureKind, SummarizationFailureKind.generationFailed);
     await cubit.close();
@@ -128,7 +137,7 @@ void main() {
     expect(gemma.cancelled, isTrue);
 
     gate.complete();
-    await settle();
+    await settle(cubit);
     expect(cubit.state.job!.status, 'cancelled');
     expect(cubit.state.isCancelling, isFalse);
     expect(cubit.state.progress, isNull);
@@ -147,7 +156,7 @@ void main() {
     await cubit.close();
     expect(gemma.cancelled, isTrue);
     gate.complete();
-    await settle();
+    await settle(cubit);
     expect(gemma.calls, 1);
   });
 
@@ -234,7 +243,7 @@ void main() {
   group('language', () {
     test('the chosen language drives the model prompts (English)', () async {
       final cubit = build('Attendance reached 250 people in 2024. The team said results were good.', language: 'en');
-      await settle();
+      await settle(cubit);
       expect(cubit.state.job!.language, 'en');
       expect(gemma.prompts, isNotEmpty);
       expect(gemma.prompts.every((p) => p.contains('English') && !p.contains('Arabic')), isTrue);
@@ -243,7 +252,7 @@ void main() {
 
     test('Arabic is used when the toggle says ar', () async {
       final cubit = build('نص عربي قصير عن موضوع مهم.', language: 'ar');
-      await settle();
+      await settle(cubit);
       expect(gemma.prompts.every((p) => p.contains('Arabic')), isTrue);
       await cubit.close();
     });

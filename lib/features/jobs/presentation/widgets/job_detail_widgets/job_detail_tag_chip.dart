@@ -18,7 +18,7 @@ class JobDetailTagChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 26.h,
-      padding: EdgeInsets.symmetric(horizontal: 14.w),
+      padding: EdgeInsets.symmetric(horizontal: 12.w),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: background,

@@ -36,22 +36,28 @@ class JobDetailScreen extends StatelessWidget {
           );
       },
       child: Scaffold(
-        backgroundColor: context.appColors.base,
+        backgroundColor: context.appColors.page,
         body: SafeArea(
+          top: false,
           bottom: false,
           child: Column(
             children: [
-              const JobDetailAppBar(),
+              ColoredBox(
+                color: context.appColors.surface,
+                child: const SafeArea(bottom: false, child: JobDetailAppBar()),
+              ),
               Expanded(
                 child: BlocBuilder<JobDetailCubit, JobDetailState>(
                   builder: (context, state) {
                     final job = state.job;
 
-                    if (state.status == JobDetailStatus.loading && job == null) {
+                    if (state.status == JobDetailStatus.loading &&
+                        job == null) {
                       return const Center(child: CircularProgressIndicator());
                     }
 
-                    if (state.status == JobDetailStatus.failure && job == null) {
+                    if (state.status == JobDetailStatus.failure &&
+                        job == null) {
                       return Center(
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 32.w),
@@ -60,7 +66,9 @@ class JobDetailScreen extends StatelessWidget {
                             children: [
                               Text(
                                 state.lastError != null
-                                    ? context.l10n.jobsErrorMessage(state.lastError!)
+                                    ? context.l10n.jobsErrorMessage(
+                                        state.lastError!,
+                                      )
                                     : context.l10n.somethingWentWrong,
                                 textAlign: TextAlign.center,
                                 style: context.typography.bodySmall.copyWith(
@@ -71,7 +79,8 @@ class JobDetailScreen extends StatelessWidget {
                               GlobalButton(
                                 isFilled: false,
                                 text: context.l10n.retry,
-                                onTap: () => context.read<JobDetailCubit>().refresh(),
+                                onTap: () =>
+                                    context.read<JobDetailCubit>().refresh(),
                               ),
                             ],
                           ),
@@ -80,10 +89,14 @@ class JobDetailScreen extends StatelessWidget {
                     }
 
                     return SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 16.h,
+                      ),
                       child: Column(
                         children: [
-                          if (state.connectionStatus == JobConnectionStatus.reconnecting)
+                          if (state.connectionStatus ==
+                              JobConnectionStatus.reconnecting)
                             Padding(
                               padding: EdgeInsets.only(bottom: 12.h),
                               child: const _ReconnectingBanner(),
@@ -92,15 +105,21 @@ class JobDetailScreen extends StatelessWidget {
                           SizedBox(height: 16.h),
                           if (_isRunning(job.status)) ...[
                             JobProgressCard(
-                              progress: state.progress ??
-                                  const SummarizationProgress(SummarizationStage.preparing),
+                              progress:
+                                  state.progress ??
+                                  const SummarizationProgress(
+                                    SummarizationStage.preparing,
+                                  ),
                             ),
                             SizedBox(height: 16.h),
                           ],
                           if (state.failureKind != null) ...[
                             JobDetailNotice(
                               kind: JobDetailNoticeKind.error,
-                              message: _failureMessage(context, state.failureKind!),
+                              message: _failureMessage(
+                                context,
+                                state.failureKind!,
+                              ),
                             ),
                             SizedBox(height: 16.h),
                           ],
@@ -114,7 +133,8 @@ class JobDetailScreen extends StatelessWidget {
                           TranscriptCard(
                             job: job,
                             transcriptText: state.transcriptText,
-                            isLoadingTranscriptText: state.isLoadingTranscriptText,
+                            isLoadingTranscriptText:
+                                state.isLoadingTranscriptText,
                             streamingTranscript: state.streamingTranscript,
                           ),
                           SizedBox(height: 16.h),
@@ -139,7 +159,8 @@ class JobDetailScreen extends StatelessWidget {
   }
 }
 
-bool _isRunning(String rawStatus) => rawStatus == 'pending' || rawStatus == 'summarizing';
+bool _isRunning(String rawStatus) =>
+    rawStatus == 'pending' || rawStatus == 'summarizing';
 
 String _failureMessage(BuildContext context, SummarizationFailureKind kind) {
   final l10n = context.l10n;

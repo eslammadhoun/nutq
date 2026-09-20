@@ -4,6 +4,7 @@ import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/expandable_job_text.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_card.dart';
+import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_header.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_tag_chip.dart';
 
 class SummaryCard extends StatelessWidget {
@@ -35,36 +36,25 @@ class SummaryCard extends StatelessWidget {
     final summary = job.summary;
     final liveText = streamingSummary;
     final hasLiveText = liveText != null && liveText.isNotEmpty;
-    final isStreaming = hasLiveText && (job.status == 'pending' || job.status == 'summarizing');
+    final isStreaming =
+        hasLiveText && (job.status == 'pending' || job.status == 'summarizing');
     final effectiveTakeaways = takeaways ?? summary?.takeaways ?? const [];
 
     return JobDetailSectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.auto_awesome, size: 16.sp, color: colors.textPrimary),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: Text(
-                  l10n.jobDetailAiSummary,
-                  style: context.typography.labelMedium.copyWith(
-                    color: colors.textPrimary,
+          JobDetailSectionHeader(
+            glyph: '\u2728',
+            title: l10n.jobDetailAiSummary,
+            tag: summary == null
+                ? null
+                : JobDetailTagChip(
+                    label: _toneLabel(summary.toneAndFormat),
+                    background: colors.statusDoneBg,
+                    foreground: colors.statusDone,
                   ),
-                ),
-              ),
-              if (summary != null)
-                JobDetailTagChip(
-                  label: _toneLabel(summary.toneAndFormat),
-                  background: colors.statusDoneBg,
-                  foreground: colors.statusDone,
-                ),
-            ],
           ),
-          SizedBox(height: 12.h),
-          Container(height: 1, color: colors.borderDefault),
-          SizedBox(height: 10.h),
           if (summary == null && !hasLiveText)
             Text(
               l10n.jobDetailSummaryPending,
@@ -75,22 +65,26 @@ class SummaryCard extends StatelessWidget {
           else ...[
             ExpandableJobText(
               hasLiveText ? liveText : (summary?.summaryText ?? ''),
-              textDirection: job.language == 'ar' ? TextDirection.rtl : TextDirection.ltr,
-              style: context.typography.bodySmall.copyWith(color: colors.textSecondary),
+              textDirection: job.language == 'ar'
+                  ? TextDirection.rtl
+                  : TextDirection.ltr,
+              style: context.typography.bodySmall.copyWith(
+                color: colors.textSecondary,
+              ),
               forceExpanded: isStreaming,
             ),
             if (effectiveTakeaways.isNotEmpty) ...[
-              SizedBox(height: 12.h),
+              SizedBox(height: 4.h),
               Text(
                 l10n.jobDetailKeyTakeaways,
                 style: context.typography.label.copyWith(
                   color: colors.textSecondary,
                 ),
               ),
-              SizedBox(height: 8.h),
-              for (final takeaway in effectiveTakeaways) ...[
-                _takeaway(context, _takeawayText(takeaway)),
-                SizedBox(height: 6.h),
+              SizedBox(height: 9.h),
+              for (var i = 0; i < effectiveTakeaways.length; i++) ...[
+                if (i > 0) SizedBox(height: 6.h),
+                _takeaway(context, _takeawayText(effectiveTakeaways[i])),
               ],
             ],
           ],
@@ -99,9 +93,6 @@ class SummaryCard extends StatelessWidget {
     );
   }
 
-  /// `tone_and_format` is a free-form string the backend controls (e.g.
-  /// "analytical") — shown as-is (title-cased) rather than mapped through
-  /// a fixed enum, since new values shouldn't require a client release.
   String _toneLabel(String raw) {
     if (raw.isEmpty) return raw;
     return raw[0].toUpperCase() + raw.substring(1);
@@ -111,7 +102,10 @@ class SummaryCard extends StatelessWidget {
   /// display string out of whichever key the backend used.
   String _takeawayText(Map<String, dynamic> takeaway) {
     final text =
-        takeaway['text'] ?? takeaway['title'] ?? takeaway['label'] ?? takeaway['message'];
+        takeaway['text'] ??
+        takeaway['title'] ??
+        takeaway['label'] ??
+        takeaway['message'];
     if (text is String && text.isNotEmpty) return text;
     return takeaway.values.whereType<String>().join(' ');
   }
@@ -120,7 +114,8 @@ class SummaryCard extends StatelessWidget {
     final colors = context.appColors;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+      constraints: BoxConstraints(minHeight: 26.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
       alignment: AlignmentDirectional.centerStart,
       decoration: BoxDecoration(
         color: colors.statusProcessingBg,
@@ -128,9 +123,7 @@ class SummaryCard extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: context.typography.caption.copyWith(
-          color: colors.statusProcessing,
-        ),
+        style: context.typography.caption.copyWith(color: colors.navIndicator),
       ),
     );
   }

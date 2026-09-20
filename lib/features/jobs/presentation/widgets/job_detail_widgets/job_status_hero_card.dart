@@ -20,7 +20,8 @@ class JobStatusHeroCard extends StatelessWidget {
       context,
       Job.sourceTypeFromRaw(job.sourceType),
       isVideoUpload:
-          job.sourceType == 'upload' && (job.contentType?.startsWith('video/') ?? false),
+          job.sourceType == 'upload' &&
+          (job.contentType?.startsWith('video/') ?? false),
     );
     final transcript = job.transcript;
 
@@ -35,6 +36,7 @@ class JobStatusHeroCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
+      constraints: BoxConstraints(minHeight: 132.h),
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -51,10 +53,10 @@ class JobStatusHeroCard extends StatelessWidget {
             width: 40.w,
             height: 40.w,
             decoration: BoxDecoration(
-              color: colors.textInverse.withValues(alpha: 0.18),
+              color: colors.textInverse,
               shape: BoxShape.circle,
             ),
-            child: Icon(source.icon, size: 18.sp, color: colors.textInverse),
+            child: Icon(source.icon, size: 18.sp, color: colors.textSecondary),
           ),
           SizedBox(width: 12.w),
           Expanded(
@@ -78,7 +80,7 @@ class JobStatusHeroCard extends StatelessWidget {
                 ),
                 SizedBox(height: 20.h),
                 Text(
-                  metaParts.join(' · '),
+                  metaParts.join('  ·  '),
                   style: context.typography.bodySmall.copyWith(
                     color: colors.textInverse.withValues(alpha: 0.9),
                   ),
@@ -107,8 +109,15 @@ class JobStatusHeroCard extends StatelessWidget {
     );
   }
 
-  String _headline(AppLocalizations l10n, JobStatus status, String sourceType) => switch (status) {
-    JobStatus.done => sourceType == 'text' ? l10n.jobDetailSummaryComplete : l10n.jobDetailTranscriptionComplete,
+  String _headline(
+    AppLocalizations l10n,
+    JobStatus status,
+    String sourceType,
+  ) => switch (status) {
+    JobStatus.done =>
+      sourceType == 'text'
+          ? l10n.jobDetailSummaryComplete
+          : l10n.jobDetailTranscriptionComplete,
     JobStatus.processing => l10n.statusProcessing,
     JobStatus.queued => l10n.statusQueued,
     JobStatus.failed => l10n.statusFailed,
@@ -117,11 +126,12 @@ class JobStatusHeroCard extends StatelessWidget {
 
   Widget _statusBadge(BuildContext context, JobStatus status) {
     final colors = context.appColors;
+    final visual = jobStatusVisual(context, status);
     return Container(
       height: 24.h,
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       decoration: BoxDecoration(
-        color: colors.textInverse.withValues(alpha: 0.18),
+        color: colors.textInverse,
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Row(
@@ -131,14 +141,14 @@ class JobStatusHeroCard extends StatelessWidget {
             width: 6.w,
             height: 6.w,
             decoration: BoxDecoration(
-              color: colors.textInverse,
+              color: visual.color,
               shape: BoxShape.circle,
             ),
           ),
           SizedBox(width: 4.w),
           Text(
-            jobStatusVisual(context, status).label,
-            style: context.typography.label.copyWith(color: colors.textInverse),
+            visual.label,
+            style: context.typography.label.copyWith(color: visual.color),
           ),
         ],
       ),

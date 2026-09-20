@@ -5,10 +5,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutq/core/theme/app_colors.dart';
 import 'package:nutq/core/theme/app_theme.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/screens/job_detail_screen.dart';
+import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_action_bar.dart';
+import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_app_bar.dart';
+import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_progress_card.dart';
+import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_status_hero_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/summary_card.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
@@ -175,5 +180,53 @@ void main() {
       find.descendant(of: find.byType(SummaryCard), matching: find.text('Show more')),
       findsNothing,
     );
+  });
+
+  testWidgets('completed state matches the Figma Job Detail measurements and colors', (tester) async {
+    final cubit = build(_text);
+    addTearDown(cubit.close);
+    await _pump(tester, cubit);
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(cubit.state.job!.status, 'completed');
+
+    final colors = AppTheme.light.extension<AppColors>()!;
+
+    // Hero: 358 wide (16px gutters), at least 132 tall.
+    final hero = tester.getSize(find.byType(JobStatusHeroCard));
+    expect(hero.width, 358);
+    expect(hero.height, greaterThanOrEqualTo(132));
+
+    // Cards: white surface, 16px radius, no border, soft 5% shadow, 12px vertical padding.
+    final cardBox = tester
+        .widget<Container>(find.descendant(of: find.byType(JobDetailSectionCard).first, matching: find.byType(Container)).first)
+        .decoration! as BoxDecoration;
+    expect(cardBox.color, colors.surface);
+    expect(cardBox.border, isNull);
+    expect(cardBox.borderRadius, BorderRadius.circular(16));
+    expect(cardBox.boxShadow!.single.blurRadius, 12);
+    expect(cardBox.boxShadow!.single.offset, const Offset(0, 2));
+    expect(cardBox.boxShadow!.single.color.a, closeTo(0.05, 0.001));
+
+    // Page background is the light page tone; the top band and bottom bar are white surface.
+    expect(tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor, colors.page);
+    final appBar = tester.widget<Container>(find.descendant(of: find.byType(JobDetailAppBar), matching: find.byType(Container)).first);
+    expect((appBar.decoration! as BoxDecoration).color, colors.surface);
+    expect(tester.getSize(find.byType(JobDetailAppBar)).height, 56);
+
+    // Bottom bar: 72 tall; Share is the neutral button, Copy Text the brand blue.
+    expect(tester.getSize(find.byType(JobDetailActionBar)).height, 72);
+    final copy = tester.widget<Container>(find.ancestor(of: find.text('Copy Text'), matching: find.byType(Container)).first);
+    expect((copy.decoration! as BoxDecoration).color, colors.navIndicator);
+    expect(colors.navIndicator, const Color(0xFF1A56DB));
+    final share = tester.widget<Container>(find.ancestor(of: find.text('Share'), matching: find.byType(Container)).first);
+    expect((share.decoration! as BoxDecoration).color, colors.borderDefault);
+
+    // Section headers: tag chips are 26 tall pills with the design's colors.
+    final language = find.ancestor(of: find.text('Arabic'), matching: find.byType(Container)).first;
+    expect(tester.getSize(language).height, 26);
+    expect((tester.widget<Container>(language).decoration! as BoxDecoration).color, colors.statusProcessingBg);
+    final tone = find.ancestor(of: find.text('Medium'), matching: find.byType(Container)).first;
+    expect((tester.widget<Container>(tone).decoration! as BoxDecoration).color, colors.statusDoneBg);
   });
 }

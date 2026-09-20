@@ -12,16 +12,15 @@ class JobDetailSectionCard extends StatelessWidget {
     final colors = context.appColors;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsetsDirectional.fromSTEB(16.w, 12.h, 16.w, 12.h),
       decoration: BoxDecoration(
-        color: colors.cardMuted,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: colors.borderDefault),
         boxShadow: [
           BoxShadow(
-            color: colors.scrimOverlay.withValues(alpha: 0.2),
+            color: colors.scrimOverlay.withValues(alpha: 0.05),
             blurRadius: 12,
-            offset: Offset(0, 4.h),
+            offset: Offset(0, 2.h),
           ),
         ],
       ),
