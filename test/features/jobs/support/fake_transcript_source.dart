@@ -48,6 +48,8 @@ class FakeMediaSource implements TranscriptSource {
     if (gate != null) await gate!.future;
     request.cancellation.throwIfCancelled();
     request.onProgress(const JobProgress(JobStage.transcribing, fraction: 0.5));
+    // A test double that throws whatever the test scripted.
+    // ignore: only_throw_errors
     if (error != null) throw error!;
     request.onProgress(const JobProgress(JobStage.transcribing, fraction: 1));
     return SourceTranscript(text, modelName: 'fake-asr', modelVersion: '1');

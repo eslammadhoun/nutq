@@ -50,12 +50,9 @@ class BenchmarkFixture {
   final String size;
 
   static Future<List<BenchmarkFixture>> loadDirectory(Directory directory) async {
-    final files = directory
-        .listSync()
-        .whereType<File>()
-        .where((f) => f.path.endsWith('.json'))
-        .toList()
-      ..sort((a, b) => a.path.compareTo(b.path));
+    final files =
+        directory.listSync().whereType<File>().where((f) => f.path.endsWith('.json')).toList()
+          ..sort((a, b) => a.path.compareTo(b.path));
     return [
       for (final f in files)
         BenchmarkFixture.fromJson(jsonDecode(await f.readAsString()) as Map<String, dynamic>),

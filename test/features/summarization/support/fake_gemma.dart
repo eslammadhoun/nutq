@@ -1,6 +1,6 @@
+import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_generation_config.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
-import 'package:nutq/core/domain/cancellation.dart';
 
 /// Scripted stand-in for the on-device model. Responds by prompt type so the
 /// whole pipeline runs without a real model.
@@ -58,7 +58,12 @@ class FakeGemma implements GemmaLocalDataSource {
         await Future<void>.delayed(wordDelay);
       }
     }
-    return GemmaResponse(text: text, inputTokens: prompt.length ~/ 4, outputTokens: text.length ~/ 4, durationMs: 10);
+    return GemmaResponse(
+      text: text,
+      inputTokens: prompt.length ~/ 4,
+      outputTokens: text.length ~/ 4,
+      durationMs: 10,
+    );
   }
 
   static String defaultResponse(String prompt) {

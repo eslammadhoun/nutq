@@ -1,16 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:nutq/features/summarization/benchmark/baseline_summarizer.dart';
-import 'package:nutq/features/summarization/benchmark/benchmark_fixture.dart';
-import 'package:nutq/features/summarization/benchmark/heuristic_evaluator.dart';
-import 'package:nutq/features/summarization/benchmark/summary_evaluation.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_generation_config.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_result.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
+
+import 'baseline_summarizer.dart';
+import 'benchmark_fixture.dart';
+import 'heuristic_evaluator.dart';
+import 'summary_evaluation.dart';
 
 /// One named experiment: a pipeline configuration plus generation settings.
 class BenchmarkConfiguration {
@@ -44,12 +45,23 @@ class BenchmarkConfiguration {
       ),
   ];
 
-  static List<BenchmarkConfiguration> overlapSweep({List<int> overlaps = const [0, 25, 50, 75]}) => [
-    for (final o in overlaps) BenchmarkConfiguration(name: 'overlap_$o', pipeline: SummarizationConfig(overlapTokens: o)),
-  ];
+  static List<BenchmarkConfiguration> overlapSweep({List<int> overlaps = const [0, 25, 50, 75]}) =>
+      [
+        for (final o in overlaps)
+          BenchmarkConfiguration(
+            name: 'overlap_$o',
+            pipeline: SummarizationConfig(overlapTokens: o),
+          ),
+      ];
 
-  static List<BenchmarkConfiguration> temperatureSweep({List<double> temps = const [0.1, 0.2, 0.3]}) => [
-    for (final t in temps) BenchmarkConfiguration(name: 'temp_$t', generation: GemmaGenerationConfig(temperature: t)),
+  static List<BenchmarkConfiguration> temperatureSweep({
+    List<double> temps = const [0.1, 0.2, 0.3],
+  }) => [
+    for (final t in temps)
+      BenchmarkConfiguration(
+        name: 'temp_$t',
+        generation: GemmaGenerationConfig(temperature: t),
+      ),
   ];
 }
 
@@ -101,7 +113,8 @@ class SummarizationBenchmarkResult {
   };
 }
 
-typedef BenchmarkRun = Future<SummaryResult> Function(BenchmarkFixture fixture, BenchmarkConfiguration configuration);
+typedef BenchmarkRun =
+    Future<SummaryResult> Function(BenchmarkFixture fixture, BenchmarkConfiguration configuration);
 
 /// Runs every configuration against every fixture and scores the output.
 class SummarizationBenchmarkRunner {
@@ -121,11 +134,17 @@ class SummarizationBenchmarkRunner {
   }) => SummarizationBenchmarkRunner(
     evaluator: evaluator,
     run: (fixture, configuration) {
-      final repository = SummarizationRepositoryImpl(dataSource: dataSource, baseConfig: configuration.generation);
+      final repository = SummarizationRepositoryImpl(
+        dataSource: dataSource,
+        baseConfig: configuration.generation,
+      );
       if (configuration.baseline) {
         return BaselineSummarizer(repository)(fixture.transcript, configuration.pipeline);
       }
-      return SummarizeTranscript(repository: repository)(fixture.transcript, configuration.pipeline);
+      return SummarizeTranscript(repository: repository)(
+        fixture.transcript,
+        configuration.pipeline,
+      );
     },
   );
 
@@ -142,7 +161,10 @@ class SummarizationBenchmarkRunner {
     return results;
   }
 
-  Future<SummarizationBenchmarkResult> _runOne(BenchmarkFixture fixture, BenchmarkConfiguration configuration) async {
+  Future<SummarizationBenchmarkResult> _runOne(
+    BenchmarkFixture fixture,
+    BenchmarkConfiguration configuration,
+  ) async {
     final watch = Stopwatch()..start();
     try {
       final result = await run(fixture, configuration);

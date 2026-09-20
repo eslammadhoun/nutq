@@ -22,7 +22,10 @@ void main() {
         ..add(4);
       expect(seen, [1]);
       async.elapse(const Duration(milliseconds: 45));
-      expect(seen, [1, 4], reason: 'only the newest of 2, 3, 4 is delivered, at the end of the interval');
+      expect(seen, [
+        1,
+        4,
+      ], reason: 'only the newest of 2, 3, 4 is delivered, at the end of the interval');
     });
   });
 
@@ -45,7 +48,11 @@ void main() {
         async.elapse(const Duration(milliseconds: 5)); // 500 ms of input
       }
       async.elapse(interval);
-      expect(seen.length, lessThanOrEqualTo(12), reason: '500 ms / 50 ms ≈ 10 deliveries, plus the leading one');
+      expect(
+        seen.length,
+        lessThanOrEqualTo(12),
+        reason: '500 ms / 50 ms ≈ 10 deliveries, plus the leading one',
+      );
       expect(seen.last, 99, reason: 'the final value is never lost');
     });
   });

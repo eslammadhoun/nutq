@@ -46,7 +46,9 @@ void main() {
 
   test('the job is in storage by the time it is queued', () async {
     final order = <String>[];
-    final probe = _ProbingScheduler((id) async => order.add((await t.repo.getJob(id)) != null ? 'stored' : 'missing'));
+    final probe = _ProbingScheduler(
+      (id) async => order.add((await t.repo.getJob(id)) != null ? 'stored' : 'missing'),
+    );
     await SubmitJob(t.repo, probe)(draft('نص'));
     await pumpEventQueue();
     expect(order, ['stored']);
@@ -60,7 +62,10 @@ void main() {
       FaultyJobsLocalDataSource(JobsLocalDataSourceImpl(db.jobsDao), {Fault.insertJob}),
       newId: () => 'x',
     );
-    await expectLater(SubmitJob(broken, scheduler)(draft('نص')), throwsA(isA<JobStorageException>()));
+    await expectLater(
+      SubmitJob(broken, scheduler)(draft('نص')),
+      throwsA(isA<JobStorageException>()),
+    );
     expect(scheduler.enqueued, isEmpty);
   });
 

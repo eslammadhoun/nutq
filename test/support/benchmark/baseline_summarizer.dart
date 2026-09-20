@@ -27,7 +27,9 @@ class BaselineSummarizer {
     var chunkCount = 0;
     var failed = 0;
     for (var i = 0; i < words.length; i += wordsPerChunk) {
-      final text = words.sublist(i, i + wordsPerChunk > words.length ? words.length : i + wordsPerChunk).join(' ');
+      final text = words
+          .sublist(i, i + wordsPerChunk > words.length ? words.length : i + wordsPerChunk)
+          .join(' ');
       final chunk = TranscriptChunk(
         id: chunkCount++,
         text: text,

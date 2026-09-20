@@ -81,7 +81,9 @@ void main() {
       addTearDown(other.dispose);
       final id2 = await other.createJob(_text('DUP'));
       other.runner.enqueue(id2);
-      await eventually(() async => (await other.repo.getJob(id2))!.status == JobRunStatus.completed);
+      await eventually(
+        () async => (await other.repo.getJob(id2))!.status == JobRunStatus.completed,
+      );
       expect(callsForOne, other.gemma.calls);
     });
   });
@@ -104,7 +106,11 @@ void main() {
       gate.complete();
       await eventually(() async => await statusOf(c) == JobRunStatus.completed);
       expect(await statusOf(a), JobRunStatus.completed);
-      expect(h.gemma.prompts.any((p) => p.contains('BBB')), isFalse, reason: 'B never reached the model');
+      expect(
+        h.gemma.prompts.any((p) => p.contains('BBB')),
+        isFalse,
+        reason: 'B never reached the model',
+      );
     });
 
     test('the running job is stopped and cancelled, and the next one starts', () async {
@@ -137,27 +143,33 @@ void main() {
   });
 
   group('live state', () {
-    test('is null when idle, carries progress while running, and is null again at the end', () async {
-      final gate = Completer<void>();
-      h.gemma.responder = (prompt, call) async {
-        if (call == 1) await gate.future;
-        return null;
-      };
-      final id = await h.createJob(_text('A'));
-      final seen = <JobLive?>[];
-      final sub = h.runner.watchLive(id).listen(seen.add);
-      await pumpEventQueue();
-      expect(seen, [null], reason: 'nothing running yet');
+    test(
+      'is null when idle, carries progress while running, and is null again at the end',
+      () async {
+        final gate = Completer<void>();
+        h.gemma.responder = (prompt, call) async {
+          if (call == 1) await gate.future;
+          return null;
+        };
+        final id = await h.createJob(_text('A'));
+        final seen = <JobLive?>[];
+        final sub = h.runner.watchLive(id).listen(seen.add);
+        await pumpEventQueue();
+        expect(seen, [null], reason: 'nothing running yet');
 
-      h.runner.enqueue(id);
-      await eventually(() => seen.any((l) => l?.progress != null));
-      expect(seen.last!.progress!.stage, isIn(JobStage.values));
+        h.runner.enqueue(id);
+        await eventually(() => seen.any((l) => l?.progress != null));
+        expect(seen.last!.progress!.stage, isIn(JobStage.values));
 
-      gate.complete();
-      await eventually(() => seen.last == null);
-      expect(seen.whereType<JobLive>().map((l) => l.progress?.fraction).whereType<double>(), isNotEmpty);
-      await sub.cancel();
-    });
+        gate.complete();
+        await eventually(() => seen.last == null);
+        expect(
+          seen.whereType<JobLive>().map((l) => l.progress?.fraction).whereType<double>(),
+          isNotEmpty,
+        );
+        await sub.cancel();
+      },
+    );
 
     test('a subscriber that arrives mid-run immediately gets the current state', () async {
       final gate = Completer<void>();
@@ -217,35 +229,52 @@ void main() {
       final fresh = JobHarness();
       addTearDown(fresh.dispose);
       // Replace with an un-started runner over the same stack.
-      final runner = JobRunner(jobs: fresh.repo, process: fresh.processJob, now: () => DateTime.utc(2000));
+      final runner = JobRunner(
+        jobs: fresh.repo,
+        process: fresh.processJob,
+        now: () => DateTime.utc(2000),
+      );
       addTearDown(runner.dispose);
       final id = await fresh.createJob(_text('A'));
       runner.enqueue(id);
       await Future<void>.delayed(const Duration(milliseconds: 40));
-      expect(await fresh.repo.getJob(id).then((j) => j!.status), JobRunStatus.pending, reason: 'not started yet');
+      expect(
+        await fresh.repo.getJob(id).then((j) => j!.status),
+        JobRunStatus.pending,
+        reason: 'not started yet',
+      );
 
       await runner.start();
       await eventually(() async => (await fresh.repo.getJob(id))!.status == JobRunStatus.completed);
     });
 
-    test('start fails jobs left active by an earlier session, but not this session\'s own', () async {
-      final oldPending = await h.createJob(_text('OLD1'));
-      final oldRunning = await h.createJob(_text('OLD2'));
-      await h.repo.markRunning(oldRunning);
-      final ownPending = await h.createJob(_text('OWN')); // created "after" the runner started
+    test(
+      'start fails jobs left active by an earlier session, but not this session\'s own',
+      () async {
+        final oldPending = await h.createJob(_text('OLD1'));
+        final oldRunning = await h.createJob(_text('OLD2'));
+        await h.repo.markRunning(oldRunning);
+        final ownPending = await h.createJob(_text('OWN')); // created "after" the runner started
 
-      // A runner whose session began after the first two jobs, before the last.
-      final between = h.repoFixture.repo;
-      final startedAt = (await between.getJob(oldRunning))!.createdAt.add(const Duration(seconds: 30));
-      final runner = JobRunner(jobs: between, process: h.processJob, now: () => startedAt);
-      addTearDown(runner.dispose);
-      await runner.start();
+        // A runner whose session began after the first two jobs, before the last.
+        final between = h.repoFixture.repo;
+        final startedAt = (await between.getJob(
+          oldRunning,
+        ))!.createdAt.add(const Duration(seconds: 30));
+        final runner = JobRunner(jobs: between, process: h.processJob, now: () => startedAt);
+        addTearDown(runner.dispose);
+        await runner.start();
 
-      expect(await statusOf(oldPending), JobRunStatus.failed);
-      expect((await h.repo.getJob(oldPending))!.failureKind, JobFailureKind.interrupted);
-      expect(await statusOf(oldRunning), JobRunStatus.failed);
-      expect(await statusOf(ownPending), JobRunStatus.pending, reason: 'created after the session began');
-    });
+        expect(await statusOf(oldPending), JobRunStatus.failed);
+        expect((await h.repo.getJob(oldPending))!.failureKind, JobFailureKind.interrupted);
+        expect(await statusOf(oldRunning), JobRunStatus.failed);
+        expect(
+          await statusOf(ownPending),
+          JobRunStatus.pending,
+          reason: 'created after the session began',
+        );
+      },
+    );
 
     test('start is idempotent', () async {
       await h.runner.start();

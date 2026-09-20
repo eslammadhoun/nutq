@@ -1,14 +1,14 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
-import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 
+import '../../support/async_helpers.dart';
 import 'support/faulty_jobs_local_data_source.dart';
 import 'support/job_fixtures.dart';
 import 'support/job_harness.dart';
@@ -25,8 +25,6 @@ void main() {
     await cubit.close();
     await h.dispose();
   });
-
-  Future<void> settle() => Future<void>.delayed(const Duration(milliseconds: 60));
 
   test('starts empty, loads the stored jobs newest first, and stops showing a spinner', () async {
     await h.createJob('first');
@@ -48,20 +46,18 @@ void main() {
   test('the list is live: new, finished and deleted jobs appear without refreshing', () async {
     await cubit.fetchJobs();
     final id = await h.createJob('نص');
-    await settle();
-    expect(cubit.state.jobs.single.status, JobRunStatus.pending);
+    await eventually(
+      () => cubit.state.jobs.length == 1 && cubit.state.jobs.single.status == JobRunStatus.pending,
+    );
 
     await h.repo.markRunning(id);
-    await settle();
-    expect(cubit.state.jobs.single.status, JobRunStatus.running);
+    await eventually(() => cubit.state.jobs.single.status == JobRunStatus.running);
 
     await h.repo.cancelJob(id);
-    await settle();
-    expect(cubit.state.jobs.single.status, JobRunStatus.cancelled);
+    await eventually(() => cubit.state.jobs.single.status == JobRunStatus.cancelled);
 
     await h.repo.deleteJob(id);
-    await settle();
-    expect(cubit.state.jobs, isEmpty);
+    await eventually(() => cubit.state.jobs.isEmpty);
   });
 
   test('view models carry the preview, language and failure reason', () async {
@@ -89,7 +85,9 @@ void main() {
     test('each chip maps to the stored states it stands for', () async {
       Future<List<String?>> previewsFor(JobRunStatus? filter) async {
         cubit.selectFilter(filter);
-        await settle();
+        // The query re-runs asynchronously; wait for the list to reflect the chip.
+        await eventually(() => cubit.state.selectedFilter == filter);
+        await cubit.refresh();
         return cubit.state.jobs.map((j) => j.preview).toList();
       }
 
@@ -114,12 +112,11 @@ void main() {
       expect(cubit.state.searchQuery, 'ميزانية', reason: 'the field text is updated immediately');
       expect(cubit.state.jobs, hasLength(2), reason: 'but the query has not run yet');
 
-      await settle();
+      await eventually(() => cubit.state.jobs.length == 1);
       expect(cubit.state.jobs.map((j) => j.preview), ['ميزانية المشروع']);
 
       cubit.search('');
-      await settle();
-      expect(cubit.state.jobs, hasLength(2));
+      await eventually(() => cubit.state.jobs.length == 2);
     });
 
     test('searches the full transcript, not just the preview', () async {
@@ -128,8 +125,7 @@ void main() {
       await h.createJob('آخر');
       await cubit.fetchJobs();
       cubit.search('فريدة');
-      await settle();
-      expect(cubit.state.jobs, hasLength(1));
+      await eventually(() => cubit.state.jobs.length == 1);
     });
 
     test('search combines with the filter', () async {
@@ -139,7 +135,7 @@ void main() {
       await cubit.fetchJobs();
       cubit.selectFilter(JobRunStatus.failed);
       cubit.search('ميزانية');
-      await settle();
+      await eventually(() => cubit.state.jobs.length == 1);
       expect(cubit.state.jobs.map((j) => j.preview), ['ميزانية أ']);
     });
   });
@@ -173,7 +169,7 @@ void main() {
       await cubit.fetchJobs();
       await cubit.loadMore();
       cubit.selectFilter(JobRunStatus.pending);
-      await settle();
+      await eventually(() => cubit.state.jobs.length == JobsQuery.defaultLimit);
       expect(cubit.state.jobs, hasLength(JobsQuery.defaultLimit));
       expect(cubit.state.hasMore, isTrue);
     });
@@ -186,35 +182,45 @@ void main() {
       await cubit.fetchJobs();
 
       final future = cubit.deleteJob(a);
-      expect(cubit.state.jobs.map((j) => j.id).contains(a), isFalse, reason: 'optimistic removal, before the write finishes');
+      expect(
+        cubit.state.jobs.map((j) => j.id).contains(a),
+        isFalse,
+        reason: 'optimistic removal, before the write finishes',
+      );
       await future;
-      await settle();
+      await eventually(() => cubit.state.jobs.length == 1);
       expect(cubit.state.jobs, hasLength(1));
       expect(await h.repo.getJob(a), isNull);
       expect(cubit.state.deleteError, isNull);
     });
 
     test('a failed delete restores the row and signals the error once', () async {
-      final repo = JobsRepositoryImpl(FaultyJobsLocalDataSource(JobsLocalDataSourceImpl(h.db.jobsDao), {Fault.deleteJob}), newId: () => 'x');
+      final repo = JobsRepositoryImpl(
+        FaultyJobsLocalDataSource(JobsLocalDataSourceImpl(h.db.jobsDao), {Fault.deleteJob}),
+        newId: () => 'x',
+      );
       final flaky = JobsCubit(repo, searchDebounce: const Duration(milliseconds: 20));
       addTearDown(flaky.close);
       final id = await h.createJob('keep me');
       await flaky.fetchJobs();
 
       await flaky.deleteJob(id);
-      await settle();
+      await eventually(() => flaky.state.jobs.length == 1 && flaky.state.deleteErrorToken == 1);
       expect(flaky.state.jobs.map((j) => j.id), [id], reason: 'the row is back');
       expect(flaky.state.deleteError, AppError.storage);
       expect(flaky.state.deleteErrorToken, 1);
 
       await flaky.deleteJob(id);
-      await settle();
+      await eventually(() => flaky.state.deleteErrorToken == 2);
       expect(flaky.state.deleteErrorToken, 2, reason: 'a repeat failure re-signals');
     });
   });
 
   test('a failing query reports a storage error', () async {
-    final repo = JobsRepositoryImpl(FaultyJobsLocalDataSource(JobsLocalDataSourceImpl(h.db.jobsDao), {Fault.watchJobs}), newId: () => 'x');
+    final repo = JobsRepositoryImpl(
+      FaultyJobsLocalDataSource(JobsLocalDataSourceImpl(h.db.jobsDao), {Fault.watchJobs}),
+      newId: () => 'x',
+    );
     final failing = JobsCubit(repo);
     addTearDown(failing.close);
     await failing.fetchJobs();
@@ -235,6 +241,6 @@ void main() {
     await cubit.fetchJobs();
     await cubit.close();
     await h.createJob('after close');
-    await settle(); // must not throw (emit after close)
+    await quietPeriod(); // nothing to wait for: it must simply not throw (emit after close)
   });
 }

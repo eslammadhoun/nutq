@@ -23,5 +23,4 @@ void main() {
     final tokens = ArabicNormalizer.contentTokens('في المدرسة الكبيرة');
     expect(tokens, ['مدرسة', 'كبيرة']);
   });
-
 }

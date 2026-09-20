@@ -20,7 +20,15 @@ class SummaryEvaluation {
     this.tokensPerSecond = 0,
     this.chunkCount = 0,
   }) {
-    for (final v in [coverage, faithfulness, factuality, coherence, conciseness, redundancy, arabicQuality]) {
+    for (final v in [
+      coverage,
+      faithfulness,
+      factuality,
+      coherence,
+      conciseness,
+      redundancy,
+      arabicQuality,
+    ]) {
       assert(v == null || (v >= 0 && v <= 5), 'scores are 0.0–5.0, got $v');
     }
   }
@@ -43,9 +51,15 @@ class SummaryEvaluation {
 
   /// Mean of the scores that were measured.
   double? get overall {
-    final scores = [coverage, faithfulness, factuality, coherence, conciseness, redundancy, arabicQuality]
-        .whereType<double>()
-        .toList();
+    final scores = [
+      coverage,
+      faithfulness,
+      factuality,
+      coherence,
+      conciseness,
+      redundancy,
+      arabicQuality,
+    ].whereType<double>().toList();
     if (scores.isEmpty) return null;
     return scores.reduce((a, b) => a + b) / scores.length;
   }

@@ -1,10 +1,10 @@
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:nutq/core/database/app_database.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
 import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
-import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 

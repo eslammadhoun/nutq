@@ -46,13 +46,14 @@ void main() {
   });
 
   group('cache', () {
-    String key({String prompt = 'v1', String input = 'x', String cfg = 'c'}) => SummarizationCache.keyFor(
-      modelVersion: 'm',
-      promptVersion: prompt,
-      stage: 'local',
-      input: input,
-      configSignature: cfg,
-    );
+    String key({String prompt = 'v1', String input = 'x', String cfg = 'c'}) =>
+        SummarizationCache.keyFor(
+          modelVersion: 'm',
+          promptVersion: prompt,
+          stage: 'local',
+          input: input,
+          configSignature: cfg,
+        );
 
     test('key is stable and changes with prompt version, input or config', () {
       expect(key(), key());

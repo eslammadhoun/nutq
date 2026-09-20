@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutq/features/summarization/benchmark/benchmark_fixture.dart';
 import 'package:nutq/features/summarization/domain/text/arabic_normalizer.dart';
 
-Future<List<BenchmarkFixture>> loadFixtures() => BenchmarkFixture.loadDirectory(Directory('test/summarization/fixtures'));
+import '../support/benchmark/benchmark_fixture.dart';
+
+Future<List<BenchmarkFixture>> loadFixtures() =>
+    BenchmarkFixture.loadDirectory(Directory('test/summarization/fixtures'));
 
 void main() {
   test('dataset has 3 short, 3 medium and 3 long fixtures', () async {
@@ -44,7 +46,18 @@ void main() {
 
   test('coverage of the dataset spans the required categories', () async {
     final tags = (await loadFixtures()).expand((f) => f.category.split(',')).toSet();
-    for (final t in ['msa', 'levantine', 'conversational', 'technical', 'educational', 'numbers', 'dates', 'english_terms', 'repetition', 'long_context']) {
+    for (final t in [
+      'msa',
+      'levantine',
+      'conversational',
+      'technical',
+      'educational',
+      'numbers',
+      'dates',
+      'english_terms',
+      'repetition',
+      'long_context',
+    ]) {
       expect(tags, contains(t));
     }
   });

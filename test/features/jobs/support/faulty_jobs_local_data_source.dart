@@ -30,8 +30,7 @@ enum Fault {
 class FaultyJobsLocalDataSource implements JobsLocalDataSource {
   FaultyJobsLocalDataSource(this._inner, this._faults);
 
-  FaultyJobsLocalDataSource.everything(this._inner)
-    : _faults = Fault.values.toSet();
+  FaultyJobsLocalDataSource.everything(this._inner) : _faults = Fault.values.toSet();
 
   final JobsLocalDataSource _inner;
   final Set<Fault> _faults;
@@ -78,9 +77,7 @@ class FaultyJobsLocalDataSource implements JobsLocalDataSource {
     String id,
     Summary summary,
     DateTime at,
-  ) => _fails(Fault.completeJob)
-      ? Future.error(_error)
-      : _inner.completeJob(id, summary, at);
+  ) => _fails(Fault.completeJob) ? Future.error(_error) : _inner.completeJob(id, summary, at);
 
   @override
   Future<TransitionOutcome> saveTranscript(
@@ -96,9 +93,8 @@ class FaultyJobsLocalDataSource implements JobsLocalDataSource {
     String id,
     SourceInfo info,
     DateTime at,
-  ) => _fails(Fault.updateSourceInfo)
-      ? Future.error(_error)
-      : _inner.updateSourceInfo(id, info, at);
+  ) =>
+      _fails(Fault.updateSourceInfo) ? Future.error(_error) : _inner.updateSourceInfo(id, info, at);
 
   @override
   Future<void> deleteJob(String id) =>

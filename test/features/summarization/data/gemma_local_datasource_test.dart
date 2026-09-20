@@ -40,7 +40,13 @@ void main() {
       runtime.loadError = StateError('asset missing');
       await expectLater(
         source.activate(),
-        throwsA(isA<SummarizationFailure>().having((f) => f.kind, 'kind', SummarizationFailureKind.modelUnavailable)),
+        throwsA(
+          isA<SummarizationFailure>().having(
+            (f) => f.kind,
+            'kind',
+            SummarizationFailureKind.modelUnavailable,
+          ),
+        ),
       );
       runtime.loadError = null;
       await source.activate();
@@ -65,7 +71,11 @@ void main() {
       expect(response.durationMs, greaterThanOrEqualTo(0));
       expect(runtime.sessions.single.prompt, 'الموجه');
       expect(runtime.sessions.single.closed, isTrue);
-      expect(runtime.configs.single.maxOutputTokens, 123, reason: 'the generation config reaches the runtime');
+      expect(
+        runtime.configs.single.maxOutputTokens,
+        123,
+        reason: 'the generation config reaches the runtime',
+      );
       expect(runtime.configs.single.seed, 5);
     });
 
@@ -77,18 +87,29 @@ void main() {
     });
 
     test('retries once after a failure', () async {
-      runtime.sessionFor = (n) => n == 0 ? FakeLlmSession(error: StateError('flaky')) : FakeLlmSession(reply: 'نجح');
+      runtime.sessionFor = (n) =>
+          n == 0 ? FakeLlmSession(error: StateError('flaky')) : FakeLlmSession(reply: 'نجح');
       final response = await source.generate('p', config);
       expect(response.text, 'نجح');
       expect(runtime.sessions, hasLength(2));
-      expect(runtime.sessions.every((s) => s.closed), isTrue, reason: 'the failed attempt was closed too');
+      expect(
+        runtime.sessions.every((s) => s.closed),
+        isTrue,
+        reason: 'the failed attempt was closed too',
+      );
     });
 
     test('gives up after maxAttempts with the last error', () async {
       runtime.sessionFor = (n) => FakeLlmSession(error: StateError('failure $n'));
       await expectLater(
         source.generate('p', config),
-        throwsA(isA<GemmaGenerationException>().having((e) => e.message, 'message', contains('failure 1'))),
+        throwsA(
+          isA<GemmaGenerationException>().having(
+            (e) => e.message,
+            'message',
+            contains('failure 1'),
+          ),
+        ),
       );
       expect(runtime.sessions, hasLength(2));
     });
@@ -101,13 +122,15 @@ void main() {
     });
 
     test('an empty reply counts as a failure and is retried', () async {
-      runtime.sessionFor = (n) => n == 0 ? FakeLlmSession(reply: '  <end_of_turn> ') : FakeLlmSession(reply: 'محتوى');
+      runtime.sessionFor = (n) =>
+          n == 0 ? FakeLlmSession(reply: '  <end_of_turn> ') : FakeLlmSession(reply: 'محتوى');
       expect((await source.generate('p', config)).text, 'محتوى');
       expect(runtime.sessions, hasLength(2));
     });
 
     test('a session that fails to close does not fail the generation', () async {
-      runtime.sessionFor = (_) => FakeLlmSession(reply: 'ok', closeError: StateError('close failed'));
+      runtime.sessionFor = (_) =>
+          FakeLlmSession(reply: 'ok', closeError: StateError('close failed'));
       expect((await source.generate('p', config)).text, 'ok');
     });
 
@@ -127,7 +150,8 @@ void main() {
     });
 
     test('chat-template tokens never appear in partial text', () async {
-      runtime.sessionFor = (_) => FakeLlmSession(tokens: ['<start_of_turn>model\n', 'نص', ' نهائي', '<end_of_turn>']);
+      runtime.sessionFor = (_) =>
+          FakeLlmSession(tokens: ['<start_of_turn>model\n', 'نص', ' نهائي', '<end_of_turn>']);
       final partials = <String>[];
       final response = await source.generate('p', config, onPartial: partials.add);
       expect(partials.any((p) => p.contains('<')), isFalse);
@@ -135,15 +159,23 @@ void main() {
       expect(response.text, 'نص نهائي');
     });
 
-    test('a failure mid-stream is retried and the partial text restarts from the beginning', () async {
-      runtime.sessionFor = (n) => n == 0
-          ? _FailingStreamSession(['نص', ' قديم'])
-          : FakeLlmSession(tokens: ['نص', ' جديد']);
-      final partials = <String>[];
-      final response = await source.generate('p', config, onPartial: partials.add);
-      expect(response.text, 'نص جديد');
-      expect(partials, ['نص', 'نص قديم', 'نص', 'نص جديد'], reason: 'the second attempt replaces, not appends');
-    });
+    test(
+      'a failure mid-stream is retried and the partial text restarts from the beginning',
+      () async {
+        runtime.sessionFor = (n) => n == 0
+            ? _FailingStreamSession(['نص', ' قديم'])
+            : FakeLlmSession(tokens: ['نص', ' جديد']);
+        final partials = <String>[];
+        final response = await source.generate('p', config, onPartial: partials.add);
+        expect(response.text, 'نص جديد');
+        expect(partials, [
+          'نص',
+          'نص قديم',
+          'نص',
+          'نص جديد',
+        ], reason: 'the second attempt replaces, not appends');
+      },
+    );
 
     test('without onPartial the reply is requested whole', () async {
       runtime.sessionFor = (_) => FakeLlmSession(reply: 'كامل', tokens: ['لن', 'يستخدم']);
@@ -189,17 +221,25 @@ void main() {
       expect(session.stopCalls, 1);
     });
 
-    test('a failure that happens while cancelling is reported as cancellation, even on the last attempt', () async {
-      final gate = Completer<void>();
-      runtime.sessionFor = (_) => FakeLlmSession(gate: gate, error: StateError('stopped abruptly'));
-      final lastAttempt = GemmaLocalDataSourceImpl(runtime, maxAttempts: 1);
-      final generation = lastAttempt.generate('p', config);
-      await pumpEventQueue();
-      await lastAttempt.cancel();
-      gate.complete();
-      await expectLater(generation, throwsA(isA<CancelledException>()), reason: 'not a GemmaGenerationException');
-      expect(runtime.sessions, hasLength(1));
-    });
+    test(
+      'a failure that happens while cancelling is reported as cancellation, even on the last attempt',
+      () async {
+        final gate = Completer<void>();
+        runtime.sessionFor = (_) =>
+            FakeLlmSession(gate: gate, error: StateError('stopped abruptly'));
+        final lastAttempt = GemmaLocalDataSourceImpl(runtime, maxAttempts: 1);
+        final generation = lastAttempt.generate('p', config);
+        await pumpEventQueue();
+        await lastAttempt.cancel();
+        gate.complete();
+        await expectLater(
+          generation,
+          throwsA(isA<CancelledException>()),
+          reason: 'not a GemmaGenerationException',
+        );
+        expect(runtime.sessions, hasLength(1));
+      },
+    );
 
     test('cancelling when idle is harmless, and the next job is not affected', () async {
       await source.cancel();

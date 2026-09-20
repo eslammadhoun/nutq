@@ -1,12 +1,12 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/database/app_database.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/jobs/data/local/daos/jobs_dao.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
-import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
-import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 
 import '../support/job_fixtures.dart';
@@ -44,13 +44,14 @@ void main() {
     JobTranscriptsCompanion.insert(jobId: id, content: text, wordCount: 1),
   );
 
-  JobSummariesCompanion summary(String id, {List<String> takeaways = const ['a']}) => JobSummariesCompanion.insert(
-    jobId: id,
-    summaryText: 'ملخص',
-    takeaways: takeaways,
-    modelName: 'm',
-    promptVersion: 'v1',
-  );
+  JobSummariesCompanion summary(String id, {List<String> takeaways = const ['a']}) =>
+      JobSummariesCompanion.insert(
+        jobId: id,
+        summaryText: 'ملخص',
+        takeaways: takeaways,
+        modelName: 'm',
+        promptVersion: 'v1',
+      );
 
   test('schema version and foreign keys are set up', () async {
     expect(db.schemaVersion, 2);
@@ -102,26 +103,29 @@ void main() {
 
     test('a transcript for a missing job is rejected (foreign keys enforced)', () async {
       await expectLater(
-        db.into(db.jobTranscripts).insert(JobTranscriptsCompanion.insert(jobId: 'ghost', content: 'c', wordCount: 1)),
+        db
+            .into(db.jobTranscripts)
+            .insert(JobTranscriptsCompanion.insert(jobId: 'ghost', content: 'c', wordCount: 1)),
         throwsA(isA<Exception>()),
       );
     });
   });
 
   group('v2: optional transcript, transcript and source updates', () {
-    Future<void> insertWithoutTranscript(String id, {JobRunStatus status = JobRunStatus.pending}) => dao.insertJob(
-      JobsCompanion.insert(
-        id: id,
-        status: status,
-        sourceType: JobSourceType.audio,
-        sourceLanguage: ContentLanguage.ar,
-        requestedLength: SummaryLength.medium,
-        createdAt: t0,
-        updatedAt: t0,
-        sourceFilePath: const Value('/f.m4a'),
-      ),
-      null,
-    );
+    Future<void> insertWithoutTranscript(String id, {JobRunStatus status = JobRunStatus.pending}) =>
+        dao.insertJob(
+          JobsCompanion.insert(
+            id: id,
+            status: status,
+            sourceType: JobSourceType.audio,
+            sourceLanguage: ContentLanguage.ar,
+            requestedLength: SummaryLength.medium,
+            createdAt: t0,
+            updatedAt: t0,
+            sourceFilePath: const Value('/f.m4a'),
+          ),
+          null,
+        );
 
     test('a job can be inserted with no transcript', () async {
       await insertWithoutTranscript('m');
@@ -151,8 +155,14 @@ void main() {
     test('saveTranscript is rejected for a finished or missing job', () async {
       await insertWithoutTranscript('done', status: JobRunStatus.completed);
       final companion = JobTranscriptsCompanion.insert(jobId: 'done', content: 'x', wordCount: 1);
-      expect(await dao.saveTranscript('done', companion, preview: 'x', at: t0), TransitionOutcome.invalidState);
-      expect(await dao.saveTranscript('nope', companion, preview: 'x', at: t0), TransitionOutcome.notFound);
+      expect(
+        await dao.saveTranscript('done', companion, preview: 'x', at: t0),
+        TransitionOutcome.invalidState,
+      );
+      expect(
+        await dao.saveTranscript('nope', companion, preview: 'x', at: t0),
+        TransitionOutcome.notFound,
+      );
       expect((await dao.getDetail('done'))!.transcript, isNull, reason: 'nothing was written');
     });
 
@@ -160,7 +170,11 @@ void main() {
       await insertWithoutTranscript('m');
       final outcome = await dao.updateSource(
         'm',
-        JobsCompanion(updatedAt: Value(t0), sourceTitle: const Value('Title'), durationSeconds: const Value(12.5)),
+        JobsCompanion(
+          updatedAt: Value(t0),
+          sourceTitle: const Value('Title'),
+          durationSeconds: const Value(12.5),
+        ),
       );
       expect(outcome, TransitionOutcome.applied);
       final job = (await dao.getDetail('m'))!.job;
@@ -193,7 +207,9 @@ void main() {
       await insert('f', status: JobRunStatus.failed);
       final done = await dao.watchJobs(const JobsQuery(statuses: {JobRunStatus.completed})).first;
       expect(done.map((j) => j.id), ['c']);
-      final two = await dao.watchJobs(const JobsQuery(statuses: {JobRunStatus.completed, JobRunStatus.failed})).first;
+      final two = await dao
+          .watchJobs(const JobsQuery(statuses: {JobRunStatus.completed, JobRunStatus.failed}))
+          .first;
       expect(two.map((j) => j.id).toSet(), {'c', 'f'});
     });
 
@@ -208,7 +224,9 @@ void main() {
     test('search matches the preview or the full transcript text', () async {
       await insert('p', text: 'كلمة نادرة في النص الكامل هنا', preview: 'بداية النص');
       await insert('q', text: 'شيء آخر', preview: 'موضوع الميزانية');
-      expect((await dao.watchJobs(const JobsQuery(text: 'الميزانية')).first).map((j) => j.id), ['q']);
+      expect((await dao.watchJobs(const JobsQuery(text: 'الميزانية')).first).map((j) => j.id), [
+        'q',
+      ]);
       expect((await dao.watchJobs(const JobsQuery(text: 'نادرة')).first).map((j) => j.id), ['p']);
       expect(await dao.watchJobs(const JobsQuery(text: 'لا شيء')).first, isEmpty);
     });
@@ -224,29 +242,50 @@ void main() {
       await insert('under', text: 'snake_case name');
       await insert('other', text: 'plain text');
       expect((await dao.watchJobs(const JobsQuery(text: '50%')).first).map((j) => j.id), ['pct']);
-      expect((await dao.watchJobs(const JobsQuery(text: 'snake_case')).first).map((j) => j.id), ['under']);
-      expect(await dao.watchJobs(const JobsQuery(text: '%')).first, hasLength(1), reason: '% only matches a literal percent sign');
-      expect(await dao.watchJobs(const JobsQuery(text: '_')).first, hasLength(1), reason: '_ only matches a literal underscore');
+      expect((await dao.watchJobs(const JobsQuery(text: 'snake_case')).first).map((j) => j.id), [
+        'under',
+      ]);
+      expect(
+        await dao.watchJobs(const JobsQuery(text: '%')).first,
+        hasLength(1),
+        reason: '% only matches a literal percent sign',
+      );
+      expect(
+        await dao.watchJobs(const JobsQuery(text: '_')).first,
+        hasLength(1),
+        reason: '_ only matches a literal underscore',
+      );
       expect(await dao.watchJobs(const JobsQuery(text: r'\')).first, isEmpty);
     });
 
     test('status filter and search combine', () async {
       await insert('a', text: 'ميزانية', status: JobRunStatus.completed);
       await insert('b', text: 'ميزانية', status: JobRunStatus.failed);
-      final rows = await dao.watchJobs(const JobsQuery(text: 'ميزانية', statuses: {JobRunStatus.failed})).first;
+      final rows = await dao
+          .watchJobs(const JobsQuery(text: 'ميزانية', statuses: {JobRunStatus.failed}))
+          .first;
       expect(rows.map((j) => j.id), ['b']);
     });
 
     test('the stream re-emits when rows change', () async {
       final emissions = <List<String>>[];
-      final sub = dao.watchJobs(const JobsQuery()).listen((rows) => emissions.add([for (final r in rows) r.id]));
+      final sub = dao
+          .watchJobs(const JobsQuery())
+          .listen((rows) => emissions.add([for (final r in rows) r.id]));
       await pumpEventQueue();
       await insert('a');
       await pumpEventQueue();
       await dao.deleteJob('a');
       await pumpEventQueue();
       await sub.cancel();
-      expect(emissions, containsAllInOrder([<String>[], ['a'], <String>[]]));
+      expect(
+        emissions,
+        containsAllInOrder([
+          <String>[],
+          ['a'],
+          <String>[],
+        ]),
+      );
     });
   });
 
@@ -291,12 +330,20 @@ void main() {
   group('completeJob', () {
     test('writes the summary and the status together', () async {
       await insert('a', status: JobRunStatus.running);
-      final outcome = await dao.completeJob('a', summary('a', takeaways: ['نقطة "١"', 'two, three', "it's"]), t0);
+      final outcome = await dao.completeJob(
+        'a',
+        summary('a', takeaways: ['نقطة "١"', 'two, three', "it's"]),
+        t0,
+      );
       expect(outcome, TransitionOutcome.applied);
       final rows = (await dao.getDetail('a'))!;
       expect(rows.job.status, JobRunStatus.completed);
       expect(rows.summary!.summaryText, 'ملخص');
-      expect(rows.summary!.takeaways, ['نقطة "١"', 'two, three', "it's"], reason: 'JSON round-trip keeps order and quoting');
+      expect(rows.summary!.takeaways, [
+        'نقطة "١"',
+        'two, three',
+        "it's",
+      ], reason: 'JSON round-trip keeps order and quoting');
       expect(rows.summary!.needsReview, isFalse);
     });
 

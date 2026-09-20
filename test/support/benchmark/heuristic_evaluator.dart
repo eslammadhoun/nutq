@@ -1,10 +1,11 @@
 import 'dart:math';
 
-import 'package:nutq/features/summarization/benchmark/benchmark_fixture.dart';
-import 'package:nutq/features/summarization/benchmark/summary_evaluation.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_result.dart';
 import 'package:nutq/features/summarization/domain/entities/validation_report.dart';
 import 'package:nutq/features/summarization/domain/text/arabic_normalizer.dart';
+
+import 'benchmark_fixture.dart';
+import 'summary_evaluation.dart';
 
 /// Deterministic proxy scores (0–5). They make configurations comparable
 /// and catch regressions, but they are **not** a substitute for human
@@ -18,7 +19,9 @@ class HeuristicSummaryEvaluator {
 
   static final _arabicLetter = RegExp(r'[؀-ۿ]');
   static final _letter = RegExp(r'\p{L}', unicode: true);
-  static final _artifacts = RegExp(r'MAIN:|POINTS:|FACTS:|SOURCE:|<end_of_turn>|<start_of_turn>|LOCAL SUMMARIES');
+  static final _artifacts = RegExp(
+    r'MAIN:|POINTS:|FACTS:|SOURCE:|<end_of_turn>|<start_of_turn>|LOCAL SUMMARIES',
+  );
 
   SummaryEvaluation evaluate(BenchmarkFixture fixture, SummaryResult result) {
     final summary = result.summary;
@@ -86,7 +89,9 @@ class HeuristicSummaryEvaluator {
 
   /// 5 × the share of unique word trigrams (repetition lowers it).
   double _redundancy(String summary) {
-    final tokens = ArabicNormalizer.normalize(summary).split(RegExp(r'\s+')).where((t) => t.isNotEmpty).toList();
+    final tokens = ArabicNormalizer.normalize(
+      summary,
+    ).split(RegExp(r'\s+')).where((t) => t.isNotEmpty).toList();
     if (tokens.length < 3) return 5;
     final grams = <String>[
       for (var i = 0; i + 2 < tokens.length; i++) '${tokens[i]} ${tokens[i + 1]} ${tokens[i + 2]}',

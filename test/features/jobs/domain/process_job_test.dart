@@ -90,7 +90,9 @@ void main() {
     test('a pipeline failure marks the job failed with a matching reason', () async {
       final id = await h.createJob(sampleTranscript);
       h.gemma.responder = (prompt, call) async {
-        if (prompt.contains('final summary of a full lecture')) throw const GemmaGenerationException('x');
+        if (prompt.contains('final summary of a full lecture')) {
+          throw const GemmaGenerationException('x');
+        }
         return null;
       };
       await h.processJob(id).events.drain<void>();
@@ -178,7 +180,11 @@ void main() {
       gate.complete();
       await Future.wait([first, second]);
 
-      expect(await statusOf(id), JobRunStatus.completed, reason: 'the loser did not fail or cancel the job');
+      expect(
+        await statusOf(id),
+        JobRunStatus.completed,
+        reason: 'the loser did not fail or cancel the job',
+      );
       expect(h.gemma.calls, greaterThan(0));
     });
 
@@ -206,7 +212,11 @@ void main() {
     late FakeMediaSource audio;
 
     Future<String> audioJob() async => (await h.repo.createJob(
-      NewJobDraft.media(type: JobSourceType.audio, filePath: '/f.m4a', language: ContentLanguage.ar),
+      NewJobDraft.media(
+        type: JobSourceType.audio,
+        filePath: '/f.m4a',
+        language: ContentLanguage.ar,
+      ),
     )).id;
 
     Future<void> useSource(FakeMediaSource source) async {
@@ -227,7 +237,11 @@ void main() {
     test('resolves, stores the transcript with its model, then summarizes it', () async {
       await useSource(FakeMediaSource());
       final id = await audioJob();
-      expect((await h.repo.getJob(id))!.transcript, isNull, reason: 'no transcript before the source runs');
+      expect(
+        (await h.repo.getJob(id))!.transcript,
+        isNull,
+        reason: 'no transcript before the source runs',
+      );
 
       await h.processJob(id).events.drain<void>();
 
@@ -237,31 +251,57 @@ void main() {
       expect(job.transcript!.modelName, 'fake-asr');
       expect(job.transcript!.wordCount, audio.text.split(' ').length);
       expect(job.summary, isNotNull);
-      expect(h.gemma.prompts.first, contains(audio.text), reason: 'the summary is made from the resolved text');
+      expect(
+        h.gemma.prompts.first,
+        contains(audio.text),
+        reason: 'the summary is made from the resolved text',
+      );
     });
 
-    test('source and summarization progress share one monotonic bar split at the source share', () async {
-      await useSource(FakeMediaSource(progressShare: 0.4));
-      final id = await audioJob();
-      final progress = (await h.processJob(id).events.toList()).whereType<JobRunProgress>().map((e) => e.progress).toList();
+    test(
+      'source and summarization progress share one monotonic bar split at the source share',
+      () async {
+        await useSource(FakeMediaSource(progressShare: 0.4));
+        final id = await audioJob();
+        final progress = (await h.processJob(id).events.toList())
+            .whereType<JobRunProgress>()
+            .map((e) => e.progress)
+            .toList();
 
-      final stages = progress.map((p) => p.stage).toList();
-      expect(stages, containsAll([JobStage.acquiring, JobStage.transcribing, JobStage.analyzing]));
-      for (var i = 1; i < progress.length; i++) {
-        expect(progress[i].fraction, greaterThanOrEqualTo(progress[i - 1].fraction), reason: 'step $i (${progress[i].stage})');
-      }
-      final lastSourceFraction = progress.lastWhere((p) => p.stage == JobStage.transcribing).fraction;
-      expect(lastSourceFraction, closeTo(0.4, 1e-9), reason: 'the source fills exactly its share');
-      final firstSummarization = progress.firstWhere((p) => p.stage == JobStage.analyzing);
-      expect(firstSummarization.fraction, greaterThanOrEqualTo(0.4));
-      expect(progress.last.fraction, 1.0);
-    });
+        final stages = progress.map((p) => p.stage).toList();
+        expect(
+          stages,
+          containsAll([JobStage.acquiring, JobStage.transcribing, JobStage.analyzing]),
+        );
+        for (var i = 1; i < progress.length; i++) {
+          expect(
+            progress[i].fraction,
+            greaterThanOrEqualTo(progress[i - 1].fraction),
+            reason: 'step $i (${progress[i].stage})',
+          );
+        }
+        final lastSourceFraction = progress
+            .lastWhere((p) => p.stage == JobStage.transcribing)
+            .fraction;
+        expect(
+          lastSourceFraction,
+          closeTo(0.4, 1e-9),
+          reason: 'the source fills exactly its share',
+        );
+        final firstSummarization = progress.firstWhere((p) => p.stage == JobStage.analyzing);
+        expect(firstSummarization.fraction, greaterThanOrEqualTo(0.4));
+        expect(progress.last.fraction, 1.0);
+      },
+    );
 
     test('the bar never goes backwards even if a source restarts its own scale per phase', () async {
       // FakeMediaSource reports acquiring 0.5→1 then transcribing 0.5→1, so its raw fractions dip.
       await useSource(FakeMediaSource(progressShare: 0.4));
       final id = await audioJob();
-      final raw = (await h.processJob(id).events.toList()).whereType<JobRunProgress>().map((e) => e.progress.fraction).toList();
+      final raw = (await h.processJob(id).events.toList())
+          .whereType<JobRunProgress>()
+          .map((e) => e.progress.fraction)
+          .toList();
       expect(raw.toSet().length, greaterThan(3));
       for (var i = 1; i < raw.length; i++) {
         expect(raw[i], greaterThanOrEqualTo(raw[i - 1]));
@@ -269,7 +309,11 @@ void main() {
     });
 
     test('what the source learns about the media is stored while it works', () async {
-      await useSource(FakeMediaSource(info: const SourceInfo(title: 'Lecture 3', durationSeconds: 1800, filePath: '/dl/l3.m4a')));
+      await useSource(
+        FakeMediaSource(
+          info: const SourceInfo(title: 'Lecture 3', durationSeconds: 1800, filePath: '/dl/l3.m4a'),
+        ),
+      );
       final id = await audioJob();
       await h.processJob(id).events.drain<void>();
       final job = (await h.repo.getJob(id))!;
@@ -278,16 +322,21 @@ void main() {
       expect(job.sourceFilePath, '/dl/l3.m4a');
     });
 
-    test('a source failure fails the job with its own reason and never reaches the model', () async {
-      await useSource(FakeMediaSource(error: const JobFailure(JobFailureKind.sourceUnavailable, 'offline')));
-      final id = await audioJob();
-      await h.processJob(id).events.drain<void>();
-      final job = (await h.repo.getJob(id))!;
-      expect(job.status, JobRunStatus.failed);
-      expect(job.failureKind, JobFailureKind.sourceUnavailable);
-      expect(job.transcript, isNull);
-      expect(h.gemma.calls, 0);
-    });
+    test(
+      'a source failure fails the job with its own reason and never reaches the model',
+      () async {
+        await useSource(
+          FakeMediaSource(error: const JobFailure(JobFailureKind.sourceUnavailable, 'offline')),
+        );
+        final id = await audioJob();
+        await h.processJob(id).events.drain<void>();
+        final job = (await h.repo.getJob(id))!;
+        expect(job.status, JobRunStatus.failed);
+        expect(job.failureKind, JobFailureKind.sourceUnavailable);
+        expect(job.transcript, isNull);
+        expect(h.gemma.calls, 0);
+      },
+    );
 
     test('a source returning blank text fails the job as an empty transcript', () async {
       await useSource(FakeMediaSource(text: '   '));
@@ -312,14 +361,17 @@ void main() {
       expect(h.gemma.calls, 0);
     });
 
-    test('a text job whose source has nothing to resolve fails instead of hanging as pending', () async {
-      final id = await h.createJob('   x   ');
-      // Simulate a stored job that lost its transcript.
-      await h.db.customStatement('DELETE FROM job_transcripts');
-      await h.processJob(id).events.drain<void>();
-      final job = (await h.repo.getJob(id))!;
-      expect(job.status, JobRunStatus.failed, reason: 'never silently left pending');
-      expect(job.failureKind, JobFailureKind.emptyTranscript);
-    });
+    test(
+      'a text job whose source has nothing to resolve fails instead of hanging as pending',
+      () async {
+        final id = await h.createJob('   x   ');
+        // Simulate a stored job that lost its transcript.
+        await h.db.customStatement('DELETE FROM job_transcripts');
+        await h.processJob(id).events.drain<void>();
+        final job = (await h.repo.getJob(id))!;
+        expect(job.status, JobRunStatus.failed, reason: 'never silently left pending');
+        expect(job.failureKind, JobFailureKind.emptyTranscript);
+      },
+    );
   });
 }

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
@@ -9,7 +10,6 @@ import 'package:nutq/features/jobs/domain/services/job_scheduler.dart';
 import 'package:nutq/features/jobs/domain/usecases/submit_job.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
-import 'package:nutq/core/domain/content_language.dart';
 
 import 'support/faulty_jobs_local_data_source.dart';
 import 'support/job_harness.dart';
@@ -44,7 +44,12 @@ void main() {
     return cubit;
   }
 
-  const audio = UploadFile(name: 'talk.m4a', path: '/app/files/talk.m4a', sizeBytes: 1000, contentType: 'audio/mp4');
+  const audio = UploadFile(
+    name: 'talk.m4a',
+    path: '/app/files/talk.m4a',
+    sizeBytes: 1000,
+    contentType: 'audio/mp4',
+  );
 
   group('what can be submitted', () {
     test('only a non-empty text source is valid by default', () {
@@ -122,7 +127,8 @@ void main() {
     });
 
     test('an audio job carries its stored file, type and name', () async {
-      final cubit = recording(supported: JobSourceType.values.toSet())..changeSourceType(JobSourceType.audio.index);
+      final cubit = recording(supported: JobSourceType.values.toSet())
+        ..changeSourceType(JobSourceType.audio.index);
       cubit.emit(cubit.state.copyWith(pickedFile: audio));
       await cubit.submit();
       final stored = (await h.repo.getJob(cubit.state.submittedJobId!))!;
@@ -164,7 +170,10 @@ void main() {
         FaultyJobsLocalDataSource(JobsLocalDataSourceImpl(h.db.jobsDao), {Fault.insertJob}),
         newId: () => 'x',
       );
-      final failing = NewJobCubit(SubmitJob(repo, scheduler), supportedSources: const {JobSourceType.text});
+      final failing = NewJobCubit(
+        SubmitJob(repo, scheduler),
+        supportedSources: const {JobSourceType.text},
+      );
       addTearDown(failing.close);
       failing.setText('نص');
 
@@ -176,7 +185,11 @@ void main() {
       expect(scheduler.enqueued, isEmpty);
 
       await failing.submit();
-      expect(failing.state.status, NewJobStatus.failure, reason: 'a failed submit can be attempted again');
+      expect(
+        failing.state.status,
+        NewJobStatus.failure,
+        reason: 'a failed submit can be attempted again',
+      );
     });
   });
 }

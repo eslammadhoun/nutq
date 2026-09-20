@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutq/features/summarization/benchmark/baseline_summarizer.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 
 import '../../features/summarization/support/fake_gemma.dart';
+import '../../support/benchmark/baseline_summarizer.dart';
 
 void main() {
   late FakeGemma gemma;
@@ -12,7 +12,10 @@ void main() {
 
   setUp(() {
     gemma = FakeGemma();
-    baseline = BaselineSummarizer(SummarizationRepositoryImpl(dataSource: gemma), wordsPerChunk: 50);
+    baseline = BaselineSummarizer(
+      SummarizationRepositoryImpl(dataSource: gemma),
+      wordsPerChunk: 50,
+    );
   });
 
   test('splits by fixed word windows, summarizes each and concatenates in order', () async {

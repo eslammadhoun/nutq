@@ -5,8 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/core/theme/app_colors.dart';
 import 'package:nutq/core/theme/app_theme.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/job_progress.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/job_stage.dart';
@@ -20,13 +22,15 @@ import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_p
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_status_hero_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/summary_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/transcript_card.dart';
-import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
-import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
 import 'support/job_harness.dart';
 
-Future<void> _pump(WidgetTester tester, JobDetailCubit cubit, {Locale locale = const Locale('en')}) async {
+Future<void> _pump(
+  WidgetTester tester,
+  JobDetailCubit cubit, {
+  Locale locale = const Locale('en'),
+}) async {
   tester.view.physicalSize = const Size(390 * 3, 844 * 3);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
@@ -96,7 +100,9 @@ void main() {
     await advance(tester, 100);
   }
 
-  testWidgets('shows the live progress card while running, then the finished summary', (tester) async {
+  testWidgets('shows the live progress card while running, then the finished summary', (
+    tester,
+  ) async {
     final gate = Completer<void>();
     h.gemma.responder = (prompt, call) async {
       if (call == 3) await gate.future;
@@ -110,7 +116,9 @@ void main() {
     expect(find.textContaining('sections'), findsOneWidget);
     expect(find.text('Cancel Job'), findsOneWidget);
     expect(find.text("The summary isn't ready yet."), findsOneWidget);
-    final barBefore = tester.widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator)).value!;
+    final barBefore = tester
+        .widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator))
+        .value!;
 
     gate.complete();
     await untilSettled(tester, cubit);
@@ -124,22 +132,25 @@ void main() {
     expect(barBefore, lessThan(1.0));
   });
 
-  testWidgets('a reopened finished job shows its stored summary with no progress and no model run', (tester) async {
-    final first = await open(tester, sampleTranscript);
-    await untilSettled(tester, first);
-    final id = first.jobId;
-    final callsAfterFirst = h.gemma.calls;
+  testWidgets(
+    'a reopened finished job shows its stored summary with no progress and no model run',
+    (tester) async {
+      final first = await open(tester, sampleTranscript);
+      await untilSettled(tester, first);
+      final id = first.jobId;
+      final callsAfterFirst = h.gemma.calls;
 
-    final reopened = h.detailCubit(id);
-    addTearDown(reopened.close);
-    await _pump(tester, reopened);
-    await advance(tester, 100);
+      final reopened = h.detailCubit(id);
+      addTearDown(reopened.close);
+      await _pump(tester, reopened);
+      await advance(tester, 100);
 
-    expect(find.byType(JobProgressCard), findsNothing);
-    expect(find.text('الملخص النهائي للمحاضرة'), findsOneWidget);
-    expect(find.text('Summary Complete'), findsOneWidget);
-    expect(h.gemma.calls, callsAfterFirst);
-  });
+      expect(find.byType(JobProgressCard), findsNothing);
+      expect(find.text('الملخص النهائي للمحاضرة'), findsOneWidget);
+      expect(find.text('Summary Complete'), findsOneWidget);
+      expect(h.gemma.calls, callsAfterFirst);
+    },
+  );
 
   testWidgets('an interrupted job shows a localized notice, not raw error text', (tester) async {
     final cubit = await open(
@@ -154,7 +165,10 @@ void main() {
     await advance(tester, 100);
 
     expect(cubit.state.job!.failureKind, JobFailureKind.interrupted);
-    expect(find.text('This job was interrupted because the app was closed before it finished.'), findsOneWidget);
+    expect(
+      find.text('This job was interrupted because the app was closed before it finished.'),
+      findsOneWidget,
+    );
     expect(find.byType(JobProgressCard), findsNothing);
     expect(find.text('Failed'), findsWidgets);
     expect(h.gemma.calls, 0);
@@ -206,7 +220,9 @@ void main() {
     expect(find.text('Cancelled'), findsWidgets);
   });
 
-  testWidgets('summary text appears word by word, fully expanded, while the job runs', (tester) async {
+  testWidgets('summary text appears word by word, fully expanded, while the job runs', (
+    tester,
+  ) async {
     const longFinal =
         'الملخص النهائي يشرح الفكرة الرئيسية للمحاضرة ثم ينتقل إلى النقاط المهمة والأرقام والتواريخ ويختم بالخلاصة والتوصيات النهائية للمستمعين في نهاية اللقاء';
     h.gemma.wordDelay = const Duration(milliseconds: 30);
@@ -218,7 +234,9 @@ void main() {
     for (var i = 0; i < 120; i++) {
       await advance(tester, 20);
       final live = cubit.state.streamingSummary;
-      if (live != null && !(cubit.state.job?.status.isTerminal ?? false) && (seen.isEmpty || seen.last != live)) {
+      if (live != null &&
+          !(cubit.state.job?.status.isTerminal ?? false) &&
+          (seen.isEmpty || seen.last != live)) {
         seen.add(live);
         expect(find.text(live), findsOneWidget, reason: 'partial text is on screen: "$live"');
         expect(
@@ -233,10 +251,15 @@ void main() {
     expect(seen, isNotEmpty);
     expect(find.text(longFinal), findsOneWidget);
     expect(cubit.state.job!.status, JobRunStatus.completed);
-    expect(find.descendant(of: find.byType(SummaryCard), matching: find.text('Show more')), findsNothing);
+    expect(
+      find.descendant(of: find.byType(SummaryCard), matching: find.text('Show more')),
+      findsNothing,
+    );
   });
 
-  testWidgets('completed state matches the Figma Job Detail measurements and colors', (tester) async {
+  testWidgets('completed state matches the Figma Job Detail measurements and colors', (
+    tester,
+  ) async {
     final cubit = await open(tester, sampleTranscript);
     await untilSettled(tester, cubit);
     expect(cubit.state.job!.status, JobRunStatus.completed);
@@ -247,9 +270,18 @@ void main() {
     expect(hero.width, 358);
     expect(hero.height, greaterThanOrEqualTo(132));
 
-    final cardBox = tester
-        .widget<Container>(find.descendant(of: find.byType(JobDetailSectionCard).first, matching: find.byType(Container)).first)
-        .decoration! as BoxDecoration;
+    final cardBox =
+        tester
+                .widget<Container>(
+                  find
+                      .descendant(
+                        of: find.byType(JobDetailSectionCard).first,
+                        matching: find.byType(Container),
+                      )
+                      .first,
+                )
+                .decoration!
+            as BoxDecoration;
     expect(cardBox.color, colors.surface);
     expect(cardBox.border, isNull);
     expect(cardBox.borderRadius, BorderRadius.circular(16));
@@ -258,22 +290,34 @@ void main() {
     expect(cardBox.boxShadow!.single.color.a, closeTo(0.05, 0.001));
 
     expect(tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor, colors.page);
-    final appBar = tester.widget<Container>(find.descendant(of: find.byType(JobDetailAppBar), matching: find.byType(Container)).first);
+    final appBar = tester.widget<Container>(
+      find.descendant(of: find.byType(JobDetailAppBar), matching: find.byType(Container)).first,
+    );
     expect((appBar.decoration! as BoxDecoration).color, colors.surface);
     expect(tester.getSize(find.byType(JobDetailAppBar)).height, 56);
 
     expect(tester.getSize(find.byType(JobDetailActionBar)).height, 72);
-    final copy = tester.widget<Container>(find.ancestor(of: find.text('Copy Text'), matching: find.byType(Container)).first);
+    final copy = tester.widget<Container>(
+      find.ancestor(of: find.text('Copy Text'), matching: find.byType(Container)).first,
+    );
     expect((copy.decoration! as BoxDecoration).color, colors.navIndicator);
     expect(colors.navIndicator, const Color(0xFF1A56DB));
-    final share = tester.widget<Container>(find.ancestor(of: find.text('Share'), matching: find.byType(Container)).first);
+    final share = tester.widget<Container>(
+      find.ancestor(of: find.text('Share'), matching: find.byType(Container)).first,
+    );
     expect((share.decoration! as BoxDecoration).color, colors.borderDefault);
 
     final language = find.ancestor(of: find.text('Arabic'), matching: find.byType(Container)).first;
     expect(tester.getSize(language).height, 26);
-    expect((tester.widget<Container>(language).decoration! as BoxDecoration).color, colors.statusProcessingBg);
+    expect(
+      (tester.widget<Container>(language).decoration! as BoxDecoration).color,
+      colors.statusProcessingBg,
+    );
     final tone = find.ancestor(of: find.text('Medium'), matching: find.byType(Container)).first;
-    expect((tester.widget<Container>(tone).decoration! as BoxDecoration).color, colors.statusDoneBg);
+    expect(
+      (tester.widget<Container>(tone).decoration! as BoxDecoration).color,
+      colors.statusDoneBg,
+    );
   });
 
   group('text direction follows the job language, not the app locale', () {
@@ -281,57 +325,77 @@ void main() {
     const chipPad = 12.0;
     const headerTextInset = 28.0;
 
-    testWidgets('Arabic job in an English app: transcript, summary and takeaways start from the right', (tester) async {
-      const transcript = 'نص قصير.';
-      const summary = 'ملخص قصير.';
-      h.gemma.responder = (prompt, call) async {
-        if (prompt.contains('information extraction assistant')) return 'MAIN:\nنقطة رئيسية';
-        if (prompt.contains('final summary of a full lecture')) return summary;
-        return null;
-      };
-      final cubit = await open(tester, transcript);
-      await untilSettled(tester, cubit);
-      expect(cubit.state.job!.status, JobRunStatus.completed);
+    testWidgets(
+      'Arabic job in an English app: transcript, summary and takeaways start from the right',
+      (tester) async {
+        const transcript = 'نص قصير.';
+        const summary = 'ملخص قصير.';
+        h.gemma.responder = (prompt, call) async {
+          if (prompt.contains('information extraction assistant')) return 'MAIN:\nنقطة رئيسية';
+          if (prompt.contains('final summary of a full lecture')) return summary;
+          return null;
+        };
+        final cubit = await open(tester, transcript);
+        await untilSettled(tester, cubit);
+        expect(cubit.state.job!.status, JobRunStatus.completed);
 
-      final transcriptCard = find.byType(TranscriptCard);
-      final summaryCard = find.byType(SummaryCard);
-      final tRight = tester.getTopRight(transcriptCard).dx - cardPad;
-      final sRight = tester.getTopRight(summaryCard).dx - cardPad;
+        final transcriptCard = find.byType(TranscriptCard);
+        final summaryCard = find.byType(SummaryCard);
+        final tRight = tester.getTopRight(transcriptCard).dx - cardPad;
+        final sRight = tester.getTopRight(summaryCard).dx - cardPad;
 
-      expect(tester.getTopRight(find.text(transcript)).dx, closeTo(tRight, 1));
-      expect(tester.getTopRight(find.text(summary)).dx, closeTo(sRight, 1));
-      expect(tester.getTopRight(find.text('نقطة رئيسية')).dx, closeTo(sRight - chipPad, 1));
-      expect(tester.getTopRight(find.text('KEY TAKEAWAYS')).dx, closeTo(sRight, 1));
+        expect(tester.getTopRight(find.text(transcript)).dx, closeTo(tRight, 1));
+        expect(tester.getTopRight(find.text(summary)).dx, closeTo(sRight, 1));
+        expect(tester.getTopRight(find.text('نقطة رئيسية')).dx, closeTo(sRight - chipPad, 1));
+        expect(tester.getTopRight(find.text('KEY TAKEAWAYS')).dx, closeTo(sRight, 1));
 
-      expect(tester.getTopLeft(find.text('AI Summary')).dx, closeTo(tester.getTopLeft(summaryCard).dx + cardPad + headerTextInset, 1));
-      expect(tester.getTopLeft(find.text('Transcript')).dx, closeTo(tester.getTopLeft(transcriptCard).dx + cardPad + headerTextInset, 1));
-    });
+        expect(
+          tester.getTopLeft(find.text('AI Summary')).dx,
+          closeTo(tester.getTopLeft(summaryCard).dx + cardPad + headerTextInset, 1),
+        );
+        expect(
+          tester.getTopLeft(find.text('Transcript')).dx,
+          closeTo(tester.getTopLeft(transcriptCard).dx + cardPad + headerTextInset, 1),
+        );
+      },
+    );
 
-    testWidgets('English job in an Arabic app: transcript, summary and takeaways start from the left', (tester) async {
-      const transcript = 'Short text.';
-      const summary = 'Short summary.';
-      h.gemma.responder = (prompt, call) async {
-        if (prompt.contains('information extraction assistant')) return 'MAIN:\nKey point';
-        if (prompt.contains('final summary of a full lecture')) return summary;
-        return null;
-      };
-      final cubit = await open(tester, transcript, language: ContentLanguage.en, locale: const Locale('ar'));
-      await untilSettled(tester, cubit);
-      expect(cubit.state.job!.status, JobRunStatus.completed);
+    testWidgets(
+      'English job in an Arabic app: transcript, summary and takeaways start from the left',
+      (tester) async {
+        const transcript = 'Short text.';
+        const summary = 'Short summary.';
+        h.gemma.responder = (prompt, call) async {
+          if (prompt.contains('information extraction assistant')) return 'MAIN:\nKey point';
+          if (prompt.contains('final summary of a full lecture')) return summary;
+          return null;
+        };
+        final cubit = await open(
+          tester,
+          transcript,
+          language: ContentLanguage.en,
+          locale: const Locale('ar'),
+        );
+        await untilSettled(tester, cubit);
+        expect(cubit.state.job!.status, JobRunStatus.completed);
 
-      final transcriptCard = find.byType(TranscriptCard);
-      final summaryCard = find.byType(SummaryCard);
-      final tLeft = tester.getTopLeft(transcriptCard).dx + cardPad;
-      final sLeft = tester.getTopLeft(summaryCard).dx + cardPad;
+        final transcriptCard = find.byType(TranscriptCard);
+        final summaryCard = find.byType(SummaryCard);
+        final tLeft = tester.getTopLeft(transcriptCard).dx + cardPad;
+        final sLeft = tester.getTopLeft(summaryCard).dx + cardPad;
 
-      expect(tester.getTopLeft(find.text(transcript)).dx, closeTo(tLeft, 1));
-      expect(tester.getTopLeft(find.text(summary)).dx, closeTo(sLeft, 1));
-      expect(tester.getTopLeft(find.text('Key point')).dx, closeTo(sLeft + chipPad, 1));
-      expect(tester.getTopLeft(find.text('أبرز النقاط')).dx, closeTo(sLeft, 1));
+        expect(tester.getTopLeft(find.text(transcript)).dx, closeTo(tLeft, 1));
+        expect(tester.getTopLeft(find.text(summary)).dx, closeTo(sLeft, 1));
+        expect(tester.getTopLeft(find.text('Key point')).dx, closeTo(sLeft + chipPad, 1));
+        expect(tester.getTopLeft(find.text('أبرز النقاط')).dx, closeTo(sLeft, 1));
 
-      final summaryHeaderRight = tester.getTopRight(summaryCard).dx - cardPad - headerTextInset;
-      expect(tester.getTopRight(find.text('ملخص الذكاء الاصطناعي')).dx, closeTo(summaryHeaderRight, 1));
-    });
+        final summaryHeaderRight = tester.getTopRight(summaryCard).dx - cardPad - headerTextInset;
+        expect(
+          tester.getTopRight(find.text('ملخص الذكاء الاصطناعي')).dx,
+          closeTo(summaryHeaderRight, 1),
+        );
+      },
+    );
 
     test('jobTextDirection maps job language codes', () {
       expect(jobTextDirection('ar'), TextDirection.rtl);
@@ -340,14 +404,19 @@ void main() {
     });
   });
 
-  testWidgets('a streamed word rebuilds the summary but never the transcript (rebuild scoping)', (tester) async {
+  testWidgets('a streamed word rebuilds the summary but never the transcript (rebuild scoping)', (
+    tester,
+  ) async {
     final cubit = await open(tester, sampleTranscript);
     await untilSettled(tester, cubit);
 
     final rebuilds = <Type, int>{};
     debugOnRebuildDirtyWidget = (element, builtOnce) {
       final type = element.widget.runtimeType;
-      if (type == TranscriptCard || type == SummaryCard || type == JobStatusHeroCard || type == JobProgressCard) {
+      if (type == TranscriptCard ||
+          type == SummaryCard ||
+          type == JobStatusHeroCard ||
+          type == JobProgressCard) {
         rebuilds[type] = (rebuilds[type] ?? 0) + 1;
       }
     };
@@ -359,7 +428,11 @@ void main() {
       await tester.pump();
     }
 
-    expect(rebuilds[SummaryCard], greaterThan(0), reason: 'the summary follows the streamed updates');
+    expect(
+      rebuilds[SummaryCard],
+      greaterThan(0),
+      reason: 'the summary follows the streamed updates',
+    );
     expect(rebuilds[TranscriptCard], isNull, reason: 'the (possibly huge) transcript is untouched');
     expect(rebuilds[JobStatusHeroCard], isNull);
   });
@@ -385,7 +458,11 @@ void main() {
 
     for (var i = 1; i <= 5; i++) {
       // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
-      cubit.emit(cubit.state.copyWith(progress: JobProgress(JobStage.analyzing, fraction: 0.1 * i, done: i, total: 10)));
+      cubit.emit(
+        cubit.state.copyWith(
+          progress: JobProgress(JobStage.analyzing, fraction: 0.1 * i, done: i, total: 10),
+        ),
+      );
       await tester.pump();
     }
     expect(rebuilds[JobProgressCard], greaterThanOrEqualTo(5));
@@ -394,7 +471,9 @@ void main() {
     gate.complete();
   });
 
-  testWidgets('a job deleted while the screen is open switches to the "no longer exists" message', (tester) async {
+  testWidgets('a job deleted while the screen is open switches to the "no longer exists" message', (
+    tester,
+  ) async {
     final cubit = await open(tester, sampleTranscript);
     await untilSettled(tester, cubit);
     expect(find.byType(TranscriptCard), findsOneWidget);

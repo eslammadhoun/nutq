@@ -1,18 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/core/domain/cancellation.dart';
+import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
 
+import '../../../../support/sample_text.dart';
 import '../../support/fake_gemma.dart';
 
-const _config = SummarizationConfig(targetTokens: 60, overlapTokens: 10, minTokens: 30, maxTokens: 90);
-final _text = List.generate(
-  6,
-  (i) => 'في الفقرة رقم $i نناقش موضوعا مهما. بلغ عدد المشاركين 250 شخصا في عام 2024 وقال الدكتور أحمد محمد إن النتائج جيدة.',
-).join('\n\n');
+const _config = SummarizationConfig(
+  targetTokens: 60,
+  overlapTokens: 10,
+  minTokens: 30,
+  maxTokens: 90,
+);
+final _text = arabicTranscript(6);
 
 void main() {
   late FakeGemma gemma;
@@ -51,7 +54,10 @@ void main() {
       expect(updates.last, isA<SummarizationCompletedUpdate>());
       expect(updates.whereType<SummarizationCompletedUpdate>(), hasLength(1));
 
-      final progress = updates.whereType<SummarizationProgressUpdate>().map((u) => u.progress).toList();
+      final progress = updates
+          .whereType<SummarizationProgressUpdate>()
+          .map((u) => u.progress)
+          .toList();
       expect(progress.first.stage, SummarizationStage.preparing);
       expect(progress.last.stage, SummarizationStage.completed);
       final fractions = progress.map((p) => p.fraction).toList();

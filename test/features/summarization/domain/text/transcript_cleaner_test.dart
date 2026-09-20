@@ -31,7 +31,10 @@ void main() {
   });
 
   test('keeps paragraph breaks but collapses extra blank lines', () {
-    expect(cleaner.clean('الفقرة الأولى\n\n\n\n\nالفقرة الثانية'), 'الفقرة الأولى\n\nالفقرة الثانية');
+    expect(
+      cleaner.clean('الفقرة الأولى\n\n\n\n\nالفقرة الثانية'),
+      'الفقرة الأولى\n\nالفقرة الثانية',
+    );
   });
 
   test('empty and whitespace-only input yield an empty string', () {

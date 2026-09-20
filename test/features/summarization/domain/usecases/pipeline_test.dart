@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/features/summarization/data/cache/summarization_cache.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
-import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
@@ -24,8 +24,8 @@ const _config = SummarizationConfig(
 String _transcript(int paragraphs) => [
   for (var p = 0; p < paragraphs; p++)
     'في الفقرة رقم $p نناقش موضوعا مهما عن التعلم الآلي. بلغ عدد المشاركين 250 شخصا في عام 2024. '
-    'استخدم الفريق مكتبة Flutter مع نسبة نجاح 37.5% في التجارب. وقال الدكتور أحمد محمد إن النتائج مشجعة جدا. '
-    'ثم انتقلنا إلى شرح الخوارزميات وطرق التدريب والتقييم بالتفصيل الكامل.',
+        'استخدم الفريق مكتبة Flutter مع نسبة نجاح 37.5% في التجارب. وقال الدكتور أحمد محمد إن النتائج مشجعة جدا. '
+        'ثم انتقلنا إلى شرح الخوارزميات وطرق التدريب والتقييم بالتفصيل الكامل.',
 ].join('\n\n');
 
 void main() {
@@ -75,15 +75,27 @@ void main() {
     ]) {
       expect(stages, contains(s));
     }
-    expect(stages.indexOf(SummarizationStage.combining), lessThan(stages.indexOf(SummarizationStage.finalizing)));
-    expect(stages.indexOf(SummarizationStage.finalizing), lessThan(stages.indexOf(SummarizationStage.checking)));
+    expect(
+      stages.indexOf(SummarizationStage.combining),
+      lessThan(stages.indexOf(SummarizationStage.finalizing)),
+    );
+    expect(
+      stages.indexOf(SummarizationStage.finalizing),
+      lessThan(stages.indexOf(SummarizationStage.checking)),
+    );
   });
 
   test('progress reports processed/total chunk counts', () async {
     final counts = <(int?, int?)>[];
-    await pipeline(_transcript(6), _config, onProgress: (p) {
-      if (p.stage == SummarizationStage.summarizing) counts.add((p.processedChunks, p.totalChunks));
-    });
+    await pipeline(
+      _transcript(6),
+      _config,
+      onProgress: (p) {
+        if (p.stage == SummarizationStage.summarizing) {
+          counts.add((p.processedChunks, p.totalChunks));
+        }
+      },
+    );
     expect(counts, isNotEmpty);
     expect(counts.last.$1, counts.last.$2);
     expect(counts.map((c) => c.$1), orderedEquals(List.generate(counts.length, (i) => i + 1)));
@@ -114,36 +126,53 @@ void main() {
     expect(evidence, contains('250')); // number-bearing source sentence selected
   });
 
-  test('a failing chunk is recorded (not dropped) and its text is kept as fallback evidence', () async {
-    // Fail every model call for the first chunk's two prompts, succeed afterwards.
-    gemma.responder = (prompt, call) async {
-      if (call <= 2) throw const GemmaGenerationException('chunk failure');
-      return null;
-    };
-    final result = await pipeline(_transcript(6), _config);
-    expect(result.debug.failedChunkCount, 1);
-    expect(result.summary, isNotEmpty);
-    // The failed chunk's cleaned text still reaches a later stage.
-    final downstream = gemma.prompts.skip(2).join('\n');
-    expect(downstream, contains('في الفقرة رقم 0'));
-  });
+  test(
+    'a failing chunk is recorded (not dropped) and its text is kept as fallback evidence',
+    () async {
+      // Fail every model call for the first chunk's two prompts, succeed afterwards.
+      gemma.responder = (prompt, call) async {
+        if (call <= 2) throw const GemmaGenerationException('chunk failure');
+        return null;
+      };
+      final result = await pipeline(_transcript(6), _config);
+      expect(result.debug.failedChunkCount, 1);
+      expect(result.summary, isNotEmpty);
+      // The failed chunk's cleaned text still reaches a later stage.
+      final downstream = gemma.prompts.skip(2).join('\n');
+      expect(downstream, contains('في الفقرة رقم 0'));
+    },
+  );
 
   test('empty transcript → emptyTranscript failure, and the model is never called', () async {
     await expectLater(
       pipeline('  \n  ', _config),
-      throwsA(isA<SummarizationFailure>().having((f) => f.kind, 'kind', SummarizationFailureKind.emptyTranscript)),
+      throwsA(
+        isA<SummarizationFailure>().having(
+          (f) => f.kind,
+          'kind',
+          SummarizationFailureKind.emptyTranscript,
+        ),
+      ),
     );
     expect(gemma.calls, 0);
   });
 
   test('final-summary failure surfaces as generationFailed', () async {
     gemma.responder = (prompt, call) async {
-      if (prompt.contains('final summary of a full lecture')) throw const GemmaGenerationException('x');
+      if (prompt.contains('final summary of a full lecture')) {
+        throw const GemmaGenerationException('x');
+      }
       return null;
     };
     await expectLater(
       pipeline(_transcript(3), _config),
-      throwsA(isA<SummarizationFailure>().having((f) => f.kind, 'kind', SummarizationFailureKind.generationFailed)),
+      throwsA(
+        isA<SummarizationFailure>().having(
+          (f) => f.kind,
+          'kind',
+          SummarizationFailureKind.generationFailed,
+        ),
+      ),
     );
   });
 
@@ -163,19 +192,24 @@ void main() {
     expect(callsAtCancel, lessThan(8));
   });
 
-  test('a completed result carries a validation report (numbers from source are not flagged)', () async {
-    gemma.responder = (prompt, call) async {
-      if (prompt.contains('final summary of a full lecture')) {
-        return 'ناقش الدكتور أحمد محمد نتائج التجارب: شارك 250 شخصا في عام 2024 وبلغت نسبة النجاح 37.5% باستخدام Flutter.';
-      }
-      return null;
-    };
-    final result = await pipeline(_transcript(4), _config);
-    final numeric = result.validation.issues.where(
-      (i) => i.type == ValidationIssueType.numberMismatch || i.type == ValidationIssueType.dateMismatch,
-    );
-    expect(numeric, isEmpty);
-  });
+  test(
+    'a completed result carries a validation report (numbers from source are not flagged)',
+    () async {
+      gemma.responder = (prompt, call) async {
+        if (prompt.contains('final summary of a full lecture')) {
+          return 'ناقش الدكتور أحمد محمد نتائج التجارب: شارك 250 شخصا في عام 2024 وبلغت نسبة النجاح 37.5% باستخدام Flutter.';
+        }
+        return null;
+      };
+      final result = await pipeline(_transcript(4), _config);
+      final numeric = result.validation.issues.where(
+        (i) =>
+            i.type == ValidationIssueType.numberMismatch ||
+            i.type == ValidationIssueType.dateMismatch,
+      );
+      expect(numeric, isEmpty);
+    },
+  );
 
   test('a hallucinated number in the final summary is flagged, not rejected', () async {
     gemma.responder = (prompt, call) async {
@@ -187,7 +221,10 @@ void main() {
     final result = await pipeline(_transcript(4), _config);
     expect(result.summary, contains('9999'));
     expect(result.validation.isSuspicious, isTrue);
-    expect(result.validation.issues.map((i) => i.type), contains(ValidationIssueType.numberMismatch));
+    expect(
+      result.validation.issues.map((i) => i.type),
+      contains(ValidationIssueType.numberMismatch),
+    );
   });
 
   test('summary length mode changes the final prompt', () async {
@@ -202,12 +239,18 @@ void main() {
     final callsFirst = gemma.calls;
     final second = await pipeline(_transcript(3), _config);
     // Stats were reset: second job's token total is comparable, not doubled.
-    expect(second.debug.outputTokens, closeTo(first.debug.outputTokens, first.debug.outputTokens * 0.2));
+    expect(
+      second.debug.outputTokens,
+      closeTo(first.debug.outputTokens, first.debug.outputTokens * 0.2),
+    );
     expect(gemma.calls, callsFirst * 2);
   });
 
   test('development cache serves repeated identical work without calling the model', () async {
-    final cached = SummarizationRepositoryImpl(dataSource: gemma, cache: InMemorySummarizationCache());
+    final cached = SummarizationRepositoryImpl(
+      dataSource: gemma,
+      cache: InMemorySummarizationCache(),
+    );
     final cachedPipeline = SummarizeTranscript(repository: cached);
     await cachedPipeline(_transcript(3), _config);
     final callsAfterFirst = gemma.calls;

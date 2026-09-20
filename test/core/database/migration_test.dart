@@ -3,8 +3,8 @@ import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/database/app_database.dart';
-import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/core/domain/content_language.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 
 import 'generated/schema.dart';
@@ -46,7 +46,9 @@ void main() {
       'INSERT INTO jobs (id, status, source_type, language, requested_length, created_at, updated_at, failure_kind, preview) '
       "VALUES ('b', 'failed', 'text', 'ar', 'medium', '2026-09-02T10:00:00.000Z', '2026-09-02T10:01:00.000Z', 'interrupted', 'مرحبا')",
     );
-    await sql("INSERT INTO job_transcripts (job_id, content, word_count) VALUES ('a', 'hello world', 2)");
+    await sql(
+      "INSERT INTO job_transcripts (job_id, content, word_count) VALUES ('a', 'hello world', 2)",
+    );
     await sql(
       'INSERT INTO job_summaries (job_id, summary_text, takeaways, model_name, prompt_version, needs_review) '
       "VALUES ('a', 'A summary', '[\"one\",\"two\"]', 'gemma3-1b-it-q4', 'v1', 1)",
@@ -60,7 +62,11 @@ void main() {
     final a = (await db.jobsDao.getDetail('a'))!;
     expect(a.job.status, JobRunStatus.completed);
     expect(a.job.sourceLanguage, ContentLanguage.en);
-    expect(a.job.summaryLanguage, ContentLanguage.en, reason: 'v1 summaries were written in the source language');
+    expect(
+      a.job.summaryLanguage,
+      ContentLanguage.en,
+      reason: 'v1 summaries were written in the source language',
+    );
     expect(a.job.requestedLength, SummaryLength.short);
     expect(a.job.preview, 'hello world');
     expect(a.transcript!.content, 'hello world');
@@ -68,7 +74,13 @@ void main() {
     expect(a.summary!.summaryText, 'A summary');
     expect(a.summary!.takeaways, ['one', 'two']);
     expect(a.summary!.needsReview, isTrue);
-    for (final field in [a.job.sourceUrl, a.job.sourceFilePath, a.job.sourceMimeType, a.job.sourceTitle, a.job.durationSeconds]) {
+    for (final field in [
+      a.job.sourceUrl,
+      a.job.sourceFilePath,
+      a.job.sourceMimeType,
+      a.job.sourceTitle,
+      a.job.durationSeconds,
+    ]) {
       expect(field, isNull, reason: 'new source columns start empty');
     }
 

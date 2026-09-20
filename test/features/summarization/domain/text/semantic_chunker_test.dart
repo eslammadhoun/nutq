@@ -100,9 +100,12 @@ void main() {
     for (var i = 1; i < chunks.length; i++) {
       final prev = chunks[i - 1];
       final cur = chunks[i];
-      expect(cur.overlapSentenceCount, cur.startSentenceIndex <= prev.endSentenceIndex
-          ? prev.endSentenceIndex - cur.startSentenceIndex + 1
-          : 0);
+      expect(
+        cur.overlapSentenceCount,
+        cur.startSentenceIndex <= prev.endSentenceIndex
+            ? prev.endSentenceIndex - cur.startSentenceIndex + 1
+            : 0,
+      );
       expect(cur.overlapSentenceCount * 10, lessThanOrEqualTo(_config.overlapTokens));
     }
   });

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/theme/app_theme.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/expandable_job_text.dart';
 import 'package:nutq/l10n/app_localizations.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 Future<void> _pump(WidgetTester tester, Widget child) async {
   tester.view.physicalSize = const Size(390 * 3, 844 * 3);
@@ -23,7 +23,11 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: Scaffold(body: SingleChildScrollView(child: Padding(padding: const EdgeInsets.all(16), child: child))),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Padding(padding: const EdgeInsets.all(16), child: child),
+          ),
+        ),
       ),
     ),
   );
@@ -47,12 +51,18 @@ void main() {
     expect(find.text('Show more'), findsNothing);
   });
 
-  testWidgets('a long transcript collapses to a bounded preview, never the whole text', (tester) async {
+  testWidgets('a long transcript collapses to a bounded preview, never the whole text', (
+    tester,
+  ) async {
     await _pump(tester, _text(huge));
     final shown = _shownText(tester);
     expect(shown.length, lessThanOrEqualTo(ExpandableJobText.previewChars));
     expect(huge.startsWith(shown), isTrue, reason: 'the preview is the start of the text');
-    expect(find.text('Show more'), findsOneWidget, reason: 'text longer than the preview always offers expansion');
+    expect(
+      find.text('Show more'),
+      findsOneWidget,
+      reason: 'text longer than the preview always offers expansion',
+    );
   });
 
   testWidgets('the preview is cut at a word boundary, never mid-word', (tester) async {
@@ -70,16 +80,24 @@ void main() {
     expect(_shownText(tester), huge);
     expect(find.text('Show less'), findsOneWidget);
 
-    await tester.tapAt(const Offset(40, 40)); // the toggle itself is off-screen for a huge text; the whole block is tappable
+    await tester.tapAt(
+      const Offset(40, 40),
+    ); // the toggle itself is off-screen for a huge text; the whole block is tappable
     await tester.pump();
     expect(_shownText(tester).length, lessThanOrEqualTo(ExpandableJobText.previewChars));
   });
 
-  testWidgets('text just over four lines but under the preview limit still gets a toggle', (tester) async {
+  testWidgets('text just over four lines but under the preview limit still gets a toggle', (
+    tester,
+  ) async {
     final medium = List.filled(120, 'word').join(' '); // ~600 chars, many lines
     await _pump(tester, _text(medium));
     expect(find.text('Show more'), findsOneWidget);
-    expect(_shownText(tester), medium, reason: 'under the limit, the whole text is the (ellipsized) collapsed text');
+    expect(
+      _shownText(tester),
+      medium,
+      reason: 'under the limit, the whole text is the (ellipsized) collapsed text',
+    );
   });
 
   testWidgets('a text with no spaces is still cut safely', (tester) async {

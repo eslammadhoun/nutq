@@ -17,6 +17,7 @@ import 'package:nutq/features/summarization/data/repositories/summarization_repo
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
 
+import '../../../support/sample_text.dart';
 import '../../summarization/support/fake_gemma.dart';
 import 'job_fixtures.dart';
 
@@ -100,8 +101,4 @@ class JobHarness {
 }
 
 /// Six paragraphs of Arabic — several chunks under [testSummarizationConfig].
-final sampleTranscript = List.generate(
-  6,
-  (i) =>
-      'في الفقرة رقم $i نناقش موضوعا مهما. بلغ عدد المشاركين 250 شخصا في عام 2024 وقال الدكتور أحمد محمد إن النتائج جيدة.',
-).join('\n\n');
+final sampleTranscript = arabicTranscript(6);

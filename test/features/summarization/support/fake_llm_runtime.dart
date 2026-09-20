@@ -45,6 +45,8 @@ class FakeLlmSession implements LlmSession {
   @override
   Future<String> respond() async {
     if (gate != null) await gate!.future;
+    // A test double that throws whatever the test scripted.
+    // ignore: only_throw_errors
     if (error != null) throw error!;
     return reply;
   }
@@ -76,6 +78,8 @@ class FakeLlmSession implements LlmSession {
   @override
   Future<void> close() async {
     closed = true;
+    // A test double that throws whatever the test scripted.
+    // ignore: only_throw_errors
     if (closeError != null) throw closeError!;
   }
 }
@@ -109,6 +113,8 @@ class FakeLlmRuntime implements LlmRuntime {
   Future<void> load() async {
     loadCalls++;
     if (loadDelay != null) await loadDelay!.future;
+    // A test double that throws whatever the test scripted.
+    // ignore: only_throw_errors
     if (loadError != null) throw loadError!;
     loaded = true;
   }
@@ -131,6 +137,8 @@ class FakeLlmRuntime implements LlmRuntime {
   Future<void> unload() async {
     unloadCalls++;
     loaded = false;
+    // A test double that throws whatever the test scripted.
+    // ignore: only_throw_errors
     if (unloadError != null) throw unloadError!;
   }
 }
