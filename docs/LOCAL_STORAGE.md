@@ -20,12 +20,12 @@ data           JobsRepositoryImpl → JobsLocalDataSource → JobsDao → AppDat
   (with `Transcript` and `Summary`), typed enums (`JobRunStatus`, `JobSourceType`,
   `SummaryLanguage`, `SummaryLength`, `SummarizationFailureKind`) — no raw status strings.
 
-## Schema (version 1)
+## Schema (version 2)
 
 | Table | Purpose | Notes |
 |---|---|---|
-| `jobs` | One row per job | Light columns only, so list queries never load bodies. `preview` is denormalized for the list row. |
-| `job_transcripts` | The text being summarized (1:1) | Can be large; read only by the detail screen and text search. |
+| `jobs` | One row per job | Light columns only, so list queries never load bodies. `preview` is denormalized for the list row. Source description: `source_url` (never deleted), `source_file_path` (app-owned copy, **deleted with the job**), `source_mime_type`, `source_title`, `duration_seconds`. `language` is the *source* language; `summary_language` is separate. |
+| `job_transcripts` | The text being summarized (1:1, optional) | Can be large; read only by the detail screen and text search. Absent until a media job has been transcribed; carries the ASR `model_name`/`model_version`. |
 | `job_summaries` | The finished summary (1:1) | Exists only when the job completed. `takeaways` is a JSON array in one column (only ever read/written as a whole). |
 
 - Primary keys are UUID v4 strings, created by the repository.
@@ -37,6 +37,7 @@ data           JobsRepositoryImpl → JobsLocalDataSource → JobsDao → AppDat
   millisecond precision and sorts chronologically.
 - Enums are stored by name (`textEnum`): **renaming an enum value needs a migration.**
 - A `CHECK (word_count >= 0)` guards the transcript row.
+- **v1 → v2** (typed `stepByStep` migration, tested against the dumped v1 schema): adds the source columns and `summary_language` (set to the old `language`, which is what v1 wrote), plus the transcript's model columns.
 
 ## Lifecycle rules
 
@@ -62,7 +63,8 @@ data           JobsRepositoryImpl → JobsLocalDataSource → JobsDao → AppDat
   literally. Paging grows the `LIMIT` on a live query.
 - `watchJob(id)` — one join (job + transcript + summary); emits `null` if deleted.
 - Streams re-emit on any relevant write, so the list and detail screens update without
-  manual refreshes.
+  manual refreshes. They are `distinct`: an unrelated write (another job changing) does not re-emit
+  identical data.
 
 ## What is *not* stored
 
@@ -96,8 +98,14 @@ Cubits turn storage failures into `ApiError.storage()`; the UI localizes it.
 `drift` is pinned to the exact version of `drift_dev` (see `pubspec.yaml`): a mismatch
 breaks the schema tool.
 
+## Repository operations
+
+`createJob` validates each source type's input (`NewJobDraft.text/.youtube/.media`), `saveTranscript` and
+`updateSourceInfo` update a job while it is active, `completeJob` takes a ready-made `Summary`, and
+`deleteJob` removes the stored source file after the row. `recoverInterruptedJobs({createdBefore})`
+leaves this session's own jobs alone.
+
 ## Not done yet
 
-- No automated migration test yet (there is only version 1).
 - No retry action for failed/cancelled jobs, no retention policy or bulk clear.
 - Verified only by tests and an iOS simulator build; not exercised on a device.

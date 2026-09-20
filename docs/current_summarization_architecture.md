@@ -66,8 +66,7 @@ data/
   repositories/  SummarizationRepositoryImpl
 presentation/
   utils/         summarizationStageLabel (shared stage names)
-benchmark/       BenchmarkFixture, SummaryEvaluation, HeuristicSummaryEvaluator,
-                 BaselineSummarizer, SummarizationBenchmarkRunner
+(benchmark tooling moved to test/support/benchmark/)
 ```
 
 Entry point in the app: Jobs → New Job (pasted text) → Job Detail, whose `JobDetailCubit` drives the pipeline and shows live progress and the streaming summary. There is no standalone summarization screen and no model-management screen (the model is a bundled asset).

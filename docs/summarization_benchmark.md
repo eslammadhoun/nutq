@@ -9,7 +9,7 @@ proof of quality.
 ## What exists
 
 - 9 fixtures (`test/summarization/fixtures/`), with the caveats in that folder's README.
-- `SummarizationBenchmarkRunner` writes `benchmark_results.json` in the plan §30 shape.
+- `SummarizationBenchmarkRunner` (in `test/support/benchmark/`) writes `benchmark_results.json` in the plan §30 shape.
 - `BenchmarkConfiguration.chunkSizeSweep / overlapSweep / temperatureSweep` (plan §31).
 - `HeuristicSummaryEvaluator`: proxy scores, deterministic. **Coherence is `null`** (human rating required); other scores are proxies, not measurements.
 - `BaselineSummarizer` for A/B comparison against the full pipeline.
