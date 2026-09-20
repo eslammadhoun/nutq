@@ -165,8 +165,12 @@ class JobsRepositoryImpl implements JobsRepository {
   });
 
   @override
-  Future<int> recoverInterruptedJobs() => _guard(
-    () => _local.failActiveJobs(JobFailureKind.interrupted, _now()),
+  Future<int> recoverInterruptedJobs({DateTime? createdBefore}) => _guard(
+    () => _local.failActiveJobs(
+      JobFailureKind.interrupted,
+      _now(),
+      createdBefore: createdBefore,
+    ),
   );
 
   Future<void> _transition(

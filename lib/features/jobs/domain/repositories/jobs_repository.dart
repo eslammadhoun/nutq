@@ -52,6 +52,8 @@ abstract interface class JobsRepository {
   Future<void> deleteJob(String id);
 
   /// Marks jobs left `pending`/`running` (for example by an app kill) as
-  /// failed with `interrupted`. Returns how many were recovered.
-  Future<int> recoverInterruptedJobs();
+  /// failed with `interrupted`. With [createdBefore], jobs created at or after
+  /// that moment (this session's own) are left alone. Returns how many were
+  /// recovered.
+  Future<int> recoverInterruptedJobs({DateTime? createdBefore});
 }

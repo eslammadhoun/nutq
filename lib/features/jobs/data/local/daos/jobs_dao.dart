@@ -163,14 +163,25 @@ class JobsDao extends DatabaseAccessor<AppDatabase> with _$JobsDaoMixin {
       (delete(jobs)..where((j) => j.id.equals(id))).go();
 
   /// Fails every job still pending/running. Returns how many changed.
-  Future<int> failActiveJobs(JobFailureKind kind, DateTime at) =>
-      (update(jobs)..where((j) => j.status.isInValues(_active))).write(
-        JobsCompanion(
-          status: const Value(JobRunStatus.failed),
-          updatedAt: Value(at),
-          failureKind: Value(kind),
-        ),
-      );
+  Future<int> failActiveJobs(
+    JobFailureKind kind,
+    DateTime at, {
+    DateTime? createdBefore,
+  }) =>
+      (update(jobs)..where(
+            (j) =>
+                j.status.isInValues(_active) &
+                (createdBefore == null
+                    ? const Constant(true)
+                    : j.createdAt.isSmallerThanValue(createdBefore)),
+          ))
+          .write(
+            JobsCompanion(
+              status: const Value(JobRunStatus.failed),
+              updatedAt: Value(at),
+              failureKind: Value(kind),
+            ),
+          );
 
   static final _active = JobRunStatus.values.where((s) => s.isActive).toList();
 

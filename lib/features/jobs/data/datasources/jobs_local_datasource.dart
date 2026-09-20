@@ -52,7 +52,11 @@ abstract interface class JobsLocalDataSource {
 
   Future<void> deleteJob(String id);
 
-  Future<int> failActiveJobs(JobFailureKind kind, DateTime at);
+  Future<int> failActiveJobs(
+    JobFailureKind kind,
+    DateTime at, {
+    DateTime? createdBefore,
+  });
 }
 
 class JobsLocalDataSourceImpl implements JobsLocalDataSource {
@@ -116,6 +120,9 @@ class JobsLocalDataSourceImpl implements JobsLocalDataSource {
   Future<void> deleteJob(String id) => _dao.deleteJob(id);
 
   @override
-  Future<int> failActiveJobs(JobFailureKind kind, DateTime at) =>
-      _dao.failActiveJobs(kind, at);
+  Future<int> failActiveJobs(
+    JobFailureKind kind,
+    DateTime at, {
+    DateTime? createdBefore,
+  }) => _dao.failActiveJobs(kind, at, createdBefore: createdBefore);
 }

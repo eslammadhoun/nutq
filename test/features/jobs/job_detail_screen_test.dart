@@ -47,10 +47,17 @@ Future<void> _pump(WidgetTester tester, JobDetailCubit cubit, {Locale locale = c
   );
 }
 
+/// The queue runs jobs in real time, outside the widget test's fake clock: let
+/// real time pass, then render what changed.
+Future<void> advance(WidgetTester tester, int milliseconds) async {
+  await tester.runAsync(() => Future<void>.delayed(Duration(milliseconds: milliseconds)));
+  await tester.pump();
+}
+
 void main() {
   late JobHarness h;
 
-  setUp(() => h = JobHarness());
+  setUp(() => h = JobHarness(autoStart: false));
   tearDown(() async {
     // Let the cubit close (and its cancellation write) finish before the db closes.
     await Future<void>.delayed(const Duration(milliseconds: 20));
@@ -65,22 +72,26 @@ void main() {
     ContentLanguage language = ContentLanguage.ar,
     Locale locale = const Locale('en'),
     Future<void> Function(String id)? seed,
+    bool queued = true,
   }) async {
-    final id = (await tester.runAsync(() => h.createJob(text, language: language)))!;
+    await tester.runAsync(h.runner.start);
+    final id = (await tester.runAsync(
+      () => queued ? h.submit(text, language: language) : h.createJob(text, language: language),
+    ))!;
     if (seed != null) await tester.runAsync(() => seed(id));
     final cubit = h.detailCubit(id);
     addTearDown(cubit.close);
     await _pump(tester, cubit, locale: locale);
-    await tester.pump(const Duration(milliseconds: 50));
+    await advance(tester, 50);
     return cubit;
   }
 
-  /// Pumps until the job reaches a final state.
+  /// Lets real time pass until the job reaches a final state, then renders.
   Future<void> untilSettled(WidgetTester tester, JobDetailCubit cubit) async {
-    for (var i = 0; i < 200 && !(cubit.state.job?.status.isTerminal ?? false); i++) {
-      await tester.pump(const Duration(milliseconds: 20));
+    for (var i = 0; i < 300 && !(cubit.state.job?.status.isTerminal ?? false); i++) {
+      await advance(tester, 20);
     }
-    await tester.pump(const Duration(milliseconds: 400));
+    await advance(tester, 100);
   }
 
   testWidgets('shows the live progress card while running, then the finished summary', (tester) async {
@@ -90,7 +101,7 @@ void main() {
       return null;
     };
     final cubit = await open(tester, sampleTranscript);
-    await tester.pump(const Duration(milliseconds: 50));
+    await advance(tester, 50);
 
     expect(find.byType(JobProgressCard), findsOneWidget);
     expect(find.text('Processing'), findsWidgets);
@@ -120,7 +131,7 @@ void main() {
     final reopened = h.detailCubit(id);
     addTearDown(reopened.close);
     await _pump(tester, reopened);
-    await tester.pump(const Duration(milliseconds: 100));
+    await advance(tester, 100);
 
     expect(find.byType(JobProgressCard), findsNothing);
     expect(find.text('الملخص النهائي للمحاضرة'), findsOneWidget);
@@ -132,12 +143,13 @@ void main() {
     final cubit = await open(
       tester,
       sampleTranscript,
+      queued: false,
       seed: (id) async {
         await h.repo.markRunning(id);
         await h.repo.recoverInterruptedJobs();
       },
     );
-    await tester.pump(const Duration(milliseconds: 100));
+    await advance(tester, 100);
 
     expect(cubit.state.job!.failureKind, JobFailureKind.interrupted);
     expect(find.text('This job was interrupted because the app was closed before it finished.'), findsOneWidget);
@@ -151,12 +163,13 @@ void main() {
       tester,
       sampleTranscript,
       locale: const Locale('ar'),
+      queued: false,
       seed: (id) async {
         await h.repo.markRunning(id);
         await h.repo.recoverInterruptedJobs();
       },
     );
-    await tester.pump(const Duration(milliseconds: 100));
+    await advance(tester, 100);
 
     expect(find.text('توقفت هذه المهمة لأن التطبيق أُغلق قبل أن تنتهي.'), findsOneWidget);
     expect(Directionality.of(tester.element(find.byType(JobDetailScreen))), TextDirection.rtl);
@@ -166,7 +179,7 @@ void main() {
     final cubit = h.detailCubit('nope');
     addTearDown(cubit.close);
     await _pump(tester, cubit);
-    await tester.pump(const Duration(milliseconds: 100));
+    await advance(tester, 100);
     expect(find.text('This job no longer exists.'), findsOneWidget);
     expect(find.byType(JobStatusHeroCard), findsNothing);
   });
@@ -178,10 +191,10 @@ void main() {
       return null;
     };
     final cubit = await open(tester, sampleTranscript);
-    await tester.pump(const Duration(milliseconds: 50));
+    await advance(tester, 50);
 
     await tester.tap(find.text('Cancel Job'));
-    await tester.pump(const Duration(milliseconds: 20));
+    await advance(tester, 20);
     expect(h.gemma.cancelled, isTrue);
 
     gate.complete();
@@ -201,7 +214,7 @@ void main() {
 
     final seen = <String>[];
     for (var i = 0; i < 120; i++) {
-      await tester.pump(const Duration(milliseconds: 20));
+      await advance(tester, 20);
       final live = cubit.state.streamingSummary;
       if (live != null && !(cubit.state.job?.status.isTerminal ?? false) && (seen.isEmpty || seen.last != live)) {
         seen.add(live);

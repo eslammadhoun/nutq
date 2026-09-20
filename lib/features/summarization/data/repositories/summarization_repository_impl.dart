@@ -65,6 +65,9 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
   Future<void> cancel() => _dataSource.cancel();
 
   @override
+  Future<void> release() => _dataSource.dispose();
+
+  @override
   Future<ChunkAnalysis> analyzeChunk(
     TranscriptChunk chunk, {
     ContentLanguage language = ContentLanguage.ar,

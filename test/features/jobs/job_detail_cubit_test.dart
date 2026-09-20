@@ -46,8 +46,8 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 30));
   }
 
-  test('starts loading, then shows the stored pending job and runs it', () async {
-    final id = await h.createJob(sampleTranscript);
+  test('starts loading, then shows the stored job while the queue runs it', () async {
+    final id = await h.submit(sampleTranscript);
     final cubit = open(id);
     expect(cubit.state.status, JobDetailStatus.loading);
 
@@ -61,7 +61,7 @@ void main() {
   });
 
   test('streams progress into state, then completes with the stored summary and takeaways', () async {
-    final id = await h.createJob(sampleTranscript);
+    final id = await h.submit(sampleTranscript);
     final cubit = open(id);
     final seen = <JobDetailState>[];
     final sub = cubit.stream.listen(seen.add);
@@ -87,7 +87,7 @@ void main() {
   });
 
   test('the result really is saved: a second open shows it without running again', () async {
-    final id = await h.createJob(sampleTranscript);
+    final id = await h.submit(sampleTranscript);
     final first = open(id);
     await untilSettled(first);
     final callsAfterFirst = h.gemma.calls;
@@ -103,7 +103,7 @@ void main() {
   test('flags a summary whose numbers are not in the transcript', () async {
     h.gemma.responder = (prompt, call) async =>
         prompt.contains('final summary of a full lecture') ? 'شارك 9999 شخصا في الفعالية.' : null;
-    final cubit = open(await h.createJob(sampleTranscript));
+    final cubit = open(await h.submit(sampleTranscript));
     await untilSettled(cubit);
     expect(cubit.state.job!.status, JobRunStatus.completed);
     expect(cubit.state.job!.summary!.needsReview, isTrue);
@@ -114,7 +114,7 @@ void main() {
       if (prompt.contains('final summary of a full lecture')) throw const GemmaGenerationException('x');
       return null;
     };
-    final cubit = open(await h.createJob(sampleTranscript));
+    final cubit = open(await h.submit(sampleTranscript));
     await untilSettled(cubit);
     expect(cubit.state.job!.status, JobRunStatus.failed);
     expect(cubit.state.job!.failureKind, JobFailureKind.generationFailed);
@@ -139,7 +139,7 @@ void main() {
       if (call == 1) await gate.future;
       return null;
     };
-    final cubit = open(await h.createJob(sampleTranscript));
+    final cubit = open(await h.submit(sampleTranscript));
     await Future<void>.delayed(const Duration(milliseconds: 30));
     expect(cubit.state.job!.status, JobRunStatus.running);
 
@@ -157,23 +157,50 @@ void main() {
     expect(h.gemma.calls, 1);
   });
 
-  test('leaving the screen while running cancels the job in the database', () async {
+  test('leaving the screen does NOT stop the job: it finishes in the background', () async {
     final gate = Completer<void>();
     h.gemma.responder = (prompt, call) async {
       if (call == 1) await gate.future;
       return null;
     };
-    final id = await h.createJob(sampleTranscript);
+    final id = await h.submit(sampleTranscript);
     final cubit = open(id);
     await Future<void>.delayed(const Duration(milliseconds: 30));
     expect((await h.repo.getJob(id))!.status, JobRunStatus.running);
 
-    unawaited(cubit.close());
+    await cubit.close();
+    expect(h.gemma.cancelled, isFalse, reason: 'closing a screen never touches the model');
     gate.complete();
-    await Future<void>.delayed(const Duration(milliseconds: 100));
+    await Future<void>.delayed(const Duration(milliseconds: 200));
 
-    expect(h.gemma.cancelled, isTrue);
-    expect((await h.repo.getJob(id))!.status, JobRunStatus.cancelled, reason: 'never left "running"');
+    expect((await h.repo.getJob(id))!.status, JobRunStatus.completed);
+  });
+
+  test('a screen opened mid-run picks up the live progress already made', () async {
+    final gate = Completer<void>();
+    h.gemma.responder = (prompt, call) async {
+      if (call == 3) await gate.future;
+      return null;
+    };
+    final id = await h.submit(sampleTranscript);
+    await Future<void>.delayed(const Duration(milliseconds: 60));
+
+    final late = open(id);
+    await Future<void>.delayed(const Duration(milliseconds: 40));
+    expect(late.state.job!.status, JobRunStatus.running);
+    expect(late.state.progress, isNotNull, reason: 'progress is replayed, not waited for');
+    expect(late.state.progress!.fraction, greaterThan(0.02));
+    gate.complete();
+    await untilSettled(late);
+    expect(late.state.job!.status, JobRunStatus.completed);
+  });
+
+  test('a pending job that is not queued just shows as pending (opening a screen starts nothing)', () async {
+    final id = await h.createJob(sampleTranscript);
+    final cubit = open(id);
+    await Future<void>.delayed(const Duration(milliseconds: 60));
+    expect(cubit.state.job!.status, JobRunStatus.pending);
+    expect(h.gemma.calls, 0);
   });
 
   test('a job that does not exist shows notFound', () async {
@@ -184,7 +211,7 @@ void main() {
   });
 
   test('a job deleted while open flips to notFound', () async {
-    final id = await h.createJob(sampleTranscript);
+    final id = await h.submit(sampleTranscript);
     final first = open(id);
     await untilSettled(first);
     await h.repo.deleteJob(id);
@@ -193,7 +220,7 @@ void main() {
   });
 
   test('the job language drives the pipeline (English)', () async {
-    final id = await h.createJob(
+    final id = await h.submit(
       'Attendance reached 250 people in 2024. The team said results were good.',
       language: ContentLanguage.en,
     );
@@ -208,7 +235,7 @@ void main() {
     test('streamingSummary grows as prefixes, is throttled, then hands over to the stored summary', () async {
       h.gemma.responder = (prompt, call) async =>
           prompt.contains('final summary of a full lecture') ? _longFinal : null;
-      final cubit = open(await h.createJob(sampleTranscript));
+      final cubit = open(await h.submit(sampleTranscript));
       final live = <String>[];
       final sub = cubit.stream.listen((s) {
         final t = s.streamingSummary;
@@ -235,7 +262,7 @@ void main() {
         }
         return null;
       };
-      final cubit = open(await h.createJob(sampleTranscript));
+      final cubit = open(await h.submit(sampleTranscript));
       await Future<void>.delayed(const Duration(milliseconds: 100));
       expect(cubit.state.job!.status, JobRunStatus.running);
       expect(cubit.state.job!.summary, isNull);
@@ -253,7 +280,7 @@ void main() {
         }
         return null;
       };
-      final cubit = open(await h.createJob(sampleTranscript));
+      final cubit = open(await h.submit(sampleTranscript));
       await Future<void>.delayed(const Duration(milliseconds: 100));
       unawaited(cubit.cancelJob());
       gate.complete();

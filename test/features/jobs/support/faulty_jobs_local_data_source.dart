@@ -30,7 +30,8 @@ enum Fault {
 class FaultyJobsLocalDataSource implements JobsLocalDataSource {
   FaultyJobsLocalDataSource(this._inner, this._faults);
 
-  FaultyJobsLocalDataSource.everything(this._inner) : _faults = Fault.values.toSet();
+  FaultyJobsLocalDataSource.everything(this._inner)
+    : _faults = Fault.values.toSet();
 
   final JobsLocalDataSource _inner;
   final Set<Fault> _faults;
@@ -64,21 +65,38 @@ class FaultyJobsLocalDataSource implements JobsLocalDataSource {
     JobFailureKind? failureKind,
   }) => _fails(Fault.transition)
       ? Future.error(_error)
-      : _inner.transition(id, from: from, to: to, at: at, failureKind: failureKind);
+      : _inner.transition(
+          id,
+          from: from,
+          to: to,
+          at: at,
+          failureKind: failureKind,
+        );
 
   @override
-  Future<TransitionOutcome> completeJob(String id, Summary summary, DateTime at) =>
-      _fails(Fault.completeJob) ? Future.error(_error) : _inner.completeJob(id, summary, at);
+  Future<TransitionOutcome> completeJob(
+    String id,
+    Summary summary,
+    DateTime at,
+  ) => _fails(Fault.completeJob)
+      ? Future.error(_error)
+      : _inner.completeJob(id, summary, at);
 
   @override
-  Future<TransitionOutcome> saveTranscript(String id, Transcript transcript, DateTime at) =>
-      _fails(Fault.saveTranscript)
+  Future<TransitionOutcome> saveTranscript(
+    String id,
+    Transcript transcript,
+    DateTime at,
+  ) => _fails(Fault.saveTranscript)
       ? Future.error(_error)
       : _inner.saveTranscript(id, transcript, at);
 
   @override
-  Future<TransitionOutcome> updateSourceInfo(String id, SourceInfo info, DateTime at) =>
-      _fails(Fault.updateSourceInfo)
+  Future<TransitionOutcome> updateSourceInfo(
+    String id,
+    SourceInfo info,
+    DateTime at,
+  ) => _fails(Fault.updateSourceInfo)
       ? Future.error(_error)
       : _inner.updateSourceInfo(id, info, at);
 
@@ -87,6 +105,11 @@ class FaultyJobsLocalDataSource implements JobsLocalDataSource {
       _fails(Fault.deleteJob) ? Future.error(_error) : _inner.deleteJob(id);
 
   @override
-  Future<int> failActiveJobs(JobFailureKind kind, DateTime at) =>
-      _fails(Fault.failActiveJobs) ? Future.error(_error) : _inner.failActiveJobs(kind, at);
+  Future<int> failActiveJobs(
+    JobFailureKind kind,
+    DateTime at, {
+    DateTime? createdBefore,
+  }) => _fails(Fault.failActiveJobs)
+      ? Future.error(_error)
+      : _inner.failActiveJobs(kind, at, createdBefore: createdBefore);
 }

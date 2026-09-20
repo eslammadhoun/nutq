@@ -18,6 +18,9 @@ extension JobLanguageX on JobLanguage {
 abstract class NewJobState with _$NewJobState {
   const factory NewJobState({
     @Default(JobSourceType.text) JobSourceType sourceType,
+
+    /// Source types the app can process (the registered transcript sources).
+    @Default({JobSourceType.text}) Set<JobSourceType> supportedSources,
     @Default(JobLanguage.ar) JobLanguage language,
     @Default('') String text,
     UploadFile? pickedFile,
@@ -34,10 +37,15 @@ abstract class NewJobState with _$NewJobState {
 
   /// Only pasted text can be processed on-device today; audio, video and
   /// YouTube sources need transcription, which is not available.
-  bool get isSourceSupported => sourceType == JobSourceType.text;
+  bool get isSourceSupported => supportedSources.contains(sourceType);
 
+  /// Whether the chosen source has valid input. Only sources in
+  /// [supportedSources] can be submitted.
   bool get canSubmit =>
       isSourceSupported &&
-      text.trim().isNotEmpty &&
-      text.length <= maxTextLength;
+      switch (sourceType) {
+        JobSourceType.text => text.trim().isNotEmpty && text.length <= maxTextLength,
+        JobSourceType.youtube => sourceUrl.trim().isNotEmpty,
+        JobSourceType.audio || JobSourceType.video => pickedFile != null && !fileTooLarge,
+      };
 }

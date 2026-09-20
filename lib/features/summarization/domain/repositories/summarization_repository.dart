@@ -107,4 +107,7 @@ abstract class SummarizationRepository {
 
   /// Stops any in-flight generation. Safe to call when idle.
   Future<void> cancel();
+
+  /// Unloads the model to free memory. The next job reloads it on demand.
+  Future<void> release();
 }
