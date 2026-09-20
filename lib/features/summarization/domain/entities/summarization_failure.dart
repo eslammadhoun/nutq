@@ -2,6 +2,9 @@ enum SummarizationFailureKind {
   emptyTranscript,
   modelUnavailable,
   generationFailed,
+
+  /// The app was closed or killed while the job was running.
+  interrupted,
 }
 
 /// A pipeline failure the UI localizes by [kind]; [message] is developer

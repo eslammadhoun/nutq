@@ -22,7 +22,7 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
     TokenCounter? tokenCounter,
     this.baseConfig = const GemmaGenerationConfig(),
     this.cache,
-    this.modelVersion = 'gemma3-1b-it-q4',
+    this.modelVersion = summarizationModelId,
     this.parser = const ChunkAnalysisParser(),
   }) : _dataSource = dataSource,
        tokenCounter = tokenCounter ?? CachingTokenCounter(GemmaTokenCounter(dataSource));
