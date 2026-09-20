@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
+import 'package:nutq/features/summarization/presentation/utils/summarization_labels.dart';
 
 /// Progress with user-facing stage names only; no model/runtime details.
 class SummarizationProgressView extends StatelessWidget {
@@ -40,7 +41,7 @@ class SummarizationProgressView extends StatelessWidget {
             ),
             SizedBox(height: 20.h),
             Text(
-              _stageLabel(context, progress.stage),
+              summarizationStageLabel(l10n, progress.stage),
               style: context.typography.heading5.copyWith(color: colors.textPrimary),
               textAlign: TextAlign.center,
             ),
@@ -57,18 +58,5 @@ class SummarizationProgressView extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _stageLabel(BuildContext context, SummarizationStage stage) {
-    final l10n = context.l10n;
-    return switch (stage) {
-      SummarizationStage.preparing => l10n.summarizeStagePreparing,
-      SummarizationStage.analyzing => l10n.summarizeStageAnalyzing,
-      SummarizationStage.summarizing => l10n.summarizeStageSummarizing,
-      SummarizationStage.combining => l10n.summarizeStageCombining,
-      SummarizationStage.checking => l10n.summarizeStageChecking,
-      SummarizationStage.finalizing => l10n.summarizeStageFinalizing,
-      SummarizationStage.completed => l10n.summarizeStageCompleted,
-    };
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -15,6 +16,23 @@ import 'package:nutq/features/summarization/domain/usecases/clean_transcript.dar
 import 'package:nutq/features/summarization/domain/usecases/merge_summaries.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_chunk.dart';
 import 'package:nutq/features/summarization/domain/usecases/validate_summary.dart';
+
+/// An event on the stream returned by [SummarizeTranscript.stream].
+sealed class SummarizationUpdate {
+  const SummarizationUpdate();
+}
+
+class SummarizationProgressUpdate extends SummarizationUpdate {
+  const SummarizationProgressUpdate(this.progress);
+
+  final SummarizationProgress progress;
+}
+
+class SummarizationCompletedUpdate extends SummarizationUpdate {
+  const SummarizationCompletedUpdate(this.result);
+
+  final SummaryResult result;
+}
 
 /// The complete pipeline:
 /// clean → segment → chunk → (analyze + summarize) per chunk → aggregate
@@ -146,6 +164,40 @@ class SummarizeTranscript {
         mergeRounds: merged.rounds,
       ),
     );
+  }
+
+  /// Runs the pipeline and streams progress as it happens, ending with one
+  /// [SummarizationCompletedUpdate]. Failures arrive as stream errors
+  /// ([SummarizationFailure] / [SummarizationCancelledException]). Cancelling
+  /// the subscription cancels the job.
+  Stream<SummarizationUpdate> stream(
+    String transcript,
+    SummarizationConfig config, {
+    CancellationToken? cancellation,
+  }) {
+    final token = cancellation ?? CancellationToken();
+    late final StreamController<SummarizationUpdate> controller;
+    controller = StreamController<SummarizationUpdate>(
+      onListen: () async {
+        try {
+          final result = await call(
+            transcript,
+            config,
+            cancellation: token,
+            onProgress: (p) {
+              if (!controller.isClosed) controller.add(SummarizationProgressUpdate(p));
+            },
+          );
+          if (!controller.isClosed) controller.add(SummarizationCompletedUpdate(result));
+        } catch (e, st) {
+          if (!controller.isClosed) controller.addError(e, st);
+        } finally {
+          if (!controller.isClosed) await controller.close();
+        }
+      },
+      onCancel: token.cancel,
+    );
+    return controller.stream;
   }
 
   static String _newJobId() {
