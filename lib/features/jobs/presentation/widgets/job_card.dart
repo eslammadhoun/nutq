@@ -87,7 +87,7 @@ class JobCard extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
             Text(
-              '${formatJobTimestamp(context, job.createdAt)} · ${languageName(l10n, job.language.code)}',
+              '${formatJobTimestamp(context, job.createdAt)} · ${languageName(l10n, job.sourceLanguage.code)}',
               style: context.typography.captionSmall.copyWith(
                 color: colors.textSecondary,
               ),

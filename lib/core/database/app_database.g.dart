@@ -37,13 +37,23 @@ class $JobsTable extends Jobs with TableInfo<$JobsTable, JobRow> {
   ).withConverter<JobSourceType>($JobsTable.$convertersourceType);
   @override
   late final GeneratedColumnWithTypeConverter<ContentLanguage, String>
-  language = GeneratedColumn<String>(
+  sourceLanguage = GeneratedColumn<String>(
     'language',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-  ).withConverter<ContentLanguage>($JobsTable.$converterlanguage);
+  ).withConverter<ContentLanguage>($JobsTable.$convertersourceLanguage);
+  @override
+  late final GeneratedColumnWithTypeConverter<ContentLanguage, String>
+  summaryLanguage = GeneratedColumn<String>(
+    'summary_language',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('ar'),
+  ).withConverter<ContentLanguage>($JobsTable.$convertersummaryLanguage);
   @override
   late final GeneratedColumnWithTypeConverter<SummaryLength, String>
   requestedLength = GeneratedColumn<String>(
@@ -95,17 +105,78 @@ class $JobsTable extends Jobs with TableInfo<$JobsTable, JobRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _sourceUrlMeta = const VerificationMeta(
+    'sourceUrl',
+  );
+  @override
+  late final GeneratedColumn<String> sourceUrl = GeneratedColumn<String>(
+    'source_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceFilePathMeta = const VerificationMeta(
+    'sourceFilePath',
+  );
+  @override
+  late final GeneratedColumn<String> sourceFilePath = GeneratedColumn<String>(
+    'source_file_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceMimeTypeMeta = const VerificationMeta(
+    'sourceMimeType',
+  );
+  @override
+  late final GeneratedColumn<String> sourceMimeType = GeneratedColumn<String>(
+    'source_mime_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceTitleMeta = const VerificationMeta(
+    'sourceTitle',
+  );
+  @override
+  late final GeneratedColumn<String> sourceTitle = GeneratedColumn<String>(
+    'source_title',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _durationSecondsMeta = const VerificationMeta(
+    'durationSeconds',
+  );
+  @override
+  late final GeneratedColumn<double> durationSeconds = GeneratedColumn<double>(
+    'duration_seconds',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     status,
     sourceType,
-    language,
+    sourceLanguage,
+    summaryLanguage,
     requestedLength,
     createdAt,
     updatedAt,
     failureKind,
     preview,
+    sourceUrl,
+    sourceFilePath,
+    sourceMimeType,
+    sourceTitle,
+    durationSeconds,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -146,6 +217,48 @@ class $JobsTable extends Jobs with TableInfo<$JobsTable, JobRow> {
         preview.isAcceptableOrUnknown(data['preview']!, _previewMeta),
       );
     }
+    if (data.containsKey('source_url')) {
+      context.handle(
+        _sourceUrlMeta,
+        sourceUrl.isAcceptableOrUnknown(data['source_url']!, _sourceUrlMeta),
+      );
+    }
+    if (data.containsKey('source_file_path')) {
+      context.handle(
+        _sourceFilePathMeta,
+        sourceFilePath.isAcceptableOrUnknown(
+          data['source_file_path']!,
+          _sourceFilePathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source_mime_type')) {
+      context.handle(
+        _sourceMimeTypeMeta,
+        sourceMimeType.isAcceptableOrUnknown(
+          data['source_mime_type']!,
+          _sourceMimeTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source_title')) {
+      context.handle(
+        _sourceTitleMeta,
+        sourceTitle.isAcceptableOrUnknown(
+          data['source_title']!,
+          _sourceTitleMeta,
+        ),
+      );
+    }
+    if (data.containsKey('duration_seconds')) {
+      context.handle(
+        _durationSecondsMeta,
+        durationSeconds.isAcceptableOrUnknown(
+          data['duration_seconds']!,
+          _durationSecondsMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -171,10 +284,16 @@ class $JobsTable extends Jobs with TableInfo<$JobsTable, JobRow> {
           data['${effectivePrefix}source_type'],
         )!,
       ),
-      language: $JobsTable.$converterlanguage.fromSql(
+      sourceLanguage: $JobsTable.$convertersourceLanguage.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}language'],
+        )!,
+      ),
+      summaryLanguage: $JobsTable.$convertersummaryLanguage.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}summary_language'],
         )!,
       ),
       requestedLength: $JobsTable.$converterrequestedLength.fromSql(
@@ -201,6 +320,26 @@ class $JobsTable extends Jobs with TableInfo<$JobsTable, JobRow> {
         DriftSqlType.string,
         data['${effectivePrefix}preview'],
       ),
+      sourceUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_url'],
+      ),
+      sourceFilePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_file_path'],
+      ),
+      sourceMimeType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_mime_type'],
+      ),
+      sourceTitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_title'],
+      ),
+      durationSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}duration_seconds'],
+      ),
     );
   }
 
@@ -216,7 +355,11 @@ class $JobsTable extends Jobs with TableInfo<$JobsTable, JobRow> {
     JobSourceType.values,
   );
   static JsonTypeConverter2<ContentLanguage, String, String>
-  $converterlanguage = const EnumNameConverter<ContentLanguage>(
+  $convertersourceLanguage = const EnumNameConverter<ContentLanguage>(
+    ContentLanguage.values,
+  );
+  static JsonTypeConverter2<ContentLanguage, String, String>
+  $convertersummaryLanguage = const EnumNameConverter<ContentLanguage>(
     ContentLanguage.values,
   );
   static JsonTypeConverter2<SummaryLength, String, String>
@@ -235,7 +378,12 @@ class JobRow extends DataClass implements Insertable<JobRow> {
   final String id;
   final JobRunStatus status;
   final JobSourceType sourceType;
-  final ContentLanguage language;
+
+  /// Language of the source. The SQL column keeps its original name.
+  final ContentLanguage sourceLanguage;
+
+  /// Language the summary is written in (added in schema v2).
+  final ContentLanguage summaryLanguage;
   final SummaryLength requestedLength;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -243,16 +391,32 @@ class JobRow extends DataClass implements Insertable<JobRow> {
 
   /// First words of the transcript, denormalized for the list row.
   final String? preview;
+
+  /// Web address of the source (YouTube). Never deleted.
+  final String? sourceUrl;
+
+  /// App-owned copy of an uploaded/downloaded file. The repository deletes the
+  /// file when the job is deleted.
+  final String? sourceFilePath;
+  final String? sourceMimeType;
+  final String? sourceTitle;
+  final double? durationSeconds;
   const JobRow({
     required this.id,
     required this.status,
     required this.sourceType,
-    required this.language,
+    required this.sourceLanguage,
+    required this.summaryLanguage,
     required this.requestedLength,
     required this.createdAt,
     required this.updatedAt,
     this.failureKind,
     this.preview,
+    this.sourceUrl,
+    this.sourceFilePath,
+    this.sourceMimeType,
+    this.sourceTitle,
+    this.durationSeconds,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -270,7 +434,12 @@ class JobRow extends DataClass implements Insertable<JobRow> {
     }
     {
       map['language'] = Variable<String>(
-        $JobsTable.$converterlanguage.toSql(language),
+        $JobsTable.$convertersourceLanguage.toSql(sourceLanguage),
+      );
+    }
+    {
+      map['summary_language'] = Variable<String>(
+        $JobsTable.$convertersummaryLanguage.toSql(summaryLanguage),
       );
     }
     {
@@ -288,6 +457,21 @@ class JobRow extends DataClass implements Insertable<JobRow> {
     if (!nullToAbsent || preview != null) {
       map['preview'] = Variable<String>(preview);
     }
+    if (!nullToAbsent || sourceUrl != null) {
+      map['source_url'] = Variable<String>(sourceUrl);
+    }
+    if (!nullToAbsent || sourceFilePath != null) {
+      map['source_file_path'] = Variable<String>(sourceFilePath);
+    }
+    if (!nullToAbsent || sourceMimeType != null) {
+      map['source_mime_type'] = Variable<String>(sourceMimeType);
+    }
+    if (!nullToAbsent || sourceTitle != null) {
+      map['source_title'] = Variable<String>(sourceTitle);
+    }
+    if (!nullToAbsent || durationSeconds != null) {
+      map['duration_seconds'] = Variable<double>(durationSeconds);
+    }
     return map;
   }
 
@@ -296,7 +480,8 @@ class JobRow extends DataClass implements Insertable<JobRow> {
       id: Value(id),
       status: Value(status),
       sourceType: Value(sourceType),
-      language: Value(language),
+      sourceLanguage: Value(sourceLanguage),
+      summaryLanguage: Value(summaryLanguage),
       requestedLength: Value(requestedLength),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -306,6 +491,21 @@ class JobRow extends DataClass implements Insertable<JobRow> {
       preview: preview == null && nullToAbsent
           ? const Value.absent()
           : Value(preview),
+      sourceUrl: sourceUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceUrl),
+      sourceFilePath: sourceFilePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceFilePath),
+      sourceMimeType: sourceMimeType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceMimeType),
+      sourceTitle: sourceTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceTitle),
+      durationSeconds: durationSeconds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(durationSeconds),
     );
   }
 
@@ -322,8 +522,11 @@ class JobRow extends DataClass implements Insertable<JobRow> {
       sourceType: $JobsTable.$convertersourceType.fromJson(
         serializer.fromJson<String>(json['sourceType']),
       ),
-      language: $JobsTable.$converterlanguage.fromJson(
-        serializer.fromJson<String>(json['language']),
+      sourceLanguage: $JobsTable.$convertersourceLanguage.fromJson(
+        serializer.fromJson<String>(json['sourceLanguage']),
+      ),
+      summaryLanguage: $JobsTable.$convertersummaryLanguage.fromJson(
+        serializer.fromJson<String>(json['summaryLanguage']),
       ),
       requestedLength: $JobsTable.$converterrequestedLength.fromJson(
         serializer.fromJson<String>(json['requestedLength']),
@@ -334,6 +537,11 @@ class JobRow extends DataClass implements Insertable<JobRow> {
         serializer.fromJson<String?>(json['failureKind']),
       ),
       preview: serializer.fromJson<String?>(json['preview']),
+      sourceUrl: serializer.fromJson<String?>(json['sourceUrl']),
+      sourceFilePath: serializer.fromJson<String?>(json['sourceFilePath']),
+      sourceMimeType: serializer.fromJson<String?>(json['sourceMimeType']),
+      sourceTitle: serializer.fromJson<String?>(json['sourceTitle']),
+      durationSeconds: serializer.fromJson<double?>(json['durationSeconds']),
     );
   }
   @override
@@ -347,8 +555,11 @@ class JobRow extends DataClass implements Insertable<JobRow> {
       'sourceType': serializer.toJson<String>(
         $JobsTable.$convertersourceType.toJson(sourceType),
       ),
-      'language': serializer.toJson<String>(
-        $JobsTable.$converterlanguage.toJson(language),
+      'sourceLanguage': serializer.toJson<String>(
+        $JobsTable.$convertersourceLanguage.toJson(sourceLanguage),
+      ),
+      'summaryLanguage': serializer.toJson<String>(
+        $JobsTable.$convertersummaryLanguage.toJson(summaryLanguage),
       ),
       'requestedLength': serializer.toJson<String>(
         $JobsTable.$converterrequestedLength.toJson(requestedLength),
@@ -359,6 +570,11 @@ class JobRow extends DataClass implements Insertable<JobRow> {
         $JobsTable.$converterfailureKindn.toJson(failureKind),
       ),
       'preview': serializer.toJson<String?>(preview),
+      'sourceUrl': serializer.toJson<String?>(sourceUrl),
+      'sourceFilePath': serializer.toJson<String?>(sourceFilePath),
+      'sourceMimeType': serializer.toJson<String?>(sourceMimeType),
+      'sourceTitle': serializer.toJson<String?>(sourceTitle),
+      'durationSeconds': serializer.toJson<double?>(durationSeconds),
     };
   }
 
@@ -366,22 +582,40 @@ class JobRow extends DataClass implements Insertable<JobRow> {
     String? id,
     JobRunStatus? status,
     JobSourceType? sourceType,
-    ContentLanguage? language,
+    ContentLanguage? sourceLanguage,
+    ContentLanguage? summaryLanguage,
     SummaryLength? requestedLength,
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<JobFailureKind?> failureKind = const Value.absent(),
     Value<String?> preview = const Value.absent(),
+    Value<String?> sourceUrl = const Value.absent(),
+    Value<String?> sourceFilePath = const Value.absent(),
+    Value<String?> sourceMimeType = const Value.absent(),
+    Value<String?> sourceTitle = const Value.absent(),
+    Value<double?> durationSeconds = const Value.absent(),
   }) => JobRow(
     id: id ?? this.id,
     status: status ?? this.status,
     sourceType: sourceType ?? this.sourceType,
-    language: language ?? this.language,
+    sourceLanguage: sourceLanguage ?? this.sourceLanguage,
+    summaryLanguage: summaryLanguage ?? this.summaryLanguage,
     requestedLength: requestedLength ?? this.requestedLength,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     failureKind: failureKind.present ? failureKind.value : this.failureKind,
     preview: preview.present ? preview.value : this.preview,
+    sourceUrl: sourceUrl.present ? sourceUrl.value : this.sourceUrl,
+    sourceFilePath: sourceFilePath.present
+        ? sourceFilePath.value
+        : this.sourceFilePath,
+    sourceMimeType: sourceMimeType.present
+        ? sourceMimeType.value
+        : this.sourceMimeType,
+    sourceTitle: sourceTitle.present ? sourceTitle.value : this.sourceTitle,
+    durationSeconds: durationSeconds.present
+        ? durationSeconds.value
+        : this.durationSeconds,
   );
   JobRow copyWithCompanion(JobsCompanion data) {
     return JobRow(
@@ -390,7 +624,12 @@ class JobRow extends DataClass implements Insertable<JobRow> {
       sourceType: data.sourceType.present
           ? data.sourceType.value
           : this.sourceType,
-      language: data.language.present ? data.language.value : this.language,
+      sourceLanguage: data.sourceLanguage.present
+          ? data.sourceLanguage.value
+          : this.sourceLanguage,
+      summaryLanguage: data.summaryLanguage.present
+          ? data.summaryLanguage.value
+          : this.summaryLanguage,
       requestedLength: data.requestedLength.present
           ? data.requestedLength.value
           : this.requestedLength,
@@ -400,6 +639,19 @@ class JobRow extends DataClass implements Insertable<JobRow> {
           ? data.failureKind.value
           : this.failureKind,
       preview: data.preview.present ? data.preview.value : this.preview,
+      sourceUrl: data.sourceUrl.present ? data.sourceUrl.value : this.sourceUrl,
+      sourceFilePath: data.sourceFilePath.present
+          ? data.sourceFilePath.value
+          : this.sourceFilePath,
+      sourceMimeType: data.sourceMimeType.present
+          ? data.sourceMimeType.value
+          : this.sourceMimeType,
+      sourceTitle: data.sourceTitle.present
+          ? data.sourceTitle.value
+          : this.sourceTitle,
+      durationSeconds: data.durationSeconds.present
+          ? data.durationSeconds.value
+          : this.durationSeconds,
     );
   }
 
@@ -409,12 +661,18 @@ class JobRow extends DataClass implements Insertable<JobRow> {
           ..write('id: $id, ')
           ..write('status: $status, ')
           ..write('sourceType: $sourceType, ')
-          ..write('language: $language, ')
+          ..write('sourceLanguage: $sourceLanguage, ')
+          ..write('summaryLanguage: $summaryLanguage, ')
           ..write('requestedLength: $requestedLength, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('failureKind: $failureKind, ')
-          ..write('preview: $preview')
+          ..write('preview: $preview, ')
+          ..write('sourceUrl: $sourceUrl, ')
+          ..write('sourceFilePath: $sourceFilePath, ')
+          ..write('sourceMimeType: $sourceMimeType, ')
+          ..write('sourceTitle: $sourceTitle, ')
+          ..write('durationSeconds: $durationSeconds')
           ..write(')'))
         .toString();
   }
@@ -424,12 +682,18 @@ class JobRow extends DataClass implements Insertable<JobRow> {
     id,
     status,
     sourceType,
-    language,
+    sourceLanguage,
+    summaryLanguage,
     requestedLength,
     createdAt,
     updatedAt,
     failureKind,
     preview,
+    sourceUrl,
+    sourceFilePath,
+    sourceMimeType,
+    sourceTitle,
+    durationSeconds,
   );
   @override
   bool operator ==(Object other) =>
@@ -438,52 +702,76 @@ class JobRow extends DataClass implements Insertable<JobRow> {
           other.id == this.id &&
           other.status == this.status &&
           other.sourceType == this.sourceType &&
-          other.language == this.language &&
+          other.sourceLanguage == this.sourceLanguage &&
+          other.summaryLanguage == this.summaryLanguage &&
           other.requestedLength == this.requestedLength &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.failureKind == this.failureKind &&
-          other.preview == this.preview);
+          other.preview == this.preview &&
+          other.sourceUrl == this.sourceUrl &&
+          other.sourceFilePath == this.sourceFilePath &&
+          other.sourceMimeType == this.sourceMimeType &&
+          other.sourceTitle == this.sourceTitle &&
+          other.durationSeconds == this.durationSeconds);
 }
 
 class JobsCompanion extends UpdateCompanion<JobRow> {
   final Value<String> id;
   final Value<JobRunStatus> status;
   final Value<JobSourceType> sourceType;
-  final Value<ContentLanguage> language;
+  final Value<ContentLanguage> sourceLanguage;
+  final Value<ContentLanguage> summaryLanguage;
   final Value<SummaryLength> requestedLength;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<JobFailureKind?> failureKind;
   final Value<String?> preview;
+  final Value<String?> sourceUrl;
+  final Value<String?> sourceFilePath;
+  final Value<String?> sourceMimeType;
+  final Value<String?> sourceTitle;
+  final Value<double?> durationSeconds;
   final Value<int> rowid;
   const JobsCompanion({
     this.id = const Value.absent(),
     this.status = const Value.absent(),
     this.sourceType = const Value.absent(),
-    this.language = const Value.absent(),
+    this.sourceLanguage = const Value.absent(),
+    this.summaryLanguage = const Value.absent(),
     this.requestedLength = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.failureKind = const Value.absent(),
     this.preview = const Value.absent(),
+    this.sourceUrl = const Value.absent(),
+    this.sourceFilePath = const Value.absent(),
+    this.sourceMimeType = const Value.absent(),
+    this.sourceTitle = const Value.absent(),
+    this.durationSeconds = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   JobsCompanion.insert({
     required String id,
     required JobRunStatus status,
     required JobSourceType sourceType,
-    required ContentLanguage language,
+    required ContentLanguage sourceLanguage,
+    this.summaryLanguage = const Value.absent(),
     required SummaryLength requestedLength,
     required DateTime createdAt,
     required DateTime updatedAt,
     this.failureKind = const Value.absent(),
     this.preview = const Value.absent(),
+    this.sourceUrl = const Value.absent(),
+    this.sourceFilePath = const Value.absent(),
+    this.sourceMimeType = const Value.absent(),
+    this.sourceTitle = const Value.absent(),
+    this.durationSeconds = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        status = Value(status),
        sourceType = Value(sourceType),
-       language = Value(language),
+       sourceLanguage = Value(sourceLanguage),
        requestedLength = Value(requestedLength),
        createdAt = Value(createdAt),
        updatedAt = Value(updatedAt);
@@ -491,24 +779,36 @@ class JobsCompanion extends UpdateCompanion<JobRow> {
     Expression<String>? id,
     Expression<String>? status,
     Expression<String>? sourceType,
-    Expression<String>? language,
+    Expression<String>? sourceLanguage,
+    Expression<String>? summaryLanguage,
     Expression<String>? requestedLength,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? failureKind,
     Expression<String>? preview,
+    Expression<String>? sourceUrl,
+    Expression<String>? sourceFilePath,
+    Expression<String>? sourceMimeType,
+    Expression<String>? sourceTitle,
+    Expression<double>? durationSeconds,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (status != null) 'status': status,
       if (sourceType != null) 'source_type': sourceType,
-      if (language != null) 'language': language,
+      if (sourceLanguage != null) 'language': sourceLanguage,
+      if (summaryLanguage != null) 'summary_language': summaryLanguage,
       if (requestedLength != null) 'requested_length': requestedLength,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (failureKind != null) 'failure_kind': failureKind,
       if (preview != null) 'preview': preview,
+      if (sourceUrl != null) 'source_url': sourceUrl,
+      if (sourceFilePath != null) 'source_file_path': sourceFilePath,
+      if (sourceMimeType != null) 'source_mime_type': sourceMimeType,
+      if (sourceTitle != null) 'source_title': sourceTitle,
+      if (durationSeconds != null) 'duration_seconds': durationSeconds,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -517,24 +817,36 @@ class JobsCompanion extends UpdateCompanion<JobRow> {
     Value<String>? id,
     Value<JobRunStatus>? status,
     Value<JobSourceType>? sourceType,
-    Value<ContentLanguage>? language,
+    Value<ContentLanguage>? sourceLanguage,
+    Value<ContentLanguage>? summaryLanguage,
     Value<SummaryLength>? requestedLength,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<JobFailureKind?>? failureKind,
     Value<String?>? preview,
+    Value<String?>? sourceUrl,
+    Value<String?>? sourceFilePath,
+    Value<String?>? sourceMimeType,
+    Value<String?>? sourceTitle,
+    Value<double?>? durationSeconds,
     Value<int>? rowid,
   }) {
     return JobsCompanion(
       id: id ?? this.id,
       status: status ?? this.status,
       sourceType: sourceType ?? this.sourceType,
-      language: language ?? this.language,
+      sourceLanguage: sourceLanguage ?? this.sourceLanguage,
+      summaryLanguage: summaryLanguage ?? this.summaryLanguage,
       requestedLength: requestedLength ?? this.requestedLength,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       failureKind: failureKind ?? this.failureKind,
       preview: preview ?? this.preview,
+      sourceUrl: sourceUrl ?? this.sourceUrl,
+      sourceFilePath: sourceFilePath ?? this.sourceFilePath,
+      sourceMimeType: sourceMimeType ?? this.sourceMimeType,
+      sourceTitle: sourceTitle ?? this.sourceTitle,
+      durationSeconds: durationSeconds ?? this.durationSeconds,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -555,9 +867,14 @@ class JobsCompanion extends UpdateCompanion<JobRow> {
         $JobsTable.$convertersourceType.toSql(sourceType.value),
       );
     }
-    if (language.present) {
+    if (sourceLanguage.present) {
       map['language'] = Variable<String>(
-        $JobsTable.$converterlanguage.toSql(language.value),
+        $JobsTable.$convertersourceLanguage.toSql(sourceLanguage.value),
+      );
+    }
+    if (summaryLanguage.present) {
+      map['summary_language'] = Variable<String>(
+        $JobsTable.$convertersummaryLanguage.toSql(summaryLanguage.value),
       );
     }
     if (requestedLength.present) {
@@ -579,6 +896,21 @@ class JobsCompanion extends UpdateCompanion<JobRow> {
     if (preview.present) {
       map['preview'] = Variable<String>(preview.value);
     }
+    if (sourceUrl.present) {
+      map['source_url'] = Variable<String>(sourceUrl.value);
+    }
+    if (sourceFilePath.present) {
+      map['source_file_path'] = Variable<String>(sourceFilePath.value);
+    }
+    if (sourceMimeType.present) {
+      map['source_mime_type'] = Variable<String>(sourceMimeType.value);
+    }
+    if (sourceTitle.present) {
+      map['source_title'] = Variable<String>(sourceTitle.value);
+    }
+    if (durationSeconds.present) {
+      map['duration_seconds'] = Variable<double>(durationSeconds.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -591,12 +923,18 @@ class JobsCompanion extends UpdateCompanion<JobRow> {
           ..write('id: $id, ')
           ..write('status: $status, ')
           ..write('sourceType: $sourceType, ')
-          ..write('language: $language, ')
+          ..write('sourceLanguage: $sourceLanguage, ')
+          ..write('summaryLanguage: $summaryLanguage, ')
           ..write('requestedLength: $requestedLength, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('failureKind: $failureKind, ')
           ..write('preview: $preview, ')
+          ..write('sourceUrl: $sourceUrl, ')
+          ..write('sourceFilePath: $sourceFilePath, ')
+          ..write('sourceMimeType: $sourceMimeType, ')
+          ..write('sourceTitle: $sourceTitle, ')
+          ..write('durationSeconds: $durationSeconds, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -644,8 +982,36 @@ class $JobTranscriptsTable extends JobTranscripts
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _modelNameMeta = const VerificationMeta(
+    'modelName',
+  );
   @override
-  List<GeneratedColumn> get $columns => [jobId, content, wordCount];
+  late final GeneratedColumn<String> modelName = GeneratedColumn<String>(
+    'model_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _modelVersionMeta = const VerificationMeta(
+    'modelVersion',
+  );
+  @override
+  late final GeneratedColumn<String> modelVersion = GeneratedColumn<String>(
+    'model_version',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    jobId,
+    content,
+    wordCount,
+    modelName,
+    modelVersion,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -682,6 +1048,21 @@ class $JobTranscriptsTable extends JobTranscripts
     } else if (isInserting) {
       context.missing(_wordCountMeta);
     }
+    if (data.containsKey('model_name')) {
+      context.handle(
+        _modelNameMeta,
+        modelName.isAcceptableOrUnknown(data['model_name']!, _modelNameMeta),
+      );
+    }
+    if (data.containsKey('model_version')) {
+      context.handle(
+        _modelVersionMeta,
+        modelVersion.isAcceptableOrUnknown(
+          data['model_version']!,
+          _modelVersionMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -703,6 +1084,14 @@ class $JobTranscriptsTable extends JobTranscripts
         DriftSqlType.int,
         data['${effectivePrefix}word_count'],
       )!,
+      modelName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model_name'],
+      ),
+      modelVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model_version'],
+      ),
     );
   }
 
@@ -716,10 +1105,16 @@ class TranscriptRow extends DataClass implements Insertable<TranscriptRow> {
   final String jobId;
   final String content;
   final int wordCount;
+
+  /// Speech-recognition model that produced [content] (added in schema v2).
+  final String? modelName;
+  final String? modelVersion;
   const TranscriptRow({
     required this.jobId,
     required this.content,
     required this.wordCount,
+    this.modelName,
+    this.modelVersion,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -727,6 +1122,12 @@ class TranscriptRow extends DataClass implements Insertable<TranscriptRow> {
     map['job_id'] = Variable<String>(jobId);
     map['content'] = Variable<String>(content);
     map['word_count'] = Variable<int>(wordCount);
+    if (!nullToAbsent || modelName != null) {
+      map['model_name'] = Variable<String>(modelName);
+    }
+    if (!nullToAbsent || modelVersion != null) {
+      map['model_version'] = Variable<String>(modelVersion);
+    }
     return map;
   }
 
@@ -735,6 +1136,12 @@ class TranscriptRow extends DataClass implements Insertable<TranscriptRow> {
       jobId: Value(jobId),
       content: Value(content),
       wordCount: Value(wordCount),
+      modelName: modelName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(modelName),
+      modelVersion: modelVersion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(modelVersion),
     );
   }
 
@@ -747,6 +1154,8 @@ class TranscriptRow extends DataClass implements Insertable<TranscriptRow> {
       jobId: serializer.fromJson<String>(json['jobId']),
       content: serializer.fromJson<String>(json['content']),
       wordCount: serializer.fromJson<int>(json['wordCount']),
+      modelName: serializer.fromJson<String?>(json['modelName']),
+      modelVersion: serializer.fromJson<String?>(json['modelVersion']),
     );
   }
   @override
@@ -756,20 +1165,33 @@ class TranscriptRow extends DataClass implements Insertable<TranscriptRow> {
       'jobId': serializer.toJson<String>(jobId),
       'content': serializer.toJson<String>(content),
       'wordCount': serializer.toJson<int>(wordCount),
+      'modelName': serializer.toJson<String?>(modelName),
+      'modelVersion': serializer.toJson<String?>(modelVersion),
     };
   }
 
-  TranscriptRow copyWith({String? jobId, String? content, int? wordCount}) =>
-      TranscriptRow(
-        jobId: jobId ?? this.jobId,
-        content: content ?? this.content,
-        wordCount: wordCount ?? this.wordCount,
-      );
+  TranscriptRow copyWith({
+    String? jobId,
+    String? content,
+    int? wordCount,
+    Value<String?> modelName = const Value.absent(),
+    Value<String?> modelVersion = const Value.absent(),
+  }) => TranscriptRow(
+    jobId: jobId ?? this.jobId,
+    content: content ?? this.content,
+    wordCount: wordCount ?? this.wordCount,
+    modelName: modelName.present ? modelName.value : this.modelName,
+    modelVersion: modelVersion.present ? modelVersion.value : this.modelVersion,
+  );
   TranscriptRow copyWithCompanion(JobTranscriptsCompanion data) {
     return TranscriptRow(
       jobId: data.jobId.present ? data.jobId.value : this.jobId,
       content: data.content.present ? data.content.value : this.content,
       wordCount: data.wordCount.present ? data.wordCount.value : this.wordCount,
+      modelName: data.modelName.present ? data.modelName.value : this.modelName,
+      modelVersion: data.modelVersion.present
+          ? data.modelVersion.value
+          : this.modelVersion,
     );
   }
 
@@ -778,37 +1200,48 @@ class TranscriptRow extends DataClass implements Insertable<TranscriptRow> {
     return (StringBuffer('TranscriptRow(')
           ..write('jobId: $jobId, ')
           ..write('content: $content, ')
-          ..write('wordCount: $wordCount')
+          ..write('wordCount: $wordCount, ')
+          ..write('modelName: $modelName, ')
+          ..write('modelVersion: $modelVersion')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(jobId, content, wordCount);
+  int get hashCode =>
+      Object.hash(jobId, content, wordCount, modelName, modelVersion);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TranscriptRow &&
           other.jobId == this.jobId &&
           other.content == this.content &&
-          other.wordCount == this.wordCount);
+          other.wordCount == this.wordCount &&
+          other.modelName == this.modelName &&
+          other.modelVersion == this.modelVersion);
 }
 
 class JobTranscriptsCompanion extends UpdateCompanion<TranscriptRow> {
   final Value<String> jobId;
   final Value<String> content;
   final Value<int> wordCount;
+  final Value<String?> modelName;
+  final Value<String?> modelVersion;
   final Value<int> rowid;
   const JobTranscriptsCompanion({
     this.jobId = const Value.absent(),
     this.content = const Value.absent(),
     this.wordCount = const Value.absent(),
+    this.modelName = const Value.absent(),
+    this.modelVersion = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   JobTranscriptsCompanion.insert({
     required String jobId,
     required String content,
     required int wordCount,
+    this.modelName = const Value.absent(),
+    this.modelVersion = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : jobId = Value(jobId),
        content = Value(content),
@@ -817,12 +1250,16 @@ class JobTranscriptsCompanion extends UpdateCompanion<TranscriptRow> {
     Expression<String>? jobId,
     Expression<String>? content,
     Expression<int>? wordCount,
+    Expression<String>? modelName,
+    Expression<String>? modelVersion,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (jobId != null) 'job_id': jobId,
       if (content != null) 'content': content,
       if (wordCount != null) 'word_count': wordCount,
+      if (modelName != null) 'model_name': modelName,
+      if (modelVersion != null) 'model_version': modelVersion,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -831,12 +1268,16 @@ class JobTranscriptsCompanion extends UpdateCompanion<TranscriptRow> {
     Value<String>? jobId,
     Value<String>? content,
     Value<int>? wordCount,
+    Value<String?>? modelName,
+    Value<String?>? modelVersion,
     Value<int>? rowid,
   }) {
     return JobTranscriptsCompanion(
       jobId: jobId ?? this.jobId,
       content: content ?? this.content,
       wordCount: wordCount ?? this.wordCount,
+      modelName: modelName ?? this.modelName,
+      modelVersion: modelVersion ?? this.modelVersion,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -853,6 +1294,12 @@ class JobTranscriptsCompanion extends UpdateCompanion<TranscriptRow> {
     if (wordCount.present) {
       map['word_count'] = Variable<int>(wordCount.value);
     }
+    if (modelName.present) {
+      map['model_name'] = Variable<String>(modelName.value);
+    }
+    if (modelVersion.present) {
+      map['model_version'] = Variable<String>(modelVersion.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -865,6 +1312,8 @@ class JobTranscriptsCompanion extends UpdateCompanion<TranscriptRow> {
           ..write('jobId: $jobId, ')
           ..write('content: $content, ')
           ..write('wordCount: $wordCount, ')
+          ..write('modelName: $modelName, ')
+          ..write('modelVersion: $modelVersion, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1517,12 +1966,18 @@ typedef $$JobsTableCreateCompanionBuilder =
       required String id,
       required JobRunStatus status,
       required JobSourceType sourceType,
-      required ContentLanguage language,
+      required ContentLanguage sourceLanguage,
+      Value<ContentLanguage> summaryLanguage,
       required SummaryLength requestedLength,
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<JobFailureKind?> failureKind,
       Value<String?> preview,
+      Value<String?> sourceUrl,
+      Value<String?> sourceFilePath,
+      Value<String?> sourceMimeType,
+      Value<String?> sourceTitle,
+      Value<double?> durationSeconds,
       Value<int> rowid,
     });
 typedef $$JobsTableUpdateCompanionBuilder =
@@ -1530,12 +1985,18 @@ typedef $$JobsTableUpdateCompanionBuilder =
       Value<String> id,
       Value<JobRunStatus> status,
       Value<JobSourceType> sourceType,
-      Value<ContentLanguage> language,
+      Value<ContentLanguage> sourceLanguage,
+      Value<ContentLanguage> summaryLanguage,
       Value<SummaryLength> requestedLength,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<JobFailureKind?> failureKind,
       Value<String?> preview,
+      Value<String?> sourceUrl,
+      Value<String?> sourceFilePath,
+      Value<String?> sourceMimeType,
+      Value<String?> sourceTitle,
+      Value<double?> durationSeconds,
       Value<int> rowid,
     });
 
@@ -1606,8 +2067,14 @@ class $$JobsTableFilterComposer extends Composer<_$AppDatabase, $JobsTable> {
   );
 
   ColumnWithTypeConverterFilters<ContentLanguage, ContentLanguage, String>
-  get language => $composableBuilder(
-    column: $table.language,
+  get sourceLanguage => $composableBuilder(
+    column: $table.sourceLanguage,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ContentLanguage, ContentLanguage, String>
+  get summaryLanguage => $composableBuilder(
+    column: $table.summaryLanguage,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
@@ -1635,6 +2102,31 @@ class $$JobsTableFilterComposer extends Composer<_$AppDatabase, $JobsTable> {
 
   ColumnFilters<String> get preview => $composableBuilder(
     column: $table.preview,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceUrl => $composableBuilder(
+    column: $table.sourceUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceFilePath => $composableBuilder(
+    column: $table.sourceFilePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceMimeType => $composableBuilder(
+    column: $table.sourceMimeType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceTitle => $composableBuilder(
+    column: $table.sourceTitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get durationSeconds => $composableBuilder(
+    column: $table.durationSeconds,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1712,8 +2204,13 @@ class $$JobsTableOrderingComposer extends Composer<_$AppDatabase, $JobsTable> {
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get language => $composableBuilder(
-    column: $table.language,
+  ColumnOrderings<String> get sourceLanguage => $composableBuilder(
+    column: $table.sourceLanguage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get summaryLanguage => $composableBuilder(
+    column: $table.summaryLanguage,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1741,6 +2238,31 @@ class $$JobsTableOrderingComposer extends Composer<_$AppDatabase, $JobsTable> {
     column: $table.preview,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get sourceUrl => $composableBuilder(
+    column: $table.sourceUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceFilePath => $composableBuilder(
+    column: $table.sourceFilePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceMimeType => $composableBuilder(
+    column: $table.sourceMimeType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceTitle => $composableBuilder(
+    column: $table.sourceTitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get durationSeconds => $composableBuilder(
+    column: $table.durationSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$JobsTableAnnotationComposer
@@ -1764,8 +2286,17 @@ class $$JobsTableAnnotationComposer
         builder: (column) => column,
       );
 
-  GeneratedColumnWithTypeConverter<ContentLanguage, String> get language =>
-      $composableBuilder(column: $table.language, builder: (column) => column);
+  GeneratedColumnWithTypeConverter<ContentLanguage, String>
+  get sourceLanguage => $composableBuilder(
+    column: $table.sourceLanguage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<ContentLanguage, String>
+  get summaryLanguage => $composableBuilder(
+    column: $table.summaryLanguage,
+    builder: (column) => column,
+  );
 
   GeneratedColumnWithTypeConverter<SummaryLength, String> get requestedLength =>
       $composableBuilder(
@@ -1787,6 +2318,29 @@ class $$JobsTableAnnotationComposer
 
   GeneratedColumn<String> get preview =>
       $composableBuilder(column: $table.preview, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceUrl =>
+      $composableBuilder(column: $table.sourceUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceFilePath => $composableBuilder(
+    column: $table.sourceFilePath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sourceMimeType => $composableBuilder(
+    column: $table.sourceMimeType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sourceTitle => $composableBuilder(
+    column: $table.sourceTitle,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get durationSeconds => $composableBuilder(
+    column: $table.durationSeconds,
+    builder: (column) => column,
+  );
 
   Expression<T> jobTranscriptsRefs<T extends Object>(
     Expression<T> Function($$JobTranscriptsTableAnnotationComposer a) f,
@@ -1873,23 +2427,35 @@ class $$JobsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<JobRunStatus> status = const Value.absent(),
                 Value<JobSourceType> sourceType = const Value.absent(),
-                Value<ContentLanguage> language = const Value.absent(),
+                Value<ContentLanguage> sourceLanguage = const Value.absent(),
+                Value<ContentLanguage> summaryLanguage = const Value.absent(),
                 Value<SummaryLength> requestedLength = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<JobFailureKind?> failureKind = const Value.absent(),
                 Value<String?> preview = const Value.absent(),
+                Value<String?> sourceUrl = const Value.absent(),
+                Value<String?> sourceFilePath = const Value.absent(),
+                Value<String?> sourceMimeType = const Value.absent(),
+                Value<String?> sourceTitle = const Value.absent(),
+                Value<double?> durationSeconds = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => JobsCompanion(
                 id: id,
                 status: status,
                 sourceType: sourceType,
-                language: language,
+                sourceLanguage: sourceLanguage,
+                summaryLanguage: summaryLanguage,
                 requestedLength: requestedLength,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 failureKind: failureKind,
                 preview: preview,
+                sourceUrl: sourceUrl,
+                sourceFilePath: sourceFilePath,
+                sourceMimeType: sourceMimeType,
+                sourceTitle: sourceTitle,
+                durationSeconds: durationSeconds,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -1897,23 +2463,35 @@ class $$JobsTableTableManager
                 required String id,
                 required JobRunStatus status,
                 required JobSourceType sourceType,
-                required ContentLanguage language,
+                required ContentLanguage sourceLanguage,
+                Value<ContentLanguage> summaryLanguage = const Value.absent(),
                 required SummaryLength requestedLength,
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<JobFailureKind?> failureKind = const Value.absent(),
                 Value<String?> preview = const Value.absent(),
+                Value<String?> sourceUrl = const Value.absent(),
+                Value<String?> sourceFilePath = const Value.absent(),
+                Value<String?> sourceMimeType = const Value.absent(),
+                Value<String?> sourceTitle = const Value.absent(),
+                Value<double?> durationSeconds = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => JobsCompanion.insert(
                 id: id,
                 status: status,
                 sourceType: sourceType,
-                language: language,
+                sourceLanguage: sourceLanguage,
+                summaryLanguage: summaryLanguage,
                 requestedLength: requestedLength,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 failureKind: failureKind,
                 preview: preview,
+                sourceUrl: sourceUrl,
+                sourceFilePath: sourceFilePath,
+                sourceMimeType: sourceMimeType,
+                sourceTitle: sourceTitle,
+                durationSeconds: durationSeconds,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -2000,6 +2578,8 @@ typedef $$JobTranscriptsTableCreateCompanionBuilder =
       required String jobId,
       required String content,
       required int wordCount,
+      Value<String?> modelName,
+      Value<String?> modelVersion,
       Value<int> rowid,
     });
 typedef $$JobTranscriptsTableUpdateCompanionBuilder =
@@ -2007,6 +2587,8 @@ typedef $$JobTranscriptsTableUpdateCompanionBuilder =
       Value<String> jobId,
       Value<String> content,
       Value<int> wordCount,
+      Value<String?> modelName,
+      Value<String?> modelVersion,
       Value<int> rowid,
     });
 
@@ -2055,6 +2637,16 @@ class $$JobTranscriptsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get modelName => $composableBuilder(
+    column: $table.modelName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get modelVersion => $composableBuilder(
+    column: $table.modelVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$JobsTableFilterComposer get jobId {
     final $$JobsTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -2098,6 +2690,16 @@ class $$JobTranscriptsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get modelName => $composableBuilder(
+    column: $table.modelName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get modelVersion => $composableBuilder(
+    column: $table.modelVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$JobsTableOrderingComposer get jobId {
     final $$JobsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -2136,6 +2738,14 @@ class $$JobTranscriptsTableAnnotationComposer
 
   GeneratedColumn<int> get wordCount =>
       $composableBuilder(column: $table.wordCount, builder: (column) => column);
+
+  GeneratedColumn<String> get modelName =>
+      $composableBuilder(column: $table.modelName, builder: (column) => column);
+
+  GeneratedColumn<String> get modelVersion => $composableBuilder(
+    column: $table.modelVersion,
+    builder: (column) => column,
+  );
 
   $$JobsTableAnnotationComposer get jobId {
     final $$JobsTableAnnotationComposer composer = $composerBuilder(
@@ -2194,11 +2804,15 @@ class $$JobTranscriptsTableTableManager
                 Value<String> jobId = const Value.absent(),
                 Value<String> content = const Value.absent(),
                 Value<int> wordCount = const Value.absent(),
+                Value<String?> modelName = const Value.absent(),
+                Value<String?> modelVersion = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => JobTranscriptsCompanion(
                 jobId: jobId,
                 content: content,
                 wordCount: wordCount,
+                modelName: modelName,
+                modelVersion: modelVersion,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2206,11 +2820,15 @@ class $$JobTranscriptsTableTableManager
                 required String jobId,
                 required String content,
                 required int wordCount,
+                Value<String?> modelName = const Value.absent(),
+                Value<String?> modelVersion = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => JobTranscriptsCompanion.insert(
                 jobId: jobId,
                 content: content,
                 wordCount: wordCount,
+                modelName: modelName,
+                modelVersion: modelVersion,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

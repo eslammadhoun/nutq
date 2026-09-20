@@ -45,7 +45,7 @@ class NewJobCubit extends Cubit<NewJobState> {
     emit(state.copyWith(status: NewJobStatus.submitting, lastError: null));
     try {
       final job = await _repository.createJob(
-        NewJobDraft(
+        NewJobDraft.text(
           text: state.text,
           language: ContentLanguage.fromCode(state.language.wireValue),
         ),

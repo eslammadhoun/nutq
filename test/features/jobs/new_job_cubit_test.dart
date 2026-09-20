@@ -1,19 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
-import 'package:nutq/features/jobs/data/local/daos/jobs_dao.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
-import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
-import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
-import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
-import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/core/domain/content_language.dart';
 
+import 'support/faulty_jobs_local_data_source.dart';
 import 'support/job_harness.dart';
 
 void main() {
@@ -53,14 +49,14 @@ void main() {
     final stored = (await h.repo.getJob(id))!;
     expect(stored.status, JobRunStatus.pending, reason: 'processing starts when the job is opened');
     expect(stored.transcript!.text, 'نص للتلخيص');
-    expect(stored.language, ContentLanguage.ar);
+    expect(stored.sourceLanguage, ContentLanguage.ar);
   });
 
   test('the language toggle is saved with the job', () async {
     cubit.setText('Hello world');
     cubit.toggleLanguage();
     await cubit.submit();
-    expect((await h.repo.getJob(cubit.state.submittedJobId!))!.language, ContentLanguage.en);
+    expect((await h.repo.getJob(cubit.state.submittedJobId!))!.sourceLanguage, ContentLanguage.en);
   });
 
   test('submitting twice creates one job', () async {
@@ -78,7 +74,7 @@ void main() {
   });
 
   test('a storage failure is reported and the sheet can retry', () async {
-    final repo = JobsRepositoryImpl(_BrokenInsert(JobsLocalDataSourceImpl(h.db.jobsDao)), newId: () => 'x');
+    final repo = JobsRepositoryImpl(FaultyJobsLocalDataSource(JobsLocalDataSourceImpl(h.db.jobsDao), {Fault.insertJob}), newId: () => 'x');
     final failing = NewJobCubit(repo);
     addTearDown(failing.close);
     failing.setText('نص');
@@ -92,42 +88,4 @@ void main() {
     await failing.submit();
     expect(failing.state.status, NewJobStatus.failure, reason: 'a failed submit can be attempted again');
   });
-}
-
-class _BrokenInsert extends _Delegating {
-  _BrokenInsert(super.inner);
-
-  @override
-  Future<void> insertJob(JobDetailEntity job) => Future.error(StateError('disk full'));
-}
-
-class _Delegating implements JobsLocalDataSource {
-  _Delegating(this.inner);
-
-  final JobsLocalDataSource inner;
-
-  @override
-  Stream<List<JobEntity>> watchJobs(JobsQuery query) => inner.watchJobs(query);
-
-  @override
-  Stream<JobDetailEntity?> watchJob(String id) => inner.watchJob(id);
-
-  @override
-  Future<JobDetailEntity?> getJob(String id) => inner.getJob(id);
-
-  @override
-  Future<void> insertJob(JobDetailEntity job) => inner.insertJob(job);
-
-  @override
-  Future<TransitionOutcome> transition(String id, {required Set<JobRunStatus> from, required JobRunStatus to, required DateTime at, JobFailureKind? failureKind}) =>
-      inner.transition(id, from: from, to: to, at: at, failureKind: failureKind);
-
-  @override
-  Future<TransitionOutcome> completeJob(String id, Summary summary, DateTime at) => inner.completeJob(id, summary, at);
-
-  @override
-  Future<void> deleteJob(String id) => inner.deleteJob(id);
-
-  @override
-  Future<int> failActiveJobs(JobFailureKind kind, DateTime at) => inner.failActiveJobs(kind, at);
 }

@@ -3,7 +3,9 @@ import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
 import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_result.dart';
+import 'package:nutq/features/jobs/domain/entities/source_info.dart';
+import 'package:nutq/features/jobs/domain/entities/summary.dart';
+import 'package:nutq/features/jobs/domain/entities/transcript.dart';
 
 /// Durable storage for summary jobs.
 ///
@@ -27,8 +29,17 @@ abstract interface class JobsRepository {
   /// `pending → running`.
   Future<void> markRunning(String id);
 
-  /// `running → completed`, saving the summary atomically with the status.
-  Future<void> completeJob(String id, SummaryResult result);
+  /// Stores the job's transcript (for example after transcribing media) while
+  /// the job is active.
+  Future<void> saveTranscript(String id, Transcript transcript);
+
+  /// Records what acquiring the source revealed (title, downloaded file,
+  /// duration) while the job is active. Only the given fields change.
+  Future<void> updateSourceInfo(String id, SourceInfo info);
+
+  /// `pending|running → completed`, saving the summary atomically with the
+  /// status.
+  Future<void> completeJob(String id, Summary summary);
 
   /// `pending|running → failed`.
   Future<void> failJob(String id, JobFailureKind kind);
@@ -36,8 +47,8 @@ abstract interface class JobsRepository {
   /// `pending|running → cancelled`.
   Future<void> cancelJob(String id);
 
-  /// Removes the job and everything attached to it. Deleting a missing job is
-  /// a no-op.
+  /// Removes the job and everything attached to it, including its stored source
+  /// file. Deleting a missing job is a no-op.
   Future<void> deleteJob(String id);
 
   /// Marks jobs left `pending`/`running` (for example by an app kill) as

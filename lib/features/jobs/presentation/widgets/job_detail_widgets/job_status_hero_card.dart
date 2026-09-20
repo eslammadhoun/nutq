@@ -22,9 +22,8 @@ class JobStatusHeroCard extends StatelessWidget {
 
     final metaParts = [
       source.label,
-      languageName(l10n, job.language.code),
-      if (transcript?.durationSeconds != null)
-        formatDuration(transcript!.durationSeconds!),
+      languageName(l10n, job.sourceLanguage.code),
+      if (job.durationSeconds != null) formatDuration(job.durationSeconds!),
       if (transcript != null) l10n.jobDetailWordCount(transcript.wordCount),
     ];
 

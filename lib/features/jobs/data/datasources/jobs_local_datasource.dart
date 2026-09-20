@@ -4,7 +4,9 @@ import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
+import 'package:nutq/features/jobs/domain/entities/source_info.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
+import 'package:nutq/features/jobs/domain/entities/transcript.dart';
 import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 
 /// SQLite access for jobs, expressed in domain entities.
@@ -19,7 +21,7 @@ abstract interface class JobsLocalDataSource {
 
   Future<JobDetailEntity?> getJob(String id);
 
-  /// Inserts the job together with its transcript.
+  /// Inserts the job together with its transcript, if it has one.
   Future<void> insertJob(JobDetailEntity job);
 
   Future<TransitionOutcome> transition(
@@ -33,6 +35,18 @@ abstract interface class JobsLocalDataSource {
   Future<TransitionOutcome> completeJob(
     String id,
     Summary summary,
+    DateTime at,
+  );
+
+  Future<TransitionOutcome> saveTranscript(
+    String id,
+    Transcript transcript,
+    DateTime at,
+  );
+
+  Future<TransitionOutcome> updateSourceInfo(
+    String id,
+    SourceInfo info,
     DateTime at,
   );
 
@@ -78,6 +92,25 @@ class JobsLocalDataSourceImpl implements JobsLocalDataSource {
     Summary summary,
     DateTime at,
   ) => _dao.completeJob(id, summary.toCompanion(id), at);
+
+  @override
+  Future<TransitionOutcome> saveTranscript(
+    String id,
+    Transcript transcript,
+    DateTime at,
+  ) => _dao.saveTranscript(
+    id,
+    transcript.toCompanion(id),
+    preview: transcriptPreview(transcript.text),
+    at: at,
+  );
+
+  @override
+  Future<TransitionOutcome> updateSourceInfo(
+    String id,
+    SourceInfo info,
+    DateTime at,
+  ) => _dao.updateSource(id, info.toCompanion(at));
 
   @override
   Future<void> deleteJob(String id) => _dao.deleteJob(id);

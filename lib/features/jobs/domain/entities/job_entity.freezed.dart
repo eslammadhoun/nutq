@@ -14,8 +14,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$JobEntity {
 
- String get id; JobRunStatus get status; JobSourceType get sourceType; ContentLanguage get language; DateTime get createdAt; DateTime get updatedAt;/// First words of the transcript, for the list row.
- String? get preview;/// Why the job failed; only set when [status] is `failed`.
+ String get id; JobRunStatus get status; JobSourceType get sourceType;/// Language of the source (what is spoken or written).
+ ContentLanguage get sourceLanguage; DateTime get createdAt; DateTime get updatedAt;/// First words of the transcript, for the list row.
+ String? get preview;/// Name of the file or video, when the source has one.
+ String? get sourceTitle;/// Why the job failed; only set when [status] is `failed`.
  JobFailureKind? get failureKind;
 /// Create a copy of JobEntity
 /// with the given fields replaced by the non-null parameter values.
@@ -27,16 +29,16 @@ $JobEntityCopyWith<JobEntity> get copyWith => _$JobEntityCopyWithImpl<JobEntity>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is JobEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.preview, preview) || other.preview == preview)&&(identical(other.failureKind, failureKind) || other.failureKind == failureKind));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is JobEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.sourceLanguage, sourceLanguage) || other.sourceLanguage == sourceLanguage)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.preview, preview) || other.preview == preview)&&(identical(other.sourceTitle, sourceTitle) || other.sourceTitle == sourceTitle)&&(identical(other.failureKind, failureKind) || other.failureKind == failureKind));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,preview,failureKind);
+int get hashCode => Object.hash(runtimeType,id,status,sourceType,sourceLanguage,createdAt,updatedAt,preview,sourceTitle,failureKind);
 
 @override
 String toString() {
-  return 'JobEntity(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, preview: $preview, failureKind: $failureKind)';
+  return 'JobEntity(id: $id, status: $status, sourceType: $sourceType, sourceLanguage: $sourceLanguage, createdAt: $createdAt, updatedAt: $updatedAt, preview: $preview, sourceTitle: $sourceTitle, failureKind: $failureKind)';
 }
 
 
@@ -47,7 +49,7 @@ abstract mixin class $JobEntityCopyWith<$Res>  {
   factory $JobEntityCopyWith(JobEntity value, $Res Function(JobEntity) _then) = _$JobEntityCopyWithImpl;
 @useResult
 $Res call({
- String id, JobRunStatus status, JobSourceType sourceType, ContentLanguage language, DateTime createdAt, DateTime updatedAt, String? preview, JobFailureKind? failureKind
+ String id, JobRunStatus status, JobSourceType sourceType, ContentLanguage sourceLanguage, DateTime createdAt, DateTime updatedAt, String? preview, String? sourceTitle, JobFailureKind? failureKind
 });
 
 
@@ -64,15 +66,16 @@ class _$JobEntityCopyWithImpl<$Res>
 
 /// Create a copy of JobEntity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? preview = freezed,Object? failureKind = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? sourceLanguage = null,Object? createdAt = null,Object? updatedAt = null,Object? preview = freezed,Object? sourceTitle = freezed,Object? failureKind = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as JobRunStatus,sourceType: null == sourceType ? _self.sourceType : sourceType // ignore: cast_nullable_to_non_nullable
-as JobSourceType,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
+as JobSourceType,sourceLanguage: null == sourceLanguage ? _self.sourceLanguage : sourceLanguage // ignore: cast_nullable_to_non_nullable
 as ContentLanguage,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,preview: freezed == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable
+as String?,sourceTitle: freezed == sourceTitle ? _self.sourceTitle : sourceTitle // ignore: cast_nullable_to_non_nullable
 as String?,failureKind: freezed == failureKind ? _self.failureKind : failureKind // ignore: cast_nullable_to_non_nullable
 as JobFailureKind?,
   ));
@@ -156,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  JobRunStatus status,  JobSourceType sourceType,  ContentLanguage language,  DateTime createdAt,  DateTime updatedAt,  String? preview,  JobFailureKind? failureKind)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  JobRunStatus status,  JobSourceType sourceType,  ContentLanguage sourceLanguage,  DateTime createdAt,  DateTime updatedAt,  String? preview,  String? sourceTitle,  JobFailureKind? failureKind)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _JobEntity() when $default != null:
-return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.preview,_that.failureKind);case _:
+return $default(_that.id,_that.status,_that.sourceType,_that.sourceLanguage,_that.createdAt,_that.updatedAt,_that.preview,_that.sourceTitle,_that.failureKind);case _:
   return orElse();
 
 }
@@ -177,10 +180,10 @@ return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.crea
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  JobRunStatus status,  JobSourceType sourceType,  ContentLanguage language,  DateTime createdAt,  DateTime updatedAt,  String? preview,  JobFailureKind? failureKind)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  JobRunStatus status,  JobSourceType sourceType,  ContentLanguage sourceLanguage,  DateTime createdAt,  DateTime updatedAt,  String? preview,  String? sourceTitle,  JobFailureKind? failureKind)  $default,) {final _that = this;
 switch (_that) {
 case _JobEntity():
-return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.preview,_that.failureKind);}
+return $default(_that.id,_that.status,_that.sourceType,_that.sourceLanguage,_that.createdAt,_that.updatedAt,_that.preview,_that.sourceTitle,_that.failureKind);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -194,10 +197,10 @@ return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.crea
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  JobRunStatus status,  JobSourceType sourceType,  ContentLanguage language,  DateTime createdAt,  DateTime updatedAt,  String? preview,  JobFailureKind? failureKind)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  JobRunStatus status,  JobSourceType sourceType,  ContentLanguage sourceLanguage,  DateTime createdAt,  DateTime updatedAt,  String? preview,  String? sourceTitle,  JobFailureKind? failureKind)?  $default,) {final _that = this;
 switch (_that) {
 case _JobEntity() when $default != null:
-return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.createdAt,_that.updatedAt,_that.preview,_that.failureKind);case _:
+return $default(_that.id,_that.status,_that.sourceType,_that.sourceLanguage,_that.createdAt,_that.updatedAt,_that.preview,_that.sourceTitle,_that.failureKind);case _:
   return null;
 
 }
@@ -209,17 +212,20 @@ return $default(_that.id,_that.status,_that.sourceType,_that.language,_that.crea
 
 
 class _JobEntity implements JobEntity {
-  const _JobEntity({required this.id, required this.status, required this.sourceType, required this.language, required this.createdAt, required this.updatedAt, this.preview, this.failureKind});
+  const _JobEntity({required this.id, required this.status, required this.sourceType, required this.sourceLanguage, required this.createdAt, required this.updatedAt, this.preview, this.sourceTitle, this.failureKind});
   
 
 @override final  String id;
 @override final  JobRunStatus status;
 @override final  JobSourceType sourceType;
-@override final  ContentLanguage language;
+/// Language of the source (what is spoken or written).
+@override final  ContentLanguage sourceLanguage;
 @override final  DateTime createdAt;
 @override final  DateTime updatedAt;
 /// First words of the transcript, for the list row.
 @override final  String? preview;
+/// Name of the file or video, when the source has one.
+@override final  String? sourceTitle;
 /// Why the job failed; only set when [status] is `failed`.
 @override final  JobFailureKind? failureKind;
 
@@ -233,16 +239,16 @@ _$JobEntityCopyWith<_JobEntity> get copyWith => __$JobEntityCopyWithImpl<_JobEnt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _JobEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.language, language) || other.language == language)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.preview, preview) || other.preview == preview)&&(identical(other.failureKind, failureKind) || other.failureKind == failureKind));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _JobEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&(identical(other.sourceLanguage, sourceLanguage) || other.sourceLanguage == sourceLanguage)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.preview, preview) || other.preview == preview)&&(identical(other.sourceTitle, sourceTitle) || other.sourceTitle == sourceTitle)&&(identical(other.failureKind, failureKind) || other.failureKind == failureKind));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,status,sourceType,language,createdAt,updatedAt,preview,failureKind);
+int get hashCode => Object.hash(runtimeType,id,status,sourceType,sourceLanguage,createdAt,updatedAt,preview,sourceTitle,failureKind);
 
 @override
 String toString() {
-  return 'JobEntity(id: $id, status: $status, sourceType: $sourceType, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, preview: $preview, failureKind: $failureKind)';
+  return 'JobEntity(id: $id, status: $status, sourceType: $sourceType, sourceLanguage: $sourceLanguage, createdAt: $createdAt, updatedAt: $updatedAt, preview: $preview, sourceTitle: $sourceTitle, failureKind: $failureKind)';
 }
 
 
@@ -253,7 +259,7 @@ abstract mixin class _$JobEntityCopyWith<$Res> implements $JobEntityCopyWith<$Re
   factory _$JobEntityCopyWith(_JobEntity value, $Res Function(_JobEntity) _then) = __$JobEntityCopyWithImpl;
 @override @useResult
 $Res call({
- String id, JobRunStatus status, JobSourceType sourceType, ContentLanguage language, DateTime createdAt, DateTime updatedAt, String? preview, JobFailureKind? failureKind
+ String id, JobRunStatus status, JobSourceType sourceType, ContentLanguage sourceLanguage, DateTime createdAt, DateTime updatedAt, String? preview, String? sourceTitle, JobFailureKind? failureKind
 });
 
 
@@ -270,15 +276,16 @@ class __$JobEntityCopyWithImpl<$Res>
 
 /// Create a copy of JobEntity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? language = null,Object? createdAt = null,Object? updatedAt = null,Object? preview = freezed,Object? failureKind = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? sourceType = null,Object? sourceLanguage = null,Object? createdAt = null,Object? updatedAt = null,Object? preview = freezed,Object? sourceTitle = freezed,Object? failureKind = freezed,}) {
   return _then(_JobEntity(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as JobRunStatus,sourceType: null == sourceType ? _self.sourceType : sourceType // ignore: cast_nullable_to_non_nullable
-as JobSourceType,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
+as JobSourceType,sourceLanguage: null == sourceLanguage ? _self.sourceLanguage : sourceLanguage // ignore: cast_nullable_to_non_nullable
 as ContentLanguage,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,preview: freezed == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable
+as String?,sourceTitle: freezed == sourceTitle ? _self.sourceTitle : sourceTitle // ignore: cast_nullable_to_non_nullable
 as String?,failureKind: freezed == failureKind ? _self.failureKind : failureKind // ignore: cast_nullable_to_non_nullable
 as JobFailureKind?,
   ));

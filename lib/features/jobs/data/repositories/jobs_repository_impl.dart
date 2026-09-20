@@ -1,19 +1,20 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/local/daos/jobs_dao.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/job_exceptions.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
+import 'package:nutq/features/jobs/domain/entities/source_info.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/domain/entities/transcript.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
-import 'package:nutq/features/summarization/data/prompts/prompt_version.dart';
-import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_result.dart';
 
 /// Source of job ids; injectable so tests are deterministic.
 typedef JobIdGenerator = String Function();
@@ -21,13 +22,30 @@ typedef JobIdGenerator = String Function();
 /// Source of "now" (always UTC); injectable for tests.
 typedef Clock = DateTime Function();
 
+/// Removes an app-owned file; must not throw if the file is already gone.
+typedef FileRemover = Future<void> Function(String path);
+
+Future<void> removeFileIfExists(String path) async {
+  try {
+    await File(path).delete();
+  } on PathNotFoundException {
+    // Already gone.
+  }
+}
+
 class JobsRepositoryImpl implements JobsRepository {
-  JobsRepositoryImpl(this._local, {required this._newId, Clock? now})
-    : _now = now ?? (() => DateTime.now().toUtc());
+  JobsRepositoryImpl(
+    this._local, {
+    required this._newId,
+    Clock? now,
+    FileRemover? removeFile,
+  }) : _now = now ?? (() => DateTime.now().toUtc()),
+       _removeFile = removeFile ?? removeFileIfExists;
 
   final JobsLocalDataSource _local;
   final JobIdGenerator _newId;
   final Clock _now;
+  final FileRemover _removeFile;
 
   static const _active = {JobRunStatus.pending, JobRunStatus.running};
 
@@ -44,29 +62,54 @@ class JobsRepositoryImpl implements JobsRepository {
 
   @override
   Future<JobDetailEntity> createJob(NewJobDraft draft) async {
-    final text = draft.text.trim();
-    if (text.isEmpty) {
-      throw ArgumentError.value(draft.text, 'draft.text', 'must not be blank');
-    }
+    _validate(draft);
 
     return _guard(() async {
       final now = _now();
+      final text = draft.text?.trim();
       final job = JobDetailEntity(
         id: _newId(),
         status: JobRunStatus.pending,
         sourceType: draft.sourceType,
-        language: draft.language,
+        sourceLanguage: draft.sourceLanguage,
+        summaryLanguage: draft.summaryLanguage,
         requestedLength: draft.length,
         createdAt: now,
         updatedAt: now,
-        transcript: Transcript(
-          text: text,
-          wordCount: text.split(RegExp(r'\s+')).length,
-        ),
+        sourceUrl: draft.sourceUrl?.trim(),
+        sourceFilePath: draft.sourceFilePath,
+        sourceMimeType: draft.sourceMimeType,
+        sourceTitle: draft.sourceTitle,
+        durationSeconds: draft.durationSeconds,
+        transcript: text == null
+            ? null
+            : Transcript(
+                text: text,
+                wordCount: text.split(RegExp(r'\s+')).length,
+              ),
       );
       await _local.insertJob(job);
       return job;
     });
+  }
+
+  /// Each source type must bring the input it is processed from.
+  void _validate(NewJobDraft draft) {
+    final (String? value, String name) = switch (draft.sourceType) {
+      JobSourceType.text => (draft.text, 'text'),
+      JobSourceType.youtube => (draft.sourceUrl, 'sourceUrl'),
+      JobSourceType.audio || JobSourceType.video => (
+        draft.sourceFilePath,
+        'sourceFilePath',
+      ),
+    };
+    if (value == null || value.trim().isEmpty) {
+      throw ArgumentError.value(
+        value,
+        name,
+        '${draft.sourceType.name} jobs need a non-blank $name',
+      );
+    }
   }
 
   @override
@@ -77,23 +120,28 @@ class JobsRepositoryImpl implements JobsRepository {
   );
 
   @override
-  Future<void> completeJob(String id, SummaryResult result) => _guard(() async {
-    final job = await _local.getJob(id);
-    if (job == null) throw JobNotFoundException(id);
+  Future<void> saveTranscript(String id, Transcript transcript) => _guard(
+    () async => _check(
+      id,
+      await _local.saveTranscript(id, transcript, _now()),
+      'save a transcript',
+    ),
+  );
 
-    final summary = Summary(
-      summaryText: result.summary,
-      length: job.requestedLength,
-      takeaways: List.unmodifiable(result.keyPoints),
-      modelName: summarizationModelId,
-      promptVersion: summarizationPromptVersion,
-      needsReview: result.validation.isSuspicious,
-      tokensIn: result.debug.inputTokens,
-      tokensOut: result.debug.outputTokens,
-      processingTimeMs: result.debug.processingTimeMs,
-    );
-    _check(id, await _local.completeJob(id, summary, _now()), 'complete');
-  });
+  @override
+  Future<void> updateSourceInfo(String id, SourceInfo info) => _guard(
+    () async => _check(
+      id,
+      await _local.updateSourceInfo(id, info, _now()),
+      'update the source',
+    ),
+  );
+
+  @override
+  Future<void> completeJob(String id, Summary summary) => _guard(
+    () async =>
+        _check(id, await _local.completeJob(id, summary, _now()), 'complete'),
+  );
 
   @override
   Future<void> failJob(String id, JobFailureKind kind) => _transition(
@@ -108,7 +156,13 @@ class JobsRepositoryImpl implements JobsRepository {
       _transition(id, from: _active, to: JobRunStatus.cancelled);
 
   @override
-  Future<void> deleteJob(String id) => _guard(() => _local.deleteJob(id));
+  Future<void> deleteJob(String id) => _guard(() async {
+    final filePath = (await _local.getJob(id))?.sourceFilePath;
+    await _local.deleteJob(id);
+    // After the row: a leftover file is harmless, a row pointing at a missing
+    // file is not.
+    if (filePath != null) await _removeFile(filePath);
+  });
 
   @override
   Future<int> recoverInterruptedJobs() => _guard(

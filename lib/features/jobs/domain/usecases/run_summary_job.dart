@@ -4,12 +4,15 @@ import 'package:nutq/features/jobs/domain/entities/job_exceptions.dart';
 import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/job_progress.dart';
 import 'package:nutq/features/jobs/domain/entities/job_stage.dart';
+import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
+import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
+import 'package:nutq/features/summarization/domain/entities/summary_result.dart';
 import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
 
@@ -84,7 +87,7 @@ class RunSummaryJob {
     try {
       final updates = _summarize.stream(
         transcript.text,
-        _config.copyWith(language: job.language, length: job.requestedLength),
+        _config.copyWith(language: job.summaryLanguage, length: job.requestedLength),
         cancellation: token,
       );
       await for (final update in updates) {
@@ -94,7 +97,7 @@ class RunSummaryJob {
           case SummarizationPartialSummaryUpdate(:final text):
             yield JobRunPartialSummary(text);
           case SummarizationCompletedUpdate(:final result):
-            await _jobs.completeJob(jobId, result);
+            await _jobs.completeJob(jobId, _toSummary(job.requestedLength, result));
             settled = true;
         }
       }
@@ -140,6 +143,18 @@ class RunSummaryJob {
       // Best effort; startup recovery will fail the job if it stays active.
     }
   }
+
+  Summary _toSummary(SummaryLength length, SummaryResult result) => Summary(
+    summaryText: result.summary,
+    length: length,
+    takeaways: List.unmodifiable(result.keyPoints),
+    modelName: _summarization.modelId,
+    promptVersion: _summarization.promptVersion,
+    needsReview: result.validation.isSuspicious,
+    tokensIn: result.debug.inputTokens,
+    tokensOut: result.debug.outputTokens,
+    processingTimeMs: result.debug.processingTimeMs,
+  );
 
   static JobProgress _toJobProgress(SummarizationProgress p) => JobProgress(
     switch (p.stage) {

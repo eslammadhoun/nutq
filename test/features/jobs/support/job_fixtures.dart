@@ -5,6 +5,8 @@ import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
 import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
 import 'package:nutq/core/domain/content_language.dart';
+import 'package:nutq/features/jobs/domain/entities/summary.dart';
+import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 
 /// A fresh in-memory database per test.
 AppDatabase newTestDatabase() {
@@ -16,11 +18,12 @@ AppDatabase newTestDatabase() {
 /// Repository over [db] with sequential ids (`job-1`, `job-2`, …) and a clock
 /// that advances one minute per call, so ordering is deterministic.
 class TestRepo {
-  TestRepo(this.db, {DateTime? start})
+  TestRepo(this.db, {DateTime? start, FileRemover? removeFile})
     : _clock = start ?? DateTime.utc(2026, 9, 20, 12) {
     repo = JobsRepositoryImpl(
       JobsLocalDataSourceImpl(db.jobsDao),
       newId: () => 'job-${++_ids}',
+      removeFile: removeFile ?? (_) async {},
       now: () {
         final t = _clock;
         _clock = _clock.add(const Duration(minutes: 1));
@@ -38,4 +41,26 @@ class TestRepo {
 NewJobDraft draft(
   String text, {
   ContentLanguage language = ContentLanguage.ar,
-}) => NewJobDraft(text: text, language: language);
+  ContentLanguage? summaryLanguage,
+}) => NewJobDraft.text(
+  text: text,
+  language: language,
+  summaryLanguage: summaryLanguage,
+);
+
+/// A finished summary for tests that only care that one exists.
+Summary testSummary({
+  String text = 'ملخص نهائي',
+  List<String> takeaways = const ['نقطة ١', 'نقطة ٢'],
+  bool needsReview = false,
+}) => Summary(
+  summaryText: text,
+  length: SummaryLength.medium,
+  takeaways: takeaways,
+  modelName: 'test-model',
+  promptVersion: 'test-v1',
+  needsReview: needsReview,
+  tokensIn: 900,
+  tokensOut: 300,
+  processingTimeMs: 4200,
+);

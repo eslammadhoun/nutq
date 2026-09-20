@@ -47,6 +47,12 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
   static const _tokensPerArabicWord = 2.2;
 
   @override
+  String get modelId => modelVersion;
+
+  @override
+  String get promptVersion => summarizationPromptVersion;
+
+  @override
   GenerationStats get stats => _stats;
 
   @override

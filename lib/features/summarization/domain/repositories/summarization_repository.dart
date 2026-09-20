@@ -68,6 +68,12 @@ class GenerationStats {
 /// Everything the pipeline needs from the model, without exposing prompts,
 /// the Gemma runtime, or response parsing to the domain layer.
 abstract class SummarizationRepository {
+  /// Identifies the model that produces summaries (stored with each result).
+  String get modelId;
+
+  /// Identifies the prompt templates in use.
+  String get promptVersion;
+
   /// Token counter backed by the model's tokenizer when available.
   TokenCounter get tokenCounter;
 

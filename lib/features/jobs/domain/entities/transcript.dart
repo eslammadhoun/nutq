@@ -9,12 +9,9 @@ sealed class Transcript with _$Transcript {
     required String text,
     required int wordCount,
 
-    /// Metadata that only exists for transcribed (audio/video) jobs; null for
-    /// pasted text.
-    double? durationSeconds,
+    /// The speech-recognition model that produced the text; null for text the
+    /// user pasted.
     String? modelName,
     String? modelVersion,
-    String? quantization,
-    String? downloadUrl,
   }) = _Transcript;
 }

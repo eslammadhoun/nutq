@@ -1,21 +1,16 @@
-import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
-import 'package:nutq/features/jobs/data/local/daos/jobs_dao.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
-import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
-import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
-import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
 import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_result.dart';
-import 'package:nutq/features/summarization/domain/entities/validation_report.dart';
 
+import 'support/faulty_jobs_local_data_source.dart';
+import 'support/job_fixtures.dart';
 import 'support/job_harness.dart';
 
 void main() {
@@ -75,7 +70,7 @@ void main() {
     await cubit.fetchJobs();
     final job = cubit.state.jobs.single;
     expect(job.preview, 'مرحبا بكم');
-    expect(job.language.code, 'ar');
+    expect(job.sourceLanguage.code, 'ar');
     expect(job.status, JobRunStatus.failed);
     expect(job.failureKind, JobFailureKind.modelUnavailable);
   });
@@ -84,7 +79,7 @@ void main() {
     setUp(() async {
       final done = await h.createJob('done job');
       await h.repo.markRunning(done);
-      await h.repo.completeJob(done, _summaryResult());
+      await h.repo.completeJob(done, testSummary());
       final failed = await h.createJob('failed job');
       await h.repo.failJob(failed, JobFailureKind.generationFailed);
       await h.createJob('queued job');
@@ -200,7 +195,7 @@ void main() {
     });
 
     test('a failed delete restores the row and signals the error once', () async {
-      final repo = JobsRepositoryImpl(_FailingDeleteDataSource(JobsLocalDataSourceImpl(h.db.jobsDao)), newId: () => 'x');
+      final repo = JobsRepositoryImpl(FaultyJobsLocalDataSource(JobsLocalDataSourceImpl(h.db.jobsDao), {Fault.deleteJob}), newId: () => 'x');
       final flaky = JobsCubit(repo, searchDebounce: const Duration(milliseconds: 20));
       addTearDown(flaky.close);
       final id = await h.createJob('keep me');
@@ -219,7 +214,7 @@ void main() {
   });
 
   test('a failing query reports a storage error', () async {
-    final repo = JobsRepositoryImpl(_FailingWatchDataSource(JobsLocalDataSourceImpl(h.db.jobsDao)), newId: () => 'x');
+    final repo = JobsRepositoryImpl(FaultyJobsLocalDataSource(JobsLocalDataSourceImpl(h.db.jobsDao), {Fault.watchJobs}), newId: () => 'x');
     final failing = JobsCubit(repo);
     addTearDown(failing.close);
     await failing.fetchJobs();
@@ -242,48 +237,4 @@ void main() {
     await h.createJob('after close');
     await settle(); // must not throw (emit after close)
   });
-}
-
-class _FailingDeleteDataSource implements JobsLocalDataSource {
-  _FailingDeleteDataSource(this._inner);
-
-  final JobsLocalDataSource _inner;
-
-  @override
-  Future<void> deleteJob(String id) => Future.error(StateError('disk full'));
-
-  @override
-  Stream<List<JobEntity>> watchJobs(JobsQuery query) => _inner.watchJobs(query);
-
-  @override
-  Stream<JobDetailEntity?> watchJob(String id) => _inner.watchJob(id);
-
-  @override
-  Future<JobDetailEntity?> getJob(String id) => _inner.getJob(id);
-
-  @override
-  Future<void> insertJob(JobDetailEntity job) => _inner.insertJob(job);
-
-  @override
-  Future<TransitionOutcome> transition(String id, {required Set<JobRunStatus> from, required JobRunStatus to, required DateTime at, JobFailureKind? failureKind}) =>
-      _inner.transition(id, from: from, to: to, at: at, failureKind: failureKind);
-
-  @override
-  Future<TransitionOutcome> completeJob(String id, Summary summary, DateTime at) => _inner.completeJob(id, summary, at);
-
-  @override
-  Future<int> failActiveJobs(JobFailureKind kind, DateTime at) => _inner.failActiveJobs(kind, at);
-}
-
-SummaryResult _summaryResult() => const SummaryResult(
-  summary: 'ملخص',
-  validation: ValidationReport(),
-  debug: SummaryDebugInfo(jobId: 'x', chunkCount: 1, failedChunkCount: 0, processingTimeMs: 1),
-);
-
-class _FailingWatchDataSource extends _FailingDeleteDataSource {
-  _FailingWatchDataSource(super.inner);
-
-  @override
-  Stream<List<JobEntity>> watchJobs(JobsQuery query) => Stream.error(StateError('no such table'));
 }

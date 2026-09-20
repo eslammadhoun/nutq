@@ -51,13 +51,13 @@ class SummaryCard extends StatelessWidget {
             )
           else
             Directionality(
-              textDirection: jobTextDirection(job.language.code),
+              textDirection: jobTextDirection(job.summaryLanguage.code),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ExpandableJobText(
                     hasLiveText ? liveText : (summary?.summaryText ?? ''),
-                    textDirection: jobTextDirection(job.language.code),
+                    textDirection: jobTextDirection(job.summaryLanguage.code),
                     style: context.typography.bodySmall.copyWith(
                       color: colors.textSecondary,
                     ),

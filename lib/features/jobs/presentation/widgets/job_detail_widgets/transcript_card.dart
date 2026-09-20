@@ -7,7 +7,6 @@ import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/expan
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_header.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_tag_chip.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class TranscriptCard extends StatelessWidget {
   const TranscriptCard({super.key, required this.job});
@@ -28,7 +27,7 @@ class TranscriptCard extends StatelessWidget {
             glyph: '\u{1F4C4}',
             title: l10n.jobDetailTranscript,
             tag: JobDetailTagChip(
-              label: languageName(l10n, job.language.code),
+              label: languageName(l10n, job.sourceLanguage.code),
               background: colors.statusProcessingBg,
               foreground: colors.textSecondary,
             ),
@@ -42,18 +41,14 @@ class TranscriptCard extends StatelessWidget {
             )
           else
             Directionality(
-              textDirection: jobTextDirection(job.language.code),
+              textDirection: jobTextDirection(job.sourceLanguage.code),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if ((transcript.modelName?.isNotEmpty ?? false) ||
                       (transcript.modelVersion?.isNotEmpty ?? false)) ...[
                     Text(
-                      [
-                            transcript.modelName,
-                            transcript.modelVersion,
-                            transcript.quantization,
-                          ]
+                      [transcript.modelName, transcript.modelVersion]
                           .whereType<String>()
                           .where((p) => p.isNotEmpty)
                           .join(' · '),
@@ -65,8 +60,8 @@ class TranscriptCard extends StatelessWidget {
                   ],
                   Text(
                     [
-                      if (transcript.durationSeconds != null)
-                        formatDuration(transcript.durationSeconds!),
+                      if (job.durationSeconds != null)
+                        formatDuration(job.durationSeconds!),
                       l10n.jobDetailWordCount(transcript.wordCount),
                     ].join(' · '),
                     style: context.typography.captionSmall.copyWith(
@@ -75,10 +70,6 @@ class TranscriptCard extends StatelessWidget {
                   ),
                   SizedBox(height: 11.h),
                   _transcriptBody(context, transcript.text),
-                  if (transcript.downloadUrl != null) ...[
-                    SizedBox(height: 6.h),
-                    _downloadButton(context, transcript.downloadUrl!),
-                  ],
                 ],
               ),
             ),
@@ -90,43 +81,11 @@ class TranscriptCard extends StatelessWidget {
   Widget _transcriptBody(BuildContext context, String text) {
     return ExpandableJobText(
       text,
-      textDirection: jobTextDirection(job.language.code),
+      textDirection: jobTextDirection(job.sourceLanguage.code),
       style: context.typography.bodyBase.copyWith(
         color: context.appColors.textPrimary,
       ),
     );
   }
 
-  Widget _downloadButton(BuildContext context, String downloadUrl) {
-    final colors = context.appColors;
-    return InkWell(
-      borderRadius: BorderRadius.circular(10.r),
-      onTap: () => launchUrl(Uri.parse(downloadUrl)),
-      child: Container(
-        height: 40.h,
-        decoration: BoxDecoration(
-          color: colors.statusProcessingBg,
-          borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: colors.navIndicator),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.download_rounded,
-              size: 16.sp,
-              color: colors.navIndicator,
-            ),
-            SizedBox(width: 8.w),
-            Text(
-              context.l10n.jobDetailDownloadTranscript,
-              style: context.typography.labelXS.copyWith(
-                color: colors.navIndicator,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

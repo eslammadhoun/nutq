@@ -35,7 +35,7 @@ void main() {
       id: id,
       status: status,
       sourceType: JobSourceType.text,
-      language: language,
+      sourceLanguage: language,
       requestedLength: SummaryLength.medium,
       createdAt: at ?? t0,
       updatedAt: at ?? t0,
@@ -53,7 +53,7 @@ void main() {
   );
 
   test('schema version and foreign keys are set up', () async {
-    expect(db.schemaVersion, 1);
+    expect(db.schemaVersion, 2);
     final fk = await db.customSelect('PRAGMA foreign_keys').getSingle();
     expect(fk.data.values.single, 1);
   });
@@ -63,7 +63,7 @@ void main() {
       await insert('a', text: 'مرحبا بالعالم', language: ContentLanguage.en);
       final rows = (await dao.getDetail('a'))!;
       expect(rows.job.status, JobRunStatus.pending);
-      expect(rows.job.language, ContentLanguage.en);
+      expect(rows.job.sourceLanguage, ContentLanguage.en);
       expect(rows.job.requestedLength, SummaryLength.medium);
       expect(rows.job.createdAt.toUtc(), t0);
       expect(rows.transcript!.content, 'مرحبا بالعالم');
@@ -88,7 +88,7 @@ void main() {
             id: 'x',
             status: JobRunStatus.pending,
             sourceType: JobSourceType.text,
-            language: ContentLanguage.ar,
+            sourceLanguage: ContentLanguage.ar,
             requestedLength: SummaryLength.medium,
             createdAt: t0,
             updatedAt: t0,
@@ -105,6 +105,76 @@ void main() {
         db.into(db.jobTranscripts).insert(JobTranscriptsCompanion.insert(jobId: 'ghost', content: 'c', wordCount: 1)),
         throwsA(isA<Exception>()),
       );
+    });
+  });
+
+  group('v2: optional transcript, transcript and source updates', () {
+    Future<void> insertWithoutTranscript(String id, {JobRunStatus status = JobRunStatus.pending}) => dao.insertJob(
+      JobsCompanion.insert(
+        id: id,
+        status: status,
+        sourceType: JobSourceType.audio,
+        sourceLanguage: ContentLanguage.ar,
+        requestedLength: SummaryLength.medium,
+        createdAt: t0,
+        updatedAt: t0,
+        sourceFilePath: const Value('/f.m4a'),
+      ),
+      null,
+    );
+
+    test('a job can be inserted with no transcript', () async {
+      await insertWithoutTranscript('m');
+      final rows = (await dao.getDetail('m'))!;
+      expect(rows.transcript, isNull);
+      expect(rows.job.sourceFilePath, '/f.m4a');
+      expect(rows.job.summaryLanguage, ContentLanguage.ar, reason: 'column default');
+      expect(await db.select(db.jobTranscripts).get(), isEmpty);
+    });
+
+    test('saveTranscript inserts the row and refreshes preview and updatedAt', () async {
+      await insertWithoutTranscript('m');
+      final later = t0.add(const Duration(minutes: 3));
+      final outcome = await dao.saveTranscript(
+        'm',
+        JobTranscriptsCompanion.insert(jobId: 'm', content: 'text', wordCount: 1),
+        preview: 'text',
+        at: later,
+      );
+      expect(outcome, TransitionOutcome.applied);
+      final rows = (await dao.getDetail('m'))!;
+      expect(rows.transcript!.content, 'text');
+      expect(rows.job.preview, 'text');
+      expect(rows.job.updatedAt.toUtc(), later);
+    });
+
+    test('saveTranscript is rejected for a finished or missing job', () async {
+      await insertWithoutTranscript('done', status: JobRunStatus.completed);
+      final companion = JobTranscriptsCompanion.insert(jobId: 'done', content: 'x', wordCount: 1);
+      expect(await dao.saveTranscript('done', companion, preview: 'x', at: t0), TransitionOutcome.invalidState);
+      expect(await dao.saveTranscript('nope', companion, preview: 'x', at: t0), TransitionOutcome.notFound);
+      expect((await dao.getDetail('done'))!.transcript, isNull, reason: 'nothing was written');
+    });
+
+    test('updateSource writes only the given columns', () async {
+      await insertWithoutTranscript('m');
+      final outcome = await dao.updateSource(
+        'm',
+        JobsCompanion(updatedAt: Value(t0), sourceTitle: const Value('Title'), durationSeconds: const Value(12.5)),
+      );
+      expect(outcome, TransitionOutcome.applied);
+      final job = (await dao.getDetail('m'))!.job;
+      expect(job.sourceTitle, 'Title');
+      expect(job.durationSeconds, 12.5);
+      expect(job.sourceFilePath, '/f.m4a', reason: 'absent values are left alone');
+    });
+
+    test('updateSource is rejected for a finished or missing job', () async {
+      await insertWithoutTranscript('done', status: JobRunStatus.failed);
+      final change = JobsCompanion(updatedAt: Value(t0), sourceTitle: const Value('x'));
+      expect(await dao.updateSource('done', change), TransitionOutcome.invalidState);
+      expect(await dao.updateSource('nope', change), TransitionOutcome.notFound);
+      expect((await dao.getDetail('done'))!.job.sourceTitle, isNull);
     });
   });
 

@@ -199,7 +199,7 @@ void main() {
     );
     final cubit = open(id);
     await untilSettled(cubit);
-    expect(cubit.state.job!.language, ContentLanguage.en);
+    expect(cubit.state.job!.sourceLanguage, ContentLanguage.en);
     expect(h.gemma.prompts, isNotEmpty);
     expect(h.gemma.prompts.every((p) => p.contains('English') && !p.contains('Arabic')), isTrue);
   });

@@ -77,14 +77,44 @@ class JobsDao extends DatabaseAccessor<AppDatabase> with _$JobsDaoMixin {
           row.readTableOrNull(jobSummaries),
         );
 
-  /// Inserts the job and its transcript atomically.
+  /// Inserts the job and, if it has one, its transcript — atomically.
   Future<void> insertJob(
     JobsCompanion job,
-    JobTranscriptsCompanion transcript,
+    JobTranscriptsCompanion? transcript,
   ) => transaction(() async {
     await into(jobs).insert(job);
-    await into(jobTranscripts).insert(transcript);
+    if (transcript != null) await into(jobTranscripts).insert(transcript);
   });
+
+  /// Stores (or replaces) the job's transcript and refreshes its list preview,
+  /// only while the job is still active.
+  Future<TransitionOutcome> saveTranscript(
+    String id,
+    JobTranscriptsCompanion transcript, {
+    required String preview,
+    required DateTime at,
+  }) => transaction(() async {
+    final updated =
+        await (update(jobs)..where(
+              (j) => j.id.equals(id) & j.status.isInValues(_active),
+            ))
+            .write(JobsCompanion(updatedAt: Value(at), preview: Value(preview)));
+    if (updated == 0) return _whyNotApplied(id);
+    await into(jobTranscripts).insertOnConflictUpdate(transcript);
+    return TransitionOutcome.applied;
+  });
+
+  /// Applies a partial change to the job's source description, only while the
+  /// job is still active.
+  Future<TransitionOutcome> updateSource(String id, JobsCompanion change) =>
+      transaction(() async {
+        final updated =
+            await (update(jobs)..where(
+                  (j) => j.id.equals(id) & j.status.isInValues(_active),
+                ))
+                .write(change);
+        return updated > 0 ? TransitionOutcome.applied : await _whyNotApplied(id);
+      });
 
   /// Moves a job to [to] only if it is currently in one of [from].
   Future<TransitionOutcome> transition(
