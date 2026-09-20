@@ -395,115 +395,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileLogOut => 'تسجيل الخروج';
 
   @override
-  String get profileModels => 'نماذج التفريغ الصوتي';
-
-  @override
-  String get modelsScreenTitle => 'نماذج التفريغ الصوتي';
-
-  @override
-  String get modelsTierBase => 'أساسي';
-
-  @override
-  String get modelsTierBaseDescription => 'الأسرع، وأقل استخداماً للتخزين';
-
-  @override
-  String get modelsTierSmall => 'صغير';
-
-  @override
-  String get modelsTierSmallDescription => 'موصى به — توازن بين الدقة والحجم';
-
-  @override
-  String get modelsTierMedium => 'متوسط';
-
-  @override
-  String get modelsTierMediumDescription => 'أفضل دقة، وأكبر حجم تحميل';
-
-  @override
-  String get modelsDefaultBadge => 'افتراضي';
-
-  @override
-  String get modelsInstalled => 'مثبّت';
-
-  @override
-  String get modelsNotInstalled => 'غير محمّل';
-
-  @override
-  String get modelsDownload => 'تحميل';
-
-  @override
-  String get modelsDelete => 'حذف';
-
-  @override
-  String get modelsCancelDownload => 'إلغاء';
-
-  @override
-  String modelsDownloading(int percent) {
-    return 'جارٍ التحميل… $percent%';
-  }
-
-  @override
-  String modelsSizeMb(String size) {
-    return '$size ميغابايت';
-  }
-
-  @override
-  String modelsSizeGb(String size) {
-    return '$size غيغابايت';
-  }
-
-  @override
-  String get modelsSectionAsr => 'تحويل الكلام إلى نص';
-
-  @override
-  String get modelsSectionSummarization => 'التلخيص';
-
-  @override
-  String get modelsTierGemma1b => 'جيما 3 - 1 مليار';
-
-  @override
-  String get modelsTierGemma1bDescription => 'تلخيص سريع على الجهاز — موصى به';
-
-  @override
-  String get modelsTierGemma4b => 'جيما 3 - 4 مليار';
-
-  @override
-  String get modelsTierGemma4bDescription => 'تلخيص أعلى جودة، وحجم تحميل أكبر';
-
-  @override
-  String modelsRamGateBlocked(String gbRequired) {
-    return 'يتطلب جهازاً بذاكرة وصول عشوائي لا تقل عن $gbRequired غيغابايت';
-  }
-
-  @override
-  String modelsRamUnknownWarning(String gbRequired) {
-    return 'تعذّر التحقق من ذاكرة الجهاز المتوفرة — يحتاج هذا النموذج إلى $gbRequired غيغابايت من الذاكرة للعمل بسلاسة';
-  }
-
-  @override
-  String get summarizeScreenTitle => 'التلخيص';
-
-  @override
-  String get summarizeTranscriptHint => 'الصق النص أو اكتبه هنا';
-
-  @override
-  String get summarizeLengthShort => 'قصير';
-
-  @override
-  String get summarizeLengthMedium => 'متوسط';
-
-  @override
-  String get summarizeLengthDetailed => 'مفصّل';
-
-  @override
-  String get summarizeAction => 'لخّص';
-
-  @override
-  String get summarizeCancel => 'إلغاء';
-
-  @override
-  String get summarizeNewSummary => 'تلخيص جديد';
-
-  @override
   String get summarizeStagePreparing => 'تجهيز النص';
 
   @override
@@ -530,20 +421,8 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get summarizeResultTitle => 'الملخص';
-
-  @override
-  String get summarizeKeyPoints => 'النقاط الرئيسية';
-
-  @override
-  String get summarizeImportantFacts => 'معلومات مهمة';
-
-  @override
   String get summarizeCheckWarning =>
       'تعذّر التحقق من بعض التفاصيل في هذا الملخص مقابل النص الأصلي. يُرجى مراجعته.';
-
-  @override
-  String get summarizeCancelled => 'تم إلغاء التلخيص.';
 
   @override
   String get summarizeErrorEmpty => 'لا يوجد نص لتلخيصه.';
@@ -554,9 +433,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get summarizeErrorGeneration =>
       'تعذّر إنشاء الملخص. يُرجى المحاولة مرة أخرى.';
-
-  @override
-  String get profileSummarize => 'تلخيص نص';
 
   @override
   String get newJobSourceUnavailable =>

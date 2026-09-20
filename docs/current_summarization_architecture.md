@@ -65,13 +65,12 @@ data/
   cache/         SummarizationCache (in-memory, file; SHA-256 keys incl. prompt version)
   repositories/  SummarizationRepositoryImpl
 presentation/
-  bloc/          SummarizationBloc (+ events, states)
-  pages/         SummarizationPage (+ input / progress / result widgets)
+  utils/         summarizationStageLabel (shared stage names)
 benchmark/       BenchmarkFixture, SummaryEvaluation, HeuristicSummaryEvaluator,
                  BaselineSummarizer, SummarizationBenchmarkRunner
 ```
 
-Entry point in the app: Profile tab → "Summarize text" → `/summarization`.
+Entry point in the app: Jobs → New Job (pasted text) → Job Detail, whose `JobDetailCubit` drives the pipeline and shows live progress and the streaming summary. There is no standalone summarization screen and no model-management screen (the model is a bundled asset).
 Model: `assets/models/gemma3-1b-it-q4.litertlm`, installed by
 `FlutterGemma.installModel(...).fromAsset(...)`, engine registered in
 `main.dart` with `FlutterGemma.initialize(inferenceEngines: [LiteRtLmEngine()])`.

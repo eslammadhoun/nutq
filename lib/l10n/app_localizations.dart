@@ -800,204 +800,6 @@ abstract class AppLocalizations {
   /// **'Log out'**
   String get profileLogOut;
 
-  /// No description provided for @profileModels.
-  ///
-  /// In en, this message translates to:
-  /// **'Speech models'**
-  String get profileModels;
-
-  /// No description provided for @modelsScreenTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Speech Models'**
-  String get modelsScreenTitle;
-
-  /// No description provided for @modelsTierBase.
-  ///
-  /// In en, this message translates to:
-  /// **'Base'**
-  String get modelsTierBase;
-
-  /// No description provided for @modelsTierBaseDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Fastest, lowest storage use'**
-  String get modelsTierBaseDescription;
-
-  /// No description provided for @modelsTierSmall.
-  ///
-  /// In en, this message translates to:
-  /// **'Small'**
-  String get modelsTierSmall;
-
-  /// No description provided for @modelsTierSmallDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Recommended — balanced accuracy and size'**
-  String get modelsTierSmallDescription;
-
-  /// No description provided for @modelsTierMedium.
-  ///
-  /// In en, this message translates to:
-  /// **'Medium'**
-  String get modelsTierMedium;
-
-  /// No description provided for @modelsTierMediumDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Best accuracy, largest download'**
-  String get modelsTierMediumDescription;
-
-  /// No description provided for @modelsDefaultBadge.
-  ///
-  /// In en, this message translates to:
-  /// **'Default'**
-  String get modelsDefaultBadge;
-
-  /// No description provided for @modelsInstalled.
-  ///
-  /// In en, this message translates to:
-  /// **'Installed'**
-  String get modelsInstalled;
-
-  /// No description provided for @modelsNotInstalled.
-  ///
-  /// In en, this message translates to:
-  /// **'Not downloaded'**
-  String get modelsNotInstalled;
-
-  /// No description provided for @modelsDownload.
-  ///
-  /// In en, this message translates to:
-  /// **'Download'**
-  String get modelsDownload;
-
-  /// No description provided for @modelsDelete.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get modelsDelete;
-
-  /// No description provided for @modelsCancelDownload.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get modelsCancelDownload;
-
-  /// No description provided for @modelsDownloading.
-  ///
-  /// In en, this message translates to:
-  /// **'Downloading… {percent}%'**
-  String modelsDownloading(int percent);
-
-  /// No description provided for @modelsSizeMb.
-  ///
-  /// In en, this message translates to:
-  /// **'{size} MB'**
-  String modelsSizeMb(String size);
-
-  /// No description provided for @modelsSizeGb.
-  ///
-  /// In en, this message translates to:
-  /// **'{size} GB'**
-  String modelsSizeGb(String size);
-
-  /// No description provided for @modelsSectionAsr.
-  ///
-  /// In en, this message translates to:
-  /// **'Speech-to-text'**
-  String get modelsSectionAsr;
-
-  /// No description provided for @modelsSectionSummarization.
-  ///
-  /// In en, this message translates to:
-  /// **'Summarization'**
-  String get modelsSectionSummarization;
-
-  /// No description provided for @modelsTierGemma1b.
-  ///
-  /// In en, this message translates to:
-  /// **'Gemma 3 1B'**
-  String get modelsTierGemma1b;
-
-  /// No description provided for @modelsTierGemma1bDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Fast, on-device summaries — recommended'**
-  String get modelsTierGemma1bDescription;
-
-  /// No description provided for @modelsTierGemma4b.
-  ///
-  /// In en, this message translates to:
-  /// **'Gemma 3 4B'**
-  String get modelsTierGemma4b;
-
-  /// No description provided for @modelsTierGemma4bDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Higher-quality summaries, larger download'**
-  String get modelsTierGemma4bDescription;
-
-  /// No description provided for @modelsRamGateBlocked.
-  ///
-  /// In en, this message translates to:
-  /// **'Requires a device with at least {gbRequired} GB of RAM'**
-  String modelsRamGateBlocked(String gbRequired);
-
-  /// No description provided for @modelsRamUnknownWarning.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not verify available device memory — this model needs {gbRequired} GB of RAM to run smoothly'**
-  String modelsRamUnknownWarning(String gbRequired);
-
-  /// No description provided for @summarizeScreenTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Summarize'**
-  String get summarizeScreenTitle;
-
-  /// No description provided for @summarizeTranscriptHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Paste or type the transcript here'**
-  String get summarizeTranscriptHint;
-
-  /// No description provided for @summarizeLengthShort.
-  ///
-  /// In en, this message translates to:
-  /// **'Short'**
-  String get summarizeLengthShort;
-
-  /// No description provided for @summarizeLengthMedium.
-  ///
-  /// In en, this message translates to:
-  /// **'Medium'**
-  String get summarizeLengthMedium;
-
-  /// No description provided for @summarizeLengthDetailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Detailed'**
-  String get summarizeLengthDetailed;
-
-  /// No description provided for @summarizeAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Summarize'**
-  String get summarizeAction;
-
-  /// No description provided for @summarizeCancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get summarizeCancel;
-
-  /// No description provided for @summarizeNewSummary.
-  ///
-  /// In en, this message translates to:
-  /// **'New summary'**
-  String get summarizeNewSummary;
-
   /// No description provided for @summarizeStagePreparing.
   ///
   /// In en, this message translates to:
@@ -1046,35 +848,11 @@ abstract class AppLocalizations {
   /// **'{processed} of {total} sections'**
   String summarizeChunkProgress(int processed, int total);
 
-  /// No description provided for @summarizeResultTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Summary'**
-  String get summarizeResultTitle;
-
-  /// No description provided for @summarizeKeyPoints.
-  ///
-  /// In en, this message translates to:
-  /// **'Key points'**
-  String get summarizeKeyPoints;
-
-  /// No description provided for @summarizeImportantFacts.
-  ///
-  /// In en, this message translates to:
-  /// **'Important facts'**
-  String get summarizeImportantFacts;
-
   /// No description provided for @summarizeCheckWarning.
   ///
   /// In en, this message translates to:
   /// **'Some details in this summary could not be verified against the transcript. Please review it.'**
   String get summarizeCheckWarning;
-
-  /// No description provided for @summarizeCancelled.
-  ///
-  /// In en, this message translates to:
-  /// **'Summarization was cancelled.'**
-  String get summarizeCancelled;
 
   /// No description provided for @summarizeErrorEmpty.
   ///
@@ -1093,12 +871,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The summary could not be generated. Please try again.'**
   String get summarizeErrorGeneration;
-
-  /// No description provided for @profileSummarize.
-  ///
-  /// In en, this message translates to:
-  /// **'Summarize text'**
-  String get profileSummarize;
 
   /// No description provided for @newJobSourceUnavailable.
   ///

@@ -5,12 +5,10 @@ import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/models/job_detail_args.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
-import 'package:nutq/features/models/presentation/cubit/models_cubit.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
-import 'package:nutq/features/summarization/presentation/bloc/summarization_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
@@ -31,7 +29,6 @@ Future<void> setupDI() async {
     ),
   );
   sl.registerFactory<NewJobCubit>(NewJobCubit.new);
-  sl.registerFactory<ModelsCubit>(ModelsCubit.new);
 
   // On-device summarization (Gemma 3 1B IT, LiteRT-LM).
   sl.registerLazySingleton<GemmaLocalDataSource>(GemmaLocalDataSourceImpl.new);
@@ -40,11 +37,5 @@ Future<void> setupDI() async {
   );
   sl.registerLazySingleton<SummarizeTranscript>(
     () => SummarizeTranscript(repository: sl<SummarizationRepository>()),
-  );
-  sl.registerFactory<SummarizationBloc>(
-    () => SummarizationBloc(
-      summarize: sl<SummarizeTranscript>(),
-      repository: sl<SummarizationRepository>(),
-    ),
   );
 }

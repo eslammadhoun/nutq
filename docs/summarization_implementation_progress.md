@@ -25,7 +25,7 @@ partial = implemented, part deferred; blocked = needs a physical device or human
 | 17 | Final synthesis | done | short / medium / detailed |
 | 18 | Heuristic factuality validation | done | Numbers, dates, terms, entities, claim support; flags, never rejects |
 | 19 | Complete pipeline use case | done | `SummarizeTranscript` |
-| 20 | BLoC integration | done | `SummarizationBloc` |
+| 20 | BLoC/Cubit integration | done | `JobDetailCubit` subscribes to `SummarizeTranscript.stream` (the standalone `SummarizationBloc` and page were removed) |
 | 21 | UI progress | done | Stage names + processed/total chunks, no technical terms |
 | 22 | Cancellation | done | Cooperative token + `stopGeneration()`; tested with fakes |
 | 23 | Caching | done | SHA-256 incl. model + prompt version. Not wired into the app by default (dev only) |
@@ -42,7 +42,7 @@ partial = implemented, part deferred; blocked = needs a physical device or human
 - **`validation_prompt.dart`** was not created: validation is deterministic (plan §26).
 - **Final-summary streaming** is implemented (`generate(onPartial:)` over `getResponseAsync`, throttled in `JobDetailCubit`); only the final synthesis streams, internal stages stay hidden per plan §38. **Unverified on a device**: whether `flutter_gemma`'s `.litertlm` stream yields clean token deltas is untested, and a retry mid-stream restarts the partial text.
 - **Output language** follows the New Job language toggle (`SummaryLanguage`, threaded through every prompt). Only English and Arabic; English transcripts have not been evaluated with a real model, and the benchmark fixtures are Arabic only.
-- **Jobs screens integration is partial:** New Job (pasted text only) → Job Detail runs the pipeline and shows live progress via `SummarizeTranscript.stream`. The Jobs list still has no data source, so submitted jobs are not saved or listed; audio/video/YouTube sources are unavailable (no on-device transcription). The standalone page is still reachable from Profile → Summarize text.
+- **Jobs screens integration is partial:** New Job (pasted text only) → Job Detail runs the pipeline and shows live progress via `SummarizeTranscript.stream`. The Jobs list still has no data source, so submitted jobs are not saved or listed; audio/video/YouTube sources are unavailable (no on-device transcription). The standalone Summarize page and the Models screen were removed; Job Detail is the only way to run a summary.
 - `GemmaGenerationConfig` exposes `maxOutputTokens` and `contextTokens` separately, because `flutter_gemma`'s `maxTokens` is the context window, not the reply length.
 
 ## Native/platform changes

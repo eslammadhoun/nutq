@@ -398,118 +398,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileLogOut => 'Log out';
 
   @override
-  String get profileModels => 'Speech models';
-
-  @override
-  String get modelsScreenTitle => 'Speech Models';
-
-  @override
-  String get modelsTierBase => 'Base';
-
-  @override
-  String get modelsTierBaseDescription => 'Fastest, lowest storage use';
-
-  @override
-  String get modelsTierSmall => 'Small';
-
-  @override
-  String get modelsTierSmallDescription =>
-      'Recommended — balanced accuracy and size';
-
-  @override
-  String get modelsTierMedium => 'Medium';
-
-  @override
-  String get modelsTierMediumDescription => 'Best accuracy, largest download';
-
-  @override
-  String get modelsDefaultBadge => 'Default';
-
-  @override
-  String get modelsInstalled => 'Installed';
-
-  @override
-  String get modelsNotInstalled => 'Not downloaded';
-
-  @override
-  String get modelsDownload => 'Download';
-
-  @override
-  String get modelsDelete => 'Delete';
-
-  @override
-  String get modelsCancelDownload => 'Cancel';
-
-  @override
-  String modelsDownloading(int percent) {
-    return 'Downloading… $percent%';
-  }
-
-  @override
-  String modelsSizeMb(String size) {
-    return '$size MB';
-  }
-
-  @override
-  String modelsSizeGb(String size) {
-    return '$size GB';
-  }
-
-  @override
-  String get modelsSectionAsr => 'Speech-to-text';
-
-  @override
-  String get modelsSectionSummarization => 'Summarization';
-
-  @override
-  String get modelsTierGemma1b => 'Gemma 3 1B';
-
-  @override
-  String get modelsTierGemma1bDescription =>
-      'Fast, on-device summaries — recommended';
-
-  @override
-  String get modelsTierGemma4b => 'Gemma 3 4B';
-
-  @override
-  String get modelsTierGemma4bDescription =>
-      'Higher-quality summaries, larger download';
-
-  @override
-  String modelsRamGateBlocked(String gbRequired) {
-    return 'Requires a device with at least $gbRequired GB of RAM';
-  }
-
-  @override
-  String modelsRamUnknownWarning(String gbRequired) {
-    return 'Could not verify available device memory — this model needs $gbRequired GB of RAM to run smoothly';
-  }
-
-  @override
-  String get summarizeScreenTitle => 'Summarize';
-
-  @override
-  String get summarizeTranscriptHint => 'Paste or type the transcript here';
-
-  @override
-  String get summarizeLengthShort => 'Short';
-
-  @override
-  String get summarizeLengthMedium => 'Medium';
-
-  @override
-  String get summarizeLengthDetailed => 'Detailed';
-
-  @override
-  String get summarizeAction => 'Summarize';
-
-  @override
-  String get summarizeCancel => 'Cancel';
-
-  @override
-  String get summarizeNewSummary => 'New summary';
-
-  @override
   String get summarizeStagePreparing => 'Preparing transcript';
 
   @override
@@ -536,20 +424,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get summarizeResultTitle => 'Summary';
-
-  @override
-  String get summarizeKeyPoints => 'Key points';
-
-  @override
-  String get summarizeImportantFacts => 'Important facts';
-
-  @override
   String get summarizeCheckWarning =>
       'Some details in this summary could not be verified against the transcript. Please review it.';
-
-  @override
-  String get summarizeCancelled => 'Summarization was cancelled.';
 
   @override
   String get summarizeErrorEmpty => 'There is no transcript text to summarize.';
@@ -561,9 +437,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get summarizeErrorGeneration =>
       'The summary could not be generated. Please try again.';
-
-  @override
-  String get profileSummarize => 'Summarize text';
 
   @override
   String get newJobSourceUnavailable =>
