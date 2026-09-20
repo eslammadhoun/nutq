@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:nutq/core/utils/background_work.dart';
+import 'package:nutq/features/summarization/domain/entities/sentence.dart';
+import 'package:nutq/features/summarization/domain/entities/validation_report.dart';
 import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/features/summarization/domain/entities/chunk_analysis.dart';
 import 'package:nutq/features/summarization/domain/entities/local_summary.dart';
@@ -14,6 +17,7 @@ import 'package:nutq/features/summarization/domain/usecases/aggregate_key_facts.
 import 'package:nutq/features/summarization/domain/usecases/chunk_transcript.dart';
 import 'package:nutq/features/summarization/domain/usecases/clean_transcript.dart';
 import 'package:nutq/features/summarization/domain/usecases/merge_summaries.dart';
+import 'package:nutq/features/summarization/domain/usecases/prepare_transcript.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_chunk.dart';
 import 'package:nutq/features/summarization/domain/usecases/validate_summary.dart';
 
@@ -51,6 +55,7 @@ class SummarizeTranscript {
     this.chunkTranscript = const ChunkTranscript(),
     this.aggregateKeyFacts = const AggregateKeyFacts(),
     this.validateSummary = const ValidateSummary(),
+    this.background = const InlineBackgroundWork(),
   });
 
   final SummarizationRepository repository;
@@ -58,6 +63,17 @@ class SummarizeTranscript {
   final ChunkTranscript chunkTranscript;
   final AggregateKeyFacts aggregateKeyFacts;
   final ValidateSummary validateSummary;
+
+  /// Where the pure, CPU-heavy stages (cleaning, segmenting, validating) run.
+  /// The app passes an isolate-backed one so they never block the UI thread.
+  final BackgroundWork background;
+
+  static ValidationReport _validate(
+    ({ValidateSummary validator, List<Sentence> sentences, String summary}) request,
+  ) => request.validator(
+    sourceSentences: request.sentences,
+    summary: request.summary,
+  );
 
   static const _maxKeyPoints = 5;
   static const _maxImportantFacts = 8;
@@ -84,7 +100,12 @@ class SummarizeTranscript {
     }
 
     report(SummarizationStage.preparing);
-    final cleaned = cleanTranscript(transcript);
+    final prepared = await background.run(prepareTranscript, (
+      clean: cleanTranscript,
+      maxSentenceWords: config.maxSentenceWords,
+      text: transcript,
+    ));
+    final cleaned = prepared.cleaned;
     if (cleaned.isEmpty) {
       throw const SummarizationFailure(SummarizationFailureKind.emptyTranscript);
     }
@@ -92,8 +113,7 @@ class SummarizeTranscript {
     token.throwIfCancelled();
     repository.resetStats();
 
-    final prepared = await chunkTranscript(cleaned, config, repository.tokenCounter);
-    final chunks = prepared.chunks;
+    final chunks = await chunkTranscript(prepared.sentences, config, repository.tokenCounter);
     log('chunks=${chunks.length} chars=${cleaned.length}');
     token.throwIfCancelled();
 
@@ -153,10 +173,11 @@ class SummarizeTranscript {
     }
 
     report(SummarizationStage.checking);
-    final validation = validateSummary(
-      sourceSentences: prepared.sentences,
+    final validation = await background.run(_validate, (
+      validator: validateSummary,
+      sentences: prepared.sentences,
       summary: finalText,
-    );
+    ));
     log('validationIssues=${validation.issues.length}');
 
     final stats = repository.stats;

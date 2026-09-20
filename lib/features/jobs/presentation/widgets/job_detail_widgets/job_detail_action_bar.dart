@@ -16,6 +16,10 @@ class JobDetailActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return BlocBuilder<JobDetailCubit, JobDetailState>(
+      buildWhen: (previous, current) =>
+          previous.job != current.job ||
+          previous.streamingSummary != current.streamingSummary ||
+          previous.isCancelling != current.isCancelling,
       builder: (context, state) {
         final job = state.job;
         if (job == null) return const SizedBox.shrink();

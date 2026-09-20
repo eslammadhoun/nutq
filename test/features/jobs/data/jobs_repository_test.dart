@@ -390,6 +390,31 @@ void main() {
       expect(statuses, [JobRunStatus.pending, JobRunStatus.running, JobRunStatus.completed, null]);
     });
 
+    test('a write to another job does not re-emit an unchanged list or detail', () async {
+      await t.repo.createJob(draft('الأول')); // job-1
+      var listEmissions = 0;
+      var detailEmissions = 0;
+      final listSub = t.repo.watchJobs(const JobsQuery(text: 'الأول')).listen((_) => listEmissions++);
+      final detailSub = t.repo.watchJob('job-1').listen((_) => detailEmissions++);
+      await pumpEventQueue();
+      expect((listEmissions, detailEmissions), (1, 1));
+
+      // Writes that do not change what these queries return.
+      await t.repo.createJob(draft('الثاني')); // job-2
+      await t.repo.markRunning('job-2');
+      await t.repo.cancelJob('job-2');
+      await pumpEventQueue();
+      expect(detailEmissions, 1, reason: 'job-1 did not change');
+      expect(listEmissions, 1, reason: 'the filtered list did not change');
+
+      await t.repo.markRunning('job-1');
+      await pumpEventQueue();
+      expect(detailEmissions, 2, reason: 'a real change still emits');
+      expect(listEmissions, 2);
+      await listSub.cancel();
+      await detailSub.cancel();
+    });
+
     test('watchJobs orders newest first', () async {
       await t.repo.createJob(draft('first'));
       await t.repo.createJob(draft('second'));

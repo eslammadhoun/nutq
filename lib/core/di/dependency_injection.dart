@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:nutq/core/database/app_database.dart';
 import 'package:nutq/core/locale/locale_cubit.dart';
 import 'package:nutq/core/preferences/app_preferences.dart';
+import 'package:nutq/core/utils/background_work.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
@@ -17,7 +18,9 @@ import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/summarization/data/cache/summarization_cache.dart';
+import 'package:nutq/features/summarization/data/datasources/flutter_gemma_runtime.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
+import 'package:nutq/features/summarization/data/datasources/llm_runtime.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
@@ -52,7 +55,10 @@ void _registerCore(SharedPreferences prefs, AppDatabase Function() openDatabase)
 /// On-device summarization (Gemma 3 1B IT, LiteRT-LM).
 void _registerSummarization() {
   sl
-    ..registerLazySingleton<GemmaLocalDataSource>(GemmaLocalDataSourceImpl.new)
+    ..registerLazySingleton<LlmRuntime>(FlutterGemmaRuntime.new)
+    ..registerLazySingleton<GemmaLocalDataSource>(
+      () => GemmaLocalDataSourceImpl(sl<LlmRuntime>()),
+    )
     ..registerLazySingleton<SummarizationRepository>(
       () => SummarizationRepositoryImpl(
         dataSource: sl<GemmaLocalDataSource>(),
@@ -62,7 +68,10 @@ void _registerSummarization() {
       ),
     )
     ..registerLazySingleton<SummarizeTranscript>(
-      () => SummarizeTranscript(repository: sl<SummarizationRepository>()),
+      () => SummarizeTranscript(
+        repository: sl<SummarizationRepository>(),
+        background: const IsolateBackgroundWork(),
+      ),
     );
 }
 

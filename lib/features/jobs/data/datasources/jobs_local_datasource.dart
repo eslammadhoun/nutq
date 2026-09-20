@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:nutq/features/jobs/data/local/daos/jobs_dao.dart';
 import 'package:nutq/features/jobs/data/mappers/job_mappers.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
@@ -64,13 +65,18 @@ class JobsLocalDataSourceImpl implements JobsLocalDataSource {
 
   final JobsDao _dao;
 
+  /// Drift re-runs a query on any write to the tables it reads. `distinct`
+  /// keeps an unrelated write (another job changing) from re-emitting the same
+  /// list and rebuilding the UI for nothing.
   @override
-  Stream<List<JobEntity>> watchJobs(JobsQuery query) =>
-      _dao.watchJobs(query).map((rows) => [for (final r in rows) r.toEntity()]);
+  Stream<List<JobEntity>> watchJobs(JobsQuery query) => _dao
+      .watchJobs(query)
+      .map((rows) => [for (final r in rows) r.toEntity()])
+      .distinct(listEquals);
 
   @override
   Stream<JobDetailEntity?> watchJob(String id) =>
-      _dao.watchDetail(id).map((rows) => rows?.toEntity());
+      _dao.watchDetail(id).map((rows) => rows?.toEntity()).distinct();
 
   @override
   Future<JobDetailEntity?> getJob(String id) async =>

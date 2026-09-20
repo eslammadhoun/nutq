@@ -7,7 +7,9 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/theme/app_colors.dart';
 import 'package:nutq/core/theme/app_theme.dart';
+import 'package:nutq/features/jobs/domain/entities/job_progress.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
+import 'package:nutq/features/jobs/domain/entities/job_stage.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/screens/job_detail_screen.dart';
 import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
@@ -336,5 +338,70 @@ void main() {
       expect(jobTextDirection('en'), TextDirection.ltr);
       expect(jobTextDirection('unknown'), TextDirection.ltr);
     });
+  });
+
+  testWidgets('a streamed word rebuilds the summary but never the transcript (rebuild scoping)', (tester) async {
+    final cubit = await open(tester, sampleTranscript);
+    await untilSettled(tester, cubit);
+
+    final rebuilds = <Type, int>{};
+    debugOnRebuildDirtyWidget = (element, builtOnce) {
+      final type = element.widget.runtimeType;
+      if (type == TranscriptCard || type == SummaryCard || type == JobStatusHeroCard || type == JobProgressCard) {
+        rebuilds[type] = (rebuilds[type] ?? 0) + 1;
+      }
+    };
+    addTearDown(() => debugOnRebuildDirtyWidget = null);
+
+    for (var i = 1; i <= 10; i++) {
+      // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+      cubit.emit(cubit.state.copyWith(streamingSummary: List.filled(i, 'الملخص').join(' ')));
+      await tester.pump();
+    }
+
+    expect(rebuilds[SummaryCard], greaterThan(0), reason: 'the summary follows the streamed updates');
+    expect(rebuilds[TranscriptCard], isNull, reason: 'the (possibly huge) transcript is untouched');
+    expect(rebuilds[JobStatusHeroCard], isNull);
+  });
+
+  testWidgets('progress ticks rebuild only the progress card', (tester) async {
+    final gate = Completer<void>();
+    h.gemma.responder = (prompt, call) async {
+      if (call == 2) await gate.future;
+      return null;
+    };
+    final cubit = await open(tester, sampleTranscript);
+    await advance(tester, 100);
+    expect(find.byType(JobProgressCard), findsOneWidget);
+
+    final rebuilds = <Type, int>{};
+    debugOnRebuildDirtyWidget = (element, builtOnce) {
+      final type = element.widget.runtimeType;
+      if (type == TranscriptCard || type == SummaryCard || type == JobProgressCard) {
+        rebuilds[type] = (rebuilds[type] ?? 0) + 1;
+      }
+    };
+    addTearDown(() => debugOnRebuildDirtyWidget = null);
+
+    for (var i = 1; i <= 5; i++) {
+      // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+      cubit.emit(cubit.state.copyWith(progress: JobProgress(JobStage.analyzing, fraction: 0.1 * i, done: i, total: 10)));
+      await tester.pump();
+    }
+    expect(rebuilds[JobProgressCard], greaterThanOrEqualTo(5));
+    expect(rebuilds[TranscriptCard], isNull);
+    expect(rebuilds[SummaryCard], isNull);
+    gate.complete();
+  });
+
+  testWidgets('a job deleted while the screen is open switches to the "no longer exists" message', (tester) async {
+    final cubit = await open(tester, sampleTranscript);
+    await untilSettled(tester, cubit);
+    expect(find.byType(TranscriptCard), findsOneWidget);
+
+    await tester.runAsync(() => h.repo.deleteJob(cubit.jobId));
+    await advance(tester, 100);
+    expect(find.text('This job no longer exists.'), findsOneWidget);
+    expect(find.byType(TranscriptCard), findsNothing);
   });
 }

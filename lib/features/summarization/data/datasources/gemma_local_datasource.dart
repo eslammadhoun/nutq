@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_gemma/flutter_gemma.dart';
+import 'package:nutq/features/summarization/data/datasources/llm_runtime.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_generation_config.dart';
 import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
@@ -58,58 +58,32 @@ abstract class GemmaLocalDataSource {
   Future<void> dispose();
 }
 
+/// The Gemma data source: retries, cancellation, streaming, response cleanup and
+/// the model's lifecycle, on top of an [LlmRuntime].
 class GemmaLocalDataSourceImpl implements GemmaLocalDataSource {
-  GemmaLocalDataSourceImpl({
-    this.assetPath = defaultAssetPath,
-    this.maxAttempts = 2,
-    this.contextTokens = 4096,
-    this.useGpu = false,
-  });
+  GemmaLocalDataSourceImpl(this._runtime, {this.maxAttempts = 2});
 
-  static const defaultAssetPath = 'assets/models/gemma3-1b-it-q4.litertlm';
-
-  final String assetPath;
+  final LlmRuntime _runtime;
   final int maxAttempts;
-  final int contextTokens;
-  final bool useGpu;
 
-  InferenceModel? _model;
-  InferenceModelSession? _tokenizer;
-  InferenceModelSession? _active;
+  LlmSession? _tokenizer;
+  LlmSession? _active;
   Future<void>? _activation;
   bool _cancelRequested = false;
 
-  String get _modelFileName => assetPath.split('/').last;
-
   @override
-  Future<bool> isModelAvailable() async {
-    try {
-      return FlutterGemma.hasActiveModel() ||
-          await FlutterGemma.isModelInstalled(_modelFileName);
-    } catch (_) {
-      return false;
-    }
-  }
+  Future<bool> isModelAvailable() => _runtime.isModelAvailable();
 
   @override
   Future<void> activate() {
     _cancelRequested = false;
-    if (_model != null) return Future.value();
+    if (_runtime.isLoaded) return Future.value();
     return _activation ??= _load().whenComplete(() => _activation = null);
   }
 
   Future<void> _load() async {
     try {
-      if (!FlutterGemma.hasActiveModel()) {
-        await FlutterGemma.installModel(
-          modelType: ModelType.gemmaIt,
-          fileType: ModelFileType.litertlm,
-        ).fromAsset(assetPath).install();
-      }
-      _model = await FlutterGemma.getActiveModel(
-        maxTokens: contextTokens,
-        preferredBackend: useGpu ? PreferredBackend.gpu : PreferredBackend.cpu,
-      );
+      await _runtime.load();
     } catch (e) {
       throw SummarizationFailure(SummarizationFailureKind.modelUnavailable, '$e');
     }
@@ -142,24 +116,17 @@ class GemmaLocalDataSourceImpl implements GemmaLocalDataSource {
     GemmaGenerationConfig config,
     void Function(String partialText)? onPartial,
   ) async {
-    final model = _model!;
-    final session = await model.openSession(
-      temperature: config.temperature,
-      randomSeed: config.seed,
-      topK: config.topK,
-      topP: config.topP,
-      maxOutputTokens: config.maxOutputTokens,
-    );
+    final session = await _runtime.openSession(config);
     _active = session;
     final watch = Stopwatch()..start();
     try {
-      await session.addQueryChunk(Message.text(text: prompt, isUser: true));
+      await session.setPrompt(prompt);
       final String raw;
       if (onPartial == null) {
-        raw = await session.getResponse();
+        raw = await session.respond();
       } else {
         final buffer = StringBuffer();
-        await for (final token in session.getResponseAsync()) {
+        await for (final token in session.respondStream()) {
           if (_cancelRequested) break;
           buffer.write(token);
           final partial = cleanResponse(buffer.toString());
@@ -170,13 +137,13 @@ class GemmaLocalDataSourceImpl implements GemmaLocalDataSource {
       watch.stop();
       if (_cancelRequested) throw const CancelledException();
 
-      final metrics = session.getSessionMetrics();
       final text = cleanResponse(raw);
       if (text.isEmpty) throw const GemmaGenerationException('empty response');
+      final usage = session.usage;
       return GemmaResponse(
         text: text,
-        inputTokens: metrics.inputTokens,
-        outputTokens: metrics.outputTokens,
+        inputTokens: usage.inputTokens,
+        outputTokens: usage.outputTokens,
         durationMs: watch.elapsedMilliseconds,
       );
     } finally {
@@ -202,27 +169,27 @@ class GemmaLocalDataSourceImpl implements GemmaLocalDataSource {
   @override
   Future<int> countTokens(String text) async {
     await activate();
-    // Legacy singleton lane, kept open just for tokenizing; generation uses
-    // independent `openSession`s so the two never close each other.
-    _tokenizer ??= await _model!.createSession();
-    return _tokenizer!.sizeInTokens(text);
+    _tokenizer ??= await _runtime.openTokenizer();
+    return _tokenizer!.countTokens(text);
   }
 
   @override
   Future<void> cancel() async {
     _cancelRequested = true;
     try {
-      await _active?.stopGeneration();
+      await _active?.stop();
     } catch (_) {}
   }
 
+  /// Unloads the model and frees its memory; the next call reloads it.
   @override
   Future<void> dispose() async {
     try {
       await _tokenizer?.close();
-      await _model?.close();
     } catch (_) {}
     _tokenizer = null;
-    _model = null;
+    try {
+      await _runtime.unload();
+    } catch (_) {}
   }
 }

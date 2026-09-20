@@ -109,7 +109,7 @@ void main() {
     final pubspec = File('pubspec.yaml').readAsStringSync();
     expect(pubspec, contains('assets/models/gemma3-1b-it-q4.litertlm'));
     expect(pubspec, isNot(contains('llama_cpp_dart')));
-    final source = File('lib/features/summarization/data/datasources/gemma_local_datasource.dart').readAsStringSync();
+    final source = File('lib/features/summarization/data/datasources/flutter_gemma_runtime.dart').readAsStringSync();
     expect(source, contains("'assets/models/gemma3-1b-it-q4.litertlm'"));
   });
 }
