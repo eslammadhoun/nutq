@@ -27,6 +27,11 @@ dependencies:
   flutter_gemma: ^1.8.3
   flutter_gemma_litertlm: ^1.7.0
   crypto: ^3.0.7
+  # Pinned in lockstep with drift_dev (freezed's analyzer range blocks a newer
+  # drift_dev); a drift/drift_dev version mismatch breaks `drift_dev schema dump`.
+  drift: 2.34.0
+  drift_flutter: ^0.3.1
+  uuid: ^4.6.0
 
 dev_dependencies:
   flutter_test:
@@ -38,6 +43,7 @@ dev_dependencies:
   bloc_test: ^10.0.0
   freezed: ^3.2.5
   fake_async: ^1.3.3
+  drift_dev: ^2.34.0
 
 flutter:
   uses-material-design: true
