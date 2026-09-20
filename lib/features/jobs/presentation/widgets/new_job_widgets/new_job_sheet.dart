@@ -8,7 +8,6 @@ import 'package:nutq/core/extensions/navigation_extension.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
-import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/idempotency_row.dart';
 import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/language_row.dart';
 import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/source_input_section.dart';
 import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/source_type_selector.dart';
@@ -38,7 +37,7 @@ class NewJobSheet extends StatelessWidget {
                 ..showSnackBar(
                   SnackBar(
                     content: Text(
-                      context.l10n.jobsErrorMessage(state.lastError!),
+                      context.l10n.errorMessage(state.lastError!),
                     ),
                     backgroundColor: colors.statusFailed,
                   ),
@@ -78,7 +77,6 @@ class NewJobSheet extends StatelessWidget {
                     SizedBox(height: 12.h),
                     const LanguageRow(),
                     SizedBox(height: 8.h),
-                    const IdempotencyRow(),
                     SizedBox(height: 16.h),
                     Flexible(
                       child: SingleChildScrollView(

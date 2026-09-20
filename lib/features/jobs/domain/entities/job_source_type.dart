@@ -1,3 +1,6 @@
-/// Where a job's input came from. Only [text] can be processed on-device
-/// today; the others are reserved for transcription support.
-enum JobSourceType { upload, youtube, url, text }
+/// Where a job's input comes from.
+///
+/// Persisted by name and used directly by the New Job selector (declaration
+/// order is the tab order). Which of these can actually be processed is decided
+/// by the registered `TranscriptSource`s, not by this enum.
+enum JobSourceType { text, video, audio, youtube }

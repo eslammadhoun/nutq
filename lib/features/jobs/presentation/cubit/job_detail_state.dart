@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:nutq/core/network/error/api_error.dart';
+import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
 
@@ -22,7 +22,7 @@ class JobDetailState {
   final JobDetailEntity? job;
 
   /// Raw error from a failed load — localized at display time.
-  final ApiError? lastError;
+  final AppError? lastError;
 
   final bool isCancelling;
 
@@ -36,7 +36,7 @@ class JobDetailState {
   JobDetailState copyWith({
     JobDetailStatus? status,
     JobDetailEntity? job,
-    ApiError? lastError,
+    AppError? lastError,
     bool clearLastError = false,
     bool? isCancelling,
     SummarizationProgress? progress,

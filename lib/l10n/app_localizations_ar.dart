@@ -38,39 +38,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get somethingWentWrong => 'حدث خطأ ما';
 
   @override
-  String get errorNoConnection => 'لا يوجد اتصال بالإنترنت';
-
-  @override
-  String get errorServerUnreachable =>
-      'تعذر الوصول إلى الخادم. حاول مرة أخرى لاحقًا.';
-
-  @override
-  String get errorTimeout => 'انتهت مهلة الطلب';
-
-  @override
-  String get errorModelNotDownloaded => 'لم يتم تنزيل هذا النموذج بعد';
-
-  @override
-  String get errorInsufficientStorage =>
-      'لا توجد مساحة تخزين كافية على هذا الجهاز';
-
-  @override
-  String get errorInsufficientMemory =>
-      'لا توجد ذاكرة كافية متاحة لإتمام هذه العملية';
-
-  @override
-  String get errorProcessingCancelled => 'تم إلغاء المعالجة';
-
-  @override
-  String get errorAudioDecodeFailed => 'تعذّرت قراءة ملف الصوت هذا';
-
-  @override
-  String get errorNativeEngineFailure => 'حدث خطأ ما أثناء المعالجة';
-
-  @override
-  String get errorDeviceOffline => 'جهازك غير متصل بالإنترنت';
-
-  @override
   String jobFallbackTitle(String id) {
     return 'مهمة #$id';
   }
@@ -131,67 +98,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'يمكن أن يحتوي اسم المستخدم على الأحرف والأرقام و الشرطات السفلية والشرطات فقط';
 
   @override
-  String get authEmailLabel => 'البريد الإلكتروني';
-
-  @override
-  String get authEmailHint => 'أدخل بريدك الإلكتروني';
-
-  @override
-  String get authPasswordLabel => 'كلمة المرور';
-
-  @override
-  String get authPasswordHidden => '••••••••';
-
-  @override
-  String get authShowPassword => 'إظهار';
-
-  @override
-  String get authHidePassword => 'إخفاء';
-
-  @override
-  String get loginWelcomeTitle => 'أهلاً بعودتك';
-
-  @override
-  String get loginWelcomeSubtitle => 'سجّل الدخول إلى حسابك للمتابعة';
-
-  @override
-  String get loginSubmit => 'تسجيل الدخول';
-
-  @override
-  String get loginFooterPrompt => 'ليس لديك حساب؟ ';
-
-  @override
-  String get loginFooterAction => 'إنشاء حساب';
-
-  @override
-  String get registerWelcomeTitle => 'إنشاء حساب';
-
-  @override
-  String get registerWelcomeSubtitle =>
-      'انضم إلى نطق لبدء تحويل الكلام العربي إلى نص';
-
-  @override
-  String get registerUsernameLabel => 'اسم المستخدم';
-
-  @override
-  String get registerUsernameHint => 'مثال: ahmed_ali';
-
-  @override
-  String get registerConfirmPasswordLabel => 'تأكيد كلمة المرور';
-
-  @override
-  String get registerConfirmPasswordHint => 'أعد كتابة كلمة المرور';
-
-  @override
-  String get registerSubmit => 'إنشاء حساب';
-
-  @override
-  String get registerFooterPrompt => 'لديك حساب بالفعل؟ ';
-
-  @override
-  String get registerFooterAction => 'تسجيل الدخول';
-
-  @override
   String get jobsHistoryTitle => 'السجل';
 
   @override
@@ -214,9 +120,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sourceYoutube => 'يوتيوب';
-
-  @override
-  String get sourceWebUrl => 'رابط ويب';
 
   @override
   String get sourceText => 'نص';
@@ -247,9 +150,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get newJobLanguageEnglish => 'الإنجليزية (EN)';
-
-  @override
-  String get newJobIdempotencyKeyLabel => 'مفتاح عدم التكرار';
 
   @override
   String get newJobTextLabel => 'أدخل أو الصق نصك العربي';
@@ -387,9 +287,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileComingSoon => 'الملف الشخصي — قريباً';
-
-  @override
-  String get profileLogOut => 'تسجيل الخروج';
 
   @override
   String get summarizeStagePreparing => 'تجهيز النص';

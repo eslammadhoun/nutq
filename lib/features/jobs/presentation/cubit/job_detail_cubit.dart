@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nutq/core/network/error/api_error.dart';
+import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/job_exceptions.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
@@ -82,7 +82,7 @@ class JobDetailCubit extends Cubit<JobDetailState> {
     emit(
       state.copyWith(
         status: JobDetailStatus.failure,
-        lastError: const ApiError.storage(),
+        lastError: AppError.storage,
       ),
     );
   }

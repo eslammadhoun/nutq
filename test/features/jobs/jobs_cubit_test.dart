@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutq/core/network/error/api_error.dart';
+import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/local/daos/jobs_dao.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
@@ -12,7 +12,6 @@ import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
-import 'package:nutq/features/jobs/presentation/models/job.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_result.dart';
 import 'package:nutq/features/summarization/domain/entities/validation_report.dart';
@@ -55,15 +54,15 @@ void main() {
     await cubit.fetchJobs();
     final id = await h.createJob('نص');
     await settle();
-    expect(cubit.state.jobs.single.status, JobStatus.queued);
+    expect(cubit.state.jobs.single.status, JobRunStatus.pending);
 
     await h.repo.markRunning(id);
     await settle();
-    expect(cubit.state.jobs.single.status, JobStatus.processing);
+    expect(cubit.state.jobs.single.status, JobRunStatus.running);
 
     await h.repo.cancelJob(id);
     await settle();
-    expect(cubit.state.jobs.single.status, JobStatus.cancelled);
+    expect(cubit.state.jobs.single.status, JobRunStatus.cancelled);
 
     await h.repo.deleteJob(id);
     await settle();
@@ -76,8 +75,8 @@ void main() {
     await cubit.fetchJobs();
     final job = cubit.state.jobs.single;
     expect(job.preview, 'مرحبا بكم');
-    expect(job.languageCode, 'ar');
-    expect(job.status, JobStatus.failed);
+    expect(job.language.code, 'ar');
+    expect(job.status, JobRunStatus.failed);
     expect(job.failureKind, SummarizationFailureKind.modelUnavailable);
   });
 
@@ -93,16 +92,16 @@ void main() {
     });
 
     test('each chip maps to the stored states it stands for', () async {
-      Future<List<String?>> previewsFor(JobStatus? filter) async {
+      Future<List<String?>> previewsFor(JobRunStatus? filter) async {
         cubit.selectFilter(filter);
         await settle();
         return cubit.state.jobs.map((j) => j.preview).toList();
       }
 
-      expect(await previewsFor(JobStatus.done), ['done job']);
-      expect(await previewsFor(JobStatus.failed), ['failed job']);
-      expect(await previewsFor(JobStatus.queued), ['queued job']);
-      expect(await previewsFor(JobStatus.processing), isEmpty);
+      expect(await previewsFor(JobRunStatus.completed), ['done job']);
+      expect(await previewsFor(JobRunStatus.failed), ['failed job']);
+      expect(await previewsFor(JobRunStatus.pending), ['queued job']);
+      expect(await previewsFor(JobRunStatus.running), isEmpty);
       expect(await previewsFor(null), hasLength(3));
       expect(cubit.state.selectedFilter, isNull);
     });
@@ -143,7 +142,7 @@ void main() {
       await h.repo.failJob(a, SummarizationFailureKind.generationFailed);
       await h.createJob('ميزانية ب');
       await cubit.fetchJobs();
-      cubit.selectFilter(JobStatus.failed);
+      cubit.selectFilter(JobRunStatus.failed);
       cubit.search('ميزانية');
       await settle();
       expect(cubit.state.jobs.map((j) => j.preview), ['ميزانية أ']);
@@ -178,7 +177,7 @@ void main() {
       }
       await cubit.fetchJobs();
       await cubit.loadMore();
-      cubit.selectFilter(JobStatus.queued);
+      cubit.selectFilter(JobRunStatus.pending);
       await settle();
       expect(cubit.state.jobs, hasLength(JobsQuery.defaultLimit));
       expect(cubit.state.hasMore, isTrue);
@@ -210,7 +209,7 @@ void main() {
       await flaky.deleteJob(id);
       await settle();
       expect(flaky.state.jobs.map((j) => j.id), [id], reason: 'the row is back');
-      expect(flaky.state.deleteError, const ApiError.storage());
+      expect(flaky.state.deleteError, AppError.storage);
       expect(flaky.state.deleteErrorToken, 1);
 
       await flaky.deleteJob(id);
@@ -225,7 +224,7 @@ void main() {
     addTearDown(failing.close);
     await failing.fetchJobs();
     expect(failing.state.status, JobsStatus.failure);
-    expect(failing.state.lastError, const ApiError.storage());
+    expect(failing.state.lastError, AppError.storage);
     expect(failing.state.jobs, isEmpty);
   });
 

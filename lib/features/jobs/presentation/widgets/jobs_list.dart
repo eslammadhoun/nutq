@@ -8,7 +8,7 @@ import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/widgets/global_button.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
-import 'package:nutq/features/jobs/presentation/models/job.dart';
+import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_card.dart';
 
 class JobsList extends StatefulWidget {
@@ -52,7 +52,7 @@ class _JobsListState extends State<JobsList> {
           ..hideCurrentSnackBar()
           ..showSnackBar(
             SnackBar(
-              content: Text(context.l10n.jobsErrorMessage(state.deleteError!)),
+              content: Text(context.l10n.errorMessage(state.deleteError!)),
               backgroundColor: context.appColors.statusFailed,
             ),
           );
@@ -78,7 +78,7 @@ class _JobsListState extends State<JobsList> {
                         children: [
                           Text(
                             state.lastError != null
-                                ? context.l10n.jobsErrorMessage(
+                                ? context.l10n.errorMessage(
                                     state.lastError!,
                                   )
                                 : context.l10n.somethingWentWrong,
@@ -134,7 +134,7 @@ class _JobsListState extends State<JobsList> {
               itemCount: jobs.length + (state.isLoadingMore ? 1 : 0),
               separatorBuilder: (_, _) => SizedBox(height: 12.h),
               itemBuilder: (context, index) {
-                final Job job = jobs[index];
+                final JobEntity job = jobs[index];
                 if (index >= jobs.length) {
                   return const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),

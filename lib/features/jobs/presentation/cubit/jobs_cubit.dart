@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nutq/core/network/error/api_error.dart';
+import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
-import 'package:nutq/features/jobs/presentation/models/job.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 
 /// The jobs list. The database is the source of truth: the cubit subscribes to
 /// a live query, so jobs created, finished or deleted anywhere appear here
@@ -29,9 +29,7 @@ class JobsCubit extends Cubit<JobsState> {
   String _appliedSearch = '';
 
   JobsQuery get _query => JobsQuery(
-    statuses: state.selectedFilter == null
-        ? null
-        : Job.runStatusesFor(state.selectedFilter!),
+    statuses: state.selectedFilter == null ? null : {state.selectedFilter!},
     text: _appliedSearch,
     limit: _limit,
   );
@@ -53,7 +51,7 @@ class JobsCubit extends Cubit<JobsState> {
     return _subscribe();
   }
 
-  void selectFilter(JobStatus? status) {
+  void selectFilter(JobRunStatus? status) {
     emit(
       status == null
           ? state.copyWith(clearFilter: true)
@@ -92,7 +90,7 @@ class JobsCubit extends Cubit<JobsState> {
       if (isClosed) return;
       emit(
         state.copyWith(
-          deleteError: const ApiError.storage(),
+          deleteError: AppError.storage,
           deleteErrorToken: state.deleteErrorToken + 1,
         ),
       );
@@ -115,7 +113,7 @@ class JobsCubit extends Cubit<JobsState> {
             emit(
               state.copyWith(
                 status: JobsStatus.success,
-                jobs: [for (final e in entities) Job.fromEntity(e)],
+                jobs: entities,
                 hasMore: entities.length >= _limit,
                 isLoadingMore: false,
                 clearLastError: true,
@@ -129,7 +127,7 @@ class JobsCubit extends Cubit<JobsState> {
                 state.copyWith(
                   status: JobsStatus.failure,
                   isLoadingMore: false,
-                  lastError: const ApiError.storage(),
+                  lastError: AppError.storage,
                 ),
               );
             }

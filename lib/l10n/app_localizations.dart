@@ -152,66 +152,6 @@ abstract class AppLocalizations {
   /// **'Something went wrong'**
   String get somethingWentWrong;
 
-  /// No description provided for @errorNoConnection.
-  ///
-  /// In en, this message translates to:
-  /// **'No internet connection'**
-  String get errorNoConnection;
-
-  /// No description provided for @errorServerUnreachable.
-  ///
-  /// In en, this message translates to:
-  /// **'Can\'t reach the server. Please try again later.'**
-  String get errorServerUnreachable;
-
-  /// No description provided for @errorTimeout.
-  ///
-  /// In en, this message translates to:
-  /// **'Request timed out'**
-  String get errorTimeout;
-
-  /// No description provided for @errorModelNotDownloaded.
-  ///
-  /// In en, this message translates to:
-  /// **'This model hasn\'t been downloaded yet'**
-  String get errorModelNotDownloaded;
-
-  /// No description provided for @errorInsufficientStorage.
-  ///
-  /// In en, this message translates to:
-  /// **'Not enough free storage on this device'**
-  String get errorInsufficientStorage;
-
-  /// No description provided for @errorInsufficientMemory.
-  ///
-  /// In en, this message translates to:
-  /// **'Not enough available memory to do this'**
-  String get errorInsufficientMemory;
-
-  /// No description provided for @errorProcessingCancelled.
-  ///
-  /// In en, this message translates to:
-  /// **'Processing was cancelled'**
-  String get errorProcessingCancelled;
-
-  /// No description provided for @errorAudioDecodeFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'This audio file couldn\'t be read'**
-  String get errorAudioDecodeFailed;
-
-  /// No description provided for @errorNativeEngineFailure.
-  ///
-  /// In en, this message translates to:
-  /// **'Something went wrong during processing'**
-  String get errorNativeEngineFailure;
-
-  /// No description provided for @errorDeviceOffline.
-  ///
-  /// In en, this message translates to:
-  /// **'Your device is offline'**
-  String get errorDeviceOffline;
-
   /// No description provided for @jobFallbackTitle.
   ///
   /// In en, this message translates to:
@@ -302,126 +242,6 @@ abstract class AppLocalizations {
   /// **'Username can only contain letters, numbers, underscores, and hyphens'**
   String get validationUsernameChars;
 
-  /// No description provided for @authEmailLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Email address'**
-  String get authEmailLabel;
-
-  /// No description provided for @authEmailHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your email'**
-  String get authEmailHint;
-
-  /// No description provided for @authPasswordLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Password'**
-  String get authPasswordLabel;
-
-  /// No description provided for @authPasswordHidden.
-  ///
-  /// In en, this message translates to:
-  /// **'••••••••'**
-  String get authPasswordHidden;
-
-  /// No description provided for @authShowPassword.
-  ///
-  /// In en, this message translates to:
-  /// **'Show'**
-  String get authShowPassword;
-
-  /// No description provided for @authHidePassword.
-  ///
-  /// In en, this message translates to:
-  /// **'Hide'**
-  String get authHidePassword;
-
-  /// No description provided for @loginWelcomeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome back'**
-  String get loginWelcomeTitle;
-
-  /// No description provided for @loginWelcomeSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to your account to continue'**
-  String get loginWelcomeSubtitle;
-
-  /// No description provided for @loginSubmit.
-  ///
-  /// In en, this message translates to:
-  /// **'Log In'**
-  String get loginSubmit;
-
-  /// No description provided for @loginFooterPrompt.
-  ///
-  /// In en, this message translates to:
-  /// **'Don\'t have an account? '**
-  String get loginFooterPrompt;
-
-  /// No description provided for @loginFooterAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign up'**
-  String get loginFooterAction;
-
-  /// No description provided for @registerWelcomeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Create Account'**
-  String get registerWelcomeTitle;
-
-  /// No description provided for @registerWelcomeSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Join Nutq to start transcribing Arabic speech'**
-  String get registerWelcomeSubtitle;
-
-  /// No description provided for @registerUsernameLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Username'**
-  String get registerUsernameLabel;
-
-  /// No description provided for @registerUsernameHint.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. ahmed_ali'**
-  String get registerUsernameHint;
-
-  /// No description provided for @registerConfirmPasswordLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm password'**
-  String get registerConfirmPasswordLabel;
-
-  /// No description provided for @registerConfirmPasswordHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Repeat your password'**
-  String get registerConfirmPasswordHint;
-
-  /// No description provided for @registerSubmit.
-  ///
-  /// In en, this message translates to:
-  /// **'Create Account'**
-  String get registerSubmit;
-
-  /// No description provided for @registerFooterPrompt.
-  ///
-  /// In en, this message translates to:
-  /// **'Already have an account? '**
-  String get registerFooterPrompt;
-
-  /// No description provided for @registerFooterAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Log in'**
-  String get registerFooterAction;
-
   /// No description provided for @jobsHistoryTitle.
   ///
   /// In en, this message translates to:
@@ -469,12 +289,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'YouTube'**
   String get sourceYoutube;
-
-  /// No description provided for @sourceWebUrl.
-  ///
-  /// In en, this message translates to:
-  /// **'Web URL'**
-  String get sourceWebUrl;
 
   /// No description provided for @sourceText.
   ///
@@ -535,12 +349,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'English (EN)'**
   String get newJobLanguageEnglish;
-
-  /// No description provided for @newJobIdempotencyKeyLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Idempotency Key'**
-  String get newJobIdempotencyKeyLabel;
 
   /// No description provided for @newJobTextLabel.
   ///
@@ -787,12 +595,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile — coming soon'**
   String get profileComingSoon;
-
-  /// No description provided for @profileLogOut.
-  ///
-  /// In en, this message translates to:
-  /// **'Log out'**
-  String get profileLogOut;
 
   /// No description provided for @summarizeStagePreparing.
   ///

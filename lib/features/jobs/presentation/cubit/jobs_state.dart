@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:nutq/core/network/error/api_error.dart';
-import 'package:nutq/features/jobs/presentation/models/job.dart';
+import 'package:nutq/core/errors/app_error.dart';
+import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 
 enum JobsStatus { initial, loading, success, failure }
 
@@ -21,8 +22,8 @@ class JobsState {
   final JobsStatus status;
 
   /// Jobs matching the current filter and search, newest first.
-  final List<Job> jobs;
-  final JobStatus? selectedFilter;
+  final List<JobEntity> jobs;
+  final JobRunStatus? selectedFilter;
 
   /// Text in the search field (applied to the query after a short debounce).
   final String searchQuery;
@@ -32,24 +33,24 @@ class JobsState {
   final bool isLoadingMore;
 
   /// Raw error from the last failed load — localized at display time.
-  final ApiError? lastError;
+  final AppError? lastError;
 
   /// Transient signal for a one-off SnackBar, paired with [deleteErrorToken]
   /// (bumped on every failure) so `listenWhen` fires on repeats.
-  final ApiError? deleteError;
+  final AppError? deleteError;
   final int deleteErrorToken;
 
   JobsState copyWith({
     JobsStatus? status,
-    List<Job>? jobs,
-    JobStatus? selectedFilter,
+    List<JobEntity>? jobs,
+    JobRunStatus? selectedFilter,
     bool clearFilter = false,
     String? searchQuery,
     bool? hasMore,
     bool? isLoadingMore,
-    ApiError? lastError,
+    AppError? lastError,
     bool clearLastError = false,
-    ApiError? deleteError,
+    AppError? deleteError,
     int? deleteErrorToken,
   }) => JobsState(
     status: status ?? this.status,

@@ -46,7 +46,7 @@ class JobDetailScreen extends StatelessWidget {
                     ),
                     JobDetailStatus.failure => _Message(
                       text: state.lastError != null
-                          ? context.l10n.jobsErrorMessage(state.lastError!)
+                          ? context.l10n.errorMessage(state.lastError!)
                           : context.l10n.somethingWentWrong,
                       onRetry: () => context.read<JobDetailCubit>().refresh(),
                     ),

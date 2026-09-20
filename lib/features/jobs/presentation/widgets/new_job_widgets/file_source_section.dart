@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
 
@@ -17,7 +18,7 @@ class FileSourceSection extends StatelessWidget {
           previous.pickedFile != current.pickedFile ||
           previous.fileTooLarge != current.fileTooLarge,
       builder: (context, state) {
-        final isAudio = state.sourceType == NewJobSourceType.audio;
+        final isAudio = state.sourceType == JobSourceType.audio;
         final file = state.pickedFile;
 
         return Column(

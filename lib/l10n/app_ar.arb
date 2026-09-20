@@ -15,17 +15,6 @@
   "retry": "إعادة المحاولة",
   "somethingWentWrong": "حدث خطأ ما",
 
-  "errorNoConnection": "لا يوجد اتصال بالإنترنت",
-  "errorServerUnreachable": "تعذر الوصول إلى الخادم. حاول مرة أخرى لاحقًا.",
-  "errorTimeout": "انتهت مهلة الطلب",
-  "errorModelNotDownloaded": "لم يتم تنزيل هذا النموذج بعد",
-  "errorInsufficientStorage": "لا توجد مساحة تخزين كافية على هذا الجهاز",
-  "errorInsufficientMemory": "لا توجد ذاكرة كافية متاحة لإتمام هذه العملية",
-  "errorProcessingCancelled": "تم إلغاء المعالجة",
-  "errorAudioDecodeFailed": "تعذّرت قراءة ملف الصوت هذا",
-  "errorNativeEngineFailure": "حدث خطأ ما أثناء المعالجة",
-  "errorDeviceOffline": "جهازك غير متصل بالإنترنت",
-
   "jobFallbackTitle": "مهمة #{id}",
   "jobTodayLabel": "اليوم، {time}",
   "jobYesterdayLabel": "أمس",
@@ -43,29 +32,6 @@
   "validationNameChars": "يمكن أن يحتوي الاسم على الأحرف والمسافات والشرطات والفواصل العليا فقط",
   "validationUsernameChars": "يمكن أن يحتوي اسم المستخدم على الأحرف والأرقام و الشرطات السفلية والشرطات فقط",
 
-  "authEmailLabel": "البريد الإلكتروني",
-  "authEmailHint": "أدخل بريدك الإلكتروني",
-  "authPasswordLabel": "كلمة المرور",
-  "authPasswordHidden": "••••••••",
-  "authShowPassword": "إظهار",
-  "authHidePassword": "إخفاء",
-
-  "loginWelcomeTitle": "أهلاً بعودتك",
-  "loginWelcomeSubtitle": "سجّل الدخول إلى حسابك للمتابعة",
-  "loginSubmit": "تسجيل الدخول",
-  "loginFooterPrompt": "ليس لديك حساب؟ ",
-  "loginFooterAction": "إنشاء حساب",
-
-  "registerWelcomeTitle": "إنشاء حساب",
-  "registerWelcomeSubtitle": "انضم إلى نطق لبدء تحويل الكلام العربي إلى نص",
-  "registerUsernameLabel": "اسم المستخدم",
-  "registerUsernameHint": "مثال: ahmed_ali",
-  "registerConfirmPasswordLabel": "تأكيد كلمة المرور",
-  "registerConfirmPasswordHint": "أعد كتابة كلمة المرور",
-  "registerSubmit": "إنشاء حساب",
-  "registerFooterPrompt": "لديك حساب بالفعل؟ ",
-  "registerFooterAction": "تسجيل الدخول",
-
   "jobsHistoryTitle": "السجل",
   "jobsSearchHint": "ابحث في التفريغات...",
   "jobsFilterAll": "الكل",
@@ -76,7 +42,6 @@
   "sourceAudioFile": "ملف صوتي",
   "sourceVideo": "فيديو",
   "sourceYoutube": "يوتيوب",
-  "sourceWebUrl": "رابط ويب",
   "sourceText": "نص",
 
   "statusDone": "منجز",
@@ -89,7 +54,6 @@
   "newJobLanguageLabel": "اللغة",
   "newJobLanguageArabic": "العربية (AR)",
   "newJobLanguageEnglish": "الإنجليزية (EN)",
-  "newJobIdempotencyKeyLabel": "مفتاح عدم التكرار",
   "newJobTextLabel": "أدخل أو الصق نصك العربي",
   "newJobTextPlaceholder": "مثال: أدخل النص العربي هنا للحصول على ملخص...",
   "newJobCharCounter": "{count} / {max}",
@@ -144,7 +108,6 @@
   "jobDetailShowLess": "عرض أقل",
 
   "profileComingSoon": "الملف الشخصي — قريباً",
-  "profileLogOut": "تسجيل الخروج",
 
   "summarizeStagePreparing": "تجهيز النص",
   "summarizeStageAnalyzing": "تحليل النص",

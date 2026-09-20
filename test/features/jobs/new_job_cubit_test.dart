@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutq/core/network/error/api_error.dart';
+import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/local/daos/jobs_dao.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
@@ -8,6 +8,7 @@ import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
@@ -37,7 +38,7 @@ void main() {
     cubit.setText('نص للتلخيص');
     expect(cubit.state.canSubmit, isTrue);
 
-    cubit.changeSourceType(NewJobSourceType.youtube.index);
+    cubit.changeSourceType(JobSourceType.youtube.index);
     cubit.setSourceUrl('https://www.youtube.com/watch?v=abcdefghijk');
     expect(cubit.state.isSourceSupported, isFalse);
     expect(cubit.state.canSubmit, isFalse);
@@ -84,7 +85,7 @@ void main() {
 
     await failing.submit();
     expect(failing.state.status, NewJobStatus.failure);
-    expect(failing.state.lastError, const ApiError.storage());
+    expect(failing.state.lastError, AppError.storage);
     expect(failing.state.submittedJobId, isNull);
     expect(failing.state.text, 'نص', reason: 'the user does not lose what they typed');
 

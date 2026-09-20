@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
-import 'package:nutq/features/jobs/presentation/models/job.dart';
+import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
 
 class JobCard extends StatelessWidget {
   const JobCard({super.key, required this.job});
 
-  final Job job;
+  final JobEntity job;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +87,7 @@ class JobCard extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
             Text(
-              '${formatJobTimestamp(context, job.createdAt)} · ${languageName(l10n, job.languageCode)}',
+              '${formatJobTimestamp(context, job.createdAt)} · ${languageName(l10n, job.language.code)}',
               style: context.typography.captionSmall.copyWith(
                 color: colors.textSecondary,
               ),

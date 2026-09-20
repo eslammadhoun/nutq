@@ -38,41 +38,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get somethingWentWrong => 'Something went wrong';
 
   @override
-  String get errorNoConnection => 'No internet connection';
-
-  @override
-  String get errorServerUnreachable =>
-      'Can\'t reach the server. Please try again later.';
-
-  @override
-  String get errorTimeout => 'Request timed out';
-
-  @override
-  String get errorModelNotDownloaded =>
-      'This model hasn\'t been downloaded yet';
-
-  @override
-  String get errorInsufficientStorage =>
-      'Not enough free storage on this device';
-
-  @override
-  String get errorInsufficientMemory =>
-      'Not enough available memory to do this';
-
-  @override
-  String get errorProcessingCancelled => 'Processing was cancelled';
-
-  @override
-  String get errorAudioDecodeFailed => 'This audio file couldn\'t be read';
-
-  @override
-  String get errorNativeEngineFailure =>
-      'Something went wrong during processing';
-
-  @override
-  String get errorDeviceOffline => 'Your device is offline';
-
-  @override
   String jobFallbackTitle(String id) {
     return 'Job #$id';
   }
@@ -133,67 +98,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Username can only contain letters, numbers, underscores, and hyphens';
 
   @override
-  String get authEmailLabel => 'Email address';
-
-  @override
-  String get authEmailHint => 'Enter your email';
-
-  @override
-  String get authPasswordLabel => 'Password';
-
-  @override
-  String get authPasswordHidden => '••••••••';
-
-  @override
-  String get authShowPassword => 'Show';
-
-  @override
-  String get authHidePassword => 'Hide';
-
-  @override
-  String get loginWelcomeTitle => 'Welcome back';
-
-  @override
-  String get loginWelcomeSubtitle => 'Sign in to your account to continue';
-
-  @override
-  String get loginSubmit => 'Log In';
-
-  @override
-  String get loginFooterPrompt => 'Don\'t have an account? ';
-
-  @override
-  String get loginFooterAction => 'Sign up';
-
-  @override
-  String get registerWelcomeTitle => 'Create Account';
-
-  @override
-  String get registerWelcomeSubtitle =>
-      'Join Nutq to start transcribing Arabic speech';
-
-  @override
-  String get registerUsernameLabel => 'Username';
-
-  @override
-  String get registerUsernameHint => 'e.g. ahmed_ali';
-
-  @override
-  String get registerConfirmPasswordLabel => 'Confirm password';
-
-  @override
-  String get registerConfirmPasswordHint => 'Repeat your password';
-
-  @override
-  String get registerSubmit => 'Create Account';
-
-  @override
-  String get registerFooterPrompt => 'Already have an account? ';
-
-  @override
-  String get registerFooterAction => 'Log in';
-
-  @override
   String get jobsHistoryTitle => 'History';
 
   @override
@@ -217,9 +121,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sourceYoutube => 'YouTube';
-
-  @override
-  String get sourceWebUrl => 'Web URL';
 
   @override
   String get sourceText => 'Text';
@@ -250,9 +151,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get newJobLanguageEnglish => 'English (EN)';
-
-  @override
-  String get newJobIdempotencyKeyLabel => 'Idempotency Key';
 
   @override
   String get newJobTextLabel => 'Enter or paste your Arabic text';
@@ -390,9 +288,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileComingSoon => 'Profile — coming soon';
-
-  @override
-  String get profileLogOut => 'Log out';
 
   @override
   String get summarizeStagePreparing => 'Preparing transcript';

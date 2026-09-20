@@ -21,17 +21,6 @@
   "retry": "Retry",
   "somethingWentWrong": "Something went wrong",
 
-  "errorNoConnection": "No internet connection",
-  "errorServerUnreachable": "Can't reach the server. Please try again later.",
-  "errorTimeout": "Request timed out",
-  "errorModelNotDownloaded": "This model hasn't been downloaded yet",
-  "errorInsufficientStorage": "Not enough free storage on this device",
-  "errorInsufficientMemory": "Not enough available memory to do this",
-  "errorProcessingCancelled": "Processing was cancelled",
-  "errorAudioDecodeFailed": "This audio file couldn't be read",
-  "errorNativeEngineFailure": "Something went wrong during processing",
-  "errorDeviceOffline": "Your device is offline",
-
   "jobFallbackTitle": "Job #{id}",
   "@jobFallbackTitle": {
     "placeholders": { "id": { "type": "String" } }
@@ -70,29 +59,6 @@
   "validationNameChars": "Name can only contain letters, spaces, hyphens, and apostrophes",
   "validationUsernameChars": "Username can only contain letters, numbers, underscores, and hyphens",
 
-  "authEmailLabel": "Email address",
-  "authEmailHint": "Enter your email",
-  "authPasswordLabel": "Password",
-  "authPasswordHidden": "••••••••",
-  "authShowPassword": "Show",
-  "authHidePassword": "Hide",
-
-  "loginWelcomeTitle": "Welcome back",
-  "loginWelcomeSubtitle": "Sign in to your account to continue",
-  "loginSubmit": "Log In",
-  "loginFooterPrompt": "Don't have an account? ",
-  "loginFooterAction": "Sign up",
-
-  "registerWelcomeTitle": "Create Account",
-  "registerWelcomeSubtitle": "Join Nutq to start transcribing Arabic speech",
-  "registerUsernameLabel": "Username",
-  "registerUsernameHint": "e.g. ahmed_ali",
-  "registerConfirmPasswordLabel": "Confirm password",
-  "registerConfirmPasswordHint": "Repeat your password",
-  "registerSubmit": "Create Account",
-  "registerFooterPrompt": "Already have an account? ",
-  "registerFooterAction": "Log in",
-
   "jobsHistoryTitle": "History",
   "jobsSearchHint": "Search transcriptions...",
   "jobsFilterAll": "All",
@@ -103,7 +69,6 @@
   "sourceAudioFile": "Audio File",
   "sourceVideo": "Video",
   "sourceYoutube": "YouTube",
-  "sourceWebUrl": "Web URL",
   "sourceText": "Text",
 
   "statusDone": "Done",
@@ -116,7 +81,6 @@
   "newJobLanguageLabel": "Language",
   "newJobLanguageArabic": "Arabic (AR)",
   "newJobLanguageEnglish": "English (EN)",
-  "newJobIdempotencyKeyLabel": "Idempotency Key",
   "newJobTextLabel": "Enter or paste your Arabic text",
   "newJobTextPlaceholder": "Example: enter Arabic text here to get a summary...",
   "newJobCharCounter": "{count} / {max}",
@@ -180,7 +144,6 @@
   "jobDetailShowLess": "Show less",
 
   "profileComingSoon": "Profile — coming soon",
-  "profileLogOut": "Log out",
 
   "summarizeStagePreparing": "Preparing transcript",
   "summarizeStageAnalyzing": "Analyzing transcript",

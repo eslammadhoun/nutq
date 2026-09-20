@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
-import 'package:nutq/features/jobs/presentation/models/job.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
 /// Shared job display formatting — used by both [JobCard] (list) and the
@@ -65,33 +65,25 @@ String formatDuration(double seconds) {
 
 ({IconData icon, Color color, String label}) sourceTypeVisual(
   BuildContext context,
-  JobSourceType type, {
-  bool isVideoUpload = false,
-}) {
+  JobSourceType type,
+) {
   final colors = context.appColors;
   final l10n = context.l10n;
   return switch (type) {
-    JobSourceType.upload =>
-      isVideoUpload
-          ? (
-              icon: Icons.slow_motion_video_outlined,
-              color: colors.primary,
-              label: l10n.sourceVideo,
-            )
-          : (
-              icon: Icons.graphic_eq_rounded,
-              color: colors.primary,
-              label: l10n.sourceAudioFile,
-            ),
+    JobSourceType.video => (
+      icon: Icons.slow_motion_video_outlined,
+      color: colors.primary,
+      label: l10n.sourceVideo,
+    ),
+    JobSourceType.audio => (
+      icon: Icons.graphic_eq_rounded,
+      color: colors.primary,
+      label: l10n.sourceAudioFile,
+    ),
     JobSourceType.youtube => (
       icon: Icons.play_arrow_rounded,
       color: colors.statusFailed,
       label: l10n.sourceYoutube,
-    ),
-    JobSourceType.url => (
-      icon: Icons.language_rounded,
-      color: colors.sourceWeb,
-      label: l10n.sourceWebUrl,
     ),
     JobSourceType.text => (
       icon: Icons.text_snippet_rounded,
@@ -106,32 +98,32 @@ String formatDuration(double seconds) {
 // the flat statusXBg tokens, which are different hex values.
 ({Color color, Color background, String label}) jobStatusVisual(
   BuildContext context,
-  JobStatus status,
+  JobRunStatus status,
 ) {
   final colors = context.appColors;
   final l10n = context.l10n;
   return switch (status) {
-    JobStatus.done => (
+    JobRunStatus.completed => (
       color: colors.statusDone,
       background: colors.statusDone.withValues(alpha: 0.12),
       label: l10n.statusDone,
     ),
-    JobStatus.processing => (
+    JobRunStatus.running => (
       color: colors.primary,
       background: colors.primary.withValues(alpha: 0.12),
       label: l10n.statusProcessing,
     ),
-    JobStatus.queued => (
+    JobRunStatus.pending => (
       color: colors.statusQueued,
       background: colors.statusQueued.withValues(alpha: 0.12),
       label: l10n.statusQueued,
     ),
-    JobStatus.failed => (
+    JobRunStatus.failed => (
       color: colors.statusFailed,
       background: colors.statusFailed.withValues(alpha: 0.12),
       label: l10n.statusFailed,
     ),
-    JobStatus.cancelled => (
+    JobRunStatus.cancelled => (
       color: colors.statusCancelled,
       background: colors.statusCancelled.withValues(alpha: 0.12),
       label: l10n.statusCancelled,

@@ -7,7 +7,6 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_state.dart';
-import 'package:nutq/features/jobs/presentation/models/job.dart';
 import 'package:share_plus/share_plus.dart';
 
 class JobDetailActionBar extends StatelessWidget {
@@ -21,9 +20,7 @@ class JobDetailActionBar extends StatelessWidget {
         final job = state.job;
         if (job == null) return const SizedBox.shrink();
 
-        final status = Job.statusFromRun(job.status);
-        final canCancel =
-            status == JobStatus.queued || status == JobStatus.processing;
+        final canCancel = job.status.isActive;
         // While the summary streams in, share/copy what has arrived; once the
         // job settles the stored summary is the same text.
         final summaryText = state.streamingSummary?.isNotEmpty ?? false

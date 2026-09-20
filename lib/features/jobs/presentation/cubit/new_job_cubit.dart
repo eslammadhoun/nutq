@@ -1,7 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nutq/core/network/error/api_error.dart';
+import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
 
@@ -12,7 +13,7 @@ class NewJobCubit extends Cubit<NewJobState> {
   final JobsRepository _repository;
 
   void changeSourceType(int index) {
-    final newType = NewJobSourceType.values[index];
+    final newType = JobSourceType.values[index];
     if (newType == state.sourceType) return;
     emit(state.copyWith(sourceType: newType, fileTooLarge: false));
   }
@@ -27,19 +28,6 @@ class NewJobCubit extends Cubit<NewJobState> {
   void setText(String value) => emit(state.copyWith(text: value));
 
   void setSourceUrl(String value) => emit(state.copyWith(sourceUrl: value));
-
-  void toggleIdempotency() {
-    if (state.idempotencyEnabled) {
-      emit(state.copyWith(idempotencyEnabled: false, idempotencyKey: ''));
-      return;
-    }
-    emit(
-      state.copyWith(
-        idempotencyEnabled: true,
-        idempotencyKey: state.idempotencyKey,
-      ),
-    );
-  }
 
   Future<void> pickMedia() async {}
 
@@ -71,7 +59,7 @@ class NewJobCubit extends Cubit<NewJobState> {
       emit(
         state.copyWith(
           status: NewJobStatus.failure,
-          lastError: const ApiError.storage(),
+          lastError: AppError.storage,
         ),
       );
     }

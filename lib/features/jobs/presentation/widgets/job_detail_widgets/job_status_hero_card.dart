@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
-import 'package:nutq/features/jobs/presentation/models/job.dart';
 import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
@@ -16,7 +16,7 @@ class JobStatusHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final l10n = context.l10n;
-    final status = Job.statusFromRun(job.status);
+    final status = job.status;
     final source = sourceTypeVisual(context, job.sourceType);
     final transcript = job.transcript;
 
@@ -96,20 +96,20 @@ class JobStatusHeroCard extends StatelessWidget {
 
   String _headline(
     AppLocalizations l10n,
-    JobStatus status,
+    JobRunStatus status,
     JobSourceType sourceType,
   ) => switch (status) {
-    JobStatus.done =>
+    JobRunStatus.completed =>
       sourceType == JobSourceType.text
           ? l10n.jobDetailSummaryComplete
           : l10n.jobDetailTranscriptionComplete,
-    JobStatus.processing => l10n.statusProcessing,
-    JobStatus.queued => l10n.statusQueued,
-    JobStatus.failed => l10n.statusFailed,
-    JobStatus.cancelled => l10n.statusCancelled,
+    JobRunStatus.running => l10n.statusProcessing,
+    JobRunStatus.pending => l10n.statusQueued,
+    JobRunStatus.failed => l10n.statusFailed,
+    JobRunStatus.cancelled => l10n.statusCancelled,
   };
 
-  Widget _statusBadge(BuildContext context, JobStatus status) {
+  Widget _statusBadge(BuildContext context, JobRunStatus status) {
     final colors = context.appColors;
     final visual = jobStatusVisual(context, status);
     return Container(

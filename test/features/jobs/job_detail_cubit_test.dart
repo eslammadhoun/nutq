@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutq/core/network/error/api_error.dart';
+import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_state.dart';
@@ -272,6 +272,6 @@ void main() {
     opened.add(cubit);
     await Future<void>.delayed(const Duration(milliseconds: 100));
     expect(cubit.state.status, JobDetailStatus.failure);
-    expect(cubit.state.lastError, const ApiError.storage());
+    expect(cubit.state.lastError, AppError.storage);
   });
 }

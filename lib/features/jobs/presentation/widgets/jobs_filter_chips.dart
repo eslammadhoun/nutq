@@ -4,7 +4,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
-import 'package:nutq/features/jobs/presentation/models/job.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 
 class JobsFilterChips extends StatelessWidget {
   const JobsFilterChips({super.key});
@@ -26,23 +26,23 @@ class JobsFilterChips extends StatelessWidget {
             SizedBox(width: 8.w),
             _FilterChip(
               label: l10n.statusDone,
-              isSelected: state.selectedFilter == JobStatus.done,
+              isSelected: state.selectedFilter == JobRunStatus.completed,
               onTap: () =>
-                  context.read<JobsCubit>().selectFilter(JobStatus.done),
+                  context.read<JobsCubit>().selectFilter(JobRunStatus.completed),
             ),
             SizedBox(width: 8.w),
             _FilterChip(
               label: l10n.statusProcessing,
-              isSelected: state.selectedFilter == JobStatus.processing,
+              isSelected: state.selectedFilter == JobRunStatus.running,
               onTap: () =>
-                  context.read<JobsCubit>().selectFilter(JobStatus.processing),
+                  context.read<JobsCubit>().selectFilter(JobRunStatus.running),
             ),
             SizedBox(width: 8.w),
             _FilterChip(
               label: l10n.statusFailed,
-              isSelected: state.selectedFilter == JobStatus.failed,
+              isSelected: state.selectedFilter == JobRunStatus.failed,
               onTap: () =>
-                  context.read<JobsCubit>().selectFilter(JobStatus.failed),
+                  context.read<JobsCubit>().selectFilter(JobRunStatus.failed),
             ),
           ],
         );
