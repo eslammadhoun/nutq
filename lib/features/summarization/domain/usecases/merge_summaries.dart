@@ -86,7 +86,12 @@ class MergeSummaries {
 
     try {
       final merged = await _repository.mergeSummaries(
-        MergeRequest(summaries: pair, facts: facts, evidence: evidence),
+        MergeRequest(
+          summaries: pair,
+          facts: facts,
+          evidence: evidence,
+          language: config.language,
+        ),
       );
       if (merged.trim().isNotEmpty) {
         return LocalSummary(chunkIds: ids, text: merged.trim());

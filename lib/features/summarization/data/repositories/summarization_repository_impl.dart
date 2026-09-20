@@ -9,6 +9,7 @@ import 'package:nutq/features/summarization/data/prompts/local_summary_prompt.da
 import 'package:nutq/features/summarization/data/prompts/merge_prompt.dart';
 import 'package:nutq/features/summarization/data/prompts/prompt_version.dart';
 import 'package:nutq/features/summarization/domain/entities/chunk_analysis.dart';
+import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
 import 'package:nutq/features/summarization/domain/entities/transcript_chunk.dart';
 import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
 import 'package:nutq/features/summarization/domain/text/token_counter.dart';
@@ -58,19 +59,25 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
   Future<void> cancel() => _dataSource.cancel();
 
   @override
-  Future<ChunkAnalysis> analyzeChunk(TranscriptChunk chunk) async {
+  Future<ChunkAnalysis> analyzeChunk(
+    TranscriptChunk chunk, {
+    SummaryLanguage language = SummaryLanguage.ar,
+  }) async {
     final response = await _generate(
       stage: 'analysis',
-      prompt: ChunkAnalysisPrompt.build(chunk.text),
+      prompt: ChunkAnalysisPrompt.build(chunk.text, language: language),
       config: baseConfig.copyWith(maxOutputTokens: _analysisOutputTokens),
     );
     return parser.parse(chunk.id, response);
   }
 
   @override
-  Future<String> summarizeChunk(TranscriptChunk chunk) => _generate(
+  Future<String> summarizeChunk(
+    TranscriptChunk chunk, {
+    SummaryLanguage language = SummaryLanguage.ar,
+  }) => _generate(
     stage: 'local',
-    prompt: LocalSummaryPrompt.build(chunk.text),
+    prompt: LocalSummaryPrompt.build(chunk.text, language: language),
     config: baseConfig.copyWith(maxOutputTokens: _localSummaryOutputTokens),
   );
 
@@ -81,7 +88,12 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
     final facts = List.of(request.facts);
     final evidence = List.of(request.evidence);
 
-    String build() => MergePrompt.build(summaries: summaries, facts: facts, evidence: evidence);
+    String build() => MergePrompt.build(
+      summaries: summaries,
+      facts: facts,
+      evidence: evidence,
+      language: request.language,
+    );
 
     // Shed evidence first, then facts, until the prompt fits the window.
     var prompt = build();
@@ -97,7 +109,10 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
   }
 
   @override
-  Future<String> generateFinalSummary(FinalSummaryRequest request) async {
+  Future<String> generateFinalSummary(
+    FinalSummaryRequest request, {
+    void Function(String partialText)? onPartial,
+  }) async {
     final outputTokens = (request.length.maxWords * _tokensPerArabicWord)
         .round()
         .clamp(_analysisOutputTokens, _maxFinalOutputTokens);
@@ -113,6 +128,7 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
       entities: entities,
       numbers: numbers,
       length: request.length,
+      language: request.language,
     );
 
     var prompt = build();
@@ -126,7 +142,12 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
       }
       prompt = build();
     }
-    return _generate(stage: 'final-${request.length.name}', prompt: prompt, config: config);
+    return _generate(
+      stage: 'final-${request.length.name}',
+      prompt: prompt,
+      config: config,
+      onPartial: onPartial,
+    );
   }
 
   Future<bool> _overBudget(String prompt, GemmaGenerationConfig config) async {
@@ -138,6 +159,7 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
     required String stage,
     required String prompt,
     required GemmaGenerationConfig config,
+    void Function(String partialText)? onPartial,
   }) async {
     final store = cache;
     final key = store == null
@@ -151,10 +173,13 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
           );
     if (store != null && key != null) {
       final hit = await store.read(key);
-      if (hit != null) return hit;
+      if (hit != null) {
+        onPartial?.call(hit);
+        return hit;
+      }
     }
 
-    final response = await _dataSource.generate(prompt, config);
+    final response = await _dataSource.generate(prompt, config, onPartial: onPartial);
     _stats += GenerationStats(
       inputTokens: response.inputTokens,
       outputTokens: response.outputTokens,

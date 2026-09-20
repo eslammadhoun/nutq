@@ -1,3 +1,5 @@
+import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+
 class MergePrompt {
   const MergePrompt._();
 
@@ -5,8 +7,9 @@ class MergePrompt {
     required List<String> summaries,
     required List<String> facts,
     required List<String> evidence,
+    SummaryLanguage language = SummaryLanguage.ar,
   }) =>
-      '''You are merging summaries of an Arabic lecture.
+      '''You are merging summaries of an ${language.promptName} lecture.
 
 Rules:
 - Preserve information supported by the source.
@@ -15,7 +18,7 @@ Rules:
 - Preserve important relationships.
 - Preserve important numbers, names and technical terms.
 - Do not add conclusions that are not supported.
-- Produce a coherent Arabic synthesis.
+- Produce a coherent ${language.promptName} synthesis.
 
 LOCAL SUMMARIES:
 ${_numbered(summaries)}

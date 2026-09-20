@@ -39,7 +39,15 @@ abstract class GemmaLocalDataSource {
 
   /// One stateless generation (fresh session per call). Retries once on
   /// failure; cancellation is never retried.
-  Future<GemmaResponse> generate(String prompt, GemmaGenerationConfig config);
+  ///
+  /// With [onPartial], generation is streamed and each token calls it with
+  /// the cleaned text accumulated so far. A retry restarts from empty, so
+  /// callers should treat each call as replacing the previous partial text.
+  Future<GemmaResponse> generate(
+    String prompt,
+    GemmaGenerationConfig config, {
+    void Function(String partialText)? onPartial,
+  });
 
   /// Model-tokenizer token count.
   Future<int> countTokens(String text);
@@ -108,13 +116,17 @@ class GemmaLocalDataSourceImpl implements GemmaLocalDataSource {
   }
 
   @override
-  Future<GemmaResponse> generate(String prompt, GemmaGenerationConfig config) async {
+  Future<GemmaResponse> generate(
+    String prompt,
+    GemmaGenerationConfig config, {
+    void Function(String partialText)? onPartial,
+  }) async {
     await activate();
     Object? lastError;
     for (var attempt = 1; attempt <= maxAttempts; attempt++) {
       if (_cancelRequested) throw const SummarizationCancelledException();
       try {
-        return await _generateOnce(prompt, config);
+        return await _generateOnce(prompt, config, onPartial);
       } on SummarizationCancelledException {
         rethrow;
       } catch (e) {
@@ -125,7 +137,11 @@ class GemmaLocalDataSourceImpl implements GemmaLocalDataSource {
     throw GemmaGenerationException('$lastError');
   }
 
-  Future<GemmaResponse> _generateOnce(String prompt, GemmaGenerationConfig config) async {
+  Future<GemmaResponse> _generateOnce(
+    String prompt,
+    GemmaGenerationConfig config,
+    void Function(String partialText)? onPartial,
+  ) async {
     final model = _model!;
     final session = await model.openSession(
       temperature: config.temperature,
@@ -138,7 +154,19 @@ class GemmaLocalDataSourceImpl implements GemmaLocalDataSource {
     final watch = Stopwatch()..start();
     try {
       await session.addQueryChunk(Message.text(text: prompt, isUser: true));
-      final raw = await session.getResponse();
+      final String raw;
+      if (onPartial == null) {
+        raw = await session.getResponse();
+      } else {
+        final buffer = StringBuffer();
+        await for (final token in session.getResponseAsync()) {
+          if (_cancelRequested) break;
+          buffer.write(token);
+          final partial = cleanResponse(buffer.toString());
+          if (partial.isNotEmpty) onPartial(partial);
+        }
+        raw = buffer.toString();
+      }
       watch.stop();
       if (_cancelRequested) throw const SummarizationCancelledException();
 

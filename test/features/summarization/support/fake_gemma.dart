@@ -15,6 +15,9 @@ class FakeGemma implements GemmaLocalDataSource {
   bool cancelled = false;
   bool failEverything = false;
 
+  /// Pause between streamed words (only when streaming is requested).
+  Duration wordDelay = Duration.zero;
+
   int get calls => prompts.length;
 
   @override
@@ -36,12 +39,25 @@ class FakeGemma implements GemmaLocalDataSource {
   Future<void> dispose() async {}
 
   @override
-  Future<GemmaResponse> generate(String prompt, GemmaGenerationConfig config) async {
+  Future<GemmaResponse> generate(
+    String prompt,
+    GemmaGenerationConfig config, {
+    void Function(String partialText)? onPartial,
+  }) async {
     if (cancelled) throw const SummarizationCancelledException();
     prompts.add(prompt);
     if (failEverything) throw const GemmaGenerationException('boom');
     final scripted = await responder?.call(prompt, prompts.length);
     final text = scripted ?? defaultResponse(prompt);
+    if (onPartial != null) {
+      // Stream word by word, yielding between words so events interleave.
+      final words = text.split(' ');
+      for (var i = 1; i <= words.length; i++) {
+        if (cancelled) throw const SummarizationCancelledException();
+        onPartial(words.take(i).join(' '));
+        await Future<void>.delayed(wordDelay);
+      }
+    }
     return GemmaResponse(text: text, inputTokens: prompt.length ~/ 4, outputTokens: text.length ~/ 4, durationMs: 10);
   }
 

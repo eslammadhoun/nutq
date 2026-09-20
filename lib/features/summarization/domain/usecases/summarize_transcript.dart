@@ -28,6 +28,13 @@ class SummarizationProgressUpdate extends SummarizationUpdate {
   final SummarizationProgress progress;
 }
 
+/// The final summary as generated so far (accumulated text, word by word).
+class SummarizationPartialSummaryUpdate extends SummarizationUpdate {
+  const SummarizationPartialSummaryUpdate(this.text);
+
+  final String text;
+}
+
 class SummarizationCompletedUpdate extends SummarizationUpdate {
   const SummarizationCompletedUpdate(this.result);
 
@@ -61,6 +68,7 @@ class SummarizeTranscript {
     SummarizationConfig config, {
     CancellationToken? cancellation,
     void Function(SummarizationProgress progress)? onProgress,
+    void Function(String partialSummary)? onPartialSummary,
   }) async {
     final token = cancellation ?? CancellationToken();
     final watch = Stopwatch()..start();
@@ -95,7 +103,11 @@ class SummarizeTranscript {
     for (var i = 0; i < chunks.length; i++) {
       token.throwIfCancelled();
       report(SummarizationStage.analyzing, i, chunks.length);
-      final result = await SummarizeChunk(repository)(chunks[i], token);
+      final result = await SummarizeChunk(repository)(
+        chunks[i],
+        token,
+        language: config.language,
+      );
       analyses.add(result.analysis);
       summaries.add(result.summary);
       if (result.summary.failed) failedChunks++;
@@ -126,7 +138,9 @@ class SummarizeTranscript {
           entities: keyFacts.entities,
           numbers: keyFacts.numbers,
           length: config.length,
+          language: config.language,
         ),
+        onPartial: onPartialSummary,
       );
     } on SummarizationCancelledException {
       rethrow;
@@ -186,6 +200,9 @@ class SummarizeTranscript {
             cancellation: token,
             onProgress: (p) {
               if (!controller.isClosed) controller.add(SummarizationProgressUpdate(p));
+            },
+            onPartialSummary: (text) {
+              if (!controller.isClosed) controller.add(SummarizationPartialSummaryUpdate(text));
             },
           );
           if (!controller.isClosed) controller.add(SummarizationCompletedUpdate(result));

@@ -1,6 +1,7 @@
 import 'package:nutq/features/summarization/domain/entities/cancellation_token.dart';
 import 'package:nutq/features/summarization/domain/entities/chunk_analysis.dart';
 import 'package:nutq/features/summarization/domain/entities/local_summary.dart';
+import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
 import 'package:nutq/features/summarization/domain/entities/transcript_chunk.dart';
 import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
 
@@ -22,11 +23,15 @@ class SummarizeChunk {
 
   final SummarizationRepository _repository;
 
-  Future<ChunkResult> call(TranscriptChunk chunk, CancellationToken token) async {
+  Future<ChunkResult> call(
+    TranscriptChunk chunk,
+    CancellationToken token, {
+    SummaryLanguage language = SummaryLanguage.ar,
+  }) async {
     var analysis = ChunkAnalysis(chunkId: chunk.id);
     var analysisFailed = false;
     try {
-      analysis = await _repository.analyzeChunk(chunk);
+      analysis = await _repository.analyzeChunk(chunk, language: language);
     } on SummarizationCancelledException {
       rethrow;
     } catch (_) {
@@ -35,7 +40,7 @@ class SummarizeChunk {
     token.throwIfCancelled();
 
     try {
-      final text = await _repository.summarizeChunk(chunk);
+      final text = await _repository.summarizeChunk(chunk, language: language);
       token.throwIfCancelled();
       if (text.trim().isNotEmpty) {
         return ChunkResult(

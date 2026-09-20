@@ -18,6 +18,10 @@ class ArabicNormalizer {
     'هذه', 'ذلك', 'تلك', 'هو', 'هي', 'كان', 'كانت', 'التي', 'الذي', 'الذين',
     'ثم', 'او', 'أو', 'و', 'لا', 'لم', 'لن', 'قد', 'كل', 'مع', 'بعد', 'قبل',
     'عند', 'كما', 'لكن', 'اذا', 'إذا', 'حتى', 'هنا', 'هناك', 'يعني', 'طيب',
+    // English function words, for English transcripts.
+    'the', 'a', 'an', 'of', 'to', 'in', 'and', 'or', 'is', 'are', 'was', 'were',
+    'that', 'this', 'it', 'for', 'on', 'with', 'as', 'by', 'at', 'be', 'from',
+    'we', 'they', 'he', 'she', 'you', 'i', 'so', 'but', 'not', 'have', 'has',
   };
 
   static String removeDiacritics(String s) => s.replaceAll(_diacritics, '');

@@ -1,8 +1,10 @@
+import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
+
 class ChunkAnalysisPrompt {
   const ChunkAnalysisPrompt._();
 
-  static String build(String chunkText) =>
-      '''You are an Arabic information extraction assistant.
+  static String build(String chunkText, {SummaryLanguage language = SummaryLanguage.ar}) =>
+      '''You are an ${language.promptName} information extraction assistant.
 
 Analyze the provided transcript segment.
 
@@ -14,7 +16,7 @@ Rules:
 - Identify important supporting points.
 - Identify important facts.
 - Ignore filler and repetition.
-- Write in Arabic.
+- Write in ${language.promptName}.
 
 Return exactly:
 
