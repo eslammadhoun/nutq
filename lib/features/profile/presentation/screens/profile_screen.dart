@@ -29,8 +29,8 @@ class ProfileScreen extends StatelessWidget {
                   final isAr = locale?.languageCode == 'ar';
                   return TextButton(
                     onPressed: () => context.read<LocaleCubit>().setLocale(
-                          Locale(isAr ? 'en' : 'ar'),
-                        ),
+                      Locale(isAr ? 'en' : 'ar'),
+                    ),
                     child: Text(isAr ? 'Switch to English' : 'التبديل إلى العربية'),
                   );
                 },

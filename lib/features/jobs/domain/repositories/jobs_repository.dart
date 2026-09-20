@@ -1,8 +1,8 @@
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
-import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/source_info.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/domain/entities/transcript.dart';

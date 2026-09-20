@@ -22,6 +22,5 @@ class ChunkAnalysis {
   /// response was kept as [main].
   final bool usedFallback;
 
-  bool get isEmpty =>
-      main.isEmpty && points.isEmpty && facts.isEmpty && importantTerms.isEmpty;
+  bool get isEmpty => main.isEmpty && points.isEmpty && facts.isEmpty && importantTerms.isEmpty;
 }

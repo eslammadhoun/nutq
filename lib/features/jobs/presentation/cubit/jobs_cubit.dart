@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
-import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 
 /// The jobs list. The database is the source of truth: the cubit subscribes to
 /// a live query, so jobs created, finished or deleted anywhere appear here
@@ -53,9 +53,7 @@ class JobsCubit extends Cubit<JobsState> {
 
   void selectFilter(JobRunStatus? status) {
     emit(
-      status == null
-          ? state.copyWith(clearFilter: true)
-          : state.copyWith(selectedFilter: status),
+      status == null ? state.copyWith(clearFilter: true) : state.copyWith(selectedFilter: status),
     );
     _limit = _pageSize;
     unawaited(_subscribe());

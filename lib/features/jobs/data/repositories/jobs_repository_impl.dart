@@ -50,12 +50,10 @@ class JobsRepositoryImpl implements JobsRepository {
   static const _active = {JobRunStatus.pending, JobRunStatus.running};
 
   @override
-  Stream<List<JobEntity>> watchJobs(JobsQuery query) =>
-      _guardStream(_local.watchJobs(query));
+  Stream<List<JobEntity>> watchJobs(JobsQuery query) => _guardStream(_local.watchJobs(query));
 
   @override
-  Stream<JobDetailEntity?> watchJob(String id) =>
-      _guardStream(_local.watchJob(id));
+  Stream<JobDetailEntity?> watchJob(String id) => _guardStream(_local.watchJob(id));
 
   @override
   Future<JobDetailEntity?> getJob(String id) => _guard(() => _local.getJob(id));
@@ -139,8 +137,7 @@ class JobsRepositoryImpl implements JobsRepository {
 
   @override
   Future<void> completeJob(String id, Summary summary) => _guard(
-    () async =>
-        _check(id, await _local.completeJob(id, summary, _now()), 'complete'),
+    () async => _check(id, await _local.completeJob(id, summary, _now()), 'complete'),
   );
 
   @override
@@ -152,8 +149,7 @@ class JobsRepositoryImpl implements JobsRepository {
   );
 
   @override
-  Future<void> cancelJob(String id) =>
-      _transition(id, from: _active, to: JobRunStatus.cancelled);
+  Future<void> cancelJob(String id) => _transition(id, from: _active, to: JobRunStatus.cancelled);
 
   @override
   Future<void> deleteJob(String id) => _guard(() async {
@@ -189,15 +185,14 @@ class JobsRepositoryImpl implements JobsRepository {
     _check(id, outcome, 'move to ${to.name}');
   });
 
-  void _check(String id, TransitionOutcome outcome, String action) =>
-      switch (outcome) {
-        TransitionOutcome.applied => null,
-        TransitionOutcome.notFound => throw JobNotFoundException(id),
-        TransitionOutcome.invalidState => throw InvalidJobTransitionException(
-          id,
-          'cannot $action from the current state',
-        ),
-      };
+  void _check(String id, TransitionOutcome outcome, String action) => switch (outcome) {
+    TransitionOutcome.applied => null,
+    TransitionOutcome.notFound => throw JobNotFoundException(id),
+    TransitionOutcome.invalidState => throw InvalidJobTransitionException(
+      id,
+      'cannot $action from the current state',
+    ),
+  };
 
   /// Domain exceptions pass through; anything else is a storage failure.
   Future<T> _guard<T>(Future<T> Function() body) async {

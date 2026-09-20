@@ -75,16 +75,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validationEmailInvalid => 'Please enter a valid email address';
 
   @override
-  String get validationPasswordLowercase =>
-      'Password must contain at least one lowercase letter';
+  String get validationPasswordLowercase => 'Password must contain at least one lowercase letter';
 
   @override
-  String get validationPasswordUppercase =>
-      'Password must contain at least one uppercase letter';
+  String get validationPasswordUppercase => 'Password must contain at least one uppercase letter';
 
   @override
-  String get validationPasswordNumber =>
-      'Password must contain at least one number';
+  String get validationPasswordNumber => 'Password must contain at least one number';
 
   @override
   String get validationPasswordsMismatch => 'Passwords do not match';
@@ -110,8 +107,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jobsEmptyTitle => 'No transcriptions yet';
 
   @override
-  String get jobsEmptySubtitle =>
-      'Submit your first Arabic audio, video, \nor text to get started';
+  String get jobsEmptySubtitle => 'Submit your first Arabic audio, video, \nor text to get started';
 
   @override
   String get sourceAudioFile => 'Audio File';
@@ -156,8 +152,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newJobTextLabel => 'Enter or paste your Arabic text';
 
   @override
-  String get newJobTextPlaceholder =>
-      'Example: enter Arabic text here to get a summary...';
+  String get newJobTextPlaceholder => 'Example: enter Arabic text here to get a summary...';
 
   @override
   String newJobCharCounter(int count, int max) {
@@ -320,16 +315,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Some details in this summary could not be verified against the transcript. Please review it.';
 
   @override
-  String get jobFailureEmptyTranscript =>
-      'There is no transcript text to summarize.';
+  String get jobFailureEmptyTranscript => 'There is no transcript text to summarize.';
 
   @override
-  String get jobFailureModelUnavailable =>
-      'The on-device summarization model isn\'t available.';
+  String get jobFailureModelUnavailable => 'The on-device summarization model isn\'t available.';
 
   @override
-  String get jobFailureGenerationFailed =>
-      'The summary could not be generated. Please try again.';
+  String get jobFailureGenerationFailed => 'The summary could not be generated. Please try again.';
 
   @override
   String get newJobSourceUnavailable =>
@@ -339,8 +331,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jobDetailSummaryComplete => 'Summary Complete';
 
   @override
-  String get errorStorage =>
-      'Couldn\'t access saved jobs on this device. Please try again.';
+  String get errorStorage => 'Couldn\'t access saved jobs on this device. Please try again.';
 
   @override
   String get jobDetailNotFound => 'This job no longer exists.';
@@ -360,12 +351,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'The source couldn\'t be reached. Check your connection and try again.';
 
   @override
-  String get jobFailureUnsupportedMedia =>
-      'This file\'s format isn\'t supported.';
+  String get jobFailureUnsupportedMedia => 'This file\'s format isn\'t supported.';
 
   @override
-  String get jobFailureTranscriptionFailed =>
-      'The audio couldn\'t be transcribed.';
+  String get jobFailureTranscriptionFailed => 'The audio couldn\'t be transcribed.';
 
   @override
   String get jobFailureInsufficientStorage =>

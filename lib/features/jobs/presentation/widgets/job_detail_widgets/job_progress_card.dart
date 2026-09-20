@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
-import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_card.dart';
 import 'package:nutq/features/jobs/domain/entities/job_progress.dart';
 import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
+import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_card.dart';
 
 /// Live progress of the running summary job: current stage, overall bar and
 /// processed/total sections. Rebuilds on every event of the progress stream.

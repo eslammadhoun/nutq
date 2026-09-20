@@ -23,8 +23,7 @@ class Jobs extends Table {
   TextColumn get sourceLanguage => textEnum<ContentLanguage>().named('language')();
 
   /// Language the summary is written in (added in schema v2).
-  TextColumn get summaryLanguage =>
-      textEnum<ContentLanguage>().withDefault(const Constant('ar'))();
+  TextColumn get summaryLanguage => textEnum<ContentLanguage>().withDefault(const Constant('ar'))();
   TextColumn get requestedLength => textEnum<SummaryLength>()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();

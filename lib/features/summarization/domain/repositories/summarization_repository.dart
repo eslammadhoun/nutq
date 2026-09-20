@@ -1,6 +1,6 @@
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/chunk_analysis.dart';
 import 'package:nutq/features/summarization/domain/entities/local_summary.dart';
-import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 import 'package:nutq/features/summarization/domain/entities/transcript_chunk.dart';
 import 'package:nutq/features/summarization/domain/text/token_counter.dart';

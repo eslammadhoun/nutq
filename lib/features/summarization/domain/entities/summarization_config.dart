@@ -58,8 +58,7 @@ class SummarizationConfig {
     minTokens: minTokens ?? this.minTokens,
     maxTokens: maxTokens ?? this.maxTokens,
     maxSentenceWords: maxSentenceWords,
-    maxSummariesBeforeFinal:
-        maxSummariesBeforeFinal ?? this.maxSummariesBeforeFinal,
+    maxSummariesBeforeFinal: maxSummariesBeforeFinal ?? this.maxSummariesBeforeFinal,
     evidenceTokensPerMerge: evidenceTokensPerMerge,
     maxFactsPerPrompt: maxFactsPerPrompt,
     debugLogging: debugLogging ?? this.debugLogging,

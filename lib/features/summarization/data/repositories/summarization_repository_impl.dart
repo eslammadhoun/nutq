@@ -1,3 +1,4 @@
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/data/cache/summarization_cache.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_generation_config.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
@@ -9,7 +10,6 @@ import 'package:nutq/features/summarization/data/prompts/local_summary_prompt.da
 import 'package:nutq/features/summarization/data/prompts/merge_prompt.dart';
 import 'package:nutq/features/summarization/data/prompts/prompt_version.dart';
 import 'package:nutq/features/summarization/domain/entities/chunk_analysis.dart';
-import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/summarization/domain/entities/transcript_chunk.dart';
 import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
 import 'package:nutq/features/summarization/domain/text/token_counter.dart';
@@ -122,9 +122,10 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
     FinalSummaryRequest request, {
     void Function(String partialText)? onPartial,
   }) async {
-    final outputTokens = (request.length.maxWords * _tokensPerArabicWord)
-        .round()
-        .clamp(_analysisOutputTokens, _maxFinalOutputTokens);
+    final outputTokens = (request.length.maxWords * _tokensPerArabicWord).round().clamp(
+      _analysisOutputTokens,
+      _maxFinalOutputTokens,
+    );
     final config = baseConfig.copyWith(maxOutputTokens: outputTokens);
     final summaries = [for (final s in request.summaries) s.text];
     final facts = List.of(request.keyFacts);
@@ -141,7 +142,8 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
     );
 
     var prompt = build();
-    while (await _overBudget(prompt, config) && (facts.isNotEmpty || entities.isNotEmpty || numbers.isNotEmpty)) {
+    while (await _overBudget(prompt, config) &&
+        (facts.isNotEmpty || entities.isNotEmpty || numbers.isNotEmpty)) {
       if (facts.isNotEmpty) {
         facts.removeLast();
       } else if (entities.isNotEmpty) {

@@ -48,8 +48,6 @@ class JobDetailState {
     lastError: clearLastError ? null : (lastError ?? this.lastError),
     isCancelling: isCancelling ?? this.isCancelling,
     progress: clearLive ? null : (progress ?? this.progress),
-    streamingSummary: clearLive
-        ? null
-        : (streamingSummary ?? this.streamingSummary),
+    streamingSummary: clearLive ? null : (streamingSummary ?? this.streamingSummary),
   );
 }

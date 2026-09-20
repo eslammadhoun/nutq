@@ -12,17 +12,14 @@ class SubmitJobButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<NewJobCubit, NewJobState>(
       buildWhen: (previous, current) =>
-          previous.status != current.status ||
-          previous.canSubmit != current.canSubmit,
+          previous.status != current.status || previous.canSubmit != current.canSubmit,
       builder: (context, state) {
         final bool isSubmitting = state.status == NewJobStatus.submitting;
 
         return GlobalButton(
           isFilled: true,
           isLoading: isSubmitting,
-          onTap: state.canSubmit
-              ? () => context.read<NewJobCubit>().submit()
-              : null,
+          onTap: state.canSubmit ? () => context.read<NewJobCubit>().submit() : null,
           text: context.l10n.newJobSubmit,
         );
       },

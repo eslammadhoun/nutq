@@ -49,6 +49,5 @@ class GemmaGenerationConfig {
   );
 
   /// Stable string for cache keys.
-  String get cacheSignature =>
-      '$temperature|$topK|$topP|$seed|$maxOutputTokens|$contextTokens';
+  String get cacheSignature => '$temperature|$topK|$topP|$seed|$maxOutputTokens|$contextTokens';
 }

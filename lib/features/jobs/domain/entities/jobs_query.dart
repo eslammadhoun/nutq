@@ -36,6 +36,5 @@ class JobsQuery {
       setEquals(other.statuses, statuses);
 
   @override
-  int get hashCode =>
-      Object.hash(text, limit, Object.hashAllUnordered(statuses ?? const {}));
+  int get hashCode => Object.hash(text, limit, Object.hashAllUnordered(statuses ?? const {}));
 }

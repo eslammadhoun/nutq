@@ -101,7 +101,9 @@ class ProcessJob {
         final p = event.progress;
         if (p.fraction < highestFraction) {
           controller.add(
-            JobRunProgress(JobProgress(p.stage, fraction: highestFraction, done: p.done, total: p.total)),
+            JobRunProgress(
+              JobProgress(p.stage, fraction: highestFraction, done: p.done, total: p.total),
+            ),
           );
           return;
         }

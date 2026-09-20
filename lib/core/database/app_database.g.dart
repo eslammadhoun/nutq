@@ -27,42 +27,42 @@ class $JobsTable extends Jobs with TableInfo<$JobsTable, JobRow> {
         requiredDuringInsert: true,
       ).withConverter<JobRunStatus>($JobsTable.$converterstatus);
   @override
-  late final GeneratedColumnWithTypeConverter<JobSourceType, String>
-  sourceType = GeneratedColumn<String>(
-    'source_type',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<JobSourceType>($JobsTable.$convertersourceType);
+  late final GeneratedColumnWithTypeConverter<JobSourceType, String> sourceType =
+      GeneratedColumn<String>(
+        'source_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<JobSourceType>($JobsTable.$convertersourceType);
   @override
-  late final GeneratedColumnWithTypeConverter<ContentLanguage, String>
-  sourceLanguage = GeneratedColumn<String>(
-    'language',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<ContentLanguage>($JobsTable.$convertersourceLanguage);
+  late final GeneratedColumnWithTypeConverter<ContentLanguage, String> sourceLanguage =
+      GeneratedColumn<String>(
+        'language',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<ContentLanguage>($JobsTable.$convertersourceLanguage);
   @override
-  late final GeneratedColumnWithTypeConverter<ContentLanguage, String>
-  summaryLanguage = GeneratedColumn<String>(
-    'summary_language',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('ar'),
-  ).withConverter<ContentLanguage>($JobsTable.$convertersummaryLanguage);
+  late final GeneratedColumnWithTypeConverter<ContentLanguage, String> summaryLanguage =
+      GeneratedColumn<String>(
+        'summary_language',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('ar'),
+      ).withConverter<ContentLanguage>($JobsTable.$convertersummaryLanguage);
   @override
-  late final GeneratedColumnWithTypeConverter<SummaryLength, String>
-  requestedLength = GeneratedColumn<String>(
-    'requested_length',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<SummaryLength>($JobsTable.$converterrequestedLength);
+  late final GeneratedColumnWithTypeConverter<SummaryLength, String> requestedLength =
+      GeneratedColumn<String>(
+        'requested_length',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<SummaryLength>($JobsTable.$converterrequestedLength);
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -86,14 +86,14 @@ class $JobsTable extends Jobs with TableInfo<$JobsTable, JobRow> {
     requiredDuringInsert: true,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<JobFailureKind?, String>
-  failureKind = GeneratedColumn<String>(
-    'failure_kind',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  ).withConverter<JobFailureKind?>($JobsTable.$converterfailureKindn);
+  late final GeneratedColumnWithTypeConverter<JobFailureKind?, String> failureKind =
+      GeneratedColumn<String>(
+        'failure_kind',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<JobFailureKind?>($JobsTable.$converterfailureKindn);
   static const VerificationMeta _previewMeta = const VerificationMeta(
     'preview',
   );
@@ -350,28 +350,28 @@ class $JobsTable extends Jobs with TableInfo<$JobsTable, JobRow> {
 
   static JsonTypeConverter2<JobRunStatus, String, String> $converterstatus =
       const EnumNameConverter<JobRunStatus>(JobRunStatus.values);
-  static JsonTypeConverter2<JobSourceType, String, String>
-  $convertersourceType = const EnumNameConverter<JobSourceType>(
-    JobSourceType.values,
-  );
-  static JsonTypeConverter2<ContentLanguage, String, String>
-  $convertersourceLanguage = const EnumNameConverter<ContentLanguage>(
-    ContentLanguage.values,
-  );
-  static JsonTypeConverter2<ContentLanguage, String, String>
-  $convertersummaryLanguage = const EnumNameConverter<ContentLanguage>(
-    ContentLanguage.values,
-  );
-  static JsonTypeConverter2<SummaryLength, String, String>
-  $converterrequestedLength = const EnumNameConverter<SummaryLength>(
-    SummaryLength.values,
-  );
-  static JsonTypeConverter2<JobFailureKind, String, String>
-  $converterfailureKind = const EnumNameConverter<JobFailureKind>(
-    JobFailureKind.values,
-  );
-  static JsonTypeConverter2<JobFailureKind?, String?, String?>
-  $converterfailureKindn = JsonTypeConverter2.asNullable($converterfailureKind);
+  static JsonTypeConverter2<JobSourceType, String, String> $convertersourceType =
+      const EnumNameConverter<JobSourceType>(
+        JobSourceType.values,
+      );
+  static JsonTypeConverter2<ContentLanguage, String, String> $convertersourceLanguage =
+      const EnumNameConverter<ContentLanguage>(
+        ContentLanguage.values,
+      );
+  static JsonTypeConverter2<ContentLanguage, String, String> $convertersummaryLanguage =
+      const EnumNameConverter<ContentLanguage>(
+        ContentLanguage.values,
+      );
+  static JsonTypeConverter2<SummaryLength, String, String> $converterrequestedLength =
+      const EnumNameConverter<SummaryLength>(
+        SummaryLength.values,
+      );
+  static JsonTypeConverter2<JobFailureKind, String, String> $converterfailureKind =
+      const EnumNameConverter<JobFailureKind>(
+        JobFailureKind.values,
+      );
+  static JsonTypeConverter2<JobFailureKind?, String?, String?> $converterfailureKindn =
+      JsonTypeConverter2.asNullable($converterfailureKind);
 }
 
 class JobRow extends DataClass implements Insertable<JobRow> {
@@ -485,24 +485,16 @@ class JobRow extends DataClass implements Insertable<JobRow> {
       requestedLength: Value(requestedLength),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
-      failureKind: failureKind == null && nullToAbsent
-          ? const Value.absent()
-          : Value(failureKind),
-      preview: preview == null && nullToAbsent
-          ? const Value.absent()
-          : Value(preview),
-      sourceUrl: sourceUrl == null && nullToAbsent
-          ? const Value.absent()
-          : Value(sourceUrl),
+      failureKind: failureKind == null && nullToAbsent ? const Value.absent() : Value(failureKind),
+      preview: preview == null && nullToAbsent ? const Value.absent() : Value(preview),
+      sourceUrl: sourceUrl == null && nullToAbsent ? const Value.absent() : Value(sourceUrl),
       sourceFilePath: sourceFilePath == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceFilePath),
       sourceMimeType: sourceMimeType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceMimeType),
-      sourceTitle: sourceTitle == null && nullToAbsent
-          ? const Value.absent()
-          : Value(sourceTitle),
+      sourceTitle: sourceTitle == null && nullToAbsent ? const Value.absent() : Value(sourceTitle),
       durationSeconds: durationSeconds == null && nullToAbsent
           ? const Value.absent()
           : Value(durationSeconds),
@@ -606,27 +598,17 @@ class JobRow extends DataClass implements Insertable<JobRow> {
     failureKind: failureKind.present ? failureKind.value : this.failureKind,
     preview: preview.present ? preview.value : this.preview,
     sourceUrl: sourceUrl.present ? sourceUrl.value : this.sourceUrl,
-    sourceFilePath: sourceFilePath.present
-        ? sourceFilePath.value
-        : this.sourceFilePath,
-    sourceMimeType: sourceMimeType.present
-        ? sourceMimeType.value
-        : this.sourceMimeType,
+    sourceFilePath: sourceFilePath.present ? sourceFilePath.value : this.sourceFilePath,
+    sourceMimeType: sourceMimeType.present ? sourceMimeType.value : this.sourceMimeType,
     sourceTitle: sourceTitle.present ? sourceTitle.value : this.sourceTitle,
-    durationSeconds: durationSeconds.present
-        ? durationSeconds.value
-        : this.durationSeconds,
+    durationSeconds: durationSeconds.present ? durationSeconds.value : this.durationSeconds,
   );
   JobRow copyWithCompanion(JobsCompanion data) {
     return JobRow(
       id: data.id.present ? data.id.value : this.id,
       status: data.status.present ? data.status.value : this.status,
-      sourceType: data.sourceType.present
-          ? data.sourceType.value
-          : this.sourceType,
-      sourceLanguage: data.sourceLanguage.present
-          ? data.sourceLanguage.value
-          : this.sourceLanguage,
+      sourceType: data.sourceType.present ? data.sourceType.value : this.sourceType,
+      sourceLanguage: data.sourceLanguage.present ? data.sourceLanguage.value : this.sourceLanguage,
       summaryLanguage: data.summaryLanguage.present
           ? data.summaryLanguage.value
           : this.summaryLanguage,
@@ -635,20 +617,12 @@ class JobRow extends DataClass implements Insertable<JobRow> {
           : this.requestedLength,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      failureKind: data.failureKind.present
-          ? data.failureKind.value
-          : this.failureKind,
+      failureKind: data.failureKind.present ? data.failureKind.value : this.failureKind,
       preview: data.preview.present ? data.preview.value : this.preview,
       sourceUrl: data.sourceUrl.present ? data.sourceUrl.value : this.sourceUrl,
-      sourceFilePath: data.sourceFilePath.present
-          ? data.sourceFilePath.value
-          : this.sourceFilePath,
-      sourceMimeType: data.sourceMimeType.present
-          ? data.sourceMimeType.value
-          : this.sourceMimeType,
-      sourceTitle: data.sourceTitle.present
-          ? data.sourceTitle.value
-          : this.sourceTitle,
+      sourceFilePath: data.sourceFilePath.present ? data.sourceFilePath.value : this.sourceFilePath,
+      sourceMimeType: data.sourceMimeType.present ? data.sourceMimeType.value : this.sourceMimeType,
+      sourceTitle: data.sourceTitle.present ? data.sourceTitle.value : this.sourceTitle,
       durationSeconds: data.durationSeconds.present
           ? data.durationSeconds.value
           : this.durationSeconds,
@@ -1136,9 +1110,7 @@ class TranscriptRow extends DataClass implements Insertable<TranscriptRow> {
       jobId: Value(jobId),
       content: Value(content),
       wordCount: Value(wordCount),
-      modelName: modelName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(modelName),
+      modelName: modelName == null && nullToAbsent ? const Value.absent() : Value(modelName),
       modelVersion: modelVersion == null && nullToAbsent
           ? const Value.absent()
           : Value(modelVersion),
@@ -1189,9 +1161,7 @@ class TranscriptRow extends DataClass implements Insertable<TranscriptRow> {
       content: data.content.present ? data.content.value : this.content,
       wordCount: data.wordCount.present ? data.wordCount.value : this.wordCount,
       modelName: data.modelName.present ? data.modelName.value : this.modelName,
-      modelVersion: data.modelVersion.present
-          ? data.modelVersion.value
-          : this.modelVersion,
+      modelVersion: data.modelVersion.present ? data.modelVersion.value : this.modelVersion,
     );
   }
 
@@ -1208,8 +1178,7 @@ class TranscriptRow extends DataClass implements Insertable<TranscriptRow> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(jobId, content, wordCount, modelName, modelVersion);
+  int get hashCode => Object.hash(jobId, content, wordCount, modelName, modelVersion);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1320,8 +1289,7 @@ class JobTranscriptsCompanion extends UpdateCompanion<TranscriptRow> {
   }
 }
 
-class $JobSummariesTable extends JobSummaries
-    with TableInfo<$JobSummariesTable, SummaryRow> {
+class $JobSummariesTable extends JobSummaries with TableInfo<$JobSummariesTable, SummaryRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -1575,8 +1543,7 @@ class $JobSummariesTable extends JobSummaries
     return $JobSummariesTable(attachedDatabase, alias);
   }
 
-  static TypeConverter<List<String>, String> $convertertakeaways =
-      const StringListConverter();
+  static TypeConverter<List<String>, String> $convertertakeaways = const StringListConverter();
 }
 
 class SummaryRow extends DataClass implements Insertable<SummaryRow> {
@@ -1633,12 +1600,8 @@ class SummaryRow extends DataClass implements Insertable<SummaryRow> {
       modelName: Value(modelName),
       promptVersion: Value(promptVersion),
       needsReview: Value(needsReview),
-      tokensIn: tokensIn == null && nullToAbsent
-          ? const Value.absent()
-          : Value(tokensIn),
-      tokensOut: tokensOut == null && nullToAbsent
-          ? const Value.absent()
-          : Value(tokensOut),
+      tokensIn: tokensIn == null && nullToAbsent ? const Value.absent() : Value(tokensIn),
+      tokensOut: tokensOut == null && nullToAbsent ? const Value.absent() : Value(tokensOut),
       processingTimeMs: processingTimeMs == null && nullToAbsent
           ? const Value.absent()
           : Value(processingTimeMs),
@@ -1697,24 +1660,16 @@ class SummaryRow extends DataClass implements Insertable<SummaryRow> {
     needsReview: needsReview ?? this.needsReview,
     tokensIn: tokensIn.present ? tokensIn.value : this.tokensIn,
     tokensOut: tokensOut.present ? tokensOut.value : this.tokensOut,
-    processingTimeMs: processingTimeMs.present
-        ? processingTimeMs.value
-        : this.processingTimeMs,
+    processingTimeMs: processingTimeMs.present ? processingTimeMs.value : this.processingTimeMs,
   );
   SummaryRow copyWithCompanion(JobSummariesCompanion data) {
     return SummaryRow(
       jobId: data.jobId.present ? data.jobId.value : this.jobId,
-      summaryText: data.summaryText.present
-          ? data.summaryText.value
-          : this.summaryText,
+      summaryText: data.summaryText.present ? data.summaryText.value : this.summaryText,
       takeaways: data.takeaways.present ? data.takeaways.value : this.takeaways,
       modelName: data.modelName.present ? data.modelName.value : this.modelName,
-      promptVersion: data.promptVersion.present
-          ? data.promptVersion.value
-          : this.promptVersion,
-      needsReview: data.needsReview.present
-          ? data.needsReview.value
-          : this.needsReview,
+      promptVersion: data.promptVersion.present ? data.promptVersion.value : this.promptVersion,
+      needsReview: data.needsReview.present ? data.needsReview.value : this.needsReview,
       tokensIn: data.tokensIn.present ? data.tokensIn.value : this.tokensIn,
       tokensOut: data.tokensOut.present ? data.tokensOut.value : this.tokensOut,
       processingTimeMs: data.processingTimeMs.present
@@ -1957,8 +1912,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ),
   ]);
   @override
-  DriftDatabaseOptions get options =>
-      const DriftDatabaseOptions(storeDateTimeAsText: true);
+  DriftDatabaseOptions get options => const DriftDatabaseOptions(storeDateTimeAsText: true);
 }
 
 typedef $$JobsTableCreateCompanionBuilder =
@@ -2000,12 +1954,12 @@ typedef $$JobsTableUpdateCompanionBuilder =
       Value<int> rowid,
     });
 
-final class $$JobsTableReferences
-    extends BaseReferences<_$AppDatabase, $JobsTable, JobRow> {
+final class $$JobsTableReferences extends BaseReferences<_$AppDatabase, $JobsTable, JobRow> {
   $$JobsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$JobTranscriptsTable, List<TranscriptRow>>
-  _jobTranscriptsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  static MultiTypedResultKey<$JobTranscriptsTable, List<TranscriptRow>> _jobTranscriptsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
     db.jobTranscripts,
     aliasName: 'jobs__id__job_transcripts__job_id',
   );
@@ -2022,8 +1976,9 @@ final class $$JobsTableReferences
     );
   }
 
-  static MultiTypedResultKey<$JobSummariesTable, List<SummaryRow>>
-  _jobSummariesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  static MultiTypedResultKey<$JobSummariesTable, List<SummaryRow>> _jobSummariesRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
     db.jobSummaries,
     aliasName: 'jobs__id__job_summaries__job_id',
   );
@@ -2054,35 +2009,35 @@ class $$JobsTableFilterComposer extends Composer<_$AppDatabase, $JobsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<JobRunStatus, JobRunStatus, String>
-  get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
+  ColumnWithTypeConverterFilters<JobRunStatus, JobRunStatus, String> get status =>
+      $composableBuilder(
+        column: $table.status,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
-  ColumnWithTypeConverterFilters<JobSourceType, JobSourceType, String>
-  get sourceType => $composableBuilder(
-    column: $table.sourceType,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
+  ColumnWithTypeConverterFilters<JobSourceType, JobSourceType, String> get sourceType =>
+      $composableBuilder(
+        column: $table.sourceType,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
-  ColumnWithTypeConverterFilters<ContentLanguage, ContentLanguage, String>
-  get sourceLanguage => $composableBuilder(
-    column: $table.sourceLanguage,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
+  ColumnWithTypeConverterFilters<ContentLanguage, ContentLanguage, String> get sourceLanguage =>
+      $composableBuilder(
+        column: $table.sourceLanguage,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
-  ColumnWithTypeConverterFilters<ContentLanguage, ContentLanguage, String>
-  get summaryLanguage => $composableBuilder(
-    column: $table.summaryLanguage,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
+  ColumnWithTypeConverterFilters<ContentLanguage, ContentLanguage, String> get summaryLanguage =>
+      $composableBuilder(
+        column: $table.summaryLanguage,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
-  ColumnWithTypeConverterFilters<SummaryLength, SummaryLength, String>
-  get requestedLength => $composableBuilder(
-    column: $table.requestedLength,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
+  ColumnWithTypeConverterFilters<SummaryLength, SummaryLength, String> get requestedLength =>
+      $composableBuilder(
+        column: $table.requestedLength,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
@@ -2094,11 +2049,11 @@ class $$JobsTableFilterComposer extends Composer<_$AppDatabase, $JobsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<JobFailureKind?, JobFailureKind, String>
-  get failureKind => $composableBuilder(
-    column: $table.failureKind,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
+  ColumnWithTypeConverterFilters<JobFailureKind?, JobFailureKind, String> get failureKind =>
+      $composableBuilder(
+        column: $table.failureKind,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnFilters<String> get preview => $composableBuilder(
     column: $table.preview,
@@ -2148,8 +2103,7 @@ class $$JobsTableFilterComposer extends Composer<_$AppDatabase, $JobsTable> {
             $table: $db.jobTranscripts,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -2173,8 +2127,7 @@ class $$JobsTableFilterComposer extends Composer<_$AppDatabase, $JobsTable> {
             $table: $db.jobSummaries,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -2265,8 +2218,7 @@ class $$JobsTableOrderingComposer extends Composer<_$AppDatabase, $JobsTable> {
   );
 }
 
-class $$JobsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $JobsTable> {
+class $$JobsTableAnnotationComposer extends Composer<_$AppDatabase, $JobsTable> {
   $$JobsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -2280,29 +2232,27 @@ class $$JobsTableAnnotationComposer
   GeneratedColumnWithTypeConverter<JobRunStatus, String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<JobSourceType, String> get sourceType =>
-      $composableBuilder(
-        column: $table.sourceType,
-        builder: (column) => column,
-      );
-
-  GeneratedColumnWithTypeConverter<ContentLanguage, String>
-  get sourceLanguage => $composableBuilder(
-    column: $table.sourceLanguage,
+  GeneratedColumnWithTypeConverter<JobSourceType, String> get sourceType => $composableBuilder(
+    column: $table.sourceType,
     builder: (column) => column,
   );
 
-  GeneratedColumnWithTypeConverter<ContentLanguage, String>
-  get summaryLanguage => $composableBuilder(
-    column: $table.summaryLanguage,
-    builder: (column) => column,
-  );
-
-  GeneratedColumnWithTypeConverter<SummaryLength, String> get requestedLength =>
+  GeneratedColumnWithTypeConverter<ContentLanguage, String> get sourceLanguage =>
       $composableBuilder(
-        column: $table.requestedLength,
+        column: $table.sourceLanguage,
         builder: (column) => column,
       );
+
+  GeneratedColumnWithTypeConverter<ContentLanguage, String> get summaryLanguage =>
+      $composableBuilder(
+        column: $table.summaryLanguage,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<SummaryLength, String> get requestedLength => $composableBuilder(
+    column: $table.requestedLength,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -2310,11 +2260,10 @@ class $$JobsTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<JobFailureKind?, String> get failureKind =>
-      $composableBuilder(
-        column: $table.failureKind,
-        builder: (column) => column,
-      );
+  GeneratedColumnWithTypeConverter<JobFailureKind?, String> get failureKind => $composableBuilder(
+    column: $table.failureKind,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get preview =>
       $composableBuilder(column: $table.preview, builder: (column) => column);
@@ -2360,8 +2309,7 @@ class $$JobsTableAnnotationComposer
             $table: $db.jobTranscripts,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -2385,8 +2333,7 @@ class $$JobsTableAnnotationComposer
             $table: $db.jobSummaries,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -2416,12 +2363,9 @@ class $$JobsTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$JobsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$JobsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$JobsTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$JobsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$JobsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$JobsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
@@ -2496,65 +2440,53 @@ class $$JobsTableTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) =>
-                    (e.readTable(table), $$JobsTableReferences(db, table, e)),
+                (e) => (e.readTable(table), $$JobsTableReferences(db, table, e)),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({jobTranscriptsRefs = false, jobSummariesRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (jobTranscriptsRefs) db.jobTranscripts,
-                    if (jobSummariesRefs) db.jobSummaries,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (jobTranscriptsRefs)
-                        await $_getPrefetchedData<
-                          JobRow,
-                          $JobsTable,
-                          TranscriptRow
-                        >(
-                          currentTable: table,
-                          referencedTable: $$JobsTableReferences
-                              ._jobTranscriptsRefsTable(db),
-                          managerFromTypedResult: (p0) => $$JobsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).jobTranscriptsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.jobId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (jobSummariesRefs)
-                        await $_getPrefetchedData<
-                          JobRow,
-                          $JobsTable,
-                          SummaryRow
-                        >(
-                          currentTable: table,
-                          referencedTable: $$JobsTableReferences
-                              ._jobSummariesRefsTable(db),
-                          managerFromTypedResult: (p0) => $$JobsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).jobSummariesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.jobId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
+          prefetchHooksCallback: ({jobTranscriptsRefs = false, jobSummariesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (jobTranscriptsRefs) db.jobTranscripts,
+                if (jobSummariesRefs) db.jobSummaries,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (jobTranscriptsRefs)
+                    await $_getPrefetchedData<JobRow, $JobsTable, TranscriptRow>(
+                      currentTable: table,
+                      referencedTable: $$JobsTableReferences._jobTranscriptsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$JobsTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).jobTranscriptsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.jobId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                  if (jobSummariesRefs)
+                    await $_getPrefetchedData<JobRow, $JobsTable, SummaryRow>(
+                      currentTable: table,
+                      referencedTable: $$JobsTableReferences._jobSummariesRefsTable(db),
+                      managerFromTypedResult: (p0) => $$JobsTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).jobSummariesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.jobId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
               },
+            );
+          },
         ),
       );
 }
@@ -2618,8 +2550,7 @@ final class $$JobTranscriptsTableReferences
   }
 }
 
-class $$JobTranscriptsTableFilterComposer
-    extends Composer<_$AppDatabase, $JobTranscriptsTable> {
+class $$JobTranscriptsTableFilterComposer extends Composer<_$AppDatabase, $JobTranscriptsTable> {
   $$JobTranscriptsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -2663,16 +2594,14 @@ class $$JobTranscriptsTableFilterComposer
             $table: $db.jobs,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$JobTranscriptsTableOrderingComposer
-    extends Composer<_$AppDatabase, $JobTranscriptsTable> {
+class $$JobTranscriptsTableOrderingComposer extends Composer<_$AppDatabase, $JobTranscriptsTable> {
   $$JobTranscriptsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -2716,8 +2645,7 @@ class $$JobTranscriptsTableOrderingComposer
             $table: $db.jobs,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -2763,8 +2691,7 @@ class $$JobTranscriptsTableAnnotationComposer
             $table: $db.jobs,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -2864,12 +2791,10 @@ class $$JobTranscriptsTableTableManager
                           state.withJoin(
                                 currentTable: table,
                                 currentColumn: table.jobId,
-                                referencedTable: $$JobTranscriptsTableReferences
-                                    ._jobIdTable(db),
-                                referencedColumn:
-                                    $$JobTranscriptsTableReferences
-                                        ._jobIdTable(db)
-                                        .id,
+                                referencedTable: $$JobTranscriptsTableReferences._jobIdTable(db),
+                                referencedColumn: $$JobTranscriptsTableReferences
+                                    ._jobIdTable(db)
+                                    .id,
                               )
                               as T;
                     }
@@ -2948,8 +2873,7 @@ final class $$JobSummariesTableReferences
   }
 }
 
-class $$JobSummariesTableFilterComposer
-    extends Composer<_$AppDatabase, $JobSummariesTable> {
+class $$JobSummariesTableFilterComposer extends Composer<_$AppDatabase, $JobSummariesTable> {
   $$JobSummariesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -2962,11 +2886,11 @@ class $$JobSummariesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<List<String>, List<String>, String>
-  get takeaways => $composableBuilder(
-    column: $table.takeaways,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
+  ColumnWithTypeConverterFilters<List<String>, List<String>, String> get takeaways =>
+      $composableBuilder(
+        column: $table.takeaways,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnFilters<String> get modelName => $composableBuilder(
     column: $table.modelName,
@@ -3014,16 +2938,14 @@ class $$JobSummariesTableFilterComposer
             $table: $db.jobs,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$JobSummariesTableOrderingComposer
-    extends Composer<_$AppDatabase, $JobSummariesTable> {
+class $$JobSummariesTableOrderingComposer extends Composer<_$AppDatabase, $JobSummariesTable> {
   $$JobSummariesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -3087,16 +3009,14 @@ class $$JobSummariesTableOrderingComposer
             $table: $db.jobs,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$JobSummariesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $JobSummariesTable> {
+class $$JobSummariesTableAnnotationComposer extends Composer<_$AppDatabase, $JobSummariesTable> {
   $$JobSummariesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -3152,8 +3072,7 @@ class $$JobSummariesTableAnnotationComposer
             $table: $db.jobs,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -3180,10 +3099,8 @@ class $$JobSummariesTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$JobSummariesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$JobSummariesTableOrderingComposer($db: db, $table: table),
+          createFilteringComposer: () => $$JobSummariesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$JobSummariesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$JobSummariesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
@@ -3267,11 +3184,8 @@ class $$JobSummariesTableTableManager
                           state.withJoin(
                                 currentTable: table,
                                 currentColumn: table.jobId,
-                                referencedTable: $$JobSummariesTableReferences
-                                    ._jobIdTable(db),
-                                referencedColumn: $$JobSummariesTableReferences
-                                    ._jobIdTable(db)
-                                    .id,
+                                referencedTable: $$JobSummariesTableReferences._jobIdTable(db),
+                                referencedColumn: $$JobSummariesTableReferences._jobIdTable(db).id,
                               )
                               as T;
                     }

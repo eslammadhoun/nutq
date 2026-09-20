@@ -25,9 +25,7 @@ class OnboardingBrandRings extends StatelessWidget {
   Widget build(BuildContext context) {
     final double size = 360.w;
 
-    final List<double> ringsSizes = isSplash
-        ? splashRingsSizes
-        : onBoardingRingsSizes;
+    final List<double> ringsSizes = isSplash ? splashRingsSizes : onBoardingRingsSizes;
 
     return RepaintBoundary(
       child: SizedBox(

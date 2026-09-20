@@ -24,8 +24,7 @@ class SummaryDebugInfo {
   final int generationTimeMs;
   final int mergeRounds;
 
-  double get tokensPerSecond =>
-      generationTimeMs == 0 ? 0 : outputTokens * 1000 / generationTimeMs;
+  double get tokensPerSecond => generationTimeMs == 0 ? 0 : outputTokens * 1000 / generationTimeMs;
 }
 
 @immutable

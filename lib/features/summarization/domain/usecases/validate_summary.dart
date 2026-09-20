@@ -91,7 +91,9 @@ class ValidateSummary {
       if (c.score < thresholds.claimSupportHighBelow) {
         issues.add(_issue(ValidationIssueType.unsupportedClaim, ValidationSeverity.high, c.claim));
       } else if (c.score < thresholds.claimSupportMin) {
-        issues.add(_issue(ValidationIssueType.unsupportedClaim, ValidationSeverity.medium, c.claim));
+        issues.add(
+          _issue(ValidationIssueType.unsupportedClaim, ValidationSeverity.medium, c.claim),
+        );
       }
     }
 

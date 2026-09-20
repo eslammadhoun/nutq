@@ -14,21 +14,18 @@ class SourceInputSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<NewJobCubit, NewJobState>(
-      buildWhen: (previous, current) =>
-          previous.sourceType != current.sourceType,
+      buildWhen: (previous, current) => previous.sourceType != current.sourceType,
       builder: (context, state) {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
           switchInCurve: Curves.easeOut,
           switchOutCurve: Curves.easeIn,
-          transitionBuilder: (child, animation) =>
-              FadeTransition(opacity: animation, child: child),
+          transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
           child: KeyedSubtree(
             key: ValueKey<JobSourceType>(state.sourceType),
             child: switch (state.sourceType) {
               JobSourceType.text => const TextSourceSection(),
-              JobSourceType.video ||
-              JobSourceType.audio => const FileSourceSection(),
+              JobSourceType.video || JobSourceType.audio => const FileSourceSection(),
               JobSourceType.youtube => const YoutubeSourceSection(),
             },
           ),

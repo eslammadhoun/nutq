@@ -38,8 +38,7 @@ class FlutterGemmaRuntime implements LlmRuntime {
   Future<bool> isModelAvailable() async {
     try {
       await _ensureEngine();
-      return FlutterGemma.hasActiveModel() ||
-          await FlutterGemma.isModelInstalled(_modelFileName);
+      return FlutterGemma.hasActiveModel() || await FlutterGemma.isModelInstalled(_modelFileName);
     } catch (_) {
       return false;
     }
@@ -61,16 +60,15 @@ class FlutterGemmaRuntime implements LlmRuntime {
   }
 
   @override
-  Future<LlmSession> openSession(GemmaGenerationConfig config) async =>
-      _Session(
-        await _model!.openSession(
-          temperature: config.temperature,
-          randomSeed: config.seed,
-          topK: config.topK,
-          topP: config.topP,
-          maxOutputTokens: config.maxOutputTokens,
-        ),
-      );
+  Future<LlmSession> openSession(GemmaGenerationConfig config) async => _Session(
+    await _model!.openSession(
+      temperature: config.temperature,
+      randomSeed: config.seed,
+      topK: config.topK,
+      topP: config.topP,
+      maxOutputTokens: config.maxOutputTokens,
+    ),
+  );
 
   /// The legacy singleton lane, kept open just for tokenizing; generation uses
   /// independent `openSession`s so the two never close each other.

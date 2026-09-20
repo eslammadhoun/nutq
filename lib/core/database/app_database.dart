@@ -3,11 +3,11 @@
 // ignore_for_file: unused_import
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:nutq/features/jobs/data/local/daos/jobs_dao.dart';
 import 'package:nutq/core/database/schema_versions.dart';
-import 'package:nutq/features/jobs/data/local/converters/string_list_converter.dart';
-import 'package:nutq/features/jobs/data/local/tables/jobs_tables.dart';
 import 'package:nutq/core/domain/content_language.dart';
+import 'package:nutq/features/jobs/data/local/converters/string_list_converter.dart';
+import 'package:nutq/features/jobs/data/local/daos/jobs_dao.dart';
+import 'package:nutq/features/jobs/data/local/tables/jobs_tables.dart';
 import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';

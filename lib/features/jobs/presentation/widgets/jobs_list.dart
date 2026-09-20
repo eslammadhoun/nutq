@@ -6,9 +6,9 @@ import 'package:nutq/core/extensions/error_l10n_extension.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/widgets/global_button.dart';
+import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
-import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_card.dart';
 
 class JobsList extends StatefulWidget {
@@ -35,8 +35,7 @@ class _JobsListState extends State<JobsList> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
       context.read<JobsCubit>().loadMore();
     }
   }
@@ -45,8 +44,7 @@ class _JobsListState extends State<JobsList> {
   Widget build(BuildContext context) {
     return BlocListener<JobsCubit, JobsState>(
       listenWhen: (previous, current) =>
-          current.deleteError != null &&
-          previous.deleteErrorToken != current.deleteErrorToken,
+          current.deleteError != null && previous.deleteErrorToken != current.deleteErrorToken,
       listener: (context, state) {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
@@ -144,8 +142,7 @@ class _JobsListState extends State<JobsList> {
                 return Dismissible(
                   key: Key(job.id),
                   direction: DismissDirection.endToStart,
-                  onDismissed: (dir) =>
-                      context.read<JobsCubit>().deleteJob(job.id),
+                  onDismissed: (dir) => context.read<JobsCubit>().deleteJob(job.id),
                   background: Container(
                     alignment: AlignmentDirectional.centerEnd,
                     padding: EdgeInsetsDirectional.only(end: 24.w),

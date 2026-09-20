@@ -12,8 +12,7 @@ class SourceTypeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<NewJobCubit, NewJobState>(
-      buildWhen: (previous, current) =>
-          previous.sourceType != current.sourceType,
+      buildWhen: (previous, current) => previous.sourceType != current.sourceType,
       builder: (BuildContext context, state) {
         final NewJobCubit cubit = context.read<NewJobCubit>();
 
@@ -27,8 +26,7 @@ class SourceTypeSelector extends StatelessWidget {
           ),
           child: Row(
             children: List.generate(JobSourceType.values.length, (index) {
-              final bool isSelected =
-                  state.sourceType == JobSourceType.values[index];
+              final bool isSelected = state.sourceType == JobSourceType.values[index];
 
               return Expanded(
                 child: InkWell(

@@ -16,6 +16,5 @@ class AppPreferences {
   /// null means "no explicit choice yet" — fall back to device locale.
   String? get languageCode => _prefs.getString(_keyLanguageCode);
 
-  Future<void> setLanguageCode(String code) =>
-      _prefs.setString(_keyLanguageCode, code);
+  Future<void> setLanguageCode(String code) => _prefs.setString(_keyLanguageCode, code);
 }

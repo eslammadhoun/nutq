@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
-import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
+import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
 
@@ -24,10 +24,7 @@ class FileSourceSection extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (file == null)
-              _Dropzone(isAudio: isAudio)
-            else
-              _SelectedFileCard(file: file),
+            if (file == null) _Dropzone(isAudio: isAudio) else _SelectedFileCard(file: file),
             if (state.fileTooLarge) ...[
               SizedBox(height: 8.h),
               Text(
@@ -61,13 +58,9 @@ class _Dropzone extends StatelessWidget {
         width: double.infinity,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: filled
-              ? colors.navIndicator
-              : colors.primary.withValues(alpha: 0.12),
+          color: filled ? colors.navIndicator : colors.primary.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(16),
-          border: filled
-              ? null
-              : Border.all(color: colors.primary.withValues(alpha: 0.25)),
+          border: filled ? null : Border.all(color: colors.primary.withValues(alpha: 0.25)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -75,22 +68,16 @@ class _Dropzone extends StatelessWidget {
             Text(isAudio ? '🎵' : '🎬', style: TextStyle(fontSize: 20.sp)),
             SizedBox(height: 6.h),
             Text(
-              isAudio
-                  ? context.l10n.newJobChooseAudioFile
-                  : context.l10n.newJobChooseVideoFile,
+              isAudio ? context.l10n.newJobChooseAudioFile : context.l10n.newJobChooseVideoFile,
               style: context.typography.labelMedium.copyWith(
                 color: filled ? colors.textInverse : colors.primary,
               ),
             ),
             SizedBox(height: 4.h),
             Text(
-              isAudio
-                  ? context.l10n.newJobFormatsAudio
-                  : context.l10n.newJobFormatsVideo,
+              isAudio ? context.l10n.newJobFormatsAudio : context.l10n.newJobFormatsVideo,
               style: context.typography.captionSmall.copyWith(
-                color: filled
-                     ? colors.textInverse.withValues(alpha: 0.8)
-                     : colors.primary,
+                color: filled ? colors.textInverse.withValues(alpha: 0.8) : colors.primary,
               ),
             ),
           ],

@@ -3,12 +3,12 @@ import 'package:nutq/features/jobs/data/local/daos/jobs_dao.dart';
 import 'package:nutq/features/jobs/data/mappers/job_mappers.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/entities/source_info.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/domain/entities/transcript.dart';
-import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 
 /// SQLite access for jobs, expressed in domain entities.
 ///
@@ -79,8 +79,7 @@ class JobsLocalDataSourceImpl implements JobsLocalDataSource {
       _dao.watchDetail(id).map((rows) => rows?.toEntity()).distinct();
 
   @override
-  Future<JobDetailEntity?> getJob(String id) async =>
-      (await _dao.getDetail(id))?.toEntity();
+  Future<JobDetailEntity?> getJob(String id) async => (await _dao.getDetail(id))?.toEntity();
 
   @override
   Future<void> insertJob(JobDetailEntity job) =>
@@ -93,8 +92,7 @@ class JobsLocalDataSourceImpl implements JobsLocalDataSource {
     required JobRunStatus to,
     required DateTime at,
     JobFailureKind? failureKind,
-  }) =>
-      _dao.transition(id, from: from, to: to, at: at, failureKind: failureKind);
+  }) => _dao.transition(id, from: from, to: to, at: at, failureKind: failureKind);
 
   @override
   Future<TransitionOutcome> completeJob(

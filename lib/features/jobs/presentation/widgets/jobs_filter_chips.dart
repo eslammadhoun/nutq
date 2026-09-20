@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
-import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 
 class JobsFilterChips extends StatelessWidget {
   const JobsFilterChips({super.key});
@@ -12,8 +12,7 @@ class JobsFilterChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<JobsCubit, JobsState>(
-      buildWhen: (previous, current) =>
-          previous.selectedFilter != current.selectedFilter,
+      buildWhen: (previous, current) => previous.selectedFilter != current.selectedFilter,
       builder: (context, state) {
         final l10n = context.l10n;
         return Row(
@@ -27,22 +26,19 @@ class JobsFilterChips extends StatelessWidget {
             _FilterChip(
               label: l10n.statusDone,
               isSelected: state.selectedFilter == JobRunStatus.completed,
-              onTap: () =>
-                  context.read<JobsCubit>().selectFilter(JobRunStatus.completed),
+              onTap: () => context.read<JobsCubit>().selectFilter(JobRunStatus.completed),
             ),
             SizedBox(width: 8.w),
             _FilterChip(
               label: l10n.statusProcessing,
               isSelected: state.selectedFilter == JobRunStatus.running,
-              onTap: () =>
-                  context.read<JobsCubit>().selectFilter(JobRunStatus.running),
+              onTap: () => context.read<JobsCubit>().selectFilter(JobRunStatus.running),
             ),
             SizedBox(width: 8.w),
             _FilterChip(
               label: l10n.statusFailed,
               isSelected: state.selectedFilter == JobRunStatus.failed,
-              onTap: () =>
-                  context.read<JobsCubit>().selectFilter(JobRunStatus.failed),
+              onTap: () => context.read<JobsCubit>().selectFilter(JobRunStatus.failed),
             ),
           ],
         );
@@ -77,20 +73,14 @@ class _FilterChip extends StatelessWidget {
           color: isSelected ? colors.primary.withValues(alpha: 0.12) : null,
           borderRadius: BorderRadius.circular(14.r),
           border: Border.all(
-            color: isSelected
-                ? colors.primary.withValues(alpha: 0.25)
-                : colors.borderDefault,
+            color: isSelected ? colors.primary.withValues(alpha: 0.25) : colors.borderDefault,
           ),
         ),
         child: Text(
           label,
-          style:
-              (isSelected
-                      ? context.typography.labelXS
-                      : context.typography.bodySmall)
-                  .copyWith(
-                    color: isSelected ? colors.primary : colors.textSecondary,
-                  ),
+          style: (isSelected ? context.typography.labelXS : context.typography.bodySmall).copyWith(
+            color: isSelected ? colors.primary : colors.textSecondary,
+          ),
         ),
       ),
     );

@@ -55,9 +55,7 @@ class JobsState {
   }) => JobsState(
     status: status ?? this.status,
     jobs: jobs ?? this.jobs,
-    selectedFilter: clearFilter
-        ? null
-        : (selectedFilter ?? this.selectedFilter),
+    selectedFilter: clearFilter ? null : (selectedFilter ?? this.selectedFilter),
     searchQuery: searchQuery ?? this.searchQuery,
     hasMore: hasMore ?? this.hasMore,
     isLoadingMore: isLoadingMore ?? this.isLoadingMore,

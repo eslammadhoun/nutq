@@ -48,6 +48,5 @@ class ValidationReport {
   /// rejected automatically.
   bool get isSuspicious => issues.isNotEmpty;
 
-  int get highSeverityCount =>
-      issues.where((i) => i.severity == ValidationSeverity.high).length;
+  int get highSeverityCount => issues.where((i) => i.severity == ValidationSeverity.high).length;
 }

@@ -18,7 +18,11 @@ abstract class SummarizationCache {
     required String input,
     required String configSignature,
   }) => sha256
-      .convert(utf8.encode('$modelVersion\u0000$promptVersion\u0000$stage\u0000$input\u0000$configSignature'))
+      .convert(
+        utf8.encode(
+          '$modelVersion\u0000$promptVersion\u0000$stage\u0000$input\u0000$configSignature',
+        ),
+      )
       .toString();
 }
 

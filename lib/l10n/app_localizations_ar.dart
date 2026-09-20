@@ -75,16 +75,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get validationEmailInvalid => 'يرجى إدخال بريد إلكتروني صحيح';
 
   @override
-  String get validationPasswordLowercase =>
-      'يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل';
+  String get validationPasswordLowercase => 'يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل';
 
   @override
-  String get validationPasswordUppercase =>
-      'يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل';
+  String get validationPasswordUppercase => 'يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل';
 
   @override
-  String get validationPasswordNumber =>
-      'يجب أن تحتوي كلمة المرور على رقم واحد على الأقل';
+  String get validationPasswordNumber => 'يجب أن تحتوي كلمة المرور على رقم واحد على الأقل';
 
   @override
   String get validationPasswordsMismatch => 'كلمتا المرور غير متطابقتين';
@@ -155,8 +152,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get newJobTextLabel => 'أدخل أو الصق نصك العربي';
 
   @override
-  String get newJobTextPlaceholder =>
-      'مثال: أدخل النص العربي هنا للحصول على ملخص...';
+  String get newJobTextPlaceholder => 'مثال: أدخل النص العربي هنا للحصول على ملخص...';
 
   @override
   String newJobCharCounter(int count, int max) {
@@ -214,8 +210,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onboardingSlide3Title => 'تصفّح\nسجلّك';
 
   @override
-  String get onboardingSlide3Subtitle =>
-      'ابحث وشارك وصدّر كل تفريغاتك\nالسابقة بسهولة.';
+  String get onboardingSlide3Subtitle => 'ابحث وشارك وصدّر كل تفريغاتك\nالسابقة بسهولة.';
 
   @override
   String get alertsComingSoon => 'التنبيهات — قريباً';
@@ -325,8 +320,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get jobFailureModelUnavailable => 'نموذج التلخيص على الجهاز غير متاح.';
 
   @override
-  String get jobFailureGenerationFailed =>
-      'تعذّر إنشاء الملخص. يُرجى المحاولة مرة أخرى.';
+  String get jobFailureGenerationFailed => 'تعذّر إنشاء الملخص. يُرجى المحاولة مرة أخرى.';
 
   @override
   String get newJobSourceUnavailable =>
@@ -343,8 +337,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get jobDetailNotFound => 'لم تعد هذه المهمة موجودة.';
 
   @override
-  String get jobFailureInterrupted =>
-      'توقفت هذه المهمة لأن التطبيق أُغلق قبل أن تنتهي.';
+  String get jobFailureInterrupted => 'توقفت هذه المهمة لأن التطبيق أُغلق قبل أن تنتهي.';
 
   @override
   String get jobStageAcquiring => 'جارٍ جلب المصدر';
@@ -363,6 +356,5 @@ class AppLocalizationsAr extends AppLocalizations {
   String get jobFailureTranscriptionFailed => 'تعذّر تفريغ الصوت.';
 
   @override
-  String get jobFailureInsufficientStorage =>
-      'لا توجد مساحة تخزين كافية لمعالجة هذه المهمة.';
+  String get jobFailureInsufficientStorage => 'لا توجد مساحة تخزين كافية لمعالجة هذه المهمة.';
 }

@@ -15,8 +15,7 @@ class IsolateBackgroundWork implements BackgroundWork {
   const IsolateBackgroundWork();
 
   @override
-  Future<R> run<A, R>(R Function(A argument) task, A argument) =>
-      Isolate.run(() => task(argument));
+  Future<R> run<A, R>(R Function(A argument) task, A argument) => Isolate.run(() => task(argument));
 }
 
 /// Runs the task right here. Deterministic and fake-async friendly; use in
@@ -25,6 +24,5 @@ class InlineBackgroundWork implements BackgroundWork {
   const InlineBackgroundWork();
 
   @override
-  Future<R> run<A, R>(R Function(A argument) task, A argument) =>
-      Future.sync(() => task(argument));
+  Future<R> run<A, R>(R Function(A argument) task, A argument) => Future.sync(() => task(argument));
 }

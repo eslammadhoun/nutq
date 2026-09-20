@@ -48,8 +48,8 @@ class AppRouter {
     }
   }
 
-  static PageRouteBuilder _buildRoute(RouteSettings settings, Widget page) {
-    return PageRouteBuilder(
+  static PageRouteBuilder<void> _buildRoute(RouteSettings settings, Widget page) {
+    return PageRouteBuilder<void>(
       settings: settings,
 
       transitionDuration: const Duration(milliseconds: 180),

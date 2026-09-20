@@ -38,7 +38,10 @@ ${_bullets(numbers)}
 
 FINAL SUMMARY:''';
 
-  static String _lengthInstruction(SummaryLength length, ContentLanguage language) => switch (length) {
+  static String _lengthInstruction(
+    SummaryLength length,
+    ContentLanguage language,
+  ) => switch (length) {
     SummaryLength.short =>
       'Length: 5 to 8 short bullet points (about ${length.minWords}-${length.maxWords} ${language.promptName} words in total).',
     SummaryLength.medium =>

@@ -31,8 +31,7 @@ class LanguageRow extends StatelessWidget {
             ),
           ),
           BlocBuilder<NewJobCubit, NewJobState>(
-            buildWhen: (previous, current) =>
-                previous.language != current.language,
+            buildWhen: (previous, current) => previous.language != current.language,
             builder: (context, state) {
               return InkWell(
                 onTap: () => context.read<NewJobCubit>().toggleLanguage(),

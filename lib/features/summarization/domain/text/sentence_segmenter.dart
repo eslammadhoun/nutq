@@ -18,8 +18,20 @@ class SentenceSegmenter {
   static final _terminator = RegExp(r'[.؟?!؛]+');
   static final _paragraphBreak = RegExp(r'\n[ \t]*\n');
   static final _abbreviations = <String>{
-    'د', 'أ', 'م', 'dr', 'mr', 'mrs', 'ms', 'prof', 'st', 'vs', 'etc', 'e.g',
-    'i.e', 'no',
+    'د',
+    'أ',
+    'م',
+    'dr',
+    'mr',
+    'mrs',
+    'ms',
+    'prof',
+    'st',
+    'vs',
+    'etc',
+    'e.g',
+    'i.e',
+    'no',
   };
   static final _clauseBreak = RegExp(r'[،,؛;:]');
 

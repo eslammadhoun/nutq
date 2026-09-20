@@ -1,9 +1,9 @@
 import 'package:drift/drift.dart';
 import 'package:nutq/core/database/app_database.dart';
 import 'package:nutq/features/jobs/data/local/tables/jobs_tables.dart';
+import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
-import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 
 part 'jobs_dao.g.dart';
 
@@ -63,11 +63,10 @@ class JobsDao extends DatabaseAccessor<AppDatabase> with _$JobsDaoMixin {
   Future<JobDetailRows?> getDetail(String id) async =>
       _toDetail(await _detailQuery(id).getSingleOrNull());
 
-  JoinedSelectStatement<HasResultSet, dynamic> _detailQuery(String id) =>
-      select(jobs).join([
-        leftOuterJoin(jobTranscripts, jobTranscripts.jobId.equalsExp(jobs.id)),
-        leftOuterJoin(jobSummaries, jobSummaries.jobId.equalsExp(jobs.id)),
-      ])..where(jobs.id.equals(id));
+  JoinedSelectStatement<HasResultSet, dynamic> _detailQuery(String id) => select(jobs).join([
+    leftOuterJoin(jobTranscripts, jobTranscripts.jobId.equalsExp(jobs.id)),
+    leftOuterJoin(jobSummaries, jobSummaries.jobId.equalsExp(jobs.id)),
+  ])..where(jobs.id.equals(id));
 
   JobDetailRows? _toDetail(TypedResult? row) => row == null
       ? null
@@ -106,15 +105,14 @@ class JobsDao extends DatabaseAccessor<AppDatabase> with _$JobsDaoMixin {
 
   /// Applies a partial change to the job's source description, only while the
   /// job is still active.
-  Future<TransitionOutcome> updateSource(String id, JobsCompanion change) =>
-      transaction(() async {
-        final updated =
-            await (update(jobs)..where(
-                  (j) => j.id.equals(id) & j.status.isInValues(_active),
-                ))
-                .write(change);
-        return updated > 0 ? TransitionOutcome.applied : await _whyNotApplied(id);
-      });
+  Future<TransitionOutcome> updateSource(String id, JobsCompanion change) => transaction(() async {
+    final updated =
+        await (update(jobs)..where(
+              (j) => j.id.equals(id) & j.status.isInValues(_active),
+            ))
+            .write(change);
+    return updated > 0 ? TransitionOutcome.applied : await _whyNotApplied(id);
+  });
 
   /// Moves a job to [to] only if it is currently in one of [from].
   Future<TransitionOutcome> transition(
@@ -159,8 +157,7 @@ class JobsDao extends DatabaseAccessor<AppDatabase> with _$JobsDaoMixin {
     return TransitionOutcome.applied;
   });
 
-  Future<int> deleteJob(String id) =>
-      (delete(jobs)..where((j) => j.id.equals(id))).go();
+  Future<int> deleteJob(String id) => (delete(jobs)..where((j) => j.id.equals(id))).go();
 
   /// Fails every job still pending/running. Returns how many changed.
   Future<int> failActiveJobs(
@@ -191,9 +188,7 @@ class JobsDao extends DatabaseAccessor<AppDatabase> with _$JobsDaoMixin {
               ..addColumns([jobs.id])
               ..where(jobs.id.equals(id)))
             .getSingleOrNull();
-    return exists == null
-        ? TransitionOutcome.notFound
-        : TransitionOutcome.invalidState;
+    return exists == null ? TransitionOutcome.notFound : TransitionOutcome.invalidState;
   }
 
   /// Escapes LIKE wildcards so user input is matched literally.

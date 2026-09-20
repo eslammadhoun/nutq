@@ -48,10 +48,10 @@ class TranscriptCard extends StatelessWidget {
                   if ((transcript.modelName?.isNotEmpty ?? false) ||
                       (transcript.modelVersion?.isNotEmpty ?? false)) ...[
                     Text(
-                      [transcript.modelName, transcript.modelVersion]
-                          .whereType<String>()
-                          .where((p) => p.isNotEmpty)
-                          .join(' · '),
+                      [
+                        transcript.modelName,
+                        transcript.modelVersion,
+                      ].whereType<String>().where((p) => p.isNotEmpty).join(' · '),
                       style: context.typography.captionSmall.copyWith(
                         color: colors.textSecondary,
                       ),
@@ -60,8 +60,7 @@ class TranscriptCard extends StatelessWidget {
                   ],
                   Text(
                     [
-                      if (job.durationSeconds != null)
-                        formatDuration(job.durationSeconds!),
+                      if (job.durationSeconds != null) formatDuration(job.durationSeconds!),
                       l10n.jobDetailWordCount(transcript.wordCount),
                     ].join(' · '),
                     style: context.typography.captionSmall.copyWith(
@@ -87,5 +86,4 @@ class TranscriptCard extends StatelessWidget {
       ),
     );
   }
-
 }

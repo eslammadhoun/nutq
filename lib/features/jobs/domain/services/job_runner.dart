@@ -45,8 +45,7 @@ class JobRunner implements JobScheduler {
   final DateTime _startedAt;
   final Queue<String> _queue = Queue();
   final Map<String, JobLive> _live = {};
-  final StreamController<({String id, JobLive? live})> _changes =
-      StreamController.broadcast();
+  final StreamController<({String id, JobLive? live})> _changes = StreamController.broadcast();
 
   bool _started = false;
   bool _disposed = false;
@@ -101,7 +100,10 @@ class JobRunner implements JobScheduler {
             .where((change) => change.id == jobId)
             .listen((change) => controller.add(change.live));
       },
-      onCancel: () => subscription?.cancel(),
+      onCancel: () async {
+        await subscription?.cancel();
+        await controller.close();
+      },
     );
     return controller.stream;
   }

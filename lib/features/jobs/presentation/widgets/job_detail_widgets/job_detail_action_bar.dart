@@ -64,9 +64,7 @@ class JobDetailActionBar extends StatelessWidget {
                             label: context.l10n.jobDetailShare,
                             background: colors.borderDefault,
                             foreground: colors.textPrimary,
-                            onTap: hasSummaryText
-                                ? () => _shareSummary(summaryText)
-                                : null,
+                            onTap: hasSummaryText ? () => _shareSummary(summaryText) : null,
                           ),
                         ),
                         SizedBox(width: 15.w),
@@ -76,9 +74,7 @@ class JobDetailActionBar extends StatelessWidget {
                             label: context.l10n.jobDetailCopyText,
                             background: colors.navIndicator,
                             foreground: colors.textInverse,
-                            onTap: hasSummaryText
-                                ? () => _copySummary(context, summaryText)
-                                : null,
+                            onTap: hasSummaryText ? () => _copySummary(context, summaryText) : null,
                           ),
                         ),
                       ],

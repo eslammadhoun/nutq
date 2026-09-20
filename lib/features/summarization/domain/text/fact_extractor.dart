@@ -39,7 +39,9 @@ class FactExtractor {
     r'\b\d{1,2}[/\-.]\d{1,2}[/\-.]\d{2,4}\b|\b\d{4}[/\-]\d{1,2}[/\-]\d{1,2}\b',
   );
   static final _dayMonth = RegExp(
-    r'\b\d{1,2}\s+(?:' '$_months' r')(?:\s+\d{4})?',
+    r'\b\d{1,2}\s+(?:'
+    '$_months'
+    r')(?:\s+\d{4})?',
     caseSensitive: false,
   );
   static final _year = RegExp(r'\b(?:19|20)\d{2}\b');
@@ -47,17 +49,26 @@ class FactExtractor {
     r'\d+(?:[.,]\d+)?\s*(?:%|بالمئة|بالمائة|في المئة|في المائة|percent)',
     caseSensitive: false,
   );
-  static final _version = RegExp(r'\bv?\d+(?:\.\d+){2,}\b|\bv\d+(?:\.\d+)?\b', caseSensitive: false);
+  static final _version = RegExp(
+    r'\bv?\d+(?:\.\d+){2,}\b|\bv\d+(?:\.\d+)?\b',
+    caseSensitive: false,
+  );
   static final _number = RegExp(r'\d+(?:[.,]\d+)*');
   static final _latinTerm = RegExp(r'[A-Za-z][A-Za-z0-9_+#\-]*(?:\.[A-Za-z0-9]+)*');
-  static const _personTitles = 'الدكتور|الدكتورة|الأستاذ|الاستاذ|الأستاذة|المهندس|المهندسة|الشيخ|السيد|السيدة|البروفيسور';
-  static const _institutionMarkers = 'شركة|جامعة|مدينة|دولة|منظمة|وزارة|مؤسسة|مستشفى|معهد|كلية|حزب|بنك';
+  static const _personTitles =
+      'الدكتور|الدكتورة|الأستاذ|الاستاذ|الأستاذة|المهندس|المهندسة|الشيخ|السيد|السيدة|البروفيسور';
+  static const _institutionMarkers =
+      'شركة|جامعة|مدينة|دولة|منظمة|وزارة|مؤسسة|مستشفى|معهد|كلية|حزب|بنك';
   static final _personEntity = RegExp(
-    r'(?:' '$_personTitles' r')\s+(\p{Script=Arabic}+(?:\s+\p{Script=Arabic}+)?)',
+    r'(?:'
+    '$_personTitles'
+    r')\s+(\p{Script=Arabic}+(?:\s+\p{Script=Arabic}+)?)',
     unicode: true,
   );
   static final _institutionEntity = RegExp(
-    r'(?:' '$_institutionMarkers' r')\s+(\p{Script=Arabic}+)',
+    r'(?:'
+    '$_institutionMarkers'
+    r')\s+(\p{Script=Arabic}+)',
     unicode: true,
   );
 

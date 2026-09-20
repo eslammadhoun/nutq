@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/core/errors/app_error.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
 import 'package:nutq/features/jobs/domain/usecases/submit_job.dart';
-import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
-import 'package:nutq/core/domain/content_language.dart';
 
 /// State of the New Job sheet: the form fields, and saving the job.
 class NewJobCubit extends Cubit<NewJobState> {
@@ -20,9 +20,7 @@ class NewJobCubit extends Cubit<NewJobState> {
   }
 
   void toggleLanguage() {
-    final next = state.language == JobLanguage.ar
-        ? JobLanguage.en
-        : JobLanguage.ar;
+    final next = state.language == JobLanguage.ar ? JobLanguage.en : JobLanguage.ar;
     emit(state.copyWith(language: next));
   }
 
@@ -32,8 +30,7 @@ class NewJobCubit extends Cubit<NewJobState> {
 
   Future<void> pickMedia() async {}
 
-  void clearPickedFile() =>
-      emit(state.copyWith(pickedFile: null, fileTooLarge: false));
+  void clearPickedFile() => emit(state.copyWith(pickedFile: null, fileTooLarge: false));
 
   /// Saves the job and queues it; the sheet then opens it. The job exists in
   /// storage before it runs, so a crash never loses it.

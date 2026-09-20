@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/di/dependency_injection.dart';
@@ -25,16 +27,16 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _handleNavigation() async {
-    await Future.delayed(const Duration(milliseconds: 1500));
+    await Future<void>.delayed(const Duration(milliseconds: 1500));
 
     if (!mounted) return;
 
     if (appPreferences.hasSeenOnboarding) {
-      context.pushNamedAndRemoveUntil(Routes.home);
+      unawaited(context.pushNamedAndRemoveUntil(Routes.home));
       return;
     }
 
-    context.pushNamedAndRemoveUntil(Routes.onboarding);
+    unawaited(context.pushNamedAndRemoveUntil(Routes.onboarding));
   }
 
   @override
@@ -55,8 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                   Positioned(
                     top: 220.h,
-                    child: Text(context.l10n.appTitle,
-                        style: context.typography.display),
+                    child: Text(context.l10n.appTitle, style: context.typography.display),
                   ),
                   Positioned(
                     bottom: 40,

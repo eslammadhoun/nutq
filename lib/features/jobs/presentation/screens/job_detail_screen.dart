@@ -131,7 +131,11 @@ class _NoticesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<JobDetailCubit, JobDetailState, ({JobFailureKind? failure, bool needsReview})>(
+    return BlocSelector<
+      JobDetailCubit,
+      JobDetailState,
+      ({JobFailureKind? failure, bool needsReview})
+    >(
       selector: (state) {
         final job = state.job!;
         return (

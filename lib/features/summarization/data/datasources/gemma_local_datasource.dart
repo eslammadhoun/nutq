@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:nutq/features/summarization/data/datasources/llm_runtime.dart';
-import 'package:nutq/features/summarization/data/datasources/gemma_generation_config.dart';
 import 'package:nutq/core/domain/cancellation.dart';
+import 'package:nutq/features/summarization/data/datasources/gemma_generation_config.dart';
+import 'package:nutq/features/summarization/data/datasources/llm_runtime.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
 
 class GemmaResponse {
