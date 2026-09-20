@@ -33,6 +33,9 @@ sealed class ApiError with _$ApiError {
   /// Not enough available memory to run local inference.
   const factory ApiError.insufficientMemory() = InsufficientMemoryError;
 
+  /// Reading or writing the on-device database failed.
+  const factory ApiError.storage() = StorageError;
+
   /// The user cancelled an in-progress local processing operation.
   const factory ApiError.processingCancelled() = ProcessingCancelledError;
 

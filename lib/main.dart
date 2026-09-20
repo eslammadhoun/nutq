@@ -10,13 +10,25 @@ import 'package:nutq/core/locale/locale_cubit.dart';
 import 'package:nutq/core/routing/app_router.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/theme/app_theme.dart';
+import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterGemma.initialize(inferenceEngines: const [LiteRtLmEngine()]);
   await setupDI();
+  await _recoverInterruptedJobs();
   runApp(const NutqApp());
+}
+
+/// A job left `pending`/`running` by an earlier app kill will never finish;
+/// mark it failed so the list is honest. Never blocks startup.
+Future<void> _recoverInterruptedJobs() async {
+  try {
+    await sl<JobsRepository>().recoverInterruptedJobs();
+  } catch (error) {
+    debugPrint('Could not recover interrupted jobs: $error');
+  }
 }
 
 class NutqApp extends StatelessWidget {

@@ -52,5 +52,7 @@ abstract class NewJobState with _$NewJobState {
   bool get isSourceSupported => sourceType == NewJobSourceType.text;
 
   bool get canSubmit =>
-      isSourceSupported && text.trim().isNotEmpty && text.length <= maxTextLength;
+      isSourceSupported &&
+      text.trim().isNotEmpty &&
+      text.length <= maxTextLength;
 }

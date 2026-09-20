@@ -362,9 +362,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get jobDetailCancelling => 'جارٍ الإلغاء...';
 
   @override
-  String get jobDetailReconnecting => 'جارٍ إعادة الاتصال...';
-
-  @override
   String get jobDetailJustNow => 'الآن';
 
   @override
@@ -440,4 +437,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get jobDetailSummaryComplete => 'اكتمل التلخيص';
+
+  @override
+  String get errorStorage =>
+      'تعذّر الوصول إلى المهام المحفوظة على هذا الجهاز. يُرجى المحاولة مرة أخرى.';
+
+  @override
+  String get jobDetailNotFound => 'لم تعد هذه المهمة موجودة.';
+
+  @override
+  String get summarizeErrorInterrupted =>
+      'توقفت هذه المهمة لأن التطبيق أُغلق قبل أن تنتهي.';
 }

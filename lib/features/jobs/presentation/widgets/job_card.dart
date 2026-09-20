@@ -13,11 +13,7 @@ class JobCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final l10n = context.l10n;
-    final source = sourceTypeVisual(
-      context,
-      job.sourceType,
-      isVideoUpload: job.isVideoUpload == true,
-    );
+    final source = sourceTypeVisual(context, job.sourceType);
     final status = jobStatusVisual(context, job.status);
 
     return RepaintBoundary(

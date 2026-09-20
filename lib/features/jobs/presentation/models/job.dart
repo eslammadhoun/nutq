@@ -1,8 +1,12 @@
+import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
+import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
+
+/// How the UI groups a job's lifecycle (filter chips, status badges).
 enum JobStatus { done, processing, queued, failed, cancelled }
 
-enum JobSourceType { upload, youtube, url, text }
-
-/// UI-facing view of a job.
+/// UI-facing view of a [JobEntity].
 ///
 /// Deliberately free of display strings (dates, language names, titles):
 /// those are locale-dependent, and this model is built inside the cubit
@@ -10,63 +14,48 @@ enum JobSourceType { upload, youtube, url, text }
 class Job {
   const Job({
     required this.id,
-    required this.subtitle,
     required this.sourceType,
     required this.status,
     required this.createdAt,
     required this.languageCode,
     this.preview,
-    this.contentType,
+    this.failureKind,
   });
 
-  final String id;
+  factory Job.fromEntity(JobEntity entity) => Job(
+    id: entity.id,
+    sourceType: entity.sourceType,
+    status: statusFromRun(entity.status),
+    createdAt: entity.createdAt,
+    languageCode: entity.language.code,
+    preview: entity.preview,
+    failureKind: entity.failureKind,
+  );
 
-  /// Server-provided error detail (failed jobs only), otherwise null.
-  final String? subtitle;
+  final String id;
   final JobSourceType sourceType;
   final JobStatus status;
   final DateTime createdAt;
   final String languageCode;
   final String? preview;
 
-  /// MIME type of the uploaded file (e.g. 'audio/mpeg', 'video/mp4').
-  /// Only set when [sourceType] is [JobSourceType.upload]; null otherwise,
-  /// including for upload jobs created before the server started
-  /// persisting this field.
-  final String? contentType;
+  /// Why the job failed; only set for failed jobs. Localized by the UI.
+  final SummarizationFailureKind? failureKind;
 
-  /// Whether this upload job's file is a video, based on [contentType].
-  /// Null (unknown) when contentType wasn't reported by the server.
-  bool? get isVideoUpload {
-    if (sourceType != JobSourceType.upload || contentType == null) {
-      return null;
-    }
-    return contentType!.startsWith('video/');
-  }
+  static JobStatus statusFromRun(JobRunStatus status) => switch (status) {
+    JobRunStatus.completed => JobStatus.done,
+    JobRunStatus.running => JobStatus.processing,
+    JobRunStatus.pending => JobStatus.queued,
+    JobRunStatus.failed => JobStatus.failed,
+    JobRunStatus.cancelled => JobStatus.cancelled,
+  };
 
-  /// Shared with the Job Detail screen, which maps the same raw backend
-  /// status string on a [JobDetailEntity] rather than a [JobEntity].
-  static JobStatus statusFromRaw(String raw) {
-    switch (raw) {
-      case 'completed':
-        return JobStatus.done;
-      case 'failed':
-        return JobStatus.failed;
-      case 'cancelled':
-        return JobStatus.cancelled;
-      case 'pending':
-        return JobStatus.queued;
-      default:
-        // uploaded / extracting / transcribing / restoring / chunking /
-        // summarizing / clipping — all in-flight processing stages.
-        return JobStatus.processing;
-    }
-  }
-
-  static JobSourceType sourceTypeFromRaw(String raw) {
-    return JobSourceType.values.firstWhere(
-      (type) => type.name == raw,
-      orElse: () => JobSourceType.text,
-    );
-  }
+  /// The stored states a UI filter chip stands for.
+  static Set<JobRunStatus> runStatusesFor(JobStatus status) => switch (status) {
+    JobStatus.done => {JobRunStatus.completed},
+    JobStatus.processing => {JobRunStatus.running},
+    JobStatus.queued => {JobRunStatus.pending},
+    JobStatus.failed => {JobRunStatus.failed},
+    JobStatus.cancelled => {JobRunStatus.cancelled},
+  };
 }

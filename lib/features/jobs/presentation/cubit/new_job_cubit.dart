@@ -1,10 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nutq/core/network/error/api_error.dart';
+import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
+import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
+import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
 
-/// UI-state holder for the New Job sheet: form fields only. Picking media and
-/// submitting are no-ops until a data source is attached.
+/// State of the New Job sheet: the form fields, and saving the job.
 class NewJobCubit extends Cubit<NewJobState> {
-  NewJobCubit() : super(const NewJobState());
+  NewJobCubit(this._repository) : super(const NewJobState());
+
+  final JobsRepository _repository;
 
   void changeSourceType(int index) {
     final newType = NewJobSourceType.values[index];
@@ -41,10 +46,34 @@ class NewJobCubit extends Cubit<NewJobState> {
   void clearPickedFile() =>
       emit(state.copyWith(pickedFile: null, fileTooLarge: false));
 
-  /// Marks the job as submitted; the sheet then hands [NewJobState.text] to
-  /// the on-device summarizer.
+  /// Saves the job as `pending`; the sheet then opens it. Processing starts
+  /// when Job Detail opens, so the job exists (and survives a crash) first.
   Future<void> submit() async {
-    if (!state.canSubmit || state.status == NewJobStatus.success) return;
-    emit(state.copyWith(status: NewJobStatus.success));
+    if (!state.canSubmit ||
+        state.status == NewJobStatus.submitting ||
+        state.status == NewJobStatus.success) {
+      return;
+    }
+    emit(state.copyWith(status: NewJobStatus.submitting, lastError: null));
+    try {
+      final job = await _repository.createJob(
+        NewJobDraft(
+          text: state.text,
+          language: SummaryLanguage.fromCode(state.language.wireValue),
+        ),
+      );
+      if (isClosed) return;
+      emit(
+        state.copyWith(status: NewJobStatus.success, submittedJobId: job.id),
+      );
+    } catch (_) {
+      if (isClosed) return;
+      emit(
+        state.copyWith(
+          status: NewJobStatus.failure,
+          lastError: const ApiError.storage(),
+        ),
+      );
+    }
   }
 }

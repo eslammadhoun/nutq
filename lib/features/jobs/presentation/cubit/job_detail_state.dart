@@ -1,12 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:nutq/core/network/error/api_error.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_progress.dart';
 
-enum JobConnectionStatus { idle, connecting, connected, reconnecting, failed }
-
-enum JobDetailStatus { loading, success, failure }
+enum JobDetailStatus { loading, success, notFound, failure }
 
 @immutable
 class JobDetailState {
@@ -15,108 +12,44 @@ class JobDetailState {
     this.job,
     this.lastError,
     this.isCancelling = false,
-    this.cancelError,
-    this.cancelErrorToken = 0,
-    this.transcriptText,
-    this.isLoadingTranscriptText = false,
-    this.connectionStatus = JobConnectionStatus.idle,
-    this.streamingTranscript,
-    this.streamingSummary,
-    this.summaryTakeaways,
     this.progress,
-    this.failureKind,
-    this.summaryNeedsReview = false,
+    this.streamingSummary,
   });
 
   final JobDetailStatus status;
+
+  /// The stored job — the durable truth, updated whenever the database changes.
   final JobDetailEntity? job;
 
-  /// Raw error from the last failed fetch — localized at display time via
-  /// `context.l10n.jobsErrorMessage(error)` (cubits have no BuildContext).
+  /// Raw error from a failed load — localized at display time.
   final ApiError? lastError;
 
   final bool isCancelling;
 
-  /// Raw error from the last failed cancel — a transient signal for a
-  /// one-off SnackBar, paired with [cancelErrorToken] (bumped on every
-  /// failure) so the UI's `listenWhen` still fires when the same error
-  /// repeats back to back.
-  final ApiError? cancelError;
-  final int cancelErrorToken;
-
-  /// Body fetched from `job.transcript.downloadUrl` — the detail endpoint
-  /// itself only carries transcript metadata, not the text. Fetched once
-  /// and cached here rather than re-requested on every poll tick. Prefer
-  /// [streamingTranscript] when it's non-null — live word-by-word text
-  /// from the WebSocket supersedes this once the socket is connected.
-  final String? transcriptText;
-  final bool isLoadingTranscriptText;
-
-  /// Live status of the `/jobs/{id}/ws` socket — drives the "Reconnecting…"
-  /// indicator and whether the polling fallback is engaged.
-  final JobConnectionStatus connectionStatus;
-
-  /// Transcript text streamed word-by-word over the socket. Non-null once
-  /// the first `transcript_word` event has arrived; takes precedence over
-  /// [transcriptText] in the UI.
-  final String? streamingTranscript;
-
-  /// Summary text streamed word-by-word over the socket. Non-null once the
-  /// first `summary_word` event has arrived; takes precedence over the
-  /// fetched `job.summary.summaryText` in the UI.
-  final String? streamingSummary;
-
-  /// Takeaways carried by the terminal `snapshot`/`done` job payload —
-  /// mirrors `job.summary.takeaways` but kept separately so it survives a
-  /// `metadata` update that doesn't touch `job`.
-  final List<Map<String, dynamic>>? summaryTakeaways;
-
-  /// Latest pipeline progress while the summary job runs; null before it
-  /// starts and after it ends.
+  /// Live pipeline progress while the job runs. In-memory only: never stored.
   final SummarizationProgress? progress;
 
-  /// Why the job failed — localized by the UI, never pre-formatted here.
-  final SummarizationFailureKind? failureKind;
-
-  /// True when the finished summary has details the heuristic checks could
-  /// not match to the transcript.
-  final bool summaryNeedsReview;
+  /// The summary as it is being generated, word by word. Cleared once the job
+  /// settles; the stored summary takes over.
+  final String? streamingSummary;
 
   JobDetailState copyWith({
     JobDetailStatus? status,
     JobDetailEntity? job,
     ApiError? lastError,
+    bool clearLastError = false,
     bool? isCancelling,
-    ApiError? cancelError,
-    int? cancelErrorToken,
-    String? transcriptText,
-    bool? isLoadingTranscriptText,
-    JobConnectionStatus? connectionStatus,
-    String? streamingTranscript,
-    String? streamingSummary,
-    bool clearStreamingSummary = false,
-    List<Map<String, dynamic>>? summaryTakeaways,
     SummarizationProgress? progress,
-    bool clearProgress = false,
-    SummarizationFailureKind? failureKind,
-    bool? summaryNeedsReview,
-  }) {
-    return JobDetailState(
-      status: status ?? this.status,
-      job: job ?? this.job,
-      lastError: lastError,
-      isCancelling: isCancelling ?? this.isCancelling,
-      cancelError: cancelError ?? this.cancelError,
-      cancelErrorToken: cancelErrorToken ?? this.cancelErrorToken,
-      transcriptText: transcriptText ?? this.transcriptText,
-      isLoadingTranscriptText: isLoadingTranscriptText ?? this.isLoadingTranscriptText,
-      connectionStatus: connectionStatus ?? this.connectionStatus,
-      streamingTranscript: streamingTranscript ?? this.streamingTranscript,
-      streamingSummary: clearStreamingSummary ? null : (streamingSummary ?? this.streamingSummary),
-      summaryTakeaways: summaryTakeaways ?? this.summaryTakeaways,
-      progress: clearProgress ? null : (progress ?? this.progress),
-      failureKind: failureKind ?? this.failureKind,
-      summaryNeedsReview: summaryNeedsReview ?? this.summaryNeedsReview,
-    );
-  }
+    String? streamingSummary,
+    bool clearLive = false,
+  }) => JobDetailState(
+    status: status ?? this.status,
+    job: job ?? this.job,
+    lastError: clearLastError ? null : (lastError ?? this.lastError),
+    isCancelling: isCancelling ?? this.isCancelling,
+    progress: clearLive ? null : (progress ?? this.progress),
+    streamingSummary: clearLive
+        ? null
+        : (streamingSummary ?? this.streamingSummary),
+  );
 }

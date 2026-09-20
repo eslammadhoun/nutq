@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/presentation/models/job.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
@@ -70,17 +71,18 @@ String formatDuration(double seconds) {
   final colors = context.appColors;
   final l10n = context.l10n;
   return switch (type) {
-    JobSourceType.upload => isVideoUpload
-        ? (
-            icon: Icons.slow_motion_video_outlined,
-            color: colors.primary,
-            label: l10n.sourceVideo,
-          )
-        : (
-            icon: Icons.graphic_eq_rounded,
-            color: colors.primary,
-            label: l10n.sourceAudioFile,
-          ),
+    JobSourceType.upload =>
+      isVideoUpload
+          ? (
+              icon: Icons.slow_motion_video_outlined,
+              color: colors.primary,
+              label: l10n.sourceVideo,
+            )
+          : (
+              icon: Icons.graphic_eq_rounded,
+              color: colors.primary,
+              label: l10n.sourceAudioFile,
+            ),
     JobSourceType.youtube => (
       icon: Icons.play_arrow_rounded,
       color: colors.statusFailed,

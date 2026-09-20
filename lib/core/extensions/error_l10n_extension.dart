@@ -15,6 +15,7 @@ extension ApiErrorL10n on AppLocalizations {
       message.isEmpty ? somethingWentWrong : message,
     ModelNotDownloadedError() => errorModelNotDownloaded,
     InsufficientStorageError() => errorInsufficientStorage,
+    StorageError() => errorStorage,
     InsufficientMemoryError() => errorInsufficientMemory,
     ProcessingCancelledError() => errorProcessingCancelled,
     AudioDecodeFailedError() => errorAudioDecodeFailed,

@@ -365,9 +365,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jobDetailCancelling => 'Cancelling…';
 
   @override
-  String get jobDetailReconnecting => 'Reconnecting…';
-
-  @override
   String get jobDetailJustNow => 'Just now';
 
   @override
@@ -444,4 +441,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get jobDetailSummaryComplete => 'Summary Complete';
+
+  @override
+  String get errorStorage =>
+      'Couldn\'t access saved jobs on this device. Please try again.';
+
+  @override
+  String get jobDetailNotFound => 'This job no longer exists.';
+
+  @override
+  String get summarizeErrorInterrupted =>
+      'This job was interrupted because the app was closed before it finished.';
 }

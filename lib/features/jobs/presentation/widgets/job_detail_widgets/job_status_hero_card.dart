@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/presentation/models/job.dart';
 import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
 import 'package:nutq/l10n/app_localizations.dart';
@@ -15,23 +16,16 @@ class JobStatusHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final l10n = context.l10n;
-    final status = Job.statusFromRaw(job.status);
-    final source = sourceTypeVisual(
-      context,
-      Job.sourceTypeFromRaw(job.sourceType),
-      isVideoUpload:
-          job.sourceType == 'upload' &&
-          (job.contentType?.startsWith('video/') ?? false),
-    );
+    final status = Job.statusFromRun(job.status);
+    final source = sourceTypeVisual(context, job.sourceType);
     final transcript = job.transcript;
 
     final metaParts = [
       source.label,
-      languageName(l10n, job.language),
+      languageName(l10n, job.language.code),
       if (transcript?.durationSeconds != null)
         formatDuration(transcript!.durationSeconds!),
-      if (transcript?.wordCount != null)
-        l10n.jobDetailWordCount(transcript!.wordCount!),
+      if (transcript != null) l10n.jobDetailWordCount(transcript.wordCount),
     ];
 
     return Container(
@@ -92,15 +86,6 @@ class JobStatusHeroCard extends StatelessWidget {
                     color: colors.textInverse.withValues(alpha: 0.7),
                   ),
                 ),
-                if (status == JobStatus.failed && job.errorDetail != null) ...[
-                  SizedBox(height: 8.h),
-                  Text(
-                    job.errorDetail!,
-                    style: context.typography.captionSmall.copyWith(
-                      color: colors.textInverse.withValues(alpha: 0.9),
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
@@ -112,10 +97,10 @@ class JobStatusHeroCard extends StatelessWidget {
   String _headline(
     AppLocalizations l10n,
     JobStatus status,
-    String sourceType,
+    JobSourceType sourceType,
   ) => switch (status) {
     JobStatus.done =>
-      sourceType == 'text'
+      sourceType == JobSourceType.text
           ? l10n.jobDetailSummaryComplete
           : l10n.jobDetailTranscriptionComplete,
     JobStatus.processing => l10n.statusProcessing,

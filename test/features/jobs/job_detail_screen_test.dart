@@ -7,28 +7,22 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/theme/app_colors.dart';
 import 'package:nutq/core/theme/app_theme.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/screens/job_detail_screen.dart';
+import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_action_bar.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_app_bar.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_progress_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_status_hero_card.dart';
-import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/summary_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/transcript_card.dart';
-import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
-import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
+import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
+import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
-import '../summarization/support/fake_gemma.dart';
-
-const _config = SummarizationConfig(targetTokens: 60, overlapTokens: 10, minTokens: 30, maxTokens: 90);
-final _text = List.generate(
-  6,
-  (i) => 'في الفقرة رقم $i نناقش موضوعا مهما. بلغ عدد المشاركين 250 شخصا في عام 2024.',
-).join('\n\n');
+import 'support/job_harness.dart';
 
 Future<void> _pump(WidgetTester tester, JobDetailCubit cubit, {Locale locale = const Locale('en')}) async {
   tester.view.physicalSize = const Size(390 * 3, 844 * 3);
@@ -54,47 +48,60 @@ Future<void> _pump(WidgetTester tester, JobDetailCubit cubit, {Locale locale = c
 }
 
 void main() {
-  late FakeGemma gemma;
+  late JobHarness h;
 
-  JobDetailCubit build(String text, {String language = 'ar'}) {
-    gemma = FakeGemma();
-    final repository = SummarizationRepositoryImpl(dataSource: gemma);
-    return JobDetailCubit(
-      summarize: SummarizeTranscript(repository: repository),
-      repository: repository,
-      transcript: text,
-      language: language,
-      config: _config,
-    );
+  setUp(() => h = JobHarness());
+  tearDown(() async {
+    // Let the cubit close (and its cancellation write) finish before the db closes.
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    await h.dispose();
+  });
+
+  /// Seeds a job in the database, then opens the screen on it (which starts a
+  /// pending job).
+  Future<JobDetailCubit> open(
+    WidgetTester tester,
+    String text, {
+    SummaryLanguage language = SummaryLanguage.ar,
+    Locale locale = const Locale('en'),
+    Future<void> Function(String id)? seed,
+  }) async {
+    final id = (await tester.runAsync(() => h.createJob(text, language: language)))!;
+    if (seed != null) await tester.runAsync(() => seed(id));
+    final cubit = h.detailCubit(id);
+    addTearDown(cubit.close);
+    await _pump(tester, cubit, locale: locale);
+    await tester.pump(const Duration(milliseconds: 50));
+    return cubit;
+  }
+
+  /// Pumps until the job reaches a final state.
+  Future<void> untilSettled(WidgetTester tester, JobDetailCubit cubit) async {
+    for (var i = 0; i < 200 && !(cubit.state.job?.status.isTerminal ?? false); i++) {
+      await tester.pump(const Duration(milliseconds: 20));
+    }
+    await tester.pump(const Duration(milliseconds: 400));
   }
 
   testWidgets('shows the live progress card while running, then the finished summary', (tester) async {
     final gate = Completer<void>();
-    final cubit = build(_text);
-    gemma.responder = (prompt, call) async {
-      if (call == 3) await gate.future; // hold mid-way through the chunks
+    h.gemma.responder = (prompt, call) async {
+      if (call == 3) await gate.future;
       return null;
     };
-    addTearDown(cubit.close);
-
-    await _pump(tester, cubit);
+    final cubit = await open(tester, sampleTranscript);
     await tester.pump(const Duration(milliseconds: 50));
 
-    // Running: progress card with a stage name and section count; cancel offered.
     expect(find.byType(JobProgressCard), findsOneWidget);
     expect(find.text('Processing'), findsWidgets);
     expect(find.textContaining('sections'), findsOneWidget);
     expect(find.text('Cancel Job'), findsOneWidget);
-    expect(find.text(_text.split('\n').first), findsNothing); // long text is collapsed/expandable, not raw-dumped
     expect(find.text("The summary isn't ready yet."), findsOneWidget);
-
     final barBefore = tester.widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator)).value!;
 
     gate.complete();
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.pump(const Duration(milliseconds: 400));
+    await untilSettled(tester, cubit);
 
-    // Finished: progress card gone, summary + takeaway shown, share/copy offered.
     expect(find.byType(JobProgressCard), findsNothing);
     expect(find.text('Summary Complete'), findsOneWidget);
     expect(find.text('الملخص النهائي للمحاضرة'), findsOneWidget);
@@ -104,44 +111,82 @@ void main() {
     expect(barBefore, lessThan(1.0));
   });
 
-  testWidgets('shows a localized failure notice, not raw error text', (tester) async {
-    final cubit = build('   ');
-    addTearDown(cubit.close);
-    await _pump(tester, cubit);
+  testWidgets('a reopened finished job shows its stored summary with no progress and no model run', (tester) async {
+    final first = await open(tester, sampleTranscript);
+    await untilSettled(tester, first);
+    final id = first.jobId;
+    final callsAfterFirst = h.gemma.calls;
+
+    final reopened = h.detailCubit(id);
+    addTearDown(reopened.close);
+    await _pump(tester, reopened);
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('There is no transcript text to summarize.'), findsOneWidget);
+    expect(find.byType(JobProgressCard), findsNothing);
+    expect(find.text('الملخص النهائي للمحاضرة'), findsOneWidget);
+    expect(find.text('Summary Complete'), findsOneWidget);
+    expect(h.gemma.calls, callsAfterFirst);
+  });
+
+  testWidgets('an interrupted job shows a localized notice, not raw error text', (tester) async {
+    final cubit = await open(
+      tester,
+      sampleTranscript,
+      seed: (id) async {
+        await h.repo.markRunning(id);
+        await h.repo.recoverInterruptedJobs();
+      },
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(cubit.state.job!.failureKind, SummarizationFailureKind.interrupted);
+    expect(find.text('This job was interrupted because the app was closed before it finished.'), findsOneWidget);
     expect(find.byType(JobProgressCard), findsNothing);
     expect(find.text('Failed'), findsWidgets);
+    expect(h.gemma.calls, 0);
   });
 
   testWidgets('renders the failure notice in Arabic (RTL)', (tester) async {
-    final cubit = build('   ');
-    addTearDown(cubit.close);
-    await _pump(tester, cubit, locale: const Locale('ar'));
+    await open(
+      tester,
+      sampleTranscript,
+      locale: const Locale('ar'),
+      seed: (id) async {
+        await h.repo.markRunning(id);
+        await h.repo.recoverInterruptedJobs();
+      },
+    );
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('لا يوجد نص لتلخيصه.'), findsOneWidget);
+    expect(find.text('توقفت هذه المهمة لأن التطبيق أُغلق قبل أن تنتهي.'), findsOneWidget);
     expect(Directionality.of(tester.element(find.byType(JobDetailScreen))), TextDirection.rtl);
+  });
+
+  testWidgets('a missing job shows a "no longer exists" message', (tester) async {
+    final cubit = h.detailCubit('nope');
+    addTearDown(cubit.close);
+    await _pump(tester, cubit);
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('This job no longer exists.'), findsOneWidget);
+    expect(find.byType(JobStatusHeroCard), findsNothing);
   });
 
   testWidgets('tapping Cancel Job ends in the cancelled state', (tester) async {
     final gate = Completer<void>();
-    final cubit = build(_text);
-    gemma.responder = (prompt, call) async {
+    h.gemma.responder = (prompt, call) async {
       if (call == 1) await gate.future;
       return null;
     };
-    addTearDown(cubit.close);
-    await _pump(tester, cubit);
+    final cubit = await open(tester, sampleTranscript);
     await tester.pump(const Duration(milliseconds: 50));
 
     await tester.tap(find.text('Cancel Job'));
     await tester.pump(const Duration(milliseconds: 20));
-    expect(gemma.cancelled, isTrue);
+    expect(h.gemma.cancelled, isTrue);
 
     gate.complete();
-    await tester.pump(const Duration(milliseconds: 100));
+    await untilSettled(tester, cubit);
+    expect(cubit.state.job!.status, JobRunStatus.cancelled);
     expect(find.byType(JobProgressCard), findsNothing);
     expect(find.text('Cancelled'), findsWidgets);
   });
@@ -149,21 +194,16 @@ void main() {
   testWidgets('summary text appears word by word, fully expanded, while the job runs', (tester) async {
     const longFinal =
         'الملخص النهائي يشرح الفكرة الرئيسية للمحاضرة ثم ينتقل إلى النقاط المهمة والأرقام والتواريخ ويختم بالخلاصة والتوصيات النهائية للمستمعين في نهاية اللقاء';
-    final cubit = build(_text);
-    gemma.wordDelay = const Duration(milliseconds: 30);
-    gemma.responder = (prompt, call) async {
-      if (prompt.contains('final summary of a full lecture')) return longFinal;
-      return null;
-    };
-    addTearDown(cubit.close);
-    await _pump(tester, cubit);
+    h.gemma.wordDelay = const Duration(milliseconds: 30);
+    h.gemma.responder = (prompt, call) async =>
+        prompt.contains('final summary of a full lecture') ? longFinal : null;
+    final cubit = await open(tester, sampleTranscript);
 
-    // Sample the on-screen summary as the stream progresses.
     final seen = <String>[];
-    for (var i = 0; i < 80; i++) {
+    for (var i = 0; i < 120; i++) {
       await tester.pump(const Duration(milliseconds: 20));
       final live = cubit.state.streamingSummary;
-      if (live != null && cubit.state.job!.status != 'completed' && (seen.isEmpty || seen.last != live)) {
+      if (live != null && !(cubit.state.job?.status.isTerminal ?? false) && (seen.isEmpty || seen.last != live)) {
         seen.add(live);
         expect(find.text(live), findsOneWidget, reason: 'partial text is on screen: "$live"');
         expect(
@@ -177,30 +217,21 @@ void main() {
 
     expect(seen, isNotEmpty);
     expect(find.text(longFinal), findsOneWidget);
-    expect(cubit.state.job!.status, 'completed');
-    // Once finished, the text the user watched arrive does not snap shut.
-    expect(
-      find.descendant(of: find.byType(SummaryCard), matching: find.text('Show more')),
-      findsNothing,
-    );
+    expect(cubit.state.job!.status, JobRunStatus.completed);
+    expect(find.descendant(of: find.byType(SummaryCard), matching: find.text('Show more')), findsNothing);
   });
 
   testWidgets('completed state matches the Figma Job Detail measurements and colors', (tester) async {
-    final cubit = build(_text);
-    addTearDown(cubit.close);
-    await _pump(tester, cubit);
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.pump(const Duration(milliseconds: 400));
-    expect(cubit.state.job!.status, 'completed');
+    final cubit = await open(tester, sampleTranscript);
+    await untilSettled(tester, cubit);
+    expect(cubit.state.job!.status, JobRunStatus.completed);
 
     final colors = AppTheme.light.extension<AppColors>()!;
 
-    // Hero: 358 wide (16px gutters), at least 132 tall.
     final hero = tester.getSize(find.byType(JobStatusHeroCard));
     expect(hero.width, 358);
     expect(hero.height, greaterThanOrEqualTo(132));
 
-    // Cards: white surface, 16px radius, no border, soft 5% shadow, 12px vertical padding.
     final cardBox = tester
         .widget<Container>(find.descendant(of: find.byType(JobDetailSectionCard).first, matching: find.byType(Container)).first)
         .decoration! as BoxDecoration;
@@ -211,13 +242,11 @@ void main() {
     expect(cardBox.boxShadow!.single.offset, const Offset(0, 2));
     expect(cardBox.boxShadow!.single.color.a, closeTo(0.05, 0.001));
 
-    // Page background is the light page tone; the top band and bottom bar are white surface.
     expect(tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor, colors.page);
     final appBar = tester.widget<Container>(find.descendant(of: find.byType(JobDetailAppBar), matching: find.byType(Container)).first);
     expect((appBar.decoration! as BoxDecoration).color, colors.surface);
     expect(tester.getSize(find.byType(JobDetailAppBar)).height, 56);
 
-    // Bottom bar: 72 tall; Share is the neutral button, Copy Text the brand blue.
     expect(tester.getSize(find.byType(JobDetailActionBar)).height, 72);
     final copy = tester.widget<Container>(find.ancestor(of: find.text('Copy Text'), matching: find.byType(Container)).first);
     expect((copy.decoration! as BoxDecoration).color, colors.navIndicator);
@@ -225,7 +254,6 @@ void main() {
     final share = tester.widget<Container>(find.ancestor(of: find.text('Share'), matching: find.byType(Container)).first);
     expect((share.decoration! as BoxDecoration).color, colors.borderDefault);
 
-    // Section headers: tag chips are 26 tall pills with the design's colors.
     final language = find.ancestor(of: find.text('Arabic'), matching: find.byType(Container)).first;
     expect(tester.getSize(language).height, 26);
     expect((tester.widget<Container>(language).decoration! as BoxDecoration).color, colors.statusProcessingBg);
@@ -234,29 +262,21 @@ void main() {
   });
 
   group('text direction follows the job language, not the app locale', () {
-    // Card content is inset 16px; takeaway chips add 12px of their own padding.
     const cardPad = 16.0;
     const chipPad = 12.0;
-    const headerTextInset = 28.0; // glyph (20) + gap (8)
-
-    Future<void> pumpDone(WidgetTester tester, JobDetailCubit cubit, Locale locale) async {
-      addTearDown(cubit.close);
-      await _pump(tester, cubit, locale: locale);
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump(const Duration(milliseconds: 400));
-      expect(cubit.state.job!.status, 'completed');
-    }
+    const headerTextInset = 28.0;
 
     testWidgets('Arabic job in an English app: transcript, summary and takeaways start from the right', (tester) async {
       const transcript = 'نص قصير.';
       const summary = 'ملخص قصير.';
-      final cubit = build(transcript, language: 'ar');
-      gemma.responder = (prompt, call) async {
+      h.gemma.responder = (prompt, call) async {
         if (prompt.contains('information extraction assistant')) return 'MAIN:\nنقطة رئيسية';
         if (prompt.contains('final summary of a full lecture')) return summary;
         return null;
       };
-      await pumpDone(tester, cubit, const Locale('en'));
+      final cubit = await open(tester, transcript);
+      await untilSettled(tester, cubit);
+      expect(cubit.state.job!.status, JobRunStatus.completed);
 
       final transcriptCard = find.byType(TranscriptCard);
       final summaryCard = find.byType(SummaryCard);
@@ -268,7 +288,6 @@ void main() {
       expect(tester.getTopRight(find.text('نقطة رئيسية')).dx, closeTo(sRight - chipPad, 1));
       expect(tester.getTopRight(find.text('KEY TAKEAWAYS')).dx, closeTo(sRight, 1));
 
-      // Card headers are UI chrome: they keep the app's (English, left-to-right) direction.
       expect(tester.getTopLeft(find.text('AI Summary')).dx, closeTo(tester.getTopLeft(summaryCard).dx + cardPad + headerTextInset, 1));
       expect(tester.getTopLeft(find.text('Transcript')).dx, closeTo(tester.getTopLeft(transcriptCard).dx + cardPad + headerTextInset, 1));
     });
@@ -276,13 +295,14 @@ void main() {
     testWidgets('English job in an Arabic app: transcript, summary and takeaways start from the left', (tester) async {
       const transcript = 'Short text.';
       const summary = 'Short summary.';
-      final cubit = build(transcript, language: 'en');
-      gemma.responder = (prompt, call) async {
+      h.gemma.responder = (prompt, call) async {
         if (prompt.contains('information extraction assistant')) return 'MAIN:\nKey point';
         if (prompt.contains('final summary of a full lecture')) return summary;
         return null;
       };
-      await pumpDone(tester, cubit, const Locale('ar'));
+      final cubit = await open(tester, transcript, language: SummaryLanguage.en, locale: const Locale('ar'));
+      await untilSettled(tester, cubit);
+      expect(cubit.state.job!.status, JobRunStatus.completed);
 
       final transcriptCard = find.byType(TranscriptCard);
       final summaryCard = find.byType(SummaryCard);
@@ -294,7 +314,6 @@ void main() {
       expect(tester.getTopLeft(find.text('Key point')).dx, closeTo(sLeft + chipPad, 1));
       expect(tester.getTopLeft(find.text('أبرز النقاط')).dx, closeTo(sLeft, 1));
 
-      // Headers keep the app's (Arabic, right-to-left) direction.
       final summaryHeaderRight = tester.getTopRight(summaryCard).dx - cardPad - headerTextInset;
       expect(tester.getTopRight(find.text('ملخص الذكاء الاصطناعي')).dx, closeTo(summaryHeaderRight, 1));
     });

@@ -36,6 +36,7 @@ flutter test
 ```
 lib/
   core/
+    database/       # AppDatabase (Drift/SQLite) — tables & DAOs live in each feature's data/local; see docs/LOCAL_STORAGE.md
     di/             # dependency_injection.dart — GetIt setup (sl)
     extensions/     # theme_extension (context.appColors/.typography/.l10n), error_l10n_extension
     locale/         # LocaleCubit — persisted language choice (ar/en)

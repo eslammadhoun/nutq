@@ -17,9 +17,8 @@ import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/submit_j
 class NewJobSheet extends StatelessWidget {
   const NewJobSheet({super.key, this.onSubmitted});
 
-  /// Called with the transcript text and language code after a successful
-  /// submit.
-  final void Function(String text, String languageCode)? onSubmitted;
+  /// Called with the new job's id after it was saved.
+  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +31,7 @@ class NewJobSheet extends StatelessWidget {
         listener: (context, state) {
           switch (state.status) {
             case NewJobStatus.success:
-              onSubmitted?.call(state.text.trim(), state.language.wireValue);
+              onSubmitted?.call(state.submittedJobId!);
             case NewJobStatus.failure when state.lastError != null:
               ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()

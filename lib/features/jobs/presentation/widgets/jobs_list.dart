@@ -59,24 +59,28 @@ class _JobsListState extends State<JobsList> {
       },
       child: BlocBuilder<JobsCubit, JobsState>(
         builder: (context, state) {
-          if (state.status == JobsStatus.loading && state.allJobs.isEmpty) {
+          if (state.status == JobsStatus.loading && state.jobs.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state.status == JobsStatus.failure && state.allJobs.isEmpty) {
+          if (state.status == JobsStatus.failure && state.jobs.isEmpty) {
             return LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
                   padding: EdgeInsets.symmetric(horizontal: 32.w),
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
                     child: Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             state.lastError != null
-                                ? context.l10n.jobsErrorMessage(state.lastError!)
+                                ? context.l10n.jobsErrorMessage(
+                                    state.lastError!,
+                                  )
                                 : context.l10n.somethingWentWrong,
                             textAlign: TextAlign.center,
                             style: context.typography.bodySmall.copyWith(
@@ -98,7 +102,7 @@ class _JobsListState extends State<JobsList> {
             );
           }
 
-          final jobs = state.filteredJobs;
+          final jobs = state.jobs;
 
           if (jobs.isEmpty) {
             return RefreshIndicator(

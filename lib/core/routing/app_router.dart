@@ -5,7 +5,6 @@ import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/features/home/presentation/screens/home_screen.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
-import 'package:nutq/features/jobs/presentation/models/job_detail_args.dart';
 import 'package:nutq/features/jobs/presentation/screens/job_detail_screen.dart';
 import 'package:nutq/features/onBoarding/presentation/screens/on_boarding_screen.dart';
 import 'package:nutq/features/onBoarding/presentation/screens/splash_screen.dart';
@@ -27,11 +26,11 @@ class AppRouter {
         return _buildRoute(settings, HomeScreen());
 
       case Routes.jobDetail:
-        final args = settings.arguments as JobDetailArgs;
+        final jobId = settings.arguments as String;
         return _buildRoute(
           settings,
           BlocProvider<JobDetailCubit>(
-            create: (_) => sl<JobDetailCubit>(param1: args),
+            create: (_) => sl<JobDetailCubit>(param1: jobId),
             child: const JobDetailScreen(),
           ),
         );

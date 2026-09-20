@@ -746,12 +746,6 @@ abstract class AppLocalizations {
   /// **'Cancelling…'**
   String get jobDetailCancelling;
 
-  /// No description provided for @jobDetailReconnecting.
-  ///
-  /// In en, this message translates to:
-  /// **'Reconnecting…'**
-  String get jobDetailReconnecting;
-
   /// No description provided for @jobDetailJustNow.
   ///
   /// In en, this message translates to:
@@ -883,6 +877,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Summary Complete'**
   String get jobDetailSummaryComplete;
+
+  /// No description provided for @errorStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t access saved jobs on this device. Please try again.'**
+  String get errorStorage;
+
+  /// No description provided for @jobDetailNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This job no longer exists.'**
+  String get jobDetailNotFound;
+
+  /// No description provided for @summarizeErrorInterrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'This job was interrupted because the app was closed before it finished.'**
+  String get summarizeErrorInterrupted;
 }
 
 class _AppLocalizationsDelegate

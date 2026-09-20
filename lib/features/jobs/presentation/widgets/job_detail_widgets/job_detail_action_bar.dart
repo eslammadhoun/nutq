@@ -21,12 +21,11 @@ class JobDetailActionBar extends StatelessWidget {
         final job = state.job;
         if (job == null) return const SizedBox.shrink();
 
-        final status = Job.statusFromRaw(job.status);
+        final status = Job.statusFromRun(job.status);
         final canCancel =
             status == JobStatus.queued || status == JobStatus.processing;
-        // The WS path never populates `job.summary` (it arrives as a
-        // sibling of `job` in the frame, folded into `streamingSummary`
-        // instead) — prefer that, falling back to the REST-fetched entity.
+        // While the summary streams in, share/copy what has arrived; once the
+        // job settles the stored summary is the same text.
         final summaryText = state.streamingSummary?.isNotEmpty ?? false
             ? state.streamingSummary
             : job.summary?.summaryText;

@@ -55,7 +55,7 @@ extension ApiErrorPatterns on ApiError {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NetworkError value)?  network,TResult Function( ServerUnreachableError value)?  serverUnreachable,TResult Function( TimeoutError value)?  timeout,TResult Function( ValidationError value)?  validation,TResult Function( ServerError value)?  server,TResult Function( UnknownError value)?  unknown,TResult Function( ModelNotDownloadedError value)?  modelNotDownloaded,TResult Function( InsufficientStorageError value)?  insufficientStorage,TResult Function( InsufficientMemoryError value)?  insufficientMemory,TResult Function( ProcessingCancelledError value)?  processingCancelled,TResult Function( AudioDecodeFailedError value)?  audioDecodeFailed,TResult Function( NativeEngineFailureError value)?  nativeEngineFailure,TResult Function( DeviceOfflineError value)?  deviceOffline,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NetworkError value)?  network,TResult Function( ServerUnreachableError value)?  serverUnreachable,TResult Function( TimeoutError value)?  timeout,TResult Function( ValidationError value)?  validation,TResult Function( ServerError value)?  server,TResult Function( UnknownError value)?  unknown,TResult Function( ModelNotDownloadedError value)?  modelNotDownloaded,TResult Function( InsufficientStorageError value)?  insufficientStorage,TResult Function( InsufficientMemoryError value)?  insufficientMemory,TResult Function( StorageError value)?  storage,TResult Function( ProcessingCancelledError value)?  processingCancelled,TResult Function( AudioDecodeFailedError value)?  audioDecodeFailed,TResult Function( NativeEngineFailureError value)?  nativeEngineFailure,TResult Function( DeviceOfflineError value)?  deviceOffline,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case NetworkError() when network != null:
@@ -67,7 +67,8 @@ return server(_that);case UnknownError() when unknown != null:
 return unknown(_that);case ModelNotDownloadedError() when modelNotDownloaded != null:
 return modelNotDownloaded(_that);case InsufficientStorageError() when insufficientStorage != null:
 return insufficientStorage(_that);case InsufficientMemoryError() when insufficientMemory != null:
-return insufficientMemory(_that);case ProcessingCancelledError() when processingCancelled != null:
+return insufficientMemory(_that);case StorageError() when storage != null:
+return storage(_that);case ProcessingCancelledError() when processingCancelled != null:
 return processingCancelled(_that);case AudioDecodeFailedError() when audioDecodeFailed != null:
 return audioDecodeFailed(_that);case NativeEngineFailureError() when nativeEngineFailure != null:
 return nativeEngineFailure(_that);case DeviceOfflineError() when deviceOffline != null:
@@ -89,7 +90,7 @@ return deviceOffline(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NetworkError value)  network,required TResult Function( ServerUnreachableError value)  serverUnreachable,required TResult Function( TimeoutError value)  timeout,required TResult Function( ValidationError value)  validation,required TResult Function( ServerError value)  server,required TResult Function( UnknownError value)  unknown,required TResult Function( ModelNotDownloadedError value)  modelNotDownloaded,required TResult Function( InsufficientStorageError value)  insufficientStorage,required TResult Function( InsufficientMemoryError value)  insufficientMemory,required TResult Function( ProcessingCancelledError value)  processingCancelled,required TResult Function( AudioDecodeFailedError value)  audioDecodeFailed,required TResult Function( NativeEngineFailureError value)  nativeEngineFailure,required TResult Function( DeviceOfflineError value)  deviceOffline,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NetworkError value)  network,required TResult Function( ServerUnreachableError value)  serverUnreachable,required TResult Function( TimeoutError value)  timeout,required TResult Function( ValidationError value)  validation,required TResult Function( ServerError value)  server,required TResult Function( UnknownError value)  unknown,required TResult Function( ModelNotDownloadedError value)  modelNotDownloaded,required TResult Function( InsufficientStorageError value)  insufficientStorage,required TResult Function( InsufficientMemoryError value)  insufficientMemory,required TResult Function( StorageError value)  storage,required TResult Function( ProcessingCancelledError value)  processingCancelled,required TResult Function( AudioDecodeFailedError value)  audioDecodeFailed,required TResult Function( NativeEngineFailureError value)  nativeEngineFailure,required TResult Function( DeviceOfflineError value)  deviceOffline,}){
 final _that = this;
 switch (_that) {
 case NetworkError():
@@ -101,7 +102,8 @@ return server(_that);case UnknownError():
 return unknown(_that);case ModelNotDownloadedError():
 return modelNotDownloaded(_that);case InsufficientStorageError():
 return insufficientStorage(_that);case InsufficientMemoryError():
-return insufficientMemory(_that);case ProcessingCancelledError():
+return insufficientMemory(_that);case StorageError():
+return storage(_that);case ProcessingCancelledError():
 return processingCancelled(_that);case AudioDecodeFailedError():
 return audioDecodeFailed(_that);case NativeEngineFailureError():
 return nativeEngineFailure(_that);case DeviceOfflineError():
@@ -119,7 +121,7 @@ return deviceOffline(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NetworkError value)?  network,TResult? Function( ServerUnreachableError value)?  serverUnreachable,TResult? Function( TimeoutError value)?  timeout,TResult? Function( ValidationError value)?  validation,TResult? Function( ServerError value)?  server,TResult? Function( UnknownError value)?  unknown,TResult? Function( ModelNotDownloadedError value)?  modelNotDownloaded,TResult? Function( InsufficientStorageError value)?  insufficientStorage,TResult? Function( InsufficientMemoryError value)?  insufficientMemory,TResult? Function( ProcessingCancelledError value)?  processingCancelled,TResult? Function( AudioDecodeFailedError value)?  audioDecodeFailed,TResult? Function( NativeEngineFailureError value)?  nativeEngineFailure,TResult? Function( DeviceOfflineError value)?  deviceOffline,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NetworkError value)?  network,TResult? Function( ServerUnreachableError value)?  serverUnreachable,TResult? Function( TimeoutError value)?  timeout,TResult? Function( ValidationError value)?  validation,TResult? Function( ServerError value)?  server,TResult? Function( UnknownError value)?  unknown,TResult? Function( ModelNotDownloadedError value)?  modelNotDownloaded,TResult? Function( InsufficientStorageError value)?  insufficientStorage,TResult? Function( InsufficientMemoryError value)?  insufficientMemory,TResult? Function( StorageError value)?  storage,TResult? Function( ProcessingCancelledError value)?  processingCancelled,TResult? Function( AudioDecodeFailedError value)?  audioDecodeFailed,TResult? Function( NativeEngineFailureError value)?  nativeEngineFailure,TResult? Function( DeviceOfflineError value)?  deviceOffline,}){
 final _that = this;
 switch (_that) {
 case NetworkError() when network != null:
@@ -131,7 +133,8 @@ return server(_that);case UnknownError() when unknown != null:
 return unknown(_that);case ModelNotDownloadedError() when modelNotDownloaded != null:
 return modelNotDownloaded(_that);case InsufficientStorageError() when insufficientStorage != null:
 return insufficientStorage(_that);case InsufficientMemoryError() when insufficientMemory != null:
-return insufficientMemory(_that);case ProcessingCancelledError() when processingCancelled != null:
+return insufficientMemory(_that);case StorageError() when storage != null:
+return storage(_that);case ProcessingCancelledError() when processingCancelled != null:
 return processingCancelled(_that);case AudioDecodeFailedError() when audioDecodeFailed != null:
 return audioDecodeFailed(_that);case NativeEngineFailureError() when nativeEngineFailure != null:
 return nativeEngineFailure(_that);case DeviceOfflineError() when deviceOffline != null:
@@ -152,7 +155,7 @@ return deviceOffline(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  network,TResult Function()?  serverUnreachable,TResult Function()?  timeout,TResult Function( Map<String, String> fieldErrors)?  validation,TResult Function( String message,  int? statusCode)?  server,TResult Function( String message)?  unknown,TResult Function( String modelId)?  modelNotDownloaded,TResult Function()?  insufficientStorage,TResult Function()?  insufficientMemory,TResult Function()?  processingCancelled,TResult Function( String detail)?  audioDecodeFailed,TResult Function( String detail)?  nativeEngineFailure,TResult Function()?  deviceOffline,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  network,TResult Function()?  serverUnreachable,TResult Function()?  timeout,TResult Function( Map<String, String> fieldErrors)?  validation,TResult Function( String message,  int? statusCode)?  server,TResult Function( String message)?  unknown,TResult Function( String modelId)?  modelNotDownloaded,TResult Function()?  insufficientStorage,TResult Function()?  insufficientMemory,TResult Function()?  storage,TResult Function()?  processingCancelled,TResult Function( String detail)?  audioDecodeFailed,TResult Function( String detail)?  nativeEngineFailure,TResult Function()?  deviceOffline,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case NetworkError() when network != null:
 return network();case ServerUnreachableError() when serverUnreachable != null:
@@ -163,7 +166,8 @@ return server(_that.message,_that.statusCode);case UnknownError() when unknown !
 return unknown(_that.message);case ModelNotDownloadedError() when modelNotDownloaded != null:
 return modelNotDownloaded(_that.modelId);case InsufficientStorageError() when insufficientStorage != null:
 return insufficientStorage();case InsufficientMemoryError() when insufficientMemory != null:
-return insufficientMemory();case ProcessingCancelledError() when processingCancelled != null:
+return insufficientMemory();case StorageError() when storage != null:
+return storage();case ProcessingCancelledError() when processingCancelled != null:
 return processingCancelled();case AudioDecodeFailedError() when audioDecodeFailed != null:
 return audioDecodeFailed(_that.detail);case NativeEngineFailureError() when nativeEngineFailure != null:
 return nativeEngineFailure(_that.detail);case DeviceOfflineError() when deviceOffline != null:
@@ -185,7 +189,7 @@ return deviceOffline();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  network,required TResult Function()  serverUnreachable,required TResult Function()  timeout,required TResult Function( Map<String, String> fieldErrors)  validation,required TResult Function( String message,  int? statusCode)  server,required TResult Function( String message)  unknown,required TResult Function( String modelId)  modelNotDownloaded,required TResult Function()  insufficientStorage,required TResult Function()  insufficientMemory,required TResult Function()  processingCancelled,required TResult Function( String detail)  audioDecodeFailed,required TResult Function( String detail)  nativeEngineFailure,required TResult Function()  deviceOffline,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  network,required TResult Function()  serverUnreachable,required TResult Function()  timeout,required TResult Function( Map<String, String> fieldErrors)  validation,required TResult Function( String message,  int? statusCode)  server,required TResult Function( String message)  unknown,required TResult Function( String modelId)  modelNotDownloaded,required TResult Function()  insufficientStorage,required TResult Function()  insufficientMemory,required TResult Function()  storage,required TResult Function()  processingCancelled,required TResult Function( String detail)  audioDecodeFailed,required TResult Function( String detail)  nativeEngineFailure,required TResult Function()  deviceOffline,}) {final _that = this;
 switch (_that) {
 case NetworkError():
 return network();case ServerUnreachableError():
@@ -196,7 +200,8 @@ return server(_that.message,_that.statusCode);case UnknownError():
 return unknown(_that.message);case ModelNotDownloadedError():
 return modelNotDownloaded(_that.modelId);case InsufficientStorageError():
 return insufficientStorage();case InsufficientMemoryError():
-return insufficientMemory();case ProcessingCancelledError():
+return insufficientMemory();case StorageError():
+return storage();case ProcessingCancelledError():
 return processingCancelled();case AudioDecodeFailedError():
 return audioDecodeFailed(_that.detail);case NativeEngineFailureError():
 return nativeEngineFailure(_that.detail);case DeviceOfflineError():
@@ -214,7 +219,7 @@ return deviceOffline();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  network,TResult? Function()?  serverUnreachable,TResult? Function()?  timeout,TResult? Function( Map<String, String> fieldErrors)?  validation,TResult? Function( String message,  int? statusCode)?  server,TResult? Function( String message)?  unknown,TResult? Function( String modelId)?  modelNotDownloaded,TResult? Function()?  insufficientStorage,TResult? Function()?  insufficientMemory,TResult? Function()?  processingCancelled,TResult? Function( String detail)?  audioDecodeFailed,TResult? Function( String detail)?  nativeEngineFailure,TResult? Function()?  deviceOffline,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  network,TResult? Function()?  serverUnreachable,TResult? Function()?  timeout,TResult? Function( Map<String, String> fieldErrors)?  validation,TResult? Function( String message,  int? statusCode)?  server,TResult? Function( String message)?  unknown,TResult? Function( String modelId)?  modelNotDownloaded,TResult? Function()?  insufficientStorage,TResult? Function()?  insufficientMemory,TResult? Function()?  storage,TResult? Function()?  processingCancelled,TResult? Function( String detail)?  audioDecodeFailed,TResult? Function( String detail)?  nativeEngineFailure,TResult? Function()?  deviceOffline,}) {final _that = this;
 switch (_that) {
 case NetworkError() when network != null:
 return network();case ServerUnreachableError() when serverUnreachable != null:
@@ -225,7 +230,8 @@ return server(_that.message,_that.statusCode);case UnknownError() when unknown !
 return unknown(_that.message);case ModelNotDownloadedError() when modelNotDownloaded != null:
 return modelNotDownloaded(_that.modelId);case InsufficientStorageError() when insufficientStorage != null:
 return insufficientStorage();case InsufficientMemoryError() when insufficientMemory != null:
-return insufficientMemory();case ProcessingCancelledError() when processingCancelled != null:
+return insufficientMemory();case StorageError() when storage != null:
+return storage();case ProcessingCancelledError() when processingCancelled != null:
 return processingCancelled();case AudioDecodeFailedError() when audioDecodeFailed != null:
 return audioDecodeFailed(_that.detail);case NativeEngineFailureError() when nativeEngineFailure != null:
 return nativeEngineFailure(_that.detail);case DeviceOfflineError() when deviceOffline != null:
@@ -661,6 +667,38 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
   return 'ApiError.insufficientMemory()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class StorageError implements ApiError {
+  const StorageError();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StorageError);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ApiError.storage()';
 }
 
 

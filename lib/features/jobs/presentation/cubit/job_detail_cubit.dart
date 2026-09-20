@@ -1,122 +1,116 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nutq/core/network/error/api_error.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
-import 'package:nutq/features/jobs/domain/entities/summary.dart';
-import 'package:nutq/features/jobs/domain/entities/transcript.dart';
+import 'package:nutq/features/jobs/domain/entities/job_exceptions.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
+import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
+import 'package:nutq/features/jobs/domain/usecases/run_summary_job.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_state.dart';
-import 'package:nutq/features/summarization/data/prompts/prompt_version.dart';
-import 'package:nutq/features/summarization/domain/entities/cancellation_token.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
-import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
-import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
-import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
 
-/// Runs one on-device summary job for [transcript] and mirrors it as a
-/// `JobDetailEntity` for the Job Detail screen, updating on every event of the
-/// pipeline's progress stream.
+/// One job's detail screen.
 ///
-/// The summary text streams into `streamingSummary` word by word (throttled
-/// to [_partialInterval] so the screen isn't rebuilt on every token).
+/// The stored job (from [JobsRepository.watchJob]) is the source of truth for
+/// everything durable: status, transcript, summary, failure. On top of it the
+/// cubit layers in-memory live state — pipeline progress and the summary as it
+/// streams in — which exists only while a run is active.
 ///
-/// Raw status strings follow the backend vocabulary the screen already maps
-/// (`pending`, `summarizing`, `completed`, `failed`, `cancelled`).
+/// Opening a `pending` job starts it. Leaving the screen while it runs cancels
+/// it; the cancellation is recorded, so the job never stays "running".
 class JobDetailCubit extends Cubit<JobDetailState> {
   JobDetailCubit({
-    required this._summarize,
     required this._repository,
-    required this.transcript,
-    this.language = 'ar',
-    this.config = const SummarizationConfig(),
+    required this._runJob,
+    required this.jobId,
   }) : super(const JobDetailState()) {
-    _start();
+    _watch();
   }
 
-  final SummarizeTranscript _summarize;
-  final SummarizationRepository _repository;
-  final String transcript;
-  final String language;
-  final SummarizationConfig config;
+  final JobsRepository _repository;
+  final RunSummaryJob _runJob;
+  final String jobId;
 
-  final CancellationToken _token = CancellationToken();
-  final DateTime _createdAt = DateTime.now().toUtc();
-  late final String _jobId = 'local-${_createdAt.millisecondsSinceEpoch}';
-  StreamSubscription<SummarizationUpdate>? _subscription;
-
-  static final _wordSplit = RegExp(r'\s+');
   static const _partialInterval = Duration(milliseconds: 50);
+
+  StreamSubscription<JobDetailEntity?>? _jobSubscription;
+  StreamSubscription<JobRunEvent>? _runSubscription;
+  JobRun? _run;
 
   Timer? _partialTimer;
   String? _latestPartial;
   DateTime _lastPartialEmit = DateTime.fromMillisecondsSinceEpoch(0);
 
-  void _start() {
-    final text = transcript.trim();
-    final wordCount = text.isEmpty ? 0 : text.split(_wordSplit).length;
+  void _watch() {
+    unawaited(_jobSubscription?.cancel());
+    _jobSubscription = _repository
+        .watchJob(jobId)
+        .listen(_onJob, onError: _onLoadError);
+  }
+
+  /// Retries loading after a storage error.
+  Future<void> refresh() async {
+    emit(state.copyWith(status: JobDetailStatus.loading, clearLastError: true));
+    _watch();
+  }
+
+  void _onJob(JobDetailEntity? job) {
+    if (isClosed) return;
+    if (job == null) {
+      _stopLive();
+      emit(state.copyWith(status: JobDetailStatus.notFound, clearLive: true));
+      return;
+    }
+
+    final settled = job.status.isTerminal;
+    if (settled) _stopLive();
     emit(
-      state.copyWith(
+      JobDetailState(
         status: JobDetailStatus.success,
-        job: _job(
-          status: 'pending',
-          transcript: Transcript(
-            language: language,
-            wordCount: wordCount,
-            modelName: '',
-            modelVersion: '',
-            text: text,
-          ),
-        ),
-        transcriptText: text,
+        job: job,
+        isCancelling: settled ? false : state.isCancelling,
+        progress: settled ? null : state.progress,
+        streamingSummary: settled ? null : state.streamingSummary,
       ),
     );
 
-    _subscription = _summarize
-        .stream(
-          text,
-          config.copyWith(language: SummaryLanguage.fromCode(language)),
-          cancellation: _token,
-        )
-        .listen(_onUpdate, onError: _onError);
+    if (job.status == JobRunStatus.pending && _run == null) _startRun();
   }
 
-  void _onUpdate(SummarizationUpdate update) {
-    switch (update) {
-      case SummarizationProgressUpdate(:final progress):
-        emit(
-          state.copyWith(
-            job: _withStatus('summarizing'),
-            progress: progress,
-          ),
-        );
-      case SummarizationPartialSummaryUpdate(:final text):
+  void _onLoadError(Object _) {
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        status: JobDetailStatus.failure,
+        lastError: const ApiError.storage(),
+      ),
+    );
+  }
+
+  void _startRun() {
+    final run = _run = _runJob(jobId);
+    _runSubscription = run.events.listen(
+      _onRunEvent,
+      // Outcomes are stored and arrive through the job stream; only a broken
+      // database is reported here.
+      onError: (Object error) {
+        if (error is JobNotFoundException) return;
+        _onLoadError(error);
+      },
+    );
+  }
+
+  void _onRunEvent(JobRunEvent event) {
+    if (isClosed) return;
+    switch (event) {
+      case JobRunProgress(:final progress):
+        emit(state.copyWith(progress: progress));
+      case JobRunPartialSummary(:final text):
         _onPartial(text);
-      case SummarizationCompletedUpdate(:final result):
-        _stopPartials();
-        emit(
-          state.copyWith(
-            job: _withStatus(
-              'completed',
-              summary: Summary(
-                summaryText: result.summary,
-                toneAndFormat: config.length.name,
-                takeaways: [for (final t in result.keyPoints) {'text': t}],
-                modelName: 'gemma3-1b-it-q4',
-                promptVersion: summarizationPromptVersion,
-                tokensIn: result.debug.inputTokens,
-                tokensOut: result.debug.outputTokens,
-              ),
-            ),
-            clearProgress: true,
-            streamingSummary: result.summary,
-            summaryTakeaways: [for (final t in result.keyPoints) {'text': t}],
-            summaryNeedsReview: result.validation.isSuspicious,
-            isCancelling: false,
-          ),
-        );
     }
   }
 
+  /// Streaming text is throttled so the screen isn't rebuilt on every token.
   void _onPartial(String text) {
     _latestPartial = text;
     final sinceLast = DateTime.now().difference(_lastPartialEmit);
@@ -136,85 +130,27 @@ class JobDetailCubit extends Cubit<JobDetailState> {
     emit(state.copyWith(streamingSummary: text));
   }
 
-  void _stopPartials() {
+  void _stopLive() {
     _partialTimer?.cancel();
     _partialTimer = null;
     _latestPartial = null;
   }
 
-  void _onError(Object error) {
-    _stopPartials();
-    if (error is SummarizationCancelledException) {
-      emit(
-        state.copyWith(
-          job: _withStatus('cancelled'),
-          clearStreamingSummary: true,
-          clearProgress: true,
-          isCancelling: false,
-        ),
-      );
-      return;
-    }
-    final kind = error is SummarizationFailure
-        ? error.kind
-        : SummarizationFailureKind.generationFailed;
-    emit(
-      state.copyWith(
-        job: _withStatus('failed'),
-        clearStreamingSummary: true,
-        clearProgress: true,
-        failureKind: kind,
-        isCancelling: false,
-      ),
-    );
-  }
-
-  /// Nothing to reload: state is pushed by the pipeline stream.
-  Future<void> refresh() async {}
-
   Future<void> cancelJob() async {
-    if (state.isCancelling) return;
+    final run = _run;
+    if (run == null || state.isCancelling) return;
     emit(state.copyWith(isCancelling: true));
-    _token.cancel();
-    await _repository.cancel();
-  }
-
-  JobDetailEntity _job({
-    required String status,
-    Transcript? transcript,
-    Summary? summary,
-  }) => JobDetailEntity(
-    id: _jobId,
-    status: status,
-    sourceType: 'text',
-    language: language,
-    createdAt: _createdAt,
-    updatedAt: DateTime.now().toUtc(),
-    transcript: transcript,
-    summary: summary,
-  );
-
-  JobDetailEntity _withStatus(String status, {Summary? summary}) {
-    final current = state.job!;
-    return JobDetailEntity(
-      id: current.id,
-      status: status,
-      sourceType: current.sourceType,
-      language: current.language,
-      createdAt: current.createdAt,
-      updatedAt: DateTime.now().toUtc(),
-      transcript: current.transcript,
-      summary: summary ?? current.summary,
-    );
+    await run.cancel();
   }
 
   @override
   Future<void> close() async {
-    final running = state.job?.status == 'pending' || state.job?.status == 'summarizing';
-    _stopPartials();
-    _token.cancel();
-    await _subscription?.cancel();
-    if (running) await _repository.cancel();
+    _stopLive();
+    // Leaving the screen cancels a running job; the run records that itself
+    // when its event subscription is cancelled.
+    await _run?.cancel();
+    await _runSubscription?.cancel();
+    await _jobSubscription?.cancel();
     return super.close();
   }
 }

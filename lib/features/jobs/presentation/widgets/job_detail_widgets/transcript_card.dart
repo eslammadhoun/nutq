@@ -10,25 +10,9 @@ import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_d
 import 'package:url_launcher/url_launcher.dart';
 
 class TranscriptCard extends StatelessWidget {
-  const TranscriptCard({
-    super.key,
-    required this.job,
-    this.transcriptText,
-    this.isLoadingTranscriptText = false,
-    this.streamingTranscript,
-  });
+  const TranscriptCard({super.key, required this.job});
 
   final JobDetailEntity job;
-
-  /// Fetched separately from `transcript.downloadUrl` — the detail
-  /// endpoint itself doesn't carry the transcript body.
-  final String? transcriptText;
-  final bool isLoadingTranscriptText;
-
-  /// Live word-by-word text from the `/jobs/{id}/ws` socket — takes
-  /// precedence over [transcriptText] once the socket has streamed
-  /// anything for this job.
-  final String? streamingTranscript;
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +28,12 @@ class TranscriptCard extends StatelessWidget {
             glyph: '\u{1F4C4}',
             title: l10n.jobDetailTranscript,
             tag: JobDetailTagChip(
-              label: languageName(l10n, job.language),
+              label: languageName(l10n, job.language.code),
               background: colors.statusProcessingBg,
               foreground: colors.textSecondary,
             ),
           ),
-          // Streaming words can arrive before the transcript metadata frame
-          // (or the REST payload) does — show the live body regardless of
-          // whether [transcript] metadata has landed yet.
-          if (transcript == null && (streamingTranscript?.isEmpty ?? true))
+          if (transcript == null)
             Text(
               l10n.jobDetailTranscriptPending,
               style: context.typography.captionSmall.copyWith(
@@ -61,39 +42,42 @@ class TranscriptCard extends StatelessWidget {
             )
           else
             Directionality(
-              textDirection: jobTextDirection(job.language),
+              textDirection: jobTextDirection(job.language.code),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (transcript != null) ...[
-                    if (transcript.modelName.isNotEmpty ||
-                        transcript.modelVersion.isNotEmpty) ...[
-                      Text(
-                        '${transcript.modelName} · ${transcript.modelVersion}'
-                        '${transcript.quantization != null ? ' · ${transcript.quantization}' : ''}',
-                        style: context.typography.captionSmall.copyWith(
-                          color: colors.textSecondary,
-                        ),
-                      ),
-                      SizedBox(height: 5.h),
-                    ],
+                  if ((transcript.modelName?.isNotEmpty ?? false) ||
+                      (transcript.modelVersion?.isNotEmpty ?? false)) ...[
                     Text(
                       [
-                        if (transcript.durationSeconds != null)
-                          formatDuration(transcript.durationSeconds!),
-                        if (transcript.wordCount != null)
-                          l10n.jobDetailWordCount(transcript.wordCount!),
-                      ].join(' · '),
+                            transcript.modelName,
+                            transcript.modelVersion,
+                            transcript.quantization,
+                          ]
+                          .whereType<String>()
+                          .where((p) => p.isNotEmpty)
+                          .join(' · '),
                       style: context.typography.captionSmall.copyWith(
                         color: colors.textSecondary,
                       ),
                     ),
-                    SizedBox(height: 11.h),
+                    SizedBox(height: 5.h),
                   ],
-                  _transcriptBody(context),
-                  if (transcript?.downloadUrl != null) ...[
+                  Text(
+                    [
+                      if (transcript.durationSeconds != null)
+                        formatDuration(transcript.durationSeconds!),
+                      l10n.jobDetailWordCount(transcript.wordCount),
+                    ].join(' · '),
+                    style: context.typography.captionSmall.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                  SizedBox(height: 11.h),
+                  _transcriptBody(context, transcript.text),
+                  if (transcript.downloadUrl != null) ...[
                     SizedBox(height: 6.h),
-                    _downloadButton(context, transcript!.downloadUrl!),
+                    _downloadButton(context, transcript.downloadUrl!),
                   ],
                 ],
               ),
@@ -103,42 +87,13 @@ class TranscriptCard extends StatelessWidget {
     );
   }
 
-  Widget _transcriptBody(BuildContext context) {
-    final colors = context.appColors;
-    final liveText = streamingTranscript;
-
-    if (liveText != null && liveText.isNotEmpty) {
-      return ExpandableJobText(
-        liveText,
-        textDirection: jobTextDirection(job.language),
-        style: context.typography.bodyBase.copyWith(color: colors.textPrimary),
-      );
-    }
-
-    if (isLoadingTranscriptText) {
-      return SizedBox(
-        height: 16.h,
-        width: 16.h,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: colors.textSecondary,
-        ),
-      );
-    }
-
-    if (transcriptText == null) {
-      return Text(
-        context.l10n.jobDetailTranscriptPending,
-        style: context.typography.captionSmall.copyWith(
-          color: colors.textSecondary,
-        ),
-      );
-    }
-
+  Widget _transcriptBody(BuildContext context, String text) {
     return ExpandableJobText(
-      transcriptText!,
-      textDirection: jobTextDirection(job.language),
-      style: context.typography.bodyBase.copyWith(color: colors.textPrimary),
+      text,
+      textDirection: jobTextDirection(job.language.code),
+      style: context.typography.bodyBase.copyWith(
+        color: context.appColors.textPrimary,
+      ),
     );
   }
 

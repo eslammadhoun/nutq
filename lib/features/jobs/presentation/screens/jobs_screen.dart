@@ -6,7 +6,6 @@ import 'package:nutq/core/theme/app_colors.dart';
 import 'package:nutq/core/widgets/global_text_field.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
-import 'package:nutq/features/jobs/presentation/models/job_detail_args.dart';
 import 'package:nutq/features/jobs/presentation/widgets/jobs_filter_chips.dart';
 import 'package:nutq/features/jobs/presentation/widgets/jobs_list.dart';
 import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/new_job_sheet.dart';
@@ -140,12 +139,9 @@ class _JobsScreenState extends State<JobsScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) => NewJobSheet(
-        onSubmitted: (text, language) {
+        onSubmitted: (jobId) {
           Navigator.of(sheetContext).pop();
-          navigator.pushNamed(
-            Routes.jobDetail,
-            arguments: JobDetailArgs(text: text, language: language),
-          );
+          navigator.pushNamed(Routes.jobDetail, arguments: jobId);
         },
       ),
     );

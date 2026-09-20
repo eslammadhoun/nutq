@@ -163,7 +163,6 @@
   },
   "jobDetailCancelJob": "Cancel Job",
   "jobDetailCancelling": "Cancelling…",
-  "jobDetailReconnecting": "Reconnecting…",
   "jobDetailJustNow": "Just now",
   "jobDetailMinutesAgo": "{count} minutes ago",
   "@jobDetailMinutesAgo": {
@@ -197,5 +196,8 @@
   "summarizeErrorModel": "The on-device summarization model isn't available.",
   "summarizeErrorGeneration": "The summary could not be generated. Please try again.",
   "newJobSourceUnavailable": "Only pasted text can be summarized on this device for now. Audio, video and YouTube sources aren't available yet.",
-  "jobDetailSummaryComplete": "Summary Complete"
+  "jobDetailSummaryComplete": "Summary Complete",
+  "errorStorage": "Couldn't access saved jobs on this device. Please try again.",
+  "jobDetailNotFound": "This job no longer exists.",
+  "summarizeErrorInterrupted": "This job was interrupted because the app was closed before it finished."
 }
