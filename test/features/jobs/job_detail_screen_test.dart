@@ -9,6 +9,7 @@ import 'package:nutq/core/theme/app_theme.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/screens/job_detail_screen.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_progress_card.dart';
+import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/summary_card.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
@@ -135,5 +136,44 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.byType(JobProgressCard), findsNothing);
     expect(find.text('Cancelled'), findsWidgets);
+  });
+
+  testWidgets('summary text appears word by word, fully expanded, while the job runs', (tester) async {
+    const longFinal =
+        'الملخص النهائي يشرح الفكرة الرئيسية للمحاضرة ثم ينتقل إلى النقاط المهمة والأرقام والتواريخ ويختم بالخلاصة والتوصيات النهائية للمستمعين في نهاية اللقاء';
+    final cubit = build(_text);
+    gemma.wordDelay = const Duration(milliseconds: 30);
+    gemma.responder = (prompt, call) async {
+      if (prompt.contains('final summary of a full lecture')) return longFinal;
+      return null;
+    };
+    addTearDown(cubit.close);
+    await _pump(tester, cubit);
+
+    // Sample the on-screen summary as the stream progresses.
+    final seen = <String>[];
+    for (var i = 0; i < 80; i++) {
+      await tester.pump(const Duration(milliseconds: 20));
+      final live = cubit.state.streamingSummary;
+      if (live != null && cubit.state.job!.status != 'completed' && (seen.isEmpty || seen.last != live)) {
+        seen.add(live);
+        expect(find.text(live), findsOneWidget, reason: 'partial text is on screen: "$live"');
+        expect(
+          find.descendant(of: find.byType(SummaryCard), matching: find.text('Show more')),
+          findsNothing,
+          reason: 'streaming summary text is never collapsed',
+        );
+      }
+    }
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(seen, isNotEmpty);
+    expect(find.text(longFinal), findsOneWidget);
+    expect(cubit.state.job!.status, 'completed');
+    // Once finished, the text the user watched arrive does not snap shut.
+    expect(
+      find.descendant(of: find.byType(SummaryCard), matching: find.text('Show more')),
+      findsNothing,
+    );
   });
 }

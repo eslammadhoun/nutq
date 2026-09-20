@@ -40,7 +40,8 @@ partial = implemented, part deferred; blocked = needs a physical device or human
 - **`FinalSummaryGenerator`** is a repository method (`generateFinalSummary`) rather than its own class.
 - **`data/models/*`** (JSON models) were not created: nothing is serialized except the dev cache, which stores raw text.
 - **`validation_prompt.dart`** was not created: validation is deterministic (plan §26).
-- **Streaming the final summary** was not implemented (plan §38 allows this when streaming isn't proven stable).
+- **Final-summary streaming** is implemented (`generate(onPartial:)` over `getResponseAsync`, throttled in `JobDetailCubit`); only the final synthesis streams, internal stages stay hidden per plan §38. **Unverified on a device**: whether `flutter_gemma`'s `.litertlm` stream yields clean token deltas is untested, and a retry mid-stream restarts the partial text.
+- **Output language** follows the New Job language toggle (`SummaryLanguage`, threaded through every prompt). Only English and Arabic; English transcripts have not been evaluated with a real model, and the benchmark fixtures are Arabic only.
 - **Jobs screens integration is partial:** New Job (pasted text only) → Job Detail runs the pipeline and shows live progress via `SummarizeTranscript.stream`. The Jobs list still has no data source, so submitted jobs are not saved or listed; audio/video/YouTube sources are unavailable (no on-device transcription). The standalone page is still reachable from Profile → Summarize text.
 - `GemmaGenerationConfig` exposes `maxOutputTokens` and `contextTokens` separately, because `flutter_gemma`'s `maxTokens` is the context window, not the reply length.
 

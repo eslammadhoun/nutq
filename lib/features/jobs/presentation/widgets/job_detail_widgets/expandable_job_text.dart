@@ -13,6 +13,7 @@ class ExpandableJobText extends StatefulWidget {
     required this.style,
     required this.textDirection,
     this.collapsedMaxLines = 4,
+    this.forceExpanded = false,
   });
 
   final String text;
@@ -20,12 +21,24 @@ class ExpandableJobText extends StatefulWidget {
   final TextDirection textDirection;
   final int collapsedMaxLines;
 
+  /// Shows the full text with no toggle — used while text is still streaming
+  /// in, so new words are visible as they arrive.
+  final bool forceExpanded;
+
   @override
   State<ExpandableJobText> createState() => _ExpandableJobTextState();
 }
 
 class _ExpandableJobTextState extends State<ExpandableJobText> {
   bool _expanded = false;
+
+  @override
+  void didUpdateWidget(ExpandableJobText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Streaming just finished: stay expanded so the text the user was
+    // reading doesn't snap shut; the toggle can still collapse it.
+    if (oldWidget.forceExpanded && !widget.forceExpanded) _expanded = true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +60,13 @@ class _ExpandableJobTextState extends State<ExpandableJobText> {
           overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
           style: widget.style,
         );
+
+        if (widget.forceExpanded) {
+          return Directionality(
+            textDirection: widget.textDirection,
+            child: Text(widget.text, style: widget.style),
+          );
+        }
 
         if (!overflows) {
           return Directionality(textDirection: widget.textDirection, child: textWidget);

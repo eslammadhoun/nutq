@@ -150,4 +150,102 @@ void main() {
     await settle();
     expect(gemma.calls, 1);
   });
+
+  group('word-by-word summary', () {
+    const longFinal = 'الملخص النهائي يشرح الفكرة الرئيسية للمحاضرة ثم ينتقل إلى النقاط المهمة والأرقام والتواريخ ويختم بالخلاصة';
+
+    test('streamingSummary grows as prefixes, is throttled, and ends equal to the final summary', () async {
+      final cubit = build(_text);
+      gemma.responder = (prompt, call) async => prompt.contains('final summary of a full lecture') ? longFinal : null;
+      final live = <String>[];
+      final sub = cubit.stream.listen((s) {
+        final t = s.streamingSummary;
+        if (t != null && (live.isEmpty || live.last != t)) live.add(t);
+      });
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+
+      expect(live, isNotEmpty);
+      for (var i = 1; i < live.length; i++) {
+        expect(live[i].startsWith(live[i - 1]), isTrue);
+      }
+      expect(live.length, lessThan(longFinal.split(' ').length), reason: 'coalesced, not one rebuild per word');
+      expect(cubit.state.streamingSummary, longFinal);
+      expect(cubit.state.job!.summary!.summaryText, longFinal);
+      expect(cubit.state.job!.status, 'completed');
+      await sub.cancel();
+      await cubit.close();
+    });
+
+    test('while streaming the job is still summarizing with no final summary yet', () async {
+      final cubit = build(_text);
+      final gate = Completer<void>();
+      gemma.responder = (prompt, call) async {
+        if (prompt.contains('final summary of a full lecture')) {
+          await gate.future;
+          return longFinal;
+        }
+        return null;
+      };
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      gate.complete();
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      final mid = cubit.state;
+      // Whatever moment we sample, a running job never has a final summary.
+      if (mid.job!.status == 'summarizing') {
+        expect(mid.job!.summary, isNull);
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      expect(cubit.state.job!.status, 'completed');
+      await cubit.close();
+    });
+
+    test('cancelling clears the partial text instead of leaving half a summary', () async {
+      final cubit = build(_text);
+      final gate = Completer<void>();
+      gemma.responder = (prompt, call) async {
+        if (prompt.contains('final summary of a full lecture')) {
+          await gate.future;
+          return longFinal;
+        }
+        return null;
+      };
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      unawaited(cubit.cancelJob());
+      gate.complete();
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      expect(cubit.state.job!.status, 'cancelled');
+      expect(cubit.state.streamingSummary, isNull);
+      await cubit.close();
+    });
+
+    test('a mid-stream failure clears the partial text', () async {
+      final cubit = build(_text);
+      gemma.responder = (prompt, call) async {
+        if (prompt.contains('final summary of a full lecture')) throw const GemmaGenerationException('x');
+        return null;
+      };
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      expect(cubit.state.job!.status, 'failed');
+      expect(cubit.state.streamingSummary, isNull);
+      await cubit.close();
+    });
+  });
+
+  group('language', () {
+    test('the chosen language drives the model prompts (English)', () async {
+      final cubit = build('Attendance reached 250 people in 2024. The team said results were good.', language: 'en');
+      await settle();
+      expect(cubit.state.job!.language, 'en');
+      expect(gemma.prompts, isNotEmpty);
+      expect(gemma.prompts.every((p) => p.contains('English') && !p.contains('Arabic')), isTrue);
+      await cubit.close();
+    });
+
+    test('Arabic is used when the toggle says ar', () async {
+      final cubit = build('نص عربي قصير عن موضوع مهم.', language: 'ar');
+      await settle();
+      expect(gemma.prompts.every((p) => p.contains('Arabic')), isTrue);
+      await cubit.close();
+    });
+  });
 }

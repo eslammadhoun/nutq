@@ -9,12 +9,16 @@ import 'package:nutq/features/summarization/data/prompts/prompt_version.dart';
 import 'package:nutq/features/summarization/domain/entities/cancellation_token.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
+import 'package:nutq/features/summarization/domain/entities/summary_language.dart';
 import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
 
 /// Runs one on-device summary job for [transcript] and mirrors it as a
 /// `JobDetailEntity` for the Job Detail screen, updating on every event of the
 /// pipeline's progress stream.
+///
+/// The summary text streams into `streamingSummary` word by word (throttled
+/// to [_partialInterval] so the screen isn't rebuilt on every token).
 ///
 /// Raw status strings follow the backend vocabulary the screen already maps
 /// (`pending`, `summarizing`, `completed`, `failed`, `cancelled`).
@@ -41,6 +45,11 @@ class JobDetailCubit extends Cubit<JobDetailState> {
   StreamSubscription<SummarizationUpdate>? _subscription;
 
   static final _wordSplit = RegExp(r'\s+');
+  static const _partialInterval = Duration(milliseconds: 50);
+
+  Timer? _partialTimer;
+  String? _latestPartial;
+  DateTime _lastPartialEmit = DateTime.fromMillisecondsSinceEpoch(0);
 
   void _start() {
     final text = transcript.trim();
@@ -63,7 +72,11 @@ class JobDetailCubit extends Cubit<JobDetailState> {
     );
 
     _subscription = _summarize
-        .stream(text, config, cancellation: _token)
+        .stream(
+          text,
+          config.copyWith(language: SummaryLanguage.fromCode(language)),
+          cancellation: _token,
+        )
         .listen(_onUpdate, onError: _onError);
   }
 
@@ -76,7 +89,10 @@ class JobDetailCubit extends Cubit<JobDetailState> {
             progress: progress,
           ),
         );
+      case SummarizationPartialSummaryUpdate(:final text):
+        _onPartial(text);
       case SummarizationCompletedUpdate(:final result):
+        _stopPartials();
         emit(
           state.copyWith(
             job: _withStatus(
@@ -92,6 +108,7 @@ class JobDetailCubit extends Cubit<JobDetailState> {
               ),
             ),
             clearProgress: true,
+            streamingSummary: result.summary,
             summaryTakeaways: [for (final t in result.keyPoints) {'text': t}],
             summaryNeedsReview: result.validation.isSuspicious,
             isCancelling: false,
@@ -100,11 +117,38 @@ class JobDetailCubit extends Cubit<JobDetailState> {
     }
   }
 
+  void _onPartial(String text) {
+    _latestPartial = text;
+    final sinceLast = DateTime.now().difference(_lastPartialEmit);
+    if (sinceLast >= _partialInterval) {
+      _emitPartial();
+    } else {
+      _partialTimer ??= Timer(_partialInterval - sinceLast, _emitPartial);
+    }
+  }
+
+  void _emitPartial() {
+    _partialTimer?.cancel();
+    _partialTimer = null;
+    final text = _latestPartial;
+    if (text == null || isClosed) return;
+    _lastPartialEmit = DateTime.now();
+    emit(state.copyWith(streamingSummary: text));
+  }
+
+  void _stopPartials() {
+    _partialTimer?.cancel();
+    _partialTimer = null;
+    _latestPartial = null;
+  }
+
   void _onError(Object error) {
+    _stopPartials();
     if (error is SummarizationCancelledException) {
       emit(
         state.copyWith(
           job: _withStatus('cancelled'),
+          clearStreamingSummary: true,
           clearProgress: true,
           isCancelling: false,
         ),
@@ -117,6 +161,7 @@ class JobDetailCubit extends Cubit<JobDetailState> {
     emit(
       state.copyWith(
         job: _withStatus('failed'),
+        clearStreamingSummary: true,
         clearProgress: true,
         failureKind: kind,
         isCancelling: false,
@@ -166,6 +211,7 @@ class JobDetailCubit extends Cubit<JobDetailState> {
   @override
   Future<void> close() async {
     final running = state.job?.status == 'pending' || state.job?.status == 'summarizing';
+    _stopPartials();
     _token.cancel();
     await _subscription?.cancel();
     if (running) await _repository.cancel();

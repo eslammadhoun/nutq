@@ -35,6 +35,7 @@ class SummaryCard extends StatelessWidget {
     final summary = job.summary;
     final liveText = streamingSummary;
     final hasLiveText = liveText != null && liveText.isNotEmpty;
+    final isStreaming = hasLiveText && (job.status == 'pending' || job.status == 'summarizing');
     final effectiveTakeaways = takeaways ?? summary?.takeaways ?? const [];
 
     return JobDetailSectionCard(
@@ -76,6 +77,7 @@ class SummaryCard extends StatelessWidget {
               hasLiveText ? liveText : (summary?.summaryText ?? ''),
               textDirection: job.language == 'ar' ? TextDirection.rtl : TextDirection.ltr,
               style: context.typography.bodySmall.copyWith(color: colors.textSecondary),
+              forceExpanded: isStreaming,
             ),
             if (effectiveTakeaways.isNotEmpty) ...[
               SizedBox(height: 12.h),
