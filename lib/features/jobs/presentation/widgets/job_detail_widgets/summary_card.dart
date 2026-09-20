@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
+import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/expandable_job_text.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_header.dart';
@@ -42,7 +43,7 @@ class SummaryCard extends StatelessWidget {
 
     return JobDetailSectionCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           JobDetailSectionHeader(
             glyph: '\u2728',
@@ -62,32 +63,37 @@ class SummaryCard extends StatelessWidget {
                 color: colors.textSecondary,
               ),
             )
-          else ...[
-            ExpandableJobText(
-              hasLiveText ? liveText : (summary?.summaryText ?? ''),
-              textDirection: job.language == 'ar'
-                  ? TextDirection.rtl
-                  : TextDirection.ltr,
-              style: context.typography.bodySmall.copyWith(
-                color: colors.textSecondary,
+          else
+            Directionality(
+              textDirection: jobTextDirection(job.language),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ExpandableJobText(
+                    hasLiveText ? liveText : (summary?.summaryText ?? ''),
+                    textDirection: jobTextDirection(job.language),
+                    style: context.typography.bodySmall.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                    forceExpanded: isStreaming,
+                  ),
+                  if (effectiveTakeaways.isNotEmpty) ...[
+                    SizedBox(height: 4.h),
+                    Text(
+                      l10n.jobDetailKeyTakeaways,
+                      style: context.typography.label.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    SizedBox(height: 9.h),
+                    for (var i = 0; i < effectiveTakeaways.length; i++) ...[
+                      if (i > 0) SizedBox(height: 6.h),
+                      _takeaway(context, _takeawayText(effectiveTakeaways[i])),
+                    ],
+                  ],
+                ],
               ),
-              forceExpanded: isStreaming,
             ),
-            if (effectiveTakeaways.isNotEmpty) ...[
-              SizedBox(height: 4.h),
-              Text(
-                l10n.jobDetailKeyTakeaways,
-                style: context.typography.label.copyWith(
-                  color: colors.textSecondary,
-                ),
-              ),
-              SizedBox(height: 9.h),
-              for (var i = 0; i < effectiveTakeaways.length; i++) ...[
-                if (i > 0) SizedBox(height: 6.h),
-                _takeaway(context, _takeawayText(effectiveTakeaways[i])),
-              ],
-            ],
-          ],
         ],
       ),
     );

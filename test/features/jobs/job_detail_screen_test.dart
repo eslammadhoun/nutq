@@ -14,7 +14,9 @@ import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_d
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_detail_section_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_progress_card.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_status_hero_card.dart';
+import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/summary_card.dart';
+import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/transcript_card.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
@@ -54,13 +56,14 @@ Future<void> _pump(WidgetTester tester, JobDetailCubit cubit, {Locale locale = c
 void main() {
   late FakeGemma gemma;
 
-  JobDetailCubit build(String text) {
+  JobDetailCubit build(String text, {String language = 'ar'}) {
     gemma = FakeGemma();
     final repository = SummarizationRepositoryImpl(dataSource: gemma);
     return JobDetailCubit(
       summarize: SummarizeTranscript(repository: repository),
       repository: repository,
       transcript: text,
+      language: language,
       config: _config,
     );
   }
@@ -228,5 +231,78 @@ void main() {
     expect((tester.widget<Container>(language).decoration! as BoxDecoration).color, colors.statusProcessingBg);
     final tone = find.ancestor(of: find.text('Medium'), matching: find.byType(Container)).first;
     expect((tester.widget<Container>(tone).decoration! as BoxDecoration).color, colors.statusDoneBg);
+  });
+
+  group('text direction follows the job language, not the app locale', () {
+    // Card content is inset 16px; takeaway chips add 12px of their own padding.
+    const cardPad = 16.0;
+    const chipPad = 12.0;
+    const headerTextInset = 28.0; // glyph (20) + gap (8)
+
+    Future<void> pumpDone(WidgetTester tester, JobDetailCubit cubit, Locale locale) async {
+      addTearDown(cubit.close);
+      await _pump(tester, cubit, locale: locale);
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(cubit.state.job!.status, 'completed');
+    }
+
+    testWidgets('Arabic job in an English app: transcript, summary and takeaways start from the right', (tester) async {
+      const transcript = 'نص قصير.';
+      const summary = 'ملخص قصير.';
+      final cubit = build(transcript, language: 'ar');
+      gemma.responder = (prompt, call) async {
+        if (prompt.contains('information extraction assistant')) return 'MAIN:\nنقطة رئيسية';
+        if (prompt.contains('final summary of a full lecture')) return summary;
+        return null;
+      };
+      await pumpDone(tester, cubit, const Locale('en'));
+
+      final transcriptCard = find.byType(TranscriptCard);
+      final summaryCard = find.byType(SummaryCard);
+      final tRight = tester.getTopRight(transcriptCard).dx - cardPad;
+      final sRight = tester.getTopRight(summaryCard).dx - cardPad;
+
+      expect(tester.getTopRight(find.text(transcript)).dx, closeTo(tRight, 1));
+      expect(tester.getTopRight(find.text(summary)).dx, closeTo(sRight, 1));
+      expect(tester.getTopRight(find.text('نقطة رئيسية')).dx, closeTo(sRight - chipPad, 1));
+      expect(tester.getTopRight(find.text('KEY TAKEAWAYS')).dx, closeTo(sRight, 1));
+
+      // Card headers are UI chrome: they keep the app's (English, left-to-right) direction.
+      expect(tester.getTopLeft(find.text('AI Summary')).dx, closeTo(tester.getTopLeft(summaryCard).dx + cardPad + headerTextInset, 1));
+      expect(tester.getTopLeft(find.text('Transcript')).dx, closeTo(tester.getTopLeft(transcriptCard).dx + cardPad + headerTextInset, 1));
+    });
+
+    testWidgets('English job in an Arabic app: transcript, summary and takeaways start from the left', (tester) async {
+      const transcript = 'Short text.';
+      const summary = 'Short summary.';
+      final cubit = build(transcript, language: 'en');
+      gemma.responder = (prompt, call) async {
+        if (prompt.contains('information extraction assistant')) return 'MAIN:\nKey point';
+        if (prompt.contains('final summary of a full lecture')) return summary;
+        return null;
+      };
+      await pumpDone(tester, cubit, const Locale('ar'));
+
+      final transcriptCard = find.byType(TranscriptCard);
+      final summaryCard = find.byType(SummaryCard);
+      final tLeft = tester.getTopLeft(transcriptCard).dx + cardPad;
+      final sLeft = tester.getTopLeft(summaryCard).dx + cardPad;
+
+      expect(tester.getTopLeft(find.text(transcript)).dx, closeTo(tLeft, 1));
+      expect(tester.getTopLeft(find.text(summary)).dx, closeTo(sLeft, 1));
+      expect(tester.getTopLeft(find.text('Key point')).dx, closeTo(sLeft + chipPad, 1));
+      expect(tester.getTopLeft(find.text('أبرز النقاط')).dx, closeTo(sLeft, 1));
+
+      // Headers keep the app's (Arabic, right-to-left) direction.
+      final summaryHeaderRight = tester.getTopRight(summaryCard).dx - cardPad - headerTextInset;
+      expect(tester.getTopRight(find.text('ملخص الذكاء الاصطناعي')).dx, closeTo(summaryHeaderRight, 1));
+    });
+
+    test('jobTextDirection maps job language codes', () {
+      expect(jobTextDirection('ar'), TextDirection.rtl);
+      expect(jobTextDirection('en'), TextDirection.ltr);
+      expect(jobTextDirection('unknown'), TextDirection.ltr);
+    });
   });
 }

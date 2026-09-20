@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/jobs/presentation/models/job.dart';
 import 'package:nutq/l10n/app_localizations.dart';
@@ -136,3 +136,12 @@ String formatDuration(double seconds) {
     ),
   };
 }
+
+/// Reading direction of a job's own text (transcript, summary, takeaways).
+///
+/// Follows the *job's* language, never the app locale: an Arabic job reads
+/// right-to-left even in an English UI, and vice versa.
+TextDirection jobTextDirection(String languageCode) =>
+    const {'ar', 'fa', 'he', 'ur'}.contains(languageCode)
+    ? TextDirection.rtl
+    : TextDirection.ltr;

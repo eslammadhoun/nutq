@@ -38,7 +38,7 @@ class TranscriptCard extends StatelessWidget {
 
     return JobDetailSectionCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           JobDetailSectionHeader(
             glyph: '\u{1F4C4}',
@@ -59,38 +59,45 @@ class TranscriptCard extends StatelessWidget {
                 color: colors.textSecondary,
               ),
             )
-          else ...[
-            if (transcript != null) ...[
-              if (transcript.modelName.isNotEmpty ||
-                  transcript.modelVersion.isNotEmpty) ...[
-                Text(
-                  '${transcript.modelName} · ${transcript.modelVersion}'
-                  '${transcript.quantization != null ? ' · ${transcript.quantization}' : ''}',
-                  style: context.typography.captionSmall.copyWith(
-                    color: colors.textSecondary,
-                  ),
-                ),
-                SizedBox(height: 5.h),
-              ],
-              Text(
-                [
-                  if (transcript.durationSeconds != null)
-                    formatDuration(transcript.durationSeconds!),
-                  if (transcript.wordCount != null)
-                    l10n.jobDetailWordCount(transcript.wordCount!),
-                ].join(' · '),
-                style: context.typography.captionSmall.copyWith(
-                  color: colors.textSecondary,
-                ),
+          else
+            Directionality(
+              textDirection: jobTextDirection(job.language),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (transcript != null) ...[
+                    if (transcript.modelName.isNotEmpty ||
+                        transcript.modelVersion.isNotEmpty) ...[
+                      Text(
+                        '${transcript.modelName} · ${transcript.modelVersion}'
+                        '${transcript.quantization != null ? ' · ${transcript.quantization}' : ''}',
+                        style: context.typography.captionSmall.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                      SizedBox(height: 5.h),
+                    ],
+                    Text(
+                      [
+                        if (transcript.durationSeconds != null)
+                          formatDuration(transcript.durationSeconds!),
+                        if (transcript.wordCount != null)
+                          l10n.jobDetailWordCount(transcript.wordCount!),
+                      ].join(' · '),
+                      style: context.typography.captionSmall.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    SizedBox(height: 11.h),
+                  ],
+                  _transcriptBody(context),
+                  if (transcript?.downloadUrl != null) ...[
+                    SizedBox(height: 6.h),
+                    _downloadButton(context, transcript!.downloadUrl!),
+                  ],
+                ],
               ),
-              SizedBox(height: 11.h),
-            ],
-            _transcriptBody(context),
-            if (transcript?.downloadUrl != null) ...[
-              SizedBox(height: 6.h),
-              _downloadButton(context, transcript!.downloadUrl!),
-            ],
-          ],
+            ),
         ],
       ),
     );
@@ -103,9 +110,7 @@ class TranscriptCard extends StatelessWidget {
     if (liveText != null && liveText.isNotEmpty) {
       return ExpandableJobText(
         liveText,
-        textDirection: job.language == 'ar'
-            ? TextDirection.rtl
-            : TextDirection.ltr,
+        textDirection: jobTextDirection(job.language),
         style: context.typography.bodyBase.copyWith(color: colors.textPrimary),
       );
     }
@@ -132,9 +137,7 @@ class TranscriptCard extends StatelessWidget {
 
     return ExpandableJobText(
       transcriptText!,
-      textDirection: job.language == 'ar'
-          ? TextDirection.rtl
-          : TextDirection.ltr,
+      textDirection: jobTextDirection(job.language),
       style: context.typography.bodyBase.copyWith(color: colors.textPrimary),
     );
   }
