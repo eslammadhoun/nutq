@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:nutq/core/domain/cancellation.dart';
+import 'package:nutq/core/domain/foreground_gate.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/job_exceptions.dart';
 import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
@@ -68,6 +69,7 @@ class ProcessJob {
     required this._summarize,
     required this._summarization,
     this._config = const SummarizationConfig(),
+    this._foreground = const AlwaysInForeground(),
   });
 
   final JobsRepository _jobs;
@@ -75,6 +77,7 @@ class ProcessJob {
   final SummarizeTranscript _summarize;
   final SummarizationRepository _summarization;
   final SummarizationConfig _config;
+  final ForegroundGate _foreground;
 
   JobRun call(String jobId) {
     final token = CancellationToken();
@@ -170,6 +173,9 @@ class ProcessJob {
           );
         }
 
+        // A transcription can finish while the app is in the background, where
+        // iOS refuses GPU work; summarize once the user is back.
+        await _foreground.whenInForeground(token);
         final updates = _summarize.stream(
           text,
           _config.copyWith(language: job.summaryLanguage, length: job.requestedLength),

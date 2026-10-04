@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/core/domain/content_language.dart';
+import 'package:nutq/core/domain/foreground_gate.dart';
 import 'package:nutq/features/jobs/domain/entities/job_exceptions.dart';
 import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
@@ -15,6 +17,27 @@ import 'package:nutq/features/summarization/data/datasources/gemma_local_datasou
 import '../../../support/sample_text.dart';
 import '../support/fake_transcript_source.dart';
 import '../support/job_harness.dart';
+
+/// A gate the test opens by hand, as if the user came back to the app.
+class _ManualGate implements ForegroundGate {
+  final _open = Completer<void>();
+  int waits = 0;
+
+  void open() => _open.complete();
+
+  @override
+  Future<void> whenInForeground(CancellationToken cancellation) async {
+    waits++;
+    final cancelled = Completer<void>();
+    final stop = cancellation.onCancel(cancelled.complete);
+    try {
+      await Future.any([_open.future, cancelled.future]);
+    } finally {
+      stop();
+    }
+    cancellation.throwIfCancelled();
+  }
+}
 
 void main() {
   late JobHarness h;
@@ -376,5 +399,46 @@ void main() {
         expect(job.failureKind, JobFailureKind.emptyTranscript);
       },
     );
+  });
+
+  group('in the background', () {
+    late _ManualGate gate;
+
+    Future<String> audioJob() async {
+      gate = _ManualGate();
+      await h.dispose();
+      h = JobHarness(extraSources: [FakeMediaSource()], foreground: gate);
+      return (await h.repo.createJob(
+        NewJobDraft.media(
+          type: JobSourceType.audio,
+          filePath: '/f.m4a',
+          language: ContentLanguage.ar,
+        ),
+      )).id;
+    }
+
+    test('transcribes, then waits for the app to be on screen before summarizing', () async {
+      final id = await audioJob();
+      final done = h.processJob(id).events.drain<void>();
+      await pumpEventQueue();
+      expect(gate.waits, 1);
+      expect((await h.repo.getJob(id))!.transcript, isNotNull, reason: 'transcript saved');
+      expect(h.gemma.calls, 0, reason: 'no GPU work while in the background');
+
+      gate.open();
+      await done;
+      expect(await statusOf(id), JobRunStatus.completed);
+    });
+
+    test('a job cancelled while waiting is recorded as cancelled', () async {
+      final id = await audioJob();
+      final run = h.processJob(id);
+      final done = run.events.drain<void>();
+      await pumpEventQueue();
+      await run.cancel();
+      await done;
+      expect(await statusOf(id), JobRunStatus.cancelled);
+      expect(h.gemma.calls, 0);
+    });
   });
 }

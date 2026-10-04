@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:nutq/core/database/app_database.dart';
 import 'package:nutq/core/domain/content_language.dart';
+import 'package:nutq/core/domain/foreground_gate.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/services/job_runner.dart';
@@ -32,7 +33,11 @@ class JobHarness {
   /// [autoStart] starts the runner right away. Widget tests turn it off and
   /// start it inside `tester.runAsync`, because its startup database call
   /// needs real (not fake-async) time.
-  JobHarness({Iterable<TranscriptSource> extraSources = const [], bool autoStart = true}) {
+  JobHarness({
+    Iterable<TranscriptSource> extraSources = const [],
+    bool autoStart = true,
+    ForegroundGate foreground = const AlwaysInForeground(),
+  }) {
     db = newTestDatabase();
     repoFixture = TestRepo(db);
     gemma = FakeGemma();
@@ -44,6 +49,7 @@ class JobHarness {
       summarize: SummarizeTranscript(repository: summarization),
       summarization: summarization,
       config: testSummarizationConfig,
+      foreground: foreground,
     );
     runner = JobRunner(
       jobs: repoFixture.repo,
