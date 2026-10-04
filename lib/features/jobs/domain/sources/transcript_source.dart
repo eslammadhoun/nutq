@@ -12,7 +12,10 @@ class SourceRequest {
     required this.onProgress,
     required this.cancellation,
     required this.saveSourceInfo,
+    this.onPartialTranscript = _ignore,
   });
+
+  static void _ignore(String _) {}
 
   final JobDetailEntity job;
 
@@ -26,6 +29,11 @@ class SourceRequest {
   /// Persist what was learned about the source (title, downloaded file,
   /// duration) as soon as it is known.
   final Future<void> Function(SourceInfo info) saveSourceInfo;
+
+  /// The transcript so far, for sources that produce it gradually (speech
+  /// recognition). Each value replaces the one before; the returned
+  /// [SourceTranscript] is the one that is kept.
+  final void Function(String text) onPartialTranscript;
 }
 
 /// Turns a job's input into the transcript text that gets summarized.

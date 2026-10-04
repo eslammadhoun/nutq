@@ -59,9 +59,11 @@ class _FakeRecognizer implements SpeechRecognizer {
     required String audioPath,
     required ContentLanguage language,
     void Function(double progress)? onProgress,
+    void Function(String text)? onPartialText,
   }) async {
     this.language = language;
     onProgress?.call(0.5);
+    onPartialText?.call('السطر الأول');
     if (gate != null) await gate!.future;
     // A test double that throws whatever the test scripted.
     // ignore: only_throw_errors
@@ -157,11 +159,15 @@ void main() {
         sourceTitle: 'talk.m4a',
       );
 
+  late List<String> partials;
+
   Future<String> resolve([JobDetailEntity? j]) async {
+    partials = [];
     final result = await source.resolve(
       SourceRequest(
         job: j ?? job(),
         onProgress: progress.add,
+        onPartialTranscript: partials.add,
         cancellation: token,
         saveSourceInfo: (info) async => saved.add(info),
       ),
@@ -181,6 +187,7 @@ void main() {
   test('extracts, transcribes in the job language, and returns the text', () async {
     expect(await resolve(job(language: ContentLanguage.en)), 'السطر الأول\nالسطر الثاني');
     expect(recognizer.language, ContentLanguage.en);
+    expect(partials, ['السطر الأول'], reason: 'live text is passed on as it is recognized');
     expect(extractor.leftoverSweeps, 1);
   });
 

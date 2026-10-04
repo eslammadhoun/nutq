@@ -550,6 +550,28 @@ void main() {
       expect(background.updates, isEmpty);
     });
 
+    test('a media job streams its transcript while transcribing', () async {
+      final source = FakeMediaSource();
+      await h.dispose();
+      h = JobHarness(extraSources: [source]);
+      final id = (await h.repo.createJob(
+        NewJobDraft.media(
+          type: JobSourceType.audio,
+          filePath: '/f.m4a',
+          language: ContentLanguage.ar,
+        ),
+      )).id;
+      final events = await h.processJob(id).events.toList();
+      final partial = events.whereType<JobRunPartialTranscript>().map((e) => e.text).toList();
+      expect(partial, [source.partialText]);
+      final firstSummary = events.indexWhere((e) => e is JobRunPartialSummary);
+      expect(
+        events.indexWhere((e) => e is JobRunPartialTranscript),
+        lessThan(firstSummary),
+        reason: 'the transcript streams before the summary does',
+      );
+    });
+
     test('a failed media job ends without the summary-ready notice', () async {
       background = _RecordingBackgroundJob();
       await h.dispose();

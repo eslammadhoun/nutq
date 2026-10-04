@@ -5,13 +5,16 @@ import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/entities/job_stage.dart';
+import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_state.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 
 import '../../support/async_helpers.dart';
 import '../../support/sample_text.dart';
+import 'support/fake_transcript_source.dart';
 import 'support/job_harness.dart';
 
 const _longFinal =
@@ -240,6 +243,35 @@ void main() {
     expect(cubit.state.job!.sourceLanguage, ContentLanguage.en);
     expect(h.gemma.prompts, isNotEmpty);
     expect(h.gemma.prompts.every((p) => p.startsWith('Summarize the following text')), isTrue);
+  });
+
+  test('a media job shows its transcript live, then hands over to the stored one', () async {
+    final source = FakeMediaSource();
+    await h.dispose();
+    h = JobHarness(extraSources: [source]);
+    // Hold the summary, so the job stays between transcript and summary.
+    final gate = Completer<void>();
+    h.gemma.responder = (prompt, call) async {
+      await gate.future;
+      return null;
+    };
+    final id = (await h.repo.createJob(
+      NewJobDraft.media(
+        type: JobSourceType.audio,
+        filePath: '/f.m4a',
+        language: ContentLanguage.ar,
+      ),
+    )).id;
+    final cubit = open(id);
+    h.runner.enqueue(id);
+
+    await eventually(() => cubit.state.streamingTranscript != null, reason: 'no live transcript');
+    expect(cubit.state.streamingTranscript, source.partialText);
+
+    gate.complete();
+    await untilSettled(cubit);
+    expect(cubit.state.streamingTranscript, isNull);
+    expect(cubit.state.job!.transcript!.text, source.text);
   });
 
   group('word-by-word summary', () {

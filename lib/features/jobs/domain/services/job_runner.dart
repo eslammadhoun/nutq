@@ -124,12 +124,18 @@ class JobRunner implements JobScheduler {
       partialInterval,
       (text) => _update(id, (live) => live.copyWith(partialSummary: text)),
     );
+    final transcripts = Throttler<String>(
+      partialInterval,
+      (text) => _update(id, (live) => live.copyWith(partialTranscript: text)),
+    );
     final done = Completer<void>();
     final subscription = run.events.listen(
       (event) {
         switch (event) {
           case JobRunProgress(:final progress):
             _update(id, (live) => live.copyWith(progress: progress));
+          case JobRunPartialTranscript(:final text):
+            transcripts.add(text);
           case JobRunPartialSummary(:final text):
             partials.add(text);
         }
@@ -143,6 +149,7 @@ class JobRunner implements JobScheduler {
 
     await done.future;
     partials.cancel();
+    transcripts.cancel();
     await subscription.cancel();
 
     _currentId = null;

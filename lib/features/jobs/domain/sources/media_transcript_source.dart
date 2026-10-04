@@ -94,6 +94,7 @@ class MediaTranscriptSource implements TranscriptSource {
       final speech = await _recognizer.transcribe(
         audioPath: audio.path,
         language: request.job.sourceLanguage,
+        onPartialText: request.onPartialTranscript,
         onProgress: (fraction) => request.onProgress(
           JobProgress(
             JobStage.transcribing,

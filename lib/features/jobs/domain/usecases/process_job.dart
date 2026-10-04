@@ -35,6 +35,13 @@ class JobRunProgress extends JobRunEvent {
   final JobProgress progress;
 }
 
+/// The transcript as recognized so far, while a media source transcribes.
+class JobRunPartialTranscript extends JobRunEvent {
+  const JobRunPartialTranscript(this.text);
+
+  final String text;
+}
+
 /// The final summary as generated so far.
 class JobRunPartialSummary extends JobRunEvent {
   const JobRunPartialSummary(this.text);
@@ -203,6 +210,7 @@ class ProcessJob {
           SourceRequest(
             job: job,
             cancellation: token,
+            onPartialTranscript: (text) => emit(JobRunPartialTranscript(text)),
             // Until a media job's audio length is known, its share of the bar
             // is the source's own guess.
             onProgress: (p) => emit(
