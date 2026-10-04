@@ -142,6 +142,12 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
   @override
   Future<void> cancel() => _quietly('cancel');
 
+  @override
+  Future<void> pause() => _quietly('pause');
+
+  @override
+  Future<void> resume() => _quietly('resume');
+
   /// For requests that may arrive after the run ended: there is nothing useful
   /// to report if the bridge cannot act on them.
   Future<void> _quietly(String method) async {

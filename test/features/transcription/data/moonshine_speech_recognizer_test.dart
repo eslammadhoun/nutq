@@ -114,4 +114,11 @@ void main() {
   test('cancel never throws, even with no bridge', () async {
     await recognizer.cancel();
   });
+
+  test('pause and resume reach the bridge', () async {
+    fakeBridge();
+    await recognizer.pause();
+    await recognizer.resume();
+    expect(calls.map((c) => c.method), ['pause', 'resume']);
+  });
 }

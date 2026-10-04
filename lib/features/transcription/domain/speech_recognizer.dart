@@ -34,6 +34,12 @@ abstract interface class SpeechRecognizer {
 
   /// Stops a running [transcribe]. Never throws.
   Future<void> cancel();
+
+  /// Holds a running [transcribe] after the chunk in flight, using no CPU
+  /// until [resume]. Never throws.
+  Future<void> pause();
+
+  Future<void> resume();
 }
 
 /// Recognition failed. [message] is developer detail only.

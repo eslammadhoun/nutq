@@ -15,6 +15,7 @@ import 'package:nutq/features/jobs/domain/sources/media_transcript_source.dart';
 import 'package:nutq/features/jobs/domain/sources/transcript_source.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 import 'package:nutq/features/transcription/domain/audio_extractor.dart';
+import 'package:nutq/features/transcription/domain/background_job.dart';
 import 'package:nutq/features/transcription/domain/speech_recognizer.dart';
 
 class _FakeExtractor implements AudioExtractor {
@@ -75,6 +76,40 @@ class _FakeRecognizer implements SpeechRecognizer {
 
   @override
   Future<void> cancel() async => cancels++;
+
+  final pauses = <bool>[];
+
+  @override
+  Future<void> pause() async => pauses.add(true);
+
+  @override
+  Future<void> resume() async => pauses.add(false);
+}
+
+/// Records what the source shows outside the app, and lets a test press the
+/// lock-screen buttons.
+class _FakeBackgroundJob implements BackgroundJob {
+  final calls = <String>[];
+  final _commands = StreamController<BackgroundJobCommand>.broadcast();
+
+  void press(BackgroundJobCommand command) => _commands.add(command);
+
+  @override
+  Stream<BackgroundJobCommand> get commands => _commands.stream;
+
+  @override
+  Future<void> begin({required String title, Duration? duration}) async =>
+      calls.add('begin $title');
+
+  @override
+  Future<void> update({required double progress, Duration? duration}) async =>
+      calls.add('update $progress${duration == null ? '' : ' ${duration.inSeconds}s'}');
+
+  @override
+  Future<void> setPaused(bool paused) async => calls.add('paused $paused');
+
+  @override
+  Future<void> end({required bool completed}) async => calls.add('end $completed');
 }
 
 void main() {
@@ -82,6 +117,7 @@ void main() {
   late File media;
   late _FakeExtractor extractor;
   late _FakeRecognizer recognizer;
+  late _FakeBackgroundJob background;
   late MediaTranscriptSource source;
   late List<JobProgress> progress;
   late List<SourceInfo> saved;
@@ -92,10 +128,12 @@ void main() {
     media = File('${dir.path}/talk.m4a')..writeAsBytesSync([1, 2, 3]);
     extractor = _FakeExtractor(dir);
     recognizer = _FakeRecognizer();
+    background = _FakeBackgroundJob();
     source = MediaTranscriptSource(
       type: JobSourceType.audio,
       extractor: extractor,
       recognizer: recognizer,
+      background: background,
     );
     progress = [];
     saved = [];
@@ -114,6 +152,7 @@ void main() {
         createdAt: DateTime.utc(2026, 10),
         updatedAt: DateTime.utc(2026, 10),
         sourceFilePath: path ?? media.path,
+        sourceTitle: 'talk.m4a',
       );
 
   Future<String> resolve([JobDetailEntity? j]) async {
@@ -205,5 +244,52 @@ void main() {
       ..gate!.complete();
     await expectLater(run, throwsA(isA<CancelledException>()));
     expect(File(extractor.produced!.path).existsSync(), isFalse);
+  });
+
+  group('outside the app', () {
+    test('shows the job on the lock screen from start to finish', () async {
+      await resolve();
+      expect(background.calls, [
+        'begin talk.m4a',
+        'update 0.0 90s',
+        'update 0.5',
+        'update 1.0',
+        'end true',
+      ]);
+    });
+
+    test('a failed job ends without the transcript-ready notice', () async {
+      recognizer.error = const SpeechRecognitionException('boom');
+      await failureOf(resolve());
+      expect(background.calls.last, 'end false');
+
+      background.calls.clear();
+      extractor
+        ..error = const AudioExtractionException('no audio')
+        ..produced = null;
+      await failureOf(resolve());
+      expect(background.calls, ['begin talk.m4a', 'end false']);
+    });
+
+    test('the lock-screen buttons pause and resume recognition', () async {
+      recognizer.gate = Completer<void>();
+      final run = resolve();
+      await pumpEventQueue();
+      background
+        ..press(BackgroundJobCommand.pause)
+        ..press(BackgroundJobCommand.resume);
+      await pumpEventQueue();
+      expect(recognizer.pauses, [true, false]);
+      expect(background.calls, containsAllInOrder(['paused true', 'paused false']));
+      recognizer.gate!.complete();
+      await run;
+    });
+
+    test('buttons pressed after recognition are ignored', () async {
+      await resolve();
+      background.press(BackgroundJobCommand.pause);
+      await pumpEventQueue();
+      expect(recognizer.pauses, isEmpty);
+    });
   });
 }

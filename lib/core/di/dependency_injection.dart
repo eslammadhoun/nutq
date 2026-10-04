@@ -1,8 +1,12 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:get_it/get_it.dart';
 import 'package:nutq/core/database/app_database.dart';
 import 'package:nutq/core/locale/locale_cubit.dart';
 import 'package:nutq/core/preferences/app_preferences.dart';
 import 'package:nutq/core/utils/background_work.dart';
+import 'package:nutq/core/utils/lifecycle_foreground_gate.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/media/platform_media_files.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
@@ -26,9 +30,12 @@ import 'package:nutq/features/summarization/data/repositories/summarization_repo
 import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
 import 'package:nutq/features/transcription/data/ffmpeg_audio_extractor.dart';
+import 'package:nutq/features/transcription/data/ios_background_job.dart';
 import 'package:nutq/features/transcription/data/moonshine_speech_recognizer.dart';
 import 'package:nutq/features/transcription/domain/audio_extractor.dart';
+import 'package:nutq/features/transcription/domain/background_job.dart';
 import 'package:nutq/features/transcription/domain/speech_recognizer.dart';
+import 'package:nutq/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -76,7 +83,20 @@ void _registerSummarization() {
 void _registerTranscription() {
   sl
     ..registerLazySingleton<AudioExtractor>(FfmpegAudioExtractor.new)
-    ..registerLazySingleton<SpeechRecognizer>(MoonshineSpeechRecognizer.new);
+    ..registerLazySingleton<SpeechRecognizer>(MoonshineSpeechRecognizer.new)
+    ..registerLazySingleton<BackgroundJob>(
+      () => Platform.isIOS
+          ? IosBackgroundJob(localizations: _currentLocalizations)
+          : const NoBackgroundJob(),
+    );
+}
+
+/// Strings in the language the app is showing: the user's choice, or the
+/// device language when they made none.
+AppLocalizations _currentLocalizations() {
+  final chosen = sl<LocaleCubit>().state ?? PlatformDispatcher.instance.locale;
+  final supported = supportedLocales.any((l) => l.languageCode == chosen.languageCode);
+  return lookupAppLocalizations(supported ? Locale(chosen.languageCode) : supportedLocales.first);
 }
 
 /// Jobs: storage, the sources that can be processed, and the app-wide queue.
@@ -103,6 +123,7 @@ void _registerJobs() {
               type: type,
               extractor: sl<AudioExtractor>(),
               recognizer: sl<SpeechRecognizer>(),
+              background: sl<BackgroundJob>(),
             ),
       ]),
     )
@@ -112,6 +133,7 @@ void _registerJobs() {
         sources: sl<TranscriptSourceRegistry>(),
         summarize: sl<SummarizeTranscript>(),
         summarization: sl<SummarizationRepository>(),
+        foreground: const LifecycleForegroundGate(),
       ),
     )
     ..registerLazySingleton<JobRunner>(
