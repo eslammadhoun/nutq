@@ -49,7 +49,7 @@ flutter:
   generate: true
   assets:
     - assets/svgs/
-    - assets/models/gemma3-1b-it-q4.litertlm
+    - assets/models/gemma3-1b-arabic-summarizer-v3_q4_block32_ekv2048.litertlm
   fonts:
     # Latin UI font — Inter (static instances, text optical size)
     - family: Inter
