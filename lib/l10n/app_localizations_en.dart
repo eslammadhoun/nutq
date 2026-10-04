@@ -359,4 +359,32 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get jobFailureInsufficientStorage =>
       'There isn\'t enough free storage to process this job.';
+
+  @override
+  String backgroundJobRunning(String percent) {
+    return 'Transcribing · $percent';
+  }
+
+  @override
+  String backgroundJobPaused(String percent) {
+    return 'Paused · $percent';
+  }
+
+  @override
+  String backgroundJobInterruptedTitle(String percent) {
+    return 'Transcription paused at $percent';
+  }
+
+  @override
+  String backgroundJobInterruptedBody(String title) {
+    return 'Another app is playing audio. Open Nutq to continue $title.';
+  }
+
+  @override
+  String get backgroundJobReadyTitle => 'Transcript ready';
+
+  @override
+  String backgroundJobReadyBody(String title) {
+    return 'Open Nutq to summarize $title.';
+  }
 }

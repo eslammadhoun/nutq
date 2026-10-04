@@ -132,5 +132,12 @@
   "jobFailureSourceUnavailable": "تعذّر الوصول إلى المصدر. تحقق من اتصالك وحاول مرة أخرى.",
   "jobFailureUnsupportedMedia": "صيغة هذا الملف غير مدعومة.",
   "jobFailureTranscriptionFailed": "تعذّر تفريغ الصوت.",
-  "jobFailureInsufficientStorage": "لا توجد مساحة تخزين كافية لمعالجة هذه المهمة."
+  "jobFailureInsufficientStorage": "لا توجد مساحة تخزين كافية لمعالجة هذه المهمة.",
+
+  "backgroundJobRunning": "جارٍ التفريغ · {percent}",
+  "backgroundJobPaused": "متوقف مؤقتًا · {percent}",
+  "backgroundJobInterruptedTitle": "توقف التفريغ عند {percent}",
+  "backgroundJobInterruptedBody": "تطبيق آخر يشغّل الصوت. افتح نطق لمتابعة {title}.",
+  "backgroundJobReadyTitle": "النص جاهز",
+  "backgroundJobReadyBody": "افتح نطق لتلخيص {title}."
 }

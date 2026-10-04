@@ -728,6 +728,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There isn\'t enough free storage to process this job.'**
   String get jobFailureInsufficientStorage;
+
+  /// No description provided for @backgroundJobRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcribing · {percent}'**
+  String backgroundJobRunning(String percent);
+
+  /// No description provided for @backgroundJobPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused · {percent}'**
+  String backgroundJobPaused(String percent);
+
+  /// No description provided for @backgroundJobInterruptedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcription paused at {percent}'**
+  String backgroundJobInterruptedTitle(String percent);
+
+  /// No description provided for @backgroundJobInterruptedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Another app is playing audio. Open Nutq to continue {title}.'**
+  String backgroundJobInterruptedBody(String title);
+
+  /// No description provided for @backgroundJobReadyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcript ready'**
+  String get backgroundJobReadyTitle;
+
+  /// No description provided for @backgroundJobReadyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Nutq to summarize {title}.'**
+  String backgroundJobReadyBody(String title);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
