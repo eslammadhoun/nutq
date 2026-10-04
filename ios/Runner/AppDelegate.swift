@@ -13,6 +13,12 @@ import UIKit
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
 
+    // On-device speech recognition for audio and video jobs. Not a pub package,
+    // so it is registered by hand rather than by the generated registrant.
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "MoonshineBridge") {
+      MoonshineBridge.register(with: registrar)
+    }
+
     // The summarizer runs on the CPU in the Simulator, whose emulated Metal
     // makes the GPU backend produce garbage (FlutterGemmaRuntime).
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "NutqDevice") {

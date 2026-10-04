@@ -31,6 +31,10 @@ target 'Runner' do
   use_frameworks!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+
+  # On-device speech recognition. The framework is not committed; run
+  # third_party/moonshine/fetch-framework.sh first.
+  pod 'MoonshineVoice', :path => '../third_party/moonshine'
   target 'RunnerTests' do
     inherit! :search_paths
   end

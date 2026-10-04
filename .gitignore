@@ -49,3 +49,8 @@ app.*.map.json
 
 # On-device model binaries (hundreds of MB): provisioned per machine, never committed.
 assets/models/*.litertlm
+
+# Moonshine speech recognition: the ~214 MB xcframework and the per-language model
+# weights are fetched by the scripts in third_party/moonshine/, never committed.
+/third_party/moonshine/Moonshine.xcframework/
+/ios/Runner/moonshine_models/
