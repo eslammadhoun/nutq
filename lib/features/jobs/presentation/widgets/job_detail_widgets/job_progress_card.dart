@@ -7,6 +7,11 @@ import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/job_d
 
 /// Live progress of the running summary job: current stage, overall bar and
 /// processed/total sections. Rebuilds on every event of the progress stream.
+///
+/// Nothing here animates on its own: a job runs for many minutes, and an
+/// indeterminate spinner redraws the screen 60 times a second the whole time,
+/// heat an iPhone XR then pays for in throttled transcription and summary
+/// speed. The bar only animates briefly when the progress changes.
 class JobProgressCard extends StatelessWidget {
   const JobProgressCard({super.key, required this.progress});
 
@@ -27,11 +32,7 @@ class JobProgressCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              SizedBox(
-                width: 14.w,
-                height: 14.w,
-                child: CircularProgressIndicator(strokeWidth: 2, color: colors.statusProcessing),
-              ),
+              Icon(Icons.graphic_eq_rounded, size: 16.sp, color: colors.statusProcessing),
               SizedBox(width: 8.w),
               Expanded(
                 child: Text(
