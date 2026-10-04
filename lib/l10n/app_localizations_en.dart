@@ -229,6 +229,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jobDetailTranscriptPending => 'The transcript isn\'t ready yet.';
 
   @override
+  String get jobDetailTranscriptLive => 'Live';
+
+  @override
   String get jobDetailAiSummary => 'AI Summary';
 
   @override

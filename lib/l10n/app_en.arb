@@ -115,6 +115,7 @@
   "jobDetailTranscriptionComplete": "Transcription Complete",
   "jobDetailTranscript": "Transcript",
   "jobDetailTranscriptPending": "The transcript isn't ready yet.",
+  "jobDetailTranscriptLive": "Live",
   "jobDetailAiSummary": "AI Summary",
   "jobDetailSummaryPending": "The summary isn't ready yet.",
   "jobDetailDownloadTranscript": "Download Transcript",

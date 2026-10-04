@@ -228,6 +228,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get jobDetailTranscriptPending => 'النص المفرَّغ غير جاهز بعد.';
 
   @override
+  String get jobDetailTranscriptLive => 'مباشر';
+
+  @override
   String get jobDetailAiSummary => 'ملخص الذكاء الاصطناعي';
 
   @override

@@ -495,6 +495,12 @@ abstract class AppLocalizations {
   /// **'The transcript isn\'t ready yet.'**
   String get jobDetailTranscriptPending;
 
+  /// No description provided for @jobDetailTranscriptLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get jobDetailTranscriptLive;
+
   /// No description provided for @jobDetailAiSummary.
   ///
   /// In en, this message translates to:

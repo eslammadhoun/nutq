@@ -82,6 +82,7 @@
   "jobDetailTranscriptionComplete": "اكتمل النسخ",
   "jobDetailTranscript": "النص المفرَّغ",
   "jobDetailTranscriptPending": "النص المفرَّغ غير جاهز بعد.",
+  "jobDetailTranscriptLive": "مباشر",
   "jobDetailAiSummary": "ملخص الذكاء الاصطناعي",
   "jobDetailSummaryPending": "الملخص غير جاهز بعد.",
   "jobDetailDownloadTranscript": "تنزيل النص",
