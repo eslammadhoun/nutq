@@ -13,7 +13,7 @@ NewJobCubit ──► SubmitJob ──► JobsRepository.createJob   (stored: pe
                                             ┌───────────────┴────────────────┐
                                             ▼                                ▼
                                   TranscriptSource.resolve          SummarizeTranscript
-                                (per JobSourceType; text = instant)   (clean → chunk → analyze → merge → final → validate)
+                                (per JobSourceType; text = instant)   (clean → analyze → summarize section by section)
                                             └───────────────┬────────────────┘
                                                             ▼
                               JobsRepository: markRunning / saveTranscript / updateSourceInfo / completeJob | failJob | cancelJob
@@ -73,4 +73,4 @@ file cleanup on delete already handle non-text jobs.
 
 Unit, integration and widget tests cover the queue, the processor, the source strategy (with a fake),
 storage, migrations, and the UI. **Not verified:** anything on a real device — the model, the audio
-stack, background execution, and real-world speed (see `docs/summarization_benchmark.md`).
+stack, background execution, and real-world speed (see `docs/current_summarization_architecture.md`).

@@ -1,5 +1,11 @@
 # Nutq — On-Device Arabic Summarization Implementation Plan
 
+> **Superseded (October 2026).** This was the original plan. The chunk → merge → validate pipeline
+> it describes was replaced by the pipeline ported from `gemma_playground`, and the app now uses the
+> fine-tuned `gemma3-1b-arabic-summarizer-v3` model instead of stock Gemma 3 1B IT. The benchmark and
+> progress docs named below were removed. For the current design, see
+> `docs/current_summarization_architecture.md`.
+
 ## 0. Mission
 
 Implement and integrate a production-oriented, on-device Arabic summarization pipeline for the Nutq Flutter application using:

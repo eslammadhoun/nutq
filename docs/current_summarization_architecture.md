@@ -1,75 +1,70 @@
-# Current summarization architecture
+# Summarization architecture
 
-Audit for TASK 01–02 of `nutq-implimentation-plan.md`.
+On-device summarization, ported from `gemma_playground` (October 2026), where it was tuned on an
+iPhone XR and the iOS Simulator against two Arabic fixtures
+(`test/features/summarization/fixtures/`). It replaced an earlier pipeline (chunk → analyze →
+hierarchical merge → final synthesis → validate) that had never been run against the real model;
+see git history before branch `feature/playground-summarizer`.
 
-Two states are documented: what existed **before** this change (read from git
-history, commit `81220fe`), and what exists **now**.
+## Model
 
-## Before (commit `81220fe`, branch `feature/llama-summarization-pipeline`)
+`gemma3-1b-arabic-summarizer-v3_q4_block32_ekv2048.litertlm` (579 MB): Gemma 3 1B fine-tuned on
+Arabic news summaries (XLSum + arabsummaries), int4, 2048-token context. It is selected in
+`data/datasources/summarizer_model.dart` (`activeSummarizerModel`). Arabic summaries use the exact
+instruction it was fine-tuned on; English summaries use a short generic prompt
+(`data/prompts/summary_prompt.dart`).
 
-A single-shot pipeline on `llama_cpp_dart` (GGUF), built in `lib/core/ml/`:
+The file is bundled as an asset but not committed (`assets/models/*.litertlm` is ignored). Copy it
+from `gemma_playground/assets/models/`.
 
-| Piece | File | Behavior |
-|---|---|---|
-| Engine | `llm/llm_engine.dart`, `llm_engine_impl.dart` | `loadModel(path)`, `generate(prompt, {maxTokens})` → token stream, `cancel()`, `unloadModel()` on `llama_cpp_dart`'s worker isolate |
-| Prompt | `llm/summarization_prompt_builder.dart` | One Gemma-chat-template prompt asking for strict JSON shaped like `Summary` |
-| Parser | `llm/summary_response_parser.dart` | Tolerant JSON parse of the whole response |
-| Pipeline | `orchestration/summarization_pipeline.dart` | Check model → load → build **one** prompt → generate (`maxTokens` 1024) → coalesce tokens into text batches → parse |
-| Lock | `orchestration/inference_lock.dart` | Mutual exclusion between whisper.cpp and llama.cpp |
-| Models | `models/llm_model_spec.dart` | Two GGUF tiers, Gemma 3 1B and 4B, downloaded over HTTP |
+**Backend:** GPU, with the plugin falling back to CPU by itself if the GPU fails to start. The iOS
+Simulator always uses the CPU: its emulated Metal makes the GPU produce garbage (the
+`nutq/device` `isSimulator` channel in `AppDelegate.swift`). Android has not been measured yet.
 
-Findings against the plan:
+## Pipeline (`SummarizeTranscript`)
 
-- **No chunking, no hierarchy, no validation.** The whole transcript went into
-  one prompt, which is exactly what the plan says a 1B model cannot be trusted
-  to do (§54).
-- **Different runtime and model format** (`llama_cpp_dart` + GGUF, downloaded)
-  than the plan's `flutter_gemma` / LiteRT-LM + bundled `.litertlm` asset.
-- The pipeline was a **stub**: never wired to the UI, never verified on a
-  device (its own doc comment says so).
-- Also present: Whisper ASR (`core/ml/whisper`), an HTTP/WebSocket network
-  layer, a Drift database, and the Jobs data/domain layers, none of which
-  summarization depended on beyond the stub's `Summary` result type.
+1. **Clean**: remove the doubled words Moonshine leaves where it cuts a line
+   (`cleanTranscriptSeams`). Under `minWordsToSummarize` (20) words the text is kept as its own
+   summary and the model is never loaded.
+2. **Analyze** (in an isolate): split into units and score them (`KeyLineExtractor`,
+   `CoverageTracker`). Filler such as greetings and hand-overs is dropped. Units scoring at least
+   the median are *key points*.
+3. **Size the summary**: `summaryRatio` is 15% of the source for a few-minute clip, falling to 6%
+   for a 100-minute lecture, then scaled by `SummaryLength` (short 0.6×, medium 1×, detailed 1.6×).
+   A 1B model writes about 80 words per call whatever it is asked, so the length is set by the
+   number of sections: source words per section = 80 / ratio.
+4. **Summarize each section** in source order, one call each, streaming into the visible summary.
+   A section that writes less than a third of its share is retried once with only its key points.
+5. **Assemble**: paragraphs in source order. Each paragraph loses its "يتحدث الكاتب عن…" opener,
+   and sentences that restate an earlier paragraph are dropped.
 
-Stop condition §51 ("conflicting summarization implementations / incompatible
-Gemma API") applied, so the direction was confirmed with the user before
-changing anything.
+There is no merge step. A 1B model merging summaries loses detail and repeats itself, and every
+merge costs another full prefill.
 
-## After
+## Guards on every call (`GemmaLocalDataSourceImpl`)
 
-Per the user's decision: all non-UI logic was removed, the runtime was swapped
-to `flutter_gemma` + `flutter_gemma_litertlm`, and the plan was implemented.
+- **Loop cut**: generation stops as soon as the tail repeats (`loopCut`), and the loop is cut off.
+- **Garbage abort**: after 40 tokens, output mixing four or more scripts or containing control
+  tokens stops the call. The job then fails without a retry, because the same backend would fail
+  again.
+- **Cap trim**: a reply that hits its output cap is cut back to its last full sentence.
+- **Cleanup** (`SummarizationRepositoryImpl.cleanSummary`): removes an echoed prompt, chat
+  preambles ("إليك ملخص النص:"), paragraphs in the wrong language (Arabic summaries only), loops
+  and markdown.
 
-Kept unchanged: theme, l10n, routing, core widgets, and every screen/widget
-(splash, onboarding, home tabs, alerts, profile, jobs list/detail/new-job sheet,
-models). Their Jobs/NewJob/JobDetail/Models cubits are now **inert UI-state
-holders** (filters, form fields; no data source), so those screens render but
-show empty/initial states.
+A section whose call fails or leaves nothing usable is left out, and the summary is flagged
+`needsReview`. The job fails only when no section produced anything.
 
-New: `lib/features/summarization/` (feature-first clean architecture)
+## Logging
 
-```
-domain/
-  entities/      Sentence, TranscriptChunk, ChunkAnalysis, LocalSummary, SummaryResult,
-                 ValidationReport, SummarizationConfig, SummaryLength, progress/failure/cancellation
-  text/          ArabicNormalizer, TranscriptCleaner, SentenceSegmenter, TokenCounter,
-                 SemanticChunker, FactExtractor, EvidenceSelector
-  usecases/      CleanTranscript, ChunkTranscript, SummarizeChunk, AggregateKeyFacts,
-                 MergeSummaries (hierarchical, evidence-grounded), ValidateSummary,
-                 SummarizeTranscript (full pipeline)
-  repositories/  SummarizationRepository (interface)
-data/
-  datasources/   GemmaLocalDataSource (+Impl), GemmaGenerationConfig, GemmaTokenCounter
-  prompts/       chunk_analysis, local_summary, merge, final_summary, prompt_version
-  parsing/       ChunkAnalysisParser (tolerant)
-  cache/         SummarizationCache (in-memory, file; SHA-256 keys incl. prompt version)
-  repositories/  SummarizationRepositoryImpl
-presentation/
-  utils/         summarizationStageLabel (shared stage names)
-(benchmark tooling moved to test/support/benchmark/)
-```
+In debug and profile builds each run logs one `[summarizer] …` line, with counts and timings only, never text.
+It uses the same fields as gemma_playground's line, so device runs from the two apps can be
+compared.
 
-Entry point in the app: Jobs → New Job (pasted text) → Job Detail, whose `JobDetailCubit` drives the pipeline and shows live progress and the streaming summary. There is no standalone summarization screen and no model-management screen (the model is a bundled asset).
-Model: `assets/models/gemma3-1b-it-q4.litertlm`, installed by
-`FlutterGemma.installModel(...).fromAsset(...)`, engine registered in
-`main.dart` with `FlutterGemma.initialize(inferenceEngines: [LiteRtLmEngine()])`.
+## Known gaps
+
+- **Android:** not benchmarked. The Redmi 15C GPU vs CPU comparison is still open.
+- **Mismatched languages:** an Arabic source with an English summary (or the reverse) has not been
+  evaluated. The fine-tuned model was trained only on Arabic → Arabic.
+- **No key takeaways:** the pipeline doesn't produce them, so `Summary.takeaways` is always empty
+  and the Job Detail takeaways section never shows.
