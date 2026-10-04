@@ -25,12 +25,24 @@ import UserNotifications
 /// carries on when the user comes back; a notification says so. A killed app
 /// fails the job as interrupted on the next launch.
 ///
+/// The lock screen shows the whole job, transcription and summary, against an
+/// estimated total time. Only transcription is kept alive outside the app: iOS
+/// allows no GPU work in the background, so while summarizing (or waiting for
+/// the user to come back and summarize) the silent audio is paused and iOS may
+/// suspend the app as usual.
+///
 /// Every user-visible string comes from Dart (`labels` in `begin`), already
 /// localized, with `{percent}` and `{title}` placeholders filled in here.
 final class JobBridge: NSObject {
   private static let channelName = "nutq/background_job"
   private static let pausedNotification = "transcription-paused"
   private static let finishedNotification = "transcription-finished"
+  private static let doneNotification = "summary-finished"
+
+  /// What the job is doing; mirrors `BackgroundJobPhase` in Dart.
+  private enum Phase: String {
+    case transcribing, summarizing, waitingForApp
+  }
 
   /// Rate shown before there is a measured one. Non-zero so the lock screen
   /// shows the job as running (a pause button) rather than stopped; too small
@@ -41,6 +53,7 @@ final class JobBridge: NSObject {
 
   private var active = false
   private var paused = false
+  private var phase = Phase.transcribing
   private var title = ""
   private var labels: [String: String] = [:]
   private var durationSeconds = 0.0
@@ -85,12 +98,13 @@ final class JobBridge: NSObject {
     case "begin":
       begin(
         title: args["title"] as? String ?? "Nutq",
-        labels: args["labels"] as? [String: String] ?? [:],
-        duration: args["duration"] as? Double ?? 0)
+        labels: args["labels"] as? [String: String] ?? [:])
     case "update":
       update(
         progress: args["progress"] as? Double ?? fraction,
         duration: args["duration"] as? Double)
+    case "setPhase":
+      setPhase(Phase(rawValue: args["phase"] as? String ?? "") ?? phase)
     case "setPaused":
       setPaused(args["paused"] as? Bool ?? false)
     case "end":
@@ -104,12 +118,13 @@ final class JobBridge: NSObject {
 
   // MARK: - Job lifecycle
 
-  private func begin(title: String, labels: [String: String], duration: Double) {
+  private func begin(title: String, labels: [String: String]) {
     active = true
     paused = false
+    phase = .transcribing
     self.title = title
     self.labels = labels
-    durationSeconds = duration
+    durationSeconds = 0
     fraction = 0
     rate = 0
     lastUpdate = nil
@@ -125,6 +140,27 @@ final class JobBridge: NSObject {
     if let duration { durationSeconds = duration }
     fraction = min(max(progress, 0), 1)
     measureRate()
+    publishNowPlaying()
+  }
+
+  private func setPhase(_ value: Phase) {
+    guard active, phase != value else { return }
+    phase = value
+    paused = false
+    lastUpdate = nil
+    switch phase {
+    case .transcribing:
+      startKeepAlive()
+    case .summarizing:
+      keepAlive.pause()
+      removeNotifications()
+    case .waitingForApp:
+      keepAlive.pause()
+      if UIApplication.shared.applicationState != .active {
+        post(
+          id: Self.finishedNotification, title: text("readyTitle"), body: text("readyBody"))
+      }
+    }
     publishNowPlaying()
   }
 
@@ -152,8 +188,7 @@ final class JobBridge: NSObject {
     stopKeepAlive()
     removeNotifications()
     if completed && UIApplication.shared.applicationState != .active {
-      post(
-        id: Self.finishedNotification, title: text("readyTitle"), body: text("readyBody"))
+      post(id: Self.doneNotification, title: text("doneTitle"), body: text("doneBody"))
     }
   }
 
@@ -162,7 +197,7 @@ final class JobBridge: NSObject {
   /// Starts (or restarts) the silent audio. Safe to call repeatedly.
   /// [started] runs on the main thread with whether audio is now playing.
   private func startKeepAlive(started: ((Bool) -> Void)? = nil) {
-    guard active, !paused else { return }
+    guard active, !paused, phase == .transcribing else { return }
     keepAlive.start { playing in
       DispatchQueue.main.async { started?(playing) }
     }
@@ -181,7 +216,7 @@ final class JobBridge: NSObject {
     case .began:
       // Another app took the audio, so iOS will suspend us shortly. The run
       // freezes rather than failing; tell the user how to continue it.
-      if !paused && UIApplication.shared.applicationState != .active {
+      if !paused && phase == .transcribing && UIApplication.shared.applicationState != .active {
         post(
           id: Self.pausedNotification, title: text("interruptedTitle"),
           body: text("interruptedBody"))
@@ -220,11 +255,12 @@ final class JobBridge: NSObject {
     let elapsed = fraction * durationSeconds
     var info: [String: Any] = [
       MPMediaItemPropertyTitle: title,
-      MPMediaItemPropertyArtist: text(paused ? "paused" : "running"),
+      MPMediaItemPropertyArtist: text(paused ? "paused" : phase.rawValue),
       MPMediaItemPropertyAlbumTitle: "Nutq",
       MPMediaItemPropertyPlaybackDuration: durationSeconds,
       MPNowPlayingInfoPropertyElapsedPlaybackTime: elapsed,
-      MPNowPlayingInfoPropertyPlaybackRate: paused ? 0.0 : max(rate, Self.placeholderRate),
+      MPNowPlayingInfoPropertyPlaybackRate: paused || phase == .waitingForApp
+        ? 0.0 : max(rate, Self.placeholderRate),
       MPNowPlayingInfoPropertyDefaultPlaybackRate: 1.0,
       MPNowPlayingInfoPropertyMediaType: MPNowPlayingInfoMediaType.audio.rawValue,
     ]
@@ -282,6 +318,8 @@ final class JobBridge: NSObject {
     let commands = MPRemoteCommandCenter.shared()
     let send: (String) -> MPRemoteCommandHandlerStatus = { [weak self] action in
       guard let self, self.active else { return .noActionableNowPlayingItem }
+      // Only transcription can pause; the summary runs to the end.
+      guard self.phase == .transcribing else { return .commandFailed }
       self.channel.invokeMethod("command", arguments: action)
       return .success
     }
@@ -332,7 +370,7 @@ final class JobBridge: NSObject {
   }
 
   private func removeNotifications() {
-    let ids = [Self.pausedNotification, Self.finishedNotification]
+    let ids = [Self.pausedNotification, Self.finishedNotification, Self.doneNotification]
     let center = UNUserNotificationCenter.current()
     center.removeDeliveredNotifications(withIdentifiers: ids)
     center.removePendingNotificationRequests(withIdentifiers: ids)

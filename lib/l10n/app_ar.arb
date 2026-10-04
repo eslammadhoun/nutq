@@ -134,10 +134,14 @@
   "jobFailureTranscriptionFailed": "تعذّر تفريغ الصوت.",
   "jobFailureInsufficientStorage": "لا توجد مساحة تخزين كافية لمعالجة هذه المهمة.",
 
-  "backgroundJobRunning": "جارٍ التفريغ · {percent}",
+  "backgroundJobTranscribing": "جارٍ التفريغ · {percent}",
   "backgroundJobPaused": "متوقف مؤقتًا · {percent}",
   "backgroundJobInterruptedTitle": "توقف التفريغ عند {percent}",
   "backgroundJobInterruptedBody": "تطبيق آخر يشغّل الصوت. افتح نطق لمتابعة {title}.",
   "backgroundJobReadyTitle": "النص جاهز",
-  "backgroundJobReadyBody": "افتح نطق لتلخيص {title}."
+  "backgroundJobReadyBody": "افتح نطق لتلخيص {title}.",
+  "backgroundJobSummarizing": "جارٍ التلخيص · {percent}",
+  "backgroundJobWaitingForApp": "افتح نطق للتلخيص · {percent}",
+  "backgroundJobDoneTitle": "الملخص جاهز",
+  "backgroundJobDoneBody": "تم تلخيص {title}."
 }

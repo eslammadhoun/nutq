@@ -359,7 +359,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get jobFailureInsufficientStorage => 'لا توجد مساحة تخزين كافية لمعالجة هذه المهمة.';
 
   @override
-  String backgroundJobRunning(String percent) {
+  String backgroundJobTranscribing(String percent) {
     return 'جارٍ التفريغ · $percent';
   }
 
@@ -384,5 +384,23 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String backgroundJobReadyBody(String title) {
     return 'افتح نطق لتلخيص $title.';
+  }
+
+  @override
+  String backgroundJobSummarizing(String percent) {
+    return 'جارٍ التلخيص · $percent';
+  }
+
+  @override
+  String backgroundJobWaitingForApp(String percent) {
+    return 'افتح نطق للتلخيص · $percent';
+  }
+
+  @override
+  String get backgroundJobDoneTitle => 'الملخص جاهز';
+
+  @override
+  String backgroundJobDoneBody(String title) {
+    return 'تم تلخيص $title.';
   }
 }

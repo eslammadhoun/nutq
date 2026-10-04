@@ -361,7 +361,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'There isn\'t enough free storage to process this job.';
 
   @override
-  String backgroundJobRunning(String percent) {
+  String backgroundJobTranscribing(String percent) {
     return 'Transcribing · $percent';
   }
 
@@ -386,5 +386,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String backgroundJobReadyBody(String title) {
     return 'Open Nutq to summarize $title.';
+  }
+
+  @override
+  String backgroundJobSummarizing(String percent) {
+    return 'Summarizing · $percent';
+  }
+
+  @override
+  String backgroundJobWaitingForApp(String percent) {
+    return 'Open Nutq to summarize · $percent';
+  }
+
+  @override
+  String get backgroundJobDoneTitle => 'Summary ready';
+
+  @override
+  String backgroundJobDoneBody(String title) {
+    return '$title is summarized.';
   }
 }

@@ -170,8 +170,8 @@
   "jobFailureTranscriptionFailed": "The audio couldn't be transcribed.",
   "jobFailureInsufficientStorage": "There isn't enough free storage to process this job.",
 
-  "backgroundJobRunning": "Transcribing · {percent}",
-  "@backgroundJobRunning": {"placeholders": {"percent": {"type": "String"}}},
+  "backgroundJobTranscribing": "Transcribing · {percent}",
+  "@backgroundJobTranscribing": {"placeholders": {"percent": {"type": "String"}}},
   "backgroundJobPaused": "Paused · {percent}",
   "@backgroundJobPaused": {"placeholders": {"percent": {"type": "String"}}},
   "backgroundJobInterruptedTitle": "Transcription paused at {percent}",
@@ -180,5 +180,12 @@
   "@backgroundJobInterruptedBody": {"placeholders": {"title": {"type": "String"}}},
   "backgroundJobReadyTitle": "Transcript ready",
   "backgroundJobReadyBody": "Open Nutq to summarize {title}.",
-  "@backgroundJobReadyBody": {"placeholders": {"title": {"type": "String"}}}
+  "@backgroundJobReadyBody": {"placeholders": {"title": {"type": "String"}}},
+  "backgroundJobSummarizing": "Summarizing · {percent}",
+  "@backgroundJobSummarizing": {"placeholders": {"percent": {"type": "String"}}},
+  "backgroundJobWaitingForApp": "Open Nutq to summarize · {percent}",
+  "@backgroundJobWaitingForApp": {"placeholders": {"percent": {"type": "String"}}},
+  "backgroundJobDoneTitle": "Summary ready",
+  "backgroundJobDoneBody": "{title} is summarized.",
+  "@backgroundJobDoneBody": {"placeholders": {"title": {"type": "String"}}}
 }
