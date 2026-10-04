@@ -528,6 +528,39 @@ void main() {
       expect(background.calls.last, 'end true');
     });
 
+    test('a transcript longer than estimated keeps the bar moving through the summary', () async {
+      // 10 s of audio guesses ~20 words; the transcript has hundreds, so the
+      // summary's estimate grows a lot once the transcript is known.
+      final source = FakeMediaSource(
+        info: const SourceInfo(durationSeconds: 10),
+        text: arabicTranscript(40),
+      );
+      await h.dispose();
+      h = JobHarness(extraSources: [source]);
+      final id = (await h.repo.createJob(
+        NewJobDraft.media(
+          type: JobSourceType.audio,
+          filePath: '/f.m4a',
+          language: ContentLanguage.ar,
+        ),
+      )).id;
+      final progress = [
+        await for (final e in h.processJob(id).events)
+          if (e is JobRunProgress) e.progress,
+      ];
+      final summary = progress.where((p) => p.stage == JobStage.summarizing).toList();
+      expect(summary.length, greaterThan(2));
+      expect(
+        summary.last.fraction,
+        greaterThan(summary.first.fraction),
+        reason: 'the bar moves while the summary is written, not frozen at the old estimate',
+      );
+      expect(progress.last.fraction, 1);
+      for (var i = 1; i < progress.length; i++) {
+        expect(progress[i].fraction, greaterThanOrEqualTo(progress[i - 1].fraction));
+      }
+    });
+
     test('a finished job teaches the device its speeds', () async {
       final id = await mediaJob();
       await h.processJob(id).events.drain<void>();

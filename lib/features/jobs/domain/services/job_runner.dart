@@ -28,7 +28,7 @@ class JobRunner implements JobScheduler {
     required this._process,
     this.onIdle,
     this.idleAfter = const Duration(minutes: 2),
-    this.partialInterval = const Duration(milliseconds: 50),
+    this.partialInterval = const Duration(milliseconds: 250),
     DateTime Function()? now,
   }) : _startedAt = (now ?? DateTime.now)().toUtc();
 
@@ -39,7 +39,9 @@ class JobRunner implements JobScheduler {
   final Future<void> Function()? onIdle;
   final Duration idleAfter;
 
-  /// Streaming summary text is delivered at most this often.
+  /// Streaming transcript and summary text is delivered at most this often.
+  /// Each delivery re-lays-out the growing text on Job Detail, so a quarter of
+  /// a second keeps it reading as a stream without keeping the phone busy.
   final Duration partialInterval;
 
   final DateTime _startedAt;

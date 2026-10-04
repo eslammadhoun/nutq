@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/core/domain/foreground_gate.dart';
@@ -116,9 +117,30 @@ class ProcessJob {
     var settled = true;
     var listenerGone = false;
 
-    // The bar never goes backwards, however a source reports its phases or
-    // the estimate changes.
+    // The bar never goes backwards, however a source reports its phases.
+    // When the time estimate grows, the work left is spread over the rest of
+    // the bar from where it stands (an anchor), rather than holding the bar
+    // still until the new estimate catches up: on a long job that froze it for
+    // many minutes. A source's own dips (a phase restarting its count) just
+    // hold the bar, as before.
     var highestFraction = 0.0;
+    var anchorRaw = 0.0;
+    var anchorShown = 0.0;
+    var estimateChanged = false;
+
+    double shown(double raw) {
+      final value = raw <= anchorRaw || anchorRaw >= 1
+          ? anchorShown
+          : anchorShown + (raw - anchorRaw) * (1 - anchorShown) / (1 - anchorRaw);
+      // A new estimate applies from the next value on: re-anchor there if it
+      // would pull the bar back.
+      if (value < highestFraction && estimateChanged) {
+        anchorRaw = raw;
+        anchorShown = highestFraction;
+      }
+      estimateChanged = false;
+      return math.max(value, highestFraction).clamp(0.0, 1.0);
+    }
 
     // Set once the job is known: where progress is also shown outside the app,
     // and the plan the lock-screen timeline is drawn from.
@@ -140,16 +162,14 @@ class ProcessJob {
       if (controller.isClosed || listenerGone) return;
       if (event is JobRunProgress) {
         final p = event.progress;
-        if (p.fraction < highestFraction) {
-          controller.add(
-            JobRunProgress(
-              JobProgress(p.stage, fraction: highestFraction, done: p.done, total: p.total),
-            ),
-          );
-          return;
-        }
-        highestFraction = p.fraction;
-        showOutside(p.fraction);
+        final fraction = shown(p.fraction);
+        final moved = fraction > highestFraction;
+        highestFraction = fraction;
+        if (moved) showOutside(fraction);
+        controller.add(
+          JobRunProgress(JobProgress(p.stage, fraction: fraction, done: p.done, total: p.total)),
+        );
+        return;
       }
       controller.add(event);
     }
@@ -229,6 +249,7 @@ class ProcessJob {
               final seconds = info.durationSeconds;
               if (seconds != null) {
                 jobPlan.audio = audio = Duration(milliseconds: (seconds * 1000).round());
+                estimateChanged = true;
               }
               await _jobs.updateSourceInfo(jobId, info);
             },
@@ -240,6 +261,7 @@ class ProcessJob {
         if (text.isEmpty) throw const JobFailure(JobFailureKind.emptyTranscript);
         final words = _wordCount(text);
         jobPlan.transcriptWords = words;
+        estimateChanged = true;
         if (audio != null) {
           rates = rates.afterTranscription(
             audio: audio!,
