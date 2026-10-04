@@ -7,17 +7,16 @@ import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/entities/job_stage.dart';
 import 'package:nutq/features/jobs/domain/entities/source_info.dart';
 import 'package:nutq/features/jobs/domain/entities/source_transcript.dart';
+import 'package:nutq/features/jobs/domain/services/background_job.dart';
 import 'package:nutq/features/jobs/domain/sources/transcript_source.dart';
 import 'package:nutq/features/transcription/domain/audio_extractor.dart';
-import 'package:nutq/features/transcription/domain/background_job.dart';
 import 'package:nutq/features/transcription/domain/speech_recognizer.dart';
 
 /// An audio or video file in app storage: extract its audio, then transcribe
 /// it on the device in the job's source language.
 ///
-/// While it works, [BackgroundJob] keeps the app running when the user leaves
-/// it and shows the progress on the lock screen, whose play/pause button
-/// pauses recognition.
+/// The lock screen's play/pause button ([BackgroundJob.commands]) pauses
+/// recognition. Showing the job there is `ProcessJob`'s work.
 class MediaTranscriptSource implements TranscriptSource {
   const MediaTranscriptSource({
     required this.type,
@@ -58,19 +57,11 @@ class MediaTranscriptSource implements TranscriptSource {
     request.cancellation.throwIfCancelled();
     request.onProgress(const JobProgress(JobStage.acquiring, fraction: 0));
 
-    await _background.begin(title: request.job.sourceTitle ?? path.split('/').last);
-    var completed = false;
+    final audio = await _extract(path, request);
     try {
-      final audio = await _extract(path, request);
-      try {
-        final transcript = await _transcribe(audio, request);
-        completed = true;
-        return transcript;
-      } finally {
-        await audio.delete();
-      }
+      return await _transcribe(audio, request);
     } finally {
-      await _background.end(completed: completed);
+      await audio.delete();
     }
   }
 
@@ -91,7 +82,6 @@ class MediaTranscriptSource implements TranscriptSource {
     request.cancellation.throwIfCancelled();
     await request.saveSourceInfo(SourceInfo(durationSeconds: audio.duration.inMilliseconds / 1000));
     request.onProgress(const JobProgress(JobStage.acquiring, fraction: extractionShare));
-    await _background.update(progress: 0, duration: audio.duration);
 
     final stopRecognition = request.cancellation.onCancel(_recognizer.cancel);
     // Lock-screen play/pause. Recognition stops after the chunk in flight.
@@ -104,16 +94,12 @@ class MediaTranscriptSource implements TranscriptSource {
       final speech = await _recognizer.transcribe(
         audioPath: audio.path,
         language: request.job.sourceLanguage,
-        onProgress: (fraction) {
-          request.onProgress(
-            JobProgress(
-              JobStage.transcribing,
-              fraction: extractionShare + (1 - extractionShare) * fraction,
-            ),
-          );
-          // The lock-screen timeline spans the audio, not the whole job.
-          unawaited(_background.update(progress: fraction));
-        },
+        onProgress: (fraction) => request.onProgress(
+          JobProgress(
+            JobStage.transcribing,
+            fraction: extractionShare + (1 - extractionShare) * fraction,
+          ),
+        ),
       );
       request.cancellation.throwIfCancelled();
       return SourceTranscript(

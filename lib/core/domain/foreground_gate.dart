@@ -7,6 +7,8 @@ import 'package:nutq/core/domain/cancellation.dart';
 /// background: its calls would fail and the job with them. A transcription
 /// that finishes in the background waits here until the user returns.
 abstract interface class ForegroundGate {
+  bool get isInForeground;
+
   /// Completes at once when the app is in the foreground, otherwise when it
   /// next comes back. Throws `CancelledException` if [cancellation] is
   /// cancelled while waiting.
@@ -16,6 +18,9 @@ abstract interface class ForegroundGate {
 /// For tests and platforms where background GPU work is not an issue.
 class AlwaysInForeground implements ForegroundGate {
   const AlwaysInForeground();
+
+  @override
+  bool get isInForeground => true;
 
   @override
   Future<void> whenInForeground(CancellationToken cancellation) async =>

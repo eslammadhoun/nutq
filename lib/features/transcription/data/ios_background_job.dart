@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:nutq/features/transcription/domain/background_job.dart';
+import 'package:nutq/features/jobs/domain/services/background_job.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
 /// Talks to `ios/Runner/JobBridge.swift`, which keeps the app alive in the
@@ -39,26 +39,30 @@ class IosBackgroundJob implements BackgroundJob {
   /// The bridge's strings, with `{percent}` and `{title}` left for it to fill.
   static Map<String, String> labelsOf(AppLocalizations l10n) => {
     'locale': l10n.localeName,
-    'running': l10n.backgroundJobRunning('{percent}'),
+    'transcribing': l10n.backgroundJobTranscribing('{percent}'),
+    'summarizing': l10n.backgroundJobSummarizing('{percent}'),
+    'waitingForApp': l10n.backgroundJobWaitingForApp('{percent}'),
     'paused': l10n.backgroundJobPaused('{percent}'),
     'interruptedTitle': l10n.backgroundJobInterruptedTitle('{percent}'),
     'interruptedBody': l10n.backgroundJobInterruptedBody('{title}'),
     'readyTitle': l10n.backgroundJobReadyTitle,
     'readyBody': l10n.backgroundJobReadyBody('{title}'),
+    'doneTitle': l10n.backgroundJobDoneTitle,
+    'doneBody': l10n.backgroundJobDoneBody('{title}'),
   };
 
   @override
-  Future<void> begin({required String title, Duration? duration}) => _invoke('begin', {
-    'title': title,
-    'labels': labelsOf(_localizations()),
-    if (duration != null) 'duration': _seconds(duration),
+  Future<void> begin({required String title}) =>
+      _invoke('begin', {'title': title, 'labels': labelsOf(_localizations())});
+
+  @override
+  Future<void> update({required double progress, Duration? estimatedTotal}) => _invoke('update', {
+    'progress': progress,
+    if (estimatedTotal != null) 'duration': _seconds(estimatedTotal),
   });
 
   @override
-  Future<void> update({required double progress, Duration? duration}) => _invoke('update', {
-    'progress': progress,
-    if (duration != null) 'duration': _seconds(duration),
-  });
+  Future<void> setPhase(BackgroundJobPhase phase) => _invoke('setPhase', {'phase': phase.name});
 
   @override
   Future<void> setPaused(bool paused) => _invoke('setPaused', {'paused': paused});

@@ -5,6 +5,8 @@ import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/core/domain/foreground_gate.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
+import 'package:nutq/features/jobs/domain/services/background_job.dart';
+import 'package:nutq/features/jobs/domain/services/job_estimate.dart';
 import 'package:nutq/features/jobs/domain/services/job_runner.dart';
 import 'package:nutq/features/jobs/domain/sources/text_transcript_source.dart';
 import 'package:nutq/features/jobs/domain/sources/transcript_source.dart';
@@ -37,6 +39,7 @@ class JobHarness {
     Iterable<TranscriptSource> extraSources = const [],
     bool autoStart = true,
     ForegroundGate foreground = const AlwaysInForeground(),
+    BackgroundJob background = const NoBackgroundJob(),
   }) {
     db = newTestDatabase();
     repoFixture = TestRepo(db);
@@ -50,6 +53,8 @@ class JobHarness {
       summarization: summarization,
       config: testSummarizationConfig,
       foreground: foreground,
+      background: background,
+      rates: rates,
     );
     runner = JobRunner(
       jobs: repoFixture.repo,
@@ -92,6 +97,9 @@ class JobHarness {
       JobsCubit(repo, searchDebounce: searchDebounce);
 
   final media = FakeMediaFiles();
+
+  /// The device speeds jobs are estimated from; every finished job updates it.
+  final rates = InMemoryJobRatesStore();
 
   NewJobCubit newJobCubit({Set<JobSourceType>? supportedSources}) => NewJobCubit(
     submitJob,

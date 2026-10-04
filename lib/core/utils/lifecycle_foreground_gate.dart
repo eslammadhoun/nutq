@@ -10,6 +10,9 @@ class LifecycleForegroundGate implements ForegroundGate {
 
   /// `resumed` is on screen. A null state is before the first frame, when the
   /// app is starting in the foreground.
+  @override
+  bool get isInForeground => _inForeground;
+
   static bool get _inForeground {
     final state = WidgetsBinding.instance.lifecycleState;
     return state == null || state == AppLifecycleState.resumed;

@@ -9,10 +9,12 @@ import 'package:nutq/core/utils/background_work.dart';
 import 'package:nutq/core/utils/lifecycle_foreground_gate.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/media/platform_media_files.dart';
+import 'package:nutq/features/jobs/data/preferences/shared_preferences_job_rates_store.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/jobs/domain/repositories/media_files.dart';
+import 'package:nutq/features/jobs/domain/services/background_job.dart';
 import 'package:nutq/features/jobs/domain/services/job_runner.dart';
 import 'package:nutq/features/jobs/domain/services/job_scheduler.dart';
 import 'package:nutq/features/jobs/domain/sources/media_transcript_source.dart';
@@ -33,7 +35,6 @@ import 'package:nutq/features/transcription/data/ffmpeg_audio_extractor.dart';
 import 'package:nutq/features/transcription/data/ios_background_job.dart';
 import 'package:nutq/features/transcription/data/moonshine_speech_recognizer.dart';
 import 'package:nutq/features/transcription/domain/audio_extractor.dart';
-import 'package:nutq/features/transcription/domain/background_job.dart';
 import 'package:nutq/features/transcription/domain/speech_recognizer.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,6 +57,7 @@ Future<void> setupDI({
 
 void _registerCore(SharedPreferences prefs, AppDatabase Function() openDatabase) {
   sl
+    ..registerLazySingleton<SharedPreferences>(() => prefs)
     ..registerLazySingleton<AppPreferences>(() => AppPreferences(prefs))
     ..registerLazySingleton<LocaleCubit>(() => LocaleCubit(sl<AppPreferences>()))
     ..registerLazySingleton<AppDatabase>(openDatabase, dispose: (db) => db.close());
@@ -134,6 +136,8 @@ void _registerJobs() {
         summarize: sl<SummarizeTranscript>(),
         summarization: sl<SummarizationRepository>(),
         foreground: const LifecycleForegroundGate(),
+        background: sl<BackgroundJob>(),
+        rates: SharedPreferencesJobRatesStore(sl<SharedPreferences>()),
       ),
     )
     ..registerLazySingleton<JobRunner>(

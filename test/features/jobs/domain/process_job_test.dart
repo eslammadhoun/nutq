@@ -11,6 +11,8 @@ import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/entities/job_stage.dart';
 import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
 import 'package:nutq/features/jobs/domain/entities/source_info.dart';
+import 'package:nutq/features/jobs/domain/services/background_job.dart';
+import 'package:nutq/features/jobs/domain/services/job_estimate.dart';
 import 'package:nutq/features/jobs/domain/usecases/process_job.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 
@@ -26,6 +28,9 @@ class _ManualGate implements ForegroundGate {
   void open() => _open.complete();
 
   @override
+  bool get isInForeground => _open.isCompleted;
+
+  @override
   Future<void> whenInForeground(CancellationToken cancellation) async {
     waits++;
     final cancelled = Completer<void>();
@@ -37,6 +42,34 @@ class _ManualGate implements ForegroundGate {
     }
     cancellation.throwIfCancelled();
   }
+}
+
+/// Records what a job shows outside the app.
+class _RecordingBackgroundJob implements BackgroundJob {
+  final calls = <String>[];
+  final updates = <double>[];
+  Duration? lastTotal;
+
+  @override
+  Stream<BackgroundJobCommand> get commands => const Stream.empty();
+
+  @override
+  Future<void> begin({required String title}) async => calls.add('begin $title');
+
+  @override
+  Future<void> update({required double progress, Duration? estimatedTotal}) async {
+    updates.add(progress);
+    if (estimatedTotal != null) lastTotal = estimatedTotal;
+  }
+
+  @override
+  Future<void> setPhase(BackgroundJobPhase phase) async => calls.add(phase.name);
+
+  @override
+  Future<void> setPaused(bool paused) async => calls.add('paused $paused');
+
+  @override
+  Future<void> end({required bool completed}) async => calls.add('end $completed');
 }
 
 void main() {
@@ -404,10 +437,19 @@ void main() {
   group('in the background', () {
     late _ManualGate gate;
 
+    late _RecordingBackgroundJob background;
+
     Future<String> audioJob() async {
       gate = _ManualGate();
+      background = _RecordingBackgroundJob();
       await h.dispose();
-      h = JobHarness(extraSources: [FakeMediaSource()], foreground: gate);
+      h = JobHarness(
+        extraSources: [
+          FakeMediaSource(info: const SourceInfo(durationSeconds: 600)),
+        ],
+        foreground: gate,
+        background: background,
+      );
       return (await h.repo.createJob(
         NewJobDraft.media(
           type: JobSourceType.audio,
@@ -428,6 +470,12 @@ void main() {
       gate.open();
       await done;
       expect(await statusOf(id), JobRunStatus.completed);
+      expect(background.calls, [
+        'begin audio',
+        'waitingForApp',
+        'summarizing',
+        'end true',
+      ]);
     });
 
     test('a job cancelled while waiting is recorded as cancelled', () async {
@@ -439,6 +487,87 @@ void main() {
       await done;
       expect(await statusOf(id), JobRunStatus.cancelled);
       expect(h.gemma.calls, 0);
+    });
+  });
+
+  group('progress estimate', () {
+    late _RecordingBackgroundJob background;
+
+    Future<String> mediaJob() async {
+      background = _RecordingBackgroundJob();
+      await h.dispose();
+      h = JobHarness(
+        extraSources: [FakeMediaSource(info: const SourceInfo(durationSeconds: 600))],
+        background: background,
+      );
+      return (await h.repo.createJob(
+        NewJobDraft.media(
+          type: JobSourceType.audio,
+          filePath: '/f.m4a',
+          language: ContentLanguage.ar,
+          title: 'talk.m4a',
+        ),
+      )).id;
+    }
+
+    test('the lock screen shows the same whole-job progress as the app', () async {
+      final id = await mediaJob();
+      final fractions = [
+        await for (final e in h.processJob(id).events)
+          if (e is JobRunProgress) e.progress.fraction,
+      ];
+      expect(fractions.last, 1);
+      expect(background.updates.last, 1);
+      expect(
+        background.updates.toSet().difference(fractions.toSet()),
+        isEmpty,
+        reason: 'every lock-screen value is one the app showed',
+      );
+      expect(background.lastTotal, greaterThan(Duration.zero), reason: 'timeline is estimated');
+      expect(background.calls.first, 'begin talk.m4a');
+      expect(background.calls.last, 'end true');
+    });
+
+    test('a finished job teaches the device its speeds', () async {
+      final id = await mediaJob();
+      await h.processJob(id).events.drain<void>();
+      const defaults = JobRates();
+      final learned = h.rates.rates;
+      expect(learned.outputTokensPerSecond, isNot(defaults.outputTokensPerSecond));
+      expect(learned.spokenWordsPerSecond, isNot(defaults.spokenWordsPerSecond));
+      // The fake source takes no time, which is not a measurement; the
+      // real-time factor's update is covered in job_estimate_test.dart.
+    });
+
+    test('pasted text is never shown outside the app', () async {
+      background = _RecordingBackgroundJob();
+      await h.dispose();
+      h = JobHarness(background: background);
+      final id = await h.createJob(sampleTranscript);
+      await h.processJob(id).events.drain<void>();
+      expect(await statusOf(id), JobRunStatus.completed);
+      expect(background.calls, isEmpty);
+      expect(background.updates, isEmpty);
+    });
+
+    test('a failed media job ends without the summary-ready notice', () async {
+      background = _RecordingBackgroundJob();
+      await h.dispose();
+      h = JobHarness(
+        extraSources: [
+          FakeMediaSource(error: const JobFailure(JobFailureKind.transcriptionFailed)),
+        ],
+        background: background,
+      );
+      final id = (await h.repo.createJob(
+        NewJobDraft.media(
+          type: JobSourceType.audio,
+          filePath: '/f.m4a',
+          language: ContentLanguage.ar,
+        ),
+      )).id;
+      await h.processJob(id).events.drain<void>();
+      expect(background.calls.last, 'end false');
     });
   });
 }

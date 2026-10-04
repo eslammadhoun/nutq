@@ -11,6 +11,8 @@ import 'package:nutq/features/jobs/domain/entities/job_stage.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/domain/entities/transcript.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
+import 'package:nutq/features/jobs/domain/services/background_job.dart';
+import 'package:nutq/features/jobs/domain/services/job_estimate.dart';
 import 'package:nutq/features/jobs/domain/sources/transcript_source.dart';
 import 'package:nutq/features/jobs/domain/sources/transcript_source_registry.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
@@ -70,6 +72,8 @@ class ProcessJob {
     required this._summarization,
     this._config = const SummarizationConfig(),
     this._foreground = const AlwaysInForeground(),
+    this._background = const NoBackgroundJob(),
+    this._rates,
   });
 
   final JobsRepository _jobs;
@@ -78,6 +82,16 @@ class ProcessJob {
   final SummarizationRepository _summarization;
   final SummarizationConfig _config;
   final ForegroundGate _foreground;
+
+  /// Shows a media job on the lock screen and keeps it running outside the
+  /// app. Pasted text is summarized only while the app is open, so it is
+  /// never shown there.
+  final BackgroundJob _background;
+
+  /// This device's measured speeds, which the progress bar is estimated from
+  /// and which every finished step updates. Null uses the defaults and learns
+  /// nothing.
+  final JobRatesStore? _rates;
 
   JobRun call(String jobId) {
     final token = CancellationToken();
@@ -95,8 +109,25 @@ class ProcessJob {
     var settled = true;
     var listenerGone = false;
 
-    // The bar never goes backwards, however a source reports its phases.
+    // The bar never goes backwards, however a source reports its phases or
+    // the estimate changes.
     var highestFraction = 0.0;
+
+    // Set once the job is known: where progress is also shown outside the app,
+    // and the plan the lock-screen timeline is drawn from.
+    BackgroundJob background = const NoBackgroundJob();
+    JobPlan? plan;
+    var shownPercent = -1;
+    Duration? shownTotal;
+
+    void showOutside(double fraction) {
+      final percent = (fraction * 100).floor();
+      final total = plan != null && plan!.isKnown ? plan!.total : null;
+      if (percent == shownPercent && total == shownTotal) return;
+      shownPercent = percent;
+      shownTotal = total;
+      unawaited(background.update(progress: fraction, estimatedTotal: total));
+    }
 
     void emit(JobRunEvent event) {
       if (controller.isClosed || listenerGone) return;
@@ -111,6 +142,7 @@ class ProcessJob {
           return;
         }
         highestFraction = p.fraction;
+        showOutside(p.fraction);
       }
       controller.add(event);
     }
@@ -129,6 +161,7 @@ class ProcessJob {
     }
 
     Future<void> body() async {
+      var completed = false;
       try {
         final job = await _jobs.getJob(jobId);
         if (job == null) {
@@ -139,7 +172,6 @@ class ProcessJob {
 
         await _jobs.markRunning(jobId);
         settled = false; // this run now owns the job's outcome
-        emit(const JobRunProgress(JobProgress(JobStage.preparing, fraction: 0.01)));
 
         final source = _sources.of(job.sourceType);
         if (source == null) {
@@ -149,24 +181,71 @@ class ProcessJob {
           );
         }
 
+        var rates = _rates?.load() ?? const JobRates();
+        final summaryConfig = _config.copyWith(
+          language: job.summaryLanguage,
+          length: job.requestedLength,
+        );
+        final jobPlan = plan = JobPlan(
+          rates: rates,
+          summaryRatio: summaryConfig.summaryRatio,
+          transcriptWords: source.progressShare == 0 ? _wordCount(job.transcript?.text) : null,
+        );
+        if (source.progressShare > 0) {
+          background = _background;
+          await background.begin(title: job.sourceTitle ?? job.sourceType.name);
+        }
+        emit(const JobRunProgress(JobProgress(JobStage.preparing, fraction: 0.01)));
+
+        Duration? audio;
+        final sourceWatch = Stopwatch()..start();
         final resolved = await source.resolve(
           SourceRequest(
             job: job,
             cancellation: token,
-            onProgress: (p) => emit(JobRunProgress(_scaled(p, source.progressShare))),
-            saveSourceInfo: (info) => _jobs.updateSourceInfo(jobId, info),
+            // Until a media job's audio length is known, its share of the bar
+            // is the source's own guess.
+            onProgress: (p) => emit(
+              JobRunProgress(
+                jobPlan.isKnown
+                    ? JobProgress(
+                        p.stage,
+                        fraction: jobPlan.duringSource(p.fraction),
+                        done: p.done,
+                        total: p.total,
+                      )
+                    : _scaled(p, source.progressShare),
+              ),
+            ),
+            saveSourceInfo: (info) async {
+              final seconds = info.durationSeconds;
+              if (seconds != null) {
+                jobPlan.audio = audio = Duration(milliseconds: (seconds * 1000).round());
+              }
+              await _jobs.updateSourceInfo(jobId, info);
+            },
           ),
         );
         token.throwIfCancelled();
 
         final text = resolved.text.trim();
         if (text.isEmpty) throw const JobFailure(JobFailureKind.emptyTranscript);
+        final words = _wordCount(text);
+        jobPlan.transcriptWords = words;
+        if (audio != null) {
+          rates = rates.afterTranscription(
+            audio: audio!,
+            elapsed: sourceWatch.elapsed,
+            words: words,
+          );
+          await _rates?.save(rates);
+        }
         if (job.transcript?.text != text) {
           await _jobs.saveTranscript(
             jobId,
             Transcript(
               text: text,
-              wordCount: text.split(RegExp(r'\s+')).length,
+              wordCount: words,
               modelName: resolved.modelName,
               modelVersion: resolved.modelVersion,
             ),
@@ -175,21 +254,52 @@ class ProcessJob {
 
         // A transcription can finish while the app is in the background, where
         // iOS refuses GPU work; summarize once the user is back.
+        if (!_foreground.isInForeground) {
+          await background.setPhase(BackgroundJobPhase.waitingForApp);
+        }
         await _foreground.whenInForeground(token);
-        final updates = _summarize.stream(
-          text,
-          _config.copyWith(language: job.summaryLanguage, length: job.requestedLength),
-          cancellation: token,
+        await background.setPhase(BackgroundJobPhase.summarizing);
+
+        // Summary progress is the tokens written so far against the tokens
+        // expected, so the bar moves as the text appears.
+        var summaryProgress = const SummarizationProgress(SummarizationStage.preparing);
+        var summaryWords = 0;
+        void reportSummary() => emit(
+          JobRunProgress(
+            _summaryProgress(
+              summaryProgress,
+              summaryProgress.stage == SummarizationStage.completed
+                  ? 1
+                  : jobPlan.duringSummary(
+                      outputTokens: (summaryWords * rates.outputTokensPerWord).round(),
+                      sectionFraction: summaryProgress.fraction,
+                    ),
+            ),
+          ),
         );
+
+        final summaryWatch = Stopwatch()..start();
+        final updates = _summarize.stream(text, summaryConfig, cancellation: token);
         await for (final update in updates) {
           switch (update) {
             case SummarizationProgressUpdate(:final progress):
-              emit(JobRunProgress(_toJobProgress(progress, source.progressShare)));
+              summaryProgress = progress;
+              reportSummary();
             case SummarizationPartialSummaryUpdate(:final text):
+              summaryWords = _wordCount(text);
+              reportSummary();
               emit(JobRunPartialSummary(text));
             case SummarizationCompletedUpdate(:final result):
               await _jobs.completeJob(jobId, _toSummary(job, result));
               settled = true;
+              completed = true;
+              await _rates?.save(
+                rates.afterSummary(
+                  outputTokens: result.debug.outputTokens,
+                  elapsed: summaryWatch.elapsed,
+                  summaryWords: _wordCount(result.summary),
+                ),
+              );
           }
         }
       } on CancelledException {
@@ -214,6 +324,7 @@ class ProcessJob {
           await _summarization.cancel();
           await settle(() => _jobs.cancelJob(jobId));
         }
+        await background.end(completed: completed);
         if (!controller.isClosed) await controller.close();
       }
     }
@@ -239,8 +350,11 @@ class ProcessJob {
     total: p.total,
   );
 
-  /// Summarization progress placed after the source's share of the bar.
-  static JobProgress _toJobProgress(SummarizationProgress p, double share) => JobProgress(
+  static int _wordCount(String? text) =>
+      text == null ? 0 : text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+
+  /// Summarization progress at [fraction] of the whole job.
+  static JobProgress _summaryProgress(SummarizationProgress p, double fraction) => JobProgress(
     switch (p.stage) {
       SummarizationStage.preparing => JobStage.preparing,
       SummarizationStage.analyzing => JobStage.analyzing,
@@ -250,7 +364,7 @@ class ProcessJob {
       SummarizationStage.finalizing => JobStage.finalizing,
       SummarizationStage.completed => JobStage.completed,
     },
-    fraction: share + (1 - share) * p.fraction,
+    fraction: fraction,
     done: p.processedChunks,
     total: p.totalChunks,
   );
