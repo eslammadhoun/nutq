@@ -41,6 +41,16 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
   /// Handle of the loaded transcriber, or -1 when nothing is loaded.
   private var handle: Int32 = -1
   private var loadedModelPath: String?
+  private var loadedModelArch: UInt32 = 2
+
+  /// Settings [handle] was loaded with. See [loadTranscriber] and
+  /// [ensureTranscriber].
+  private var loadedDecodeIncomplete = false
+  private var loadedSingleThread = false
+
+  /// A second transcriber with the library's default options, loaded only when
+  /// a file ends on a phrase the main one never decoded. See [decodeTail].
+  private var tailHandle: Int32 = -1
 
   /// Set while a `transcribe` call is in flight; nil otherwise.
   private var progressSink: FlutterEventSink?
@@ -182,6 +192,10 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
       let chunkSeconds = (args["chunkSeconds"] as? Double) ?? Self.defaultChunkSeconds
       // Non-zero when resuming a run the app was killed in the middle of.
       let startFrame = (args["startFrame"] as? Int) ?? 0
+      // On by default in Moonshine; off here unless asked (benchmarks compare).
+      let decodeIncomplete = (args["decodeIncompleteLines"] as? Bool) ?? false
+      // One ONNX Runtime thread instead of the library's pool (benchmarks).
+      let singleThread = (args["singleThread"] as? Bool) ?? false
 
       // Reset here rather than inside the queue block so a cancel or pause
       // arriving between the two is not swallowed.
@@ -193,7 +207,8 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
           let segments = try self.transcribe(
             audioPath: audioPath, modelPath: modelPath,
             modelArch: modelArch, keepLoaded: keepLoaded,
-            chunkSeconds: chunkSeconds, startFrame: startFrame)
+            chunkSeconds: chunkSeconds, startFrame: startFrame,
+            decodeIncomplete: decodeIncomplete, singleThread: singleThread)
           DispatchQueue.main.async { result(segments) }
         } catch {
           DispatchQueue.main.async { result(Self.flutterError(error)) }
@@ -214,6 +229,15 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
       control.setPaused(false)
       result(nil)
 
+    case "cpuSeconds":
+      // For benchmarks: CPU time the whole app has used, all threads. Work per
+      // second of audio is what heats the phone, whatever the wall time.
+      result(Self.cpuSeconds())
+
+    case "thermalState":
+      // For benchmarks: wait for a cool phone between runs.
+      result(Self.thermalState())
+
     case "release":
       releaseTranscriber()
       result(nil)
@@ -227,7 +251,7 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
 
   private func transcribe(
     audioPath: String, modelPath: String, modelArch: UInt32, keepLoaded: Bool,
-    chunkSeconds: Double, startFrame: Int
+    chunkSeconds: Double, startFrame: Int, decodeIncomplete: Bool, singleThread: Bool
   ) throws -> [[String: Any]] {
     // Only opens the file and parses the header; the audio itself is read as
     // the stream consumes it.
@@ -238,7 +262,9 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
     // Model load is broken out here because the Dart stopwatch starts before
     // the channel call and so includes it; this separates load from inference.
     let loadStarted = DispatchTime.now().uptimeNanoseconds
-    let transcriber = try ensureTranscriber(modelPath: modelPath, modelArch: modelArch)
+    let transcriber = try ensureTranscriber(
+      modelPath: modelPath, modelArch: modelArch, decodeIncomplete: decodeIncomplete,
+      singleThread: singleThread)
     let loadSeconds = Self.seconds(since: loadStarted)
 
     // Time spent paused is left out, so the figures describe the work.
@@ -272,12 +298,13 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
     } ?? 0
     NSLog(
       "[moonshine] model=%@ open=%.3fs load=%.3fs infer=%.3fs paused=%.1fs audio=%.1fs "
-        + "from=%.1fs rtf=%.3f lines=%d words=%d covered=%.3f streams=%d thermal=%@ "
-        + "footprint=%dMB",
+        + "from=%.1fs rtf=%.3f lines=%d words=%d covered=%.3f streams=%d complete-only=%d "
+        + "single-thread=%d thermal=%@ footprint=%dMB",
       modelPath as NSString, openSeconds, loadSeconds, inferSeconds, pausedSeconds,
       audioSeconds, Double(startFrame) / Double(Self.sampleRate),
       processedSeconds > 0 ? inferSeconds / processedSeconds : 0, segments.count, words,
       audioSeconds > 0 ? min(lastEnd / audioSeconds, 1) : 0, streams,
+      decodeIncomplete ? 0 : 1, singleThread ? 1 : 0,
       Self.thermalState() as NSString, Self.footprintMegabytes())
 
     if !keepLoaded {
@@ -460,8 +487,11 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
     guard let transcript = transcriptPtr else {
       throw MoonshineError.failed("transcribe_stream returned no transcript")
     }
-    // Copied out here because the `defer` above frees the stream.
-    return (Self.copySegments(from: transcript, offset: offset), nil)
+    // Copied out here because the `defer` above frees the stream. With
+    // `decode_incomplete_lines` off the last phrase has no text yet.
+    let decoded = Self.copySegments(from: transcript, offset: offset)
+    let tail = loadedDecodeIncomplete ? [] : try decodeTail(of: transcript, offset: offset)
+    return (decoded + tail, nil)
   }
 
   /// The last line Moonshine has finished with, and where it ends in seconds
@@ -504,6 +534,14 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
 
   /// How hot the device is running. From `serious` up iOS throttles the CPU,
   /// which slows inference regardless of the code.
+  /// User plus system CPU time of this process, all threads, in seconds.
+  private static func cpuSeconds() -> Double {
+    var usage = rusage()
+    getrusage(RUSAGE_SELF, &usage)
+    func seconds(_ t: timeval) -> Double { Double(t.tv_sec) + Double(t.tv_usec) / 1_000_000 }
+    return seconds(usage.ru_utime) + seconds(usage.ru_stime)
+  }
+
   private static func thermalState() -> String {
     switch ProcessInfo.processInfo.thermalState {
     case .nominal: return "nominal"
@@ -537,41 +575,124 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
 
   /// Loads the model if it is not already resident. The transcriber is bound
   /// to a model directory, so a different path forces a reload.
-  private func ensureTranscriber(modelPath: String, modelArch: UInt32) throws -> Int32 {
+  private func ensureTranscriber(
+    modelPath: String, modelArch: UInt32, decodeIncomplete: Bool, singleThread: Bool
+  ) throws -> Int32 {
     let resolved = try Self.resolveModelPath(modelPath)
-    if handle >= 0, loadedModelPath == resolved {
+    if handle >= 0, loadedModelPath == resolved, loadedDecodeIncomplete == decodeIncomplete,
+      loadedSingleThread == singleThread
+    {
       return handle
     }
     releaseTranscriber()
 
-    let newHandle = Self.loadTranscriber(path: resolved, modelArch: modelArch)
+    // The library reads this when it creates its ONNX Runtime sessions, so it
+    // is set just before loading. By default the runtime runs a pool of
+    // threads that spin between operators: on a Mac the whole pool finished
+    // 1.4× sooner than one thread while burning 2.6× its CPU time.
+    if singleThread {
+      setenv("MOONSHINE_ORT_SINGLE_THREAD", "1", 1)
+    } else {
+      unsetenv("MOONSHINE_ORT_SINGLE_THREAD")
+    }
+
+    let newHandle = Self.loadTranscriber(
+      path: resolved, modelArch: modelArch, decodeIncomplete: decodeIncomplete)
     if newHandle < 0 {
       throw MoonshineError.failed(
         "load \(resolved): \(String(cString: moonshine_error_to_string(newHandle)))")
     }
     handle = newHandle
     loadedModelPath = resolved
+    loadedModelArch = modelArch
+    loadedDecodeIncomplete = decodeIncomplete
+    loadedSingleThread = singleThread
     return newHandle
   }
 
-  /// Loads a transcriber with the library's default options.
+  /// Loads a transcriber; [decodeIncomplete] sets `decode_incomplete_lines`.
   ///
-  /// This used to pass `decode_incomplete_lines=false`, to skip re-decoding the
-  /// in-progress phrase on every one of the stream's analysis passes. The
-  /// justification written here was that it "cannot change the final
-  /// transcript, because every line is complete by the time we drain the
-  /// stream" — which is false. With the option off, the line still in progress
-  /// at the final drain is marked complete but its text is never decoded, so
-  /// the last phrase of *every* file was silently dropped. Measured on a
-  /// 5-minute clip: 476 words against 491 with the default. The default costs
-  /// about 12% more compute and returns the whole transcript.
+  /// Moonshine's default (on) re-decodes the phrase still in progress on every
+  /// analysis pass, so live captions can change while someone talks. A file
+  /// has no listener waiting on a half-spoken phrase: off, every line is
+  /// decoded once, when complete, and appears in the live text then. On the
+  /// Simulator that is 9% faster and 15% less CPU time for the same words;
+  /// whisper_playground measured 12% on an iPhone XR.
   ///
-  /// The `MOONSHINE_FLAG_FORCE_UPDATE` flag on the final drain does not recover
-  /// it, and neither does feeding trailing silence; the option governs whether
-  /// the decoder runs at all.
-  private static func loadTranscriber(path: String, modelArch: UInt32) -> Int32 {
-    moonshine_load_transcriber_from_files(
-      path, modelArch, nil, 0, Int32(MOONSHINE_HEADER_VERSION))
+  /// The playground turned the option off once and back on, because the
+  /// phrase still in progress when the file ends is marked complete but never
+  /// decoded, so the last phrase of every file was dropped. [decodeTail]
+  /// recovers it from its own audio with a second, default transcriber.
+  private static func loadTranscriber(
+    path: String, modelArch: UInt32, decodeIncomplete: Bool
+  ) -> Int32 {
+    let options: [(String, String)] =
+      decodeIncomplete ? [] : [("decode_incomplete_lines", "false")]
+    let names = options.map { strdup($0.0) }
+    let values = options.map { strdup($0.1) }
+    defer {
+      names.forEach { free($0) }
+      values.forEach { free($0) }
+    }
+    var cOptions = zip(names, values).map { moonshine_option_t(name: $0, value: $1) }
+    return cOptions.withUnsafeMutableBufferPointer { buffer in
+      moonshine_load_transcriber_from_files(
+        path, modelArch, buffer.baseAddress, UInt64(buffer.count),
+        Int32(MOONSHINE_HEADER_VERSION))
+    }
+  }
+
+  /// Decodes the lines a stream finished without text: with
+  /// `decode_incomplete_lines` off, the phrase in progress when the file ends.
+  /// Each line keeps its own audio, so only that phrase is transcribed again,
+  /// in one non-streaming call on a default-options transcriber. Returns the
+  /// recovered segments, timed like [copySegments]'s.
+  private func decodeTail(
+    of transcript: UnsafeMutablePointer<transcript_t>, offset: Double
+  ) throws -> [[String: Any]] {
+    guard let lines = transcript.pointee.lines else { return [] }
+    let count = Int(transcript.pointee.line_count)
+    func hasText(_ i: Int) -> Bool {
+      guard let text = lines[i].text else { return false }
+      return !String(cString: text).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    // Only the lines after the last decoded one: earlier silent lines were
+    // decoded and simply had no words.
+    var first = count
+    while first > 0, !hasText(first - 1) { first -= 1 }
+
+    var recovered: [[String: Any]] = []
+    for i in first..<count {
+      let line = lines[i]
+      guard let audio = line.audio_data, line.audio_data_count > 0 else { continue }
+      if tailHandle < 0, let path = loadedModelPath {
+        let loaded = Self.loadTranscriber(
+          path: path, modelArch: loadedModelArch, decodeIncomplete: true)
+        if loaded < 0 {
+          throw MoonshineError.failed(
+            "load tail transcriber: \(String(cString: moonshine_error_to_string(loaded)))")
+        }
+        tailHandle = loaded
+      }
+      var samples = Array(UnsafeBufferPointer(start: audio, count: Int(line.audio_data_count)))
+      var tailPtr: UnsafeMutablePointer<transcript_t>?
+      try samples.withUnsafeMutableBufferPointer { buffer in
+        try check(
+          moonshine_transcribe_without_streaming(
+            tailHandle, buffer.baseAddress, UInt64(buffer.count), Int32(Self.sampleRate), 0,
+            &tailPtr),
+          "decode tail")
+      }
+      guard let tail = tailPtr else { continue }
+      let words = Self.copySegments(from: tail, offset: 0).compactMap { $0["text"] as? String }
+      guard !words.isEmpty else { continue }
+      recovered.append([
+        "text": words.joined(separator: " "),
+        "start": offset + Double(line.start_time),
+        "duration": Double(line.duration),
+      ])
+    }
+    return recovered
   }
 
   /// Turns a model reference into a directory on disk.
@@ -606,6 +727,10 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
       moonshine_free_transcriber(handle)
       handle = -1
       loadedModelPath = nil
+    }
+    if tailHandle >= 0 {
+      moonshine_free_transcriber(tailHandle)
+      tailHandle = -1
     }
   }
 
