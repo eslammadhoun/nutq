@@ -40,6 +40,27 @@ ProcessJob ──► MediaTranscriptSource.resolve                        ▼
 - **Failures.** Unreadable media → `unsupportedMedia`; missing file → `sourceUnavailable`;
   recognition error → `transcriptionFailed`; disk error while extracting → `insufficientStorage`.
 
+## Heat
+
+An iPhone XR throttles its CPU and GPU once it gets hot, and everything slows with it: a 2 h 17 min
+recording (October 2026) transcribed at rtf 0.25 overall and 0.37–0.45 per stream at
+`thermal=serious`, against 0.08–0.12 in whisper_playground on a cool phone. So Nutq avoids work that
+makes heat without making progress:
+
+- **No endless animations while a job runs.** The progress card used an indeterminate spinner,
+  which redrew the screen 60 times a second for the whole job; it is a static icon now.
+  `job_detail_screen_test.dart` checks that a running job's screen settles between updates.
+- **Fewer, larger Moonshine passes when no one is reading or the phone is hot.** The bridge picks
+  each pass's size as it goes: 5 s while the app is on screen on a cool phone (live text), 20 s
+  when the app is in the background or `ProcessInfo.thermalState` is `serious`/`critical`
+  (about 18% less work for the same transcript). Each stream's log line says how many passes were
+  relaxed: `relaxed=12/15`.
+- **Streamed text at most 4 times a second.** Live transcript and summary updates are coalesced
+  (`JobRunner.partialInterval`, 250 ms), since each one re-lays-out the growing text.
+
+The log keeps `thermal=` on every stream line, so a slow run can be told apart: a climbing rtf at
+`nominal` is a code problem; at `serious` it is the phone.
+
 ## Running in the background
 
 `ios/Runner/JobBridge.swift` (ported from whisper_playground) shows a media job on the lock screen
