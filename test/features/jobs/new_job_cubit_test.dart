@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/core/errors/app_error.dart';
@@ -5,12 +7,14 @@ import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
+import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 import 'package:nutq/features/jobs/domain/services/job_scheduler.dart';
 import 'package:nutq/features/jobs/domain/usecases/submit_job.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
 
+import 'support/fake_media_files.dart';
 import 'support/faulty_jobs_local_data_source.dart';
 import 'support/job_harness.dart';
 
@@ -39,7 +43,11 @@ void main() {
 
   /// A cubit that only records what gets queued, so nothing actually runs.
   NewJobCubit recording({Set<JobSourceType> supported = const {JobSourceType.text}}) {
-    final cubit = NewJobCubit(SubmitJob(h.repo, scheduler), supportedSources: supported);
+    final cubit = NewJobCubit(
+      SubmitJob(h.repo, scheduler),
+      h.media,
+      supportedSources: supported,
+    );
     addTearDown(cubit.close);
     return cubit;
   }
@@ -126,14 +134,15 @@ void main() {
       expect(stored.transcript, isNull);
     });
 
-    test('an audio job carries its stored file, type and name', () async {
+    test('an audio job carries its imported file, type and name', () async {
       final cubit = recording(supported: JobSourceType.values.toSet())
         ..changeSourceType(JobSourceType.audio.index);
       cubit.emit(cubit.state.copyWith(pickedFile: audio));
       await cubit.submit();
       final stored = (await h.repo.getJob(cubit.state.submittedJobId!))!;
+      expect(h.media.imported, [audio]);
       expect(stored.sourceType, JobSourceType.audio);
-      expect(stored.sourceFilePath, '/app/files/talk.m4a');
+      expect(stored.sourceFilePath, FakeMediaFiles.importedPath(audio));
       expect(stored.sourceMimeType, 'audio/mp4');
       expect(stored.sourceTitle, 'talk.m4a');
     });
@@ -172,6 +181,7 @@ void main() {
       );
       final failing = NewJobCubit(
         SubmitJob(repo, scheduler),
+        h.media,
         supportedSources: const {JobSourceType.text},
       );
       addTearDown(failing.close);
@@ -190,6 +200,70 @@ void main() {
         NewJobStatus.failure,
         reason: 'a failed submit can be attempted again',
       );
+    });
+  });
+
+  group('picking a file', () {
+    test('a picked file fills the form and the audio tab can submit', () async {
+      final cubit = recording(supported: JobSourceType.values.toSet())
+        ..changeSourceType(JobSourceType.audio.index);
+      h.media.next = audio;
+      await cubit.pickMedia();
+      expect(h.media.picks, [JobSourceType.audio]);
+      expect(cubit.state.pickedFile, audio);
+      expect(cubit.state.canSubmit, isTrue);
+    });
+
+    test('backing out of the picker changes nothing', () async {
+      final cubit = recording()..changeSourceType(JobSourceType.video.index);
+      await cubit.pickMedia();
+      expect(h.media.picks, [JobSourceType.video]);
+      expect(cubit.state.pickedFile, isNull);
+    });
+
+    test('a file over the limit is shown but cannot be submitted', () async {
+      final cubit = recording(supported: JobSourceType.values.toSet())
+        ..changeSourceType(JobSourceType.audio.index);
+      h.media.next = audio.copyWith(sizeBytes: UploadFile.maxBytes + 1);
+      await cubit.pickMedia();
+      expect(cubit.state.pickedFile, isNotNull);
+      expect(cubit.state.fileTooLarge, isTrue);
+      expect(cubit.state.canSubmit, isFalse);
+    });
+
+    test('the picker only opens on the audio and video tabs', () async {
+      await recording().pickMedia();
+      expect(h.media.picks, isEmpty);
+    });
+
+    test('switching tabs drops the picked file', () async {
+      final cubit = recording()..changeSourceType(JobSourceType.audio.index);
+      h.media.next = audio;
+      await cubit.pickMedia();
+      cubit.changeSourceType(JobSourceType.video.index);
+      expect(cubit.state.pickedFile, isNull);
+    });
+
+    test('a picker failure is reported as a storage error', () async {
+      final cubit = recording()..changeSourceType(JobSourceType.audio.index);
+      h.media.pickError = const FileSystemException('denied');
+      await cubit.pickMedia();
+      expect(cubit.state.status, NewJobStatus.failure);
+      expect(cubit.state.lastError, AppError.storage);
+    });
+
+    test('a failed import creates no job', () async {
+      final cubit = recording(supported: JobSourceType.values.toSet())
+        ..changeSourceType(JobSourceType.audio.index);
+      h.media
+        ..next = audio
+        ..importError = true;
+      await cubit.pickMedia();
+      await cubit.submit();
+      expect(cubit.state.status, NewJobStatus.failure);
+      expect(cubit.state.lastError, AppError.storage);
+      expect(scheduler.enqueued, isEmpty);
+      expect(await h.repo.watchJobs(const JobsQuery()).first, isEmpty);
     });
   });
 }

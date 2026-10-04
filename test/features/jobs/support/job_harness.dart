@@ -19,6 +19,7 @@ import 'package:nutq/features/summarization/domain/usecases/summarize_transcript
 
 import '../../../support/sample_text.dart';
 import '../../summarization/support/fake_gemma.dart';
+import 'fake_media_files.dart';
 import 'job_fixtures.dart';
 
 /// A small per-call budget so a few paragraphs become several sections.
@@ -84,8 +85,11 @@ class JobHarness {
   JobsCubit jobsCubit({Duration searchDebounce = const Duration(milliseconds: 20)}) =>
       JobsCubit(repo, searchDebounce: searchDebounce);
 
+  final media = FakeMediaFiles();
+
   NewJobCubit newJobCubit({Set<JobSourceType>? supportedSources}) => NewJobCubit(
     submitJob,
+    media,
     supportedSources: supportedSources ?? registry.supportedTypes,
   );
 
