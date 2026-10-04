@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:get_it/get_it.dart';
 import 'package:nutq/core/database/app_database.dart';
 import 'package:nutq/core/locale/locale_cubit.dart';
@@ -17,7 +15,6 @@ import 'package:nutq/features/jobs/domain/usecases/submit_job.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
-import 'package:nutq/features/summarization/data/cache/summarization_cache.dart';
 import 'package:nutq/features/summarization/data/datasources/flutter_gemma_runtime.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 import 'package:nutq/features/summarization/data/datasources/llm_runtime.dart';
@@ -28,10 +25,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 final sl = GetIt.instance;
-
-/// Development aid: `--dart-define=SUMMARY_CACHE=true` caches model outputs on
-/// disk so repeated runs over the same text are instant. Off in releases.
-const _summaryCacheEnabled = bool.fromEnvironment('SUMMARY_CACHE');
 
 /// Registers everything. [openDatabase] and [preferences] exist so tests can
 /// supply an in-memory database and mock preferences.
@@ -52,7 +45,7 @@ void _registerCore(SharedPreferences prefs, AppDatabase Function() openDatabase)
     ..registerLazySingleton<AppDatabase>(openDatabase, dispose: (db) => db.close());
 }
 
-/// On-device summarization (Gemma 3 1B IT, LiteRT-LM).
+/// On-device summarization (Gemma 3 1B fine-tuned for Arabic, LiteRT-LM).
 void _registerSummarization() {
   sl
     ..registerLazySingleton<LlmRuntime>(FlutterGemmaRuntime.new)
@@ -60,12 +53,7 @@ void _registerSummarization() {
       () => GemmaLocalDataSourceImpl(sl<LlmRuntime>()),
     )
     ..registerLazySingleton<SummarizationRepository>(
-      () => SummarizationRepositoryImpl(
-        dataSource: sl<GemmaLocalDataSource>(),
-        cache: _summaryCacheEnabled
-            ? FileSummarizationCache(Directory('${Directory.systemTemp.path}/nutq_summary_cache'))
-            : null,
-      ),
+      () => SummarizationRepositoryImpl(dataSource: sl<GemmaLocalDataSource>()),
     )
     ..registerLazySingleton<SummarizeTranscript>(
       () => SummarizeTranscript(

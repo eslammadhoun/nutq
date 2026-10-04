@@ -262,7 +262,7 @@ class ProcessJob {
     takeaways: List.unmodifiable(result.keyPoints),
     modelName: _summarization.modelId,
     promptVersion: _summarization.promptVersion,
-    needsReview: result.validation.isSuspicious,
+    needsReview: result.needsReview,
     tokensIn: result.debug.inputTokens,
     tokensOut: result.debug.outputTokens,
     processingTimeMs: result.debug.processingTimeMs,

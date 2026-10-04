@@ -1,67 +1,42 @@
-/// Conservative ASR-transcript cleanup.
+/// Removes the seams Moonshine's streaming output leaves between lines.
 ///
-/// Normalizes whitespace and punctuation, strips bracketed sound tags and
-/// invisible characters, and collapses only *runs* of the same word beyond
-/// two repetitions. Discourse words (يعني، طيب، لكن…), numbers, dates, names,
-/// English terms and code-like tokens are never removed.
-class TranscriptCleaner {
-  const TranscriptCleaner();
+/// When a line is cut mid-phrase, the word at the cut is emitted twice: once
+/// (often truncated) at the end of the line and again, complete, at the start
+/// of the next:
+///
+///     ...في غارات باكستانية على ولاية كونار شرقي البلاد
+///     البلاد.
+///     ...على
+///     على الرغم من أن الحكومة الأفغانية ... ح
+///     حول الهجمة ...
+///
+/// A small model reads those doubled words as a pattern and starts repeating
+/// itself, so they are dropped before the text reaches it: when a line's last
+/// word equals, or is the start of, the next line's first word, the last word
+/// goes and the complete one is kept.
+///
+/// Text without such seams (a pasted article) passes through unchanged.
+String cleanTranscriptSeams(String text) {
+  final lines = text.split('\n');
 
-  static final _invisible = RegExp(r'[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]');
-  static final _soundTag = RegExp(
-    r'[\[\(]\s*(?:موسيقى|تصفيق|ضحك|ضحكات|ضجيج|صمت|music|applause|laughter|noise|silence|inaudible)\s*[\]\)]',
-    caseSensitive: false,
-  );
-  static final _horizontalSpace = RegExp(r'[ \t ]+');
-  static final _manyNewlines = RegExp(r'\n{3,}');
-  static final _longEllipsis = RegExp(r'\.{4,}');
-  static final _repeatedBang = RegExp(r'!{2,}');
-  static final _repeatedQuestion = RegExp(r'([؟?]){2,}');
-  static final _repeatedComma = RegExp(r'([،,]){2,}');
-  static final _repeatedSemicolon = RegExp(r'([؛;]){2,}');
-  static final _spaceBeforePunct = RegExp(r'[ ]+([،؛؟!?,;:.])(?=\s|$)');
-  static final _protectedToken = RegExp(r'[\d`_=(){}\[\]<>/\\@#$]');
+  for (var i = 0; i < lines.length - 1; i++) {
+    final current = lines[i].trimRight();
+    final next = lines[i + 1].trimLeft();
+    if (current.isEmpty || next.isEmpty) continue;
 
-  String clean(String raw) {
-    var text = raw.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
-    text = text.replaceAll(_invisible, '');
-    text = text.replaceAll(_soundTag, ' ');
-    text = text.replaceAll(_horizontalSpace, ' ');
+    final lastSpace = current.lastIndexOf(' ');
+    final lastWord = _bare(current.substring(lastSpace + 1));
+    final firstWord = _bare(next.split(' ').first);
+    if (lastWord.isEmpty || firstWord.isEmpty) continue;
 
-    text = text.replaceAll(_longEllipsis, '...');
-    text = text.replaceAll(_repeatedBang, '!');
-    text = text.replaceAllMapped(_repeatedQuestion, (m) => m[1]!);
-    text = text.replaceAllMapped(_repeatedComma, (m) => m[1]!);
-    text = text.replaceAllMapped(_repeatedSemicolon, (m) => m[1]!);
-
-    final lines = text.split('\n').map((line) {
-      final collapsed = _collapseRepeatedWords(line.trim());
-      return collapsed.replaceAllMapped(_spaceBeforePunct, (m) => m[1]!);
-    });
-    text = lines.join('\n').replaceAll(_manyNewlines, '\n\n');
-    return text.trim();
-  }
-
-  /// Keeps at most two consecutive copies of the same word ("جدا جدا جدا جدا"
-  /// → "جدا جدا"), preserving deliberate emphasis. Tokens containing digits
-  /// or code-like symbols are never touched.
-  String _collapseRepeatedWords(String line) {
-    if (line.isEmpty) return line;
-    final tokens = line.split(' ');
-    final out = <String>[];
-    var run = 0;
-    String? previous;
-    for (final token in tokens) {
-      final key = token.toLowerCase();
-      if (previous != null && key == previous && !_protectedToken.hasMatch(token)) {
-        run++;
-        if (run >= 2) continue;
-      } else {
-        run = 0;
-      }
-      previous = key;
-      out.add(token);
+    if (firstWord == lastWord || firstWord.startsWith(lastWord)) {
+      lines[i] = lastSpace == -1 ? '' : current.substring(0, lastSpace);
     }
-    return out.join(' ');
   }
+
+  return lines.where((line) => line.trim().isNotEmpty).join('\n');
 }
+
+final RegExp _punctuation = RegExp(r'[^\p{L}\p{N}]', unicode: true);
+
+String _bare(String word) => word.replaceAll(_punctuation, '');

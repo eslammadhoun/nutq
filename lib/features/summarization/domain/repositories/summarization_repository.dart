@@ -1,46 +1,22 @@
 import 'package:nutq/core/domain/content_language.dart';
-import 'package:nutq/features/summarization/domain/entities/chunk_analysis.dart';
-import 'package:nutq/features/summarization/domain/entities/local_summary.dart';
-import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
-import 'package:nutq/features/summarization/domain/entities/transcript_chunk.dart';
-import 'package:nutq/features/summarization/domain/text/token_counter.dart';
 
-/// Input for one hierarchical merge step.
-class MergeRequest {
-  const MergeRequest({
-    required this.summaries,
-    required this.facts,
-    required this.evidence,
-    this.language = ContentLanguage.ar,
+/// One section of the source to summarize.
+class SectionRequest {
+  const SectionRequest({
+    required this.text,
+    required this.language,
+    required this.sentences,
+    required this.maxOutputTokens,
   });
 
-  final List<LocalSummary> summaries;
+  final String text;
 
-  /// Facts from the chunks the summaries cover.
-  final List<String> facts;
-
-  /// Bounded source excerpts grounding the merge.
-  final List<String> evidence;
+  /// Language the summary is written in.
   final ContentLanguage language;
-}
 
-/// Input for the final synthesis.
-class FinalSummaryRequest {
-  const FinalSummaryRequest({
-    required this.summaries,
-    required this.keyFacts,
-    required this.entities,
-    required this.numbers,
-    required this.length,
-    this.language = ContentLanguage.ar,
-  });
-
-  final List<LocalSummary> summaries;
-  final List<String> keyFacts;
-  final List<String> entities;
-  final List<String> numbers;
-  final SummaryLength length;
-  final ContentLanguage language;
+  /// Sentences to ask for (ignored by a model prompted as it was fine-tuned).
+  final int sentences;
+  final int maxOutputTokens;
 }
 
 /// Cumulative model usage for one summarization job.
@@ -49,24 +25,37 @@ class GenerationStats {
     this.inputTokens = 0,
     this.outputTokens = 0,
     this.generationTimeMs = 0,
+    this.prefillTimeMs = 0,
     this.calls = 0,
+    this.loopStops = 0,
+    this.capped = 0,
   });
 
   final int inputTokens;
   final int outputTokens;
   final int generationTimeMs;
+  final int prefillTimeMs;
   final int calls;
+
+  /// Calls stopped early because the model started repeating itself.
+  final int loopStops;
+
+  /// Calls that ran into their output cap.
+  final int capped;
 
   GenerationStats operator +(GenerationStats other) => GenerationStats(
     inputTokens: inputTokens + other.inputTokens,
     outputTokens: outputTokens + other.outputTokens,
     generationTimeMs: generationTimeMs + other.generationTimeMs,
+    prefillTimeMs: prefillTimeMs + other.prefillTimeMs,
     calls: calls + other.calls,
+    loopStops: loopStops + other.loopStops,
+    capped: capped + other.capped,
   );
 }
 
 /// Everything the pipeline needs from the model, without exposing prompts,
-/// the Gemma runtime, or response parsing to the domain layer.
+/// the Gemma runtime, or response cleanup to the domain layer.
 abstract class SummarizationRepository {
   /// Identifies the model that produces summaries (stored with each result).
   String get modelId;
@@ -74,29 +63,32 @@ abstract class SummarizationRepository {
   /// Identifies the prompt templates in use.
   String get promptVersion;
 
-  /// Token counter backed by the model's tokenizer when available.
-  TokenCounter get tokenCounter;
+  /// Prompt + output tokens one call can hold.
+  int get contextTokens;
+
+  /// Upper bound on one call's output. Each section gets a smaller cap from
+  /// its share of the summary; this only stops a call that lost its way.
+  int get maxOutputTokens;
 
   /// Ensures the model is installed and loaded. Throws
   /// `SummarizationFailure(modelUnavailable)` when it cannot be.
   Future<void> prepare();
 
-  Future<ChunkAnalysis> analyzeChunk(
-    TranscriptChunk chunk, {
-    ContentLanguage language = ContentLanguage.ar,
-  });
+  /// Model-tokenizer token count.
+  Future<int> countTokens(String text);
 
-  Future<String> summarizeChunk(
-    TranscriptChunk chunk, {
-    ContentLanguage language = ContentLanguage.ar,
-  });
+  /// Tokens the section prompt takes around its text.
+  Future<int> promptOverheadTokens(ContentLanguage language);
 
-  Future<String> mergeSummaries(MergeRequest request);
+  /// Whether a section prompt for [text] fits the context with room for
+  /// [maxOutputTokens].
+  Future<bool> fits(String text, ContentLanguage language);
 
-  /// [onPartial] receives the summary text accumulated so far, as the model
-  /// generates it (word by word); the returned string is the final text.
-  Future<String> generateFinalSummary(
-    FinalSummaryRequest request, {
+  /// Summarizes one section and returns the cleaned summary, which is empty
+  /// when nothing usable was left (an echoed prompt, the wrong language, a
+  /// loop). [onPartial] receives the text generated so far.
+  Future<String> summarizeSection(
+    SectionRequest request, {
     void Function(String partialText)? onPartial,
   });
 

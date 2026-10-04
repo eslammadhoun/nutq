@@ -1,8 +1,12 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_generation_config.dart';
 import 'package:nutq/features/summarization/data/datasources/llm_runtime.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
+import 'package:nutq/features/summarization/domain/text/loop_guard.dart';
+import 'package:nutq/features/summarization/domain/text/output_format.dart';
 
 class GemmaResponse {
   const GemmaResponse({
@@ -10,12 +14,24 @@ class GemmaResponse {
     this.inputTokens = 0,
     this.outputTokens = 0,
     this.durationMs = 0,
+    this.prefillMs = 0,
+    this.stoppedOnLoop = false,
+    this.hitCap = false,
   });
 
   final String text;
   final int inputTokens;
   final int outputTokens;
   final int durationMs;
+
+  /// Time to the first token: the prompt prefill. The rest is decode.
+  final int prefillMs;
+
+  /// Generation was stopped early because the model started repeating itself.
+  final bool stoppedOnLoop;
+
+  /// Ran into `maxOutputTokens`; an unfinished last sentence was cut.
+  final bool hitCap;
 }
 
 class GemmaGenerationException implements Exception {
@@ -37,12 +53,17 @@ abstract class GemmaLocalDataSource {
   /// pending cancellation from a previous job.
   Future<void> activate();
 
-  /// One stateless generation (fresh session per call). Retries once on
-  /// failure; cancellation is never retried.
+  /// One stateless, streamed generation (fresh session per call). Retries
+  /// once on failure; cancellation is never retried.
   ///
-  /// With [onPartial], generation is streamed and each token calls it with
-  /// the cleaned text accumulated so far. A retry restarts from empty, so
-  /// callers should treat each call as replacing the previous partial text.
+  /// Stops early when the model starts looping (the loop is cut off), and
+  /// fails with `SummarizationFailure(generationFailed)` without a retry when
+  /// the output is not language at all — a broken backend, which a retry on
+  /// the same backend would not fix.
+  ///
+  /// [onPartial] is called per token with the cleaned text accumulated so
+  /// far. A retry restarts from empty, so callers should treat each call as
+  /// replacing the previous partial text.
   Future<GemmaResponse> generate(
     String prompt,
     GemmaGenerationConfig config, {
@@ -103,6 +124,8 @@ class GemmaLocalDataSourceImpl implements GemmaLocalDataSource {
         return await _generateOnce(prompt, config, onPartial);
       } on CancelledException {
         rethrow;
+      } on SummarizationFailure {
+        rethrow;
       } catch (e) {
         if (_cancelRequested) throw const CancelledException();
         lastError = e;
@@ -119,32 +142,79 @@ class GemmaLocalDataSourceImpl implements GemmaLocalDataSource {
     final session = await _runtime.openSession(config);
     _active = session;
     final watch = Stopwatch()..start();
+    int? firstTokenMs;
+    var pieces = 0;
+    var stoppedOnLoop = false;
     try {
       await session.setPrompt(prompt);
-      final String raw;
-      if (onPartial == null) {
-        raw = await session.respond();
-      } else {
-        final buffer = StringBuffer();
-        await for (final token in session.respondStream()) {
-          if (_cancelRequested) break;
-          buffer.write(token);
+      final buffer = StringBuffer();
+      await for (final token in session.respondStream()) {
+        if (_cancelRequested) break;
+        if (token.isEmpty) continue;
+        firstTokenMs ??= watch.elapsedMilliseconds;
+        pieces++;
+        buffer.write(token);
+
+        // A broken backend writes garbage from the first token; stop after a
+        // few dozen instead of generating to the cap.
+        if (pieces == _corruptionCheckAt && looksCorrupted(buffer.toString())) break;
+
+        final cut = loopCut(buffer.toString());
+        if (cut != null) {
+          final kept = buffer.toString().substring(0, cut);
+          buffer
+            ..clear()
+            ..write(kept);
+          stoppedOnLoop = true;
+          break;
+        }
+
+        if (onPartial != null) {
           final partial = cleanResponse(buffer.toString());
           if (partial.isNotEmpty) onPartial(partial);
         }
-        raw = buffer.toString();
+      }
+      if (stoppedOnLoop || pieces == _corruptionCheckAt) {
+        // Leaving the loop ends the stream; stopping the native decoder only
+        // stops it burning CPU meanwhile.
+        try {
+          await session.stop();
+        } catch (_) {}
       }
       watch.stop();
       if (_cancelRequested) throw const CancelledException();
 
+      var raw = buffer.toString();
+      if (looksCorrupted(raw)) {
+        throw const SummarizationFailure(
+          SummarizationFailureKind.generationFailed,
+          'unreadable model output',
+        );
+      }
+
+      final usage = session.usage;
+
+      // Hitting the cap cuts the model off, usually mid-sentence. Keep what
+      // ends a sentence.
+      final hitCap =
+          !stoppedOnLoop && math.max(usage.outputTokens, pieces) >= config.maxOutputTokens;
+      if (hitCap) {
+        final lastEnd = raw.lastIndexOf(_sentenceEnd);
+        if (lastEnd > raw.length ~/ 3) raw = raw.substring(0, lastEnd + 1);
+      }
+
       final text = cleanResponse(raw);
       if (text.isEmpty) throw const GemmaGenerationException('empty response');
-      final usage = session.usage;
       return GemmaResponse(
         text: text,
         inputTokens: usage.inputTokens,
-        outputTokens: usage.outputTokens,
+        // The native side does not always fill token counts; a streamed piece
+        // is about one token.
+        outputTokens: usage.outputTokens > 0 ? usage.outputTokens : pieces,
         durationMs: watch.elapsedMilliseconds,
+        prefillMs: firstTokenMs ?? watch.elapsedMilliseconds,
+        stoppedOnLoop: stoppedOnLoop,
+        hitCap: hitCap,
       );
     } finally {
       _active = null;
@@ -153,6 +223,9 @@ class GemmaLocalDataSourceImpl implements GemmaLocalDataSource {
       } catch (_) {}
     }
   }
+
+  static const _corruptionCheckAt = 40;
+  static final RegExp _sentenceEnd = RegExp('[.!?؟؛…]');
 
   /// Strips chat-template artifacts and code fences the model sometimes
   /// emits around its answer.

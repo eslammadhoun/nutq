@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
-/// Sampling and budget parameters for one Gemma generation. Defaults follow
-/// the plan (§14) and stay configurable — no magic numbers elsewhere.
+/// Sampling and budget parameters for one Gemma generation. Conservative
+/// decoding: summarization benefits from consistency more than creativity.
 @immutable
 class GemmaGenerationConfig {
   const GemmaGenerationConfig({
@@ -9,9 +9,7 @@ class GemmaGenerationConfig {
     this.topK = 20,
     this.topP = 0.90,
     this.seed = 47,
-    this.maxOutputTokens = 512,
-    this.contextTokens = 4096,
-    this.useGpu = false,
+    this.maxOutputTokens = 384,
   });
 
   final double temperature;
@@ -19,35 +17,15 @@ class GemmaGenerationConfig {
   final double topP;
   final int seed;
 
-  /// Cap on *generated* tokens.
+  /// Cap on *generated* tokens. The context window is the model's
+  /// (`SummarizerModel.contextTokens`); prompt and reply share it.
   final int maxOutputTokens;
 
-  /// Model context window (prompt + reply share it). The bundled
-  /// `gemma3-1b-it-q4` build is exported with a 4096-token KV cache.
-  final int contextTokens;
-
-  /// CPU is the default: slower but the most predictable output for a 1B
-  /// model. Quality > speed.
-  final bool useGpu;
-
-  GemmaGenerationConfig copyWith({
-    double? temperature,
-    int? topK,
-    double? topP,
-    int? seed,
-    int? maxOutputTokens,
-    int? contextTokens,
-    bool? useGpu,
-  }) => GemmaGenerationConfig(
-    temperature: temperature ?? this.temperature,
-    topK: topK ?? this.topK,
-    topP: topP ?? this.topP,
-    seed: seed ?? this.seed,
+  GemmaGenerationConfig copyWith({int? maxOutputTokens}) => GemmaGenerationConfig(
+    temperature: temperature,
+    topK: topK,
+    topP: topP,
+    seed: seed,
     maxOutputTokens: maxOutputTokens ?? this.maxOutputTokens,
-    contextTokens: contextTokens ?? this.contextTokens,
-    useGpu: useGpu ?? this.useGpu,
   );
-
-  /// Stable string for cache keys.
-  String get cacheSignature => '$temperature|$topK|$topP|$seed|$maxOutputTokens|$contextTokens';
 }

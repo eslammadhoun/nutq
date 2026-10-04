@@ -1,56 +1,44 @@
 import 'package:nutq/core/domain/content_language.dart';
-import 'package:nutq/features/summarization/data/cache/summarization_cache.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_generation_config.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
-import 'package:nutq/features/summarization/data/datasources/gemma_token_counter.dart';
-import 'package:nutq/features/summarization/data/parsing/chunk_analysis_parser.dart';
-import 'package:nutq/features/summarization/data/prompts/chunk_analysis_prompt.dart';
-import 'package:nutq/features/summarization/data/prompts/final_summary_prompt.dart';
-import 'package:nutq/features/summarization/data/prompts/local_summary_prompt.dart';
-import 'package:nutq/features/summarization/data/prompts/merge_prompt.dart';
-import 'package:nutq/features/summarization/data/prompts/prompt_version.dart';
-import 'package:nutq/features/summarization/domain/entities/chunk_analysis.dart';
-import 'package:nutq/features/summarization/domain/entities/transcript_chunk.dart';
+import 'package:nutq/features/summarization/data/datasources/summarizer_model.dart';
+import 'package:nutq/features/summarization/data/prompts/summary_prompt.dart';
 import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
-import 'package:nutq/features/summarization/domain/text/token_counter.dart';
+import 'package:nutq/features/summarization/domain/text/output_format.dart';
+import 'package:nutq/features/summarization/domain/text/repetition.dart';
 
-/// Builds prompts, runs them through [GemmaLocalDataSource], parses replies,
-/// tracks usage, and (optionally) caches outputs.
+/// Builds section prompts, runs them through [GemmaLocalDataSource], cleans
+/// the replies and tracks usage.
 class SummarizationRepositoryImpl implements SummarizationRepository {
   SummarizationRepositoryImpl({
-    required GemmaLocalDataSource dataSource,
-    TokenCounter? tokenCounter,
+    required this._dataSource,
+    this.model = activeSummarizerModel,
     this.baseConfig = const GemmaGenerationConfig(),
-    this.cache,
-    this.modelVersion = summarizationModelId,
-    this.parser = const ChunkAnalysisParser(),
-  }) : _dataSource = dataSource,
-       tokenCounter = tokenCounter ?? CachingTokenCounter(GemmaTokenCounter(dataSource));
+  });
 
   final GemmaLocalDataSource _dataSource;
+  final SummarizerModel model;
   final GemmaGenerationConfig baseConfig;
-  final SummarizationCache? cache;
-  final String modelVersion;
-  final ChunkAnalysisParser parser;
-
-  @override
-  final TokenCounter tokenCounter;
 
   GenerationStats _stats = const GenerationStats();
 
-  /// Reserved headroom so prompt + reply never touch the context limit.
-  static const _contextMargin = 128;
-  static const _analysisOutputTokens = 400;
-  static const _localSummaryOutputTokens = 320;
-  static const _mergeOutputTokens = 480;
-  static const _maxFinalOutputTokens = 1600;
-  static const _tokensPerArabicWord = 2.2;
+  /// Fraction of the context under which the cheap character estimate is
+  /// trusted instead of a tokenizer round trip.
+  static const _estimateSafetyMargin = 0.85;
 
   @override
-  String get modelId => modelVersion;
+  String get modelId => model.id;
 
   @override
   String get promptVersion => summarizationPromptVersion;
+
+  @override
+  int get contextTokens => model.contextTokens;
+
+  /// A small context reserves less, since what is reserved for output is
+  /// taken from the source text.
+  @override
+  int get maxOutputTokens => contextTokens >= 2048 ? 384 : 256;
 
   @override
   GenerationStats get stats => _stats;
@@ -68,136 +56,63 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
   Future<void> release() => _dataSource.dispose();
 
   @override
-  Future<ChunkAnalysis> analyzeChunk(
-    TranscriptChunk chunk, {
-    ContentLanguage language = ContentLanguage.ar,
-  }) async {
-    final response = await _generate(
-      stage: 'analysis',
-      prompt: ChunkAnalysisPrompt.build(chunk.text, language: language),
-      config: baseConfig.copyWith(maxOutputTokens: _analysisOutputTokens),
-    );
-    return parser.parse(chunk.id, response);
-  }
+  Future<int> countTokens(String text) => _dataSource.countTokens(text);
 
-  @override
-  Future<String> summarizeChunk(
-    TranscriptChunk chunk, {
-    ContentLanguage language = ContentLanguage.ar,
-  }) => _generate(
-    stage: 'local',
-    prompt: LocalSummaryPrompt.build(chunk.text, language: language),
-    config: baseConfig.copyWith(maxOutputTokens: _localSummaryOutputTokens),
+  String _prompt(String text, ContentLanguage language, {int? sentences}) => sectionSummaryPrompt(
+    text,
+    language: language,
+    useTrainingPrompt: model.useTrainingPrompt,
+    sentences: sentences,
   );
 
   @override
-  Future<String> mergeSummaries(MergeRequest request) async {
-    final config = baseConfig.copyWith(maxOutputTokens: _mergeOutputTokens);
-    final summaries = [for (final s in request.summaries) s.text];
-    final facts = List.of(request.facts);
-    final evidence = List.of(request.evidence);
+  Future<int> promptOverheadTokens(ContentLanguage language) => countTokens(_prompt('', language));
 
-    String build() => MergePrompt.build(
-      summaries: summaries,
-      facts: facts,
-      evidence: evidence,
-      language: request.language,
-    );
-
-    // Shed evidence first, then facts, until the prompt fits the window.
-    var prompt = build();
-    while (await _overBudget(prompt, config) && (evidence.isNotEmpty || facts.isNotEmpty)) {
-      if (evidence.isNotEmpty) {
-        evidence.removeLast();
-      } else {
-        facts.removeLast();
-      }
-      prompt = build();
-    }
-    return _generate(stage: 'merge', prompt: prompt, config: config);
+  @override
+  Future<bool> fits(String text, ContentLanguage language) async {
+    final prompt = _prompt(text, language, sentences: 6);
+    // Worst case 3 chars/token, so this never under-estimates.
+    final estimate = (prompt.length / 3).ceil();
+    if (estimate + maxOutputTokens <= contextTokens * _estimateSafetyMargin) return true;
+    return await countTokens(prompt) + maxOutputTokens <= contextTokens;
   }
 
   @override
-  Future<String> generateFinalSummary(
-    FinalSummaryRequest request, {
+  Future<String> summarizeSection(
+    SectionRequest request, {
     void Function(String partialText)? onPartial,
   }) async {
-    final outputTokens = (request.length.maxWords * _tokensPerArabicWord).round().clamp(
-      _analysisOutputTokens,
-      _maxFinalOutputTokens,
-    );
-    final config = baseConfig.copyWith(maxOutputTokens: outputTokens);
-    final summaries = [for (final s in request.summaries) s.text];
-    final facts = List.of(request.keyFacts);
-    final entities = List.of(request.entities);
-    final numbers = List.of(request.numbers);
-
-    String build() => FinalSummaryPrompt.build(
-      summaries: summaries,
-      keyFacts: facts,
-      entities: entities,
-      numbers: numbers,
-      length: request.length,
-      language: request.language,
-    );
-
-    var prompt = build();
-    while (await _overBudget(prompt, config) &&
-        (facts.isNotEmpty || entities.isNotEmpty || numbers.isNotEmpty)) {
-      if (facts.isNotEmpty) {
-        facts.removeLast();
-      } else if (entities.isNotEmpty) {
-        entities.removeLast();
-      } else {
-        numbers.removeLast();
-      }
-      prompt = build();
+    final GemmaResponse response;
+    try {
+      response = await _dataSource.generate(
+        _prompt(request.text, request.language, sentences: request.sentences),
+        baseConfig.copyWith(maxOutputTokens: request.maxOutputTokens),
+        onPartial: onPartial,
+      );
+    } on GemmaGenerationException {
+      // Nothing usable even after the data source's retry: the pipeline
+      // retries the section with its key points, or leaves it out.
+      return '';
     }
-    return _generate(
-      stage: 'final-${request.length.name}',
-      prompt: prompt,
-      config: config,
-      onPartial: onPartial,
-    );
-  }
-
-  Future<bool> _overBudget(String prompt, GemmaGenerationConfig config) async {
-    final promptTokens = await tokenCounter.count(prompt);
-    return promptTokens + config.maxOutputTokens + _contextMargin > config.contextTokens;
-  }
-
-  Future<String> _generate({
-    required String stage,
-    required String prompt,
-    required GemmaGenerationConfig config,
-    void Function(String partialText)? onPartial,
-  }) async {
-    final store = cache;
-    final key = store == null
-        ? null
-        : SummarizationCache.keyFor(
-            modelVersion: modelVersion,
-            promptVersion: summarizationPromptVersion,
-            stage: stage,
-            input: prompt,
-            configSignature: config.cacheSignature,
-          );
-    if (store != null && key != null) {
-      final hit = await store.read(key);
-      if (hit != null) {
-        onPartial?.call(hit);
-        return hit;
-      }
-    }
-
-    final response = await _dataSource.generate(prompt, config, onPartial: onPartial);
     _stats += GenerationStats(
       inputTokens: response.inputTokens,
       outputTokens: response.outputTokens,
       generationTimeMs: response.durationMs,
+      prefillTimeMs: response.prefillMs,
       calls: 1,
+      loopStops: response.stoppedOnLoop ? 1 : 0,
+      capped: response.hitCap ? 1 : 0,
     );
-    if (store != null && key != null) await store.write(key, response.text);
-    return response.text;
+    return cleanSummary(response.text, language: request.language);
+  }
+
+  /// Removes what is not summary: an echoed prompt, chat preambles, paragraphs
+  /// in the wrong language, loops and markdown.
+  static String cleanSummary(String text, {required ContentLanguage language}) {
+    var result = stripPromptLeakage(text.trim());
+    result = stripChatPreamble(result);
+    if (language == ContentLanguage.ar) result = dropOffLanguageParagraphs(result);
+    if (hasSevereRepetition(result)) result = removeRepetitionTail(result);
+    return plainSummaryText(result).trim();
   }
 }

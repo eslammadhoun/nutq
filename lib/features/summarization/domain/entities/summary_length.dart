@@ -1,12 +1,12 @@
-/// Requested size of the final summary. Targets are starting points, not
-/// hard limits: coverage takes priority over hitting an exact word count.
+/// Requested size of the summary, as a scale on the default summary ratio
+/// (`SummarizationConfig.summaryRatio`): the summary shrinks relative to the
+/// source as the source grows, whichever length is chosen.
 enum SummaryLength {
-  short(minWords: 120, maxWords: 180),
-  medium(minWords: 250, maxWords: 400),
-  detailed(minWords: 500, maxWords: 700);
+  short(ratioScale: 0.6),
+  medium(ratioScale: 1),
+  detailed(ratioScale: 1.6);
 
-  const SummaryLength({required this.minWords, required this.maxWords});
+  const SummaryLength({required this.ratioScale});
 
-  final int minWords;
-  final int maxWords;
+  final double ratioScale;
 }
