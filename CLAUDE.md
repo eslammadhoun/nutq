@@ -14,8 +14,9 @@ dart run build_runner build
 # Regenerate localizations after editing lib/l10n/*.arb
 flutter gen-l10n
 
-# Format (CI fails on unformatted code; width 100, see analysis_options.yaml)
-dart format .
+# Format (CI fails on unformatted code; width 100, see analysis_options.yaml).
+# Only lib and test: third_party/ is vendored and stays as upstream wrote it.
+dart format lib test
 
 # Analyze (CI runs with --fatal-infos — infos fail the build; strict-casts/inference/raw-types are on)
 flutter analyze --fatal-infos
@@ -61,6 +62,7 @@ lib/
     jobs/           # ✅ full — list, filters, pagination, new-job sheet. REFERENCE FEATURE.
     home/           # tab shell hosting Jobs/Alerts/Profile behind the bottom nav
     onBoarding/     # splash + onboarding screens
+    transcription/  # on-device speech-to-text (FFmpeg + Moonshine, iOS) — see docs/TRANSCRIPTION.md
     alerts/         # placeholder (SRS 4.8 Notifications — not started)
     profile/        # placeholder (SRS 4.9 Profile/Settings — not started)
 ```

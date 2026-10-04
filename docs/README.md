@@ -5,50 +5,41 @@ Arabic speech transcription client app, built with Flutter. Connects to the
 
 ## Status
 
-Early stage: authentication (register/login/logout) is implemented end-to-end.
-The jobs feature (list, create, detail) is scaffolded but not yet built out.
-See `SRS.md` for the full product spec and `SYSTEM_DESIGN.md` for the client
-architecture.
+Fully on-device: no backend. Jobs are stored locally (Drift/SQLite) and run
+one at a time:
 
-## Stack
+- **Pasted text** is summarized directly.
+- **Audio and video files** (iOS only) have their audio extracted with FFmpeg
+  and transcribed with [Moonshine](https://github.com/moonshine-ai/moonshine),
+  then summarized.
+- **Summaries** come from a Gemma 3 1B model fine-tuned on Arabic, through
+  LiteRT-LM.
 
-- **State management:** flutter_bloc (Cubit)
-- **Networking:** Dio + Retrofit
-- **DI:** get_it
-- **Models:** Freezed + json_serializable
-- **Secure storage:** flutter_secure_storage (JWT), shared_preferences (app prefs)
+See `JOB_PROCESSING.md` (queue and sources), `current_summarization_architecture.md`
+and `TRANSCRIPTION.md`.
 
 ## Getting started
 
+The models are not in git. Fetch them once after cloning:
+
 ```bash
-# Install dependencies
+# Summarization model (579 MB): copy from gemma_playground
+cp ../gemma_playground/assets/models/gemma3-1b-arabic-summarizer-v3_q4_block32_ekv2048.litertlm assets/models/
+
+# Speech recognition (iOS): framework (~214 MB) and Arabic + English models (~74 MB)
+third_party/moonshine/fetch-framework.sh
+third_party/moonshine/fetch-model.sh
+
 flutter pub get
+cd ios && pod install && cd ..
 
-# Regenerate generated code (Retrofit services, Freezed unions, JSON models)
-dart run build_runner build --delete-conflicting-outputs
-
-# Run against a local backend (use your Mac's LAN IP for physical devices —
-# localhost is not reachable from a real device)
-flutter run --dart-define=API_BASE_URL=http://<LAN_IP>:8000/v1
-
-# Static analysis
-flutter analyze
-
-# Tests
-flutter test
+flutter run                       # use --release (or --profile) to judge speed
+flutter analyze --fatal-infos
+flutter test                      # unit + widget tests
 ```
 
-## Project structure
-
-```
-lib/
-  core/           # DI, networking, preferences, routing, theme — shared across features
-  features/
-    auth/         # data/domain/presentation slices for register/login/logout
-    jobs/         # placeholder — job list/create/detail to be built
-```
-
-See `CLAUDE.md` for the full architectural conventions used in this repo.
+`integration_test/media_transcription_test.dart` runs the real FFmpeg and
+Moonshine path on an iPhone or the Simulator; see its header.
 
 ## Branching
 
