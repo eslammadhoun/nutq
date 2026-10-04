@@ -14,7 +14,9 @@ class FakeMediaSource implements TranscriptSource {
   FakeMediaSource({
     this.type = JobSourceType.audio,
     this.progressShare = 0.4,
-    this.text = 'نص مفرّغ من ملف صوتي عن الميزانية والخطة',
+    this.text =
+        'نص مفرّغ من ملف صوتي عن الميزانية والخطة السنوية للشركة، ناقش فيه المدير '
+        'الأرباح والتكاليف وخطط التوظيف للعام القادم في كل الأقسام.',
     this.error,
     this.info,
     this.gate,

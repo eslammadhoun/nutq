@@ -66,13 +66,8 @@ class FakeGemma implements GemmaLocalDataSource {
     );
   }
 
-  static String defaultResponse(String prompt) {
-    if (prompt.contains('information extraction assistant')) {
-      return 'MAIN:\nفكرة رئيسية عن الموضوع\n\nPOINTS:\n- نقطة أولى\n- نقطة ثانية\n\n'
-          'FACTS:\n- حقيقة مهمة\n\nIMPORTANT_TERMS:\n- مصطلح';
-    }
-    if (prompt.contains('merging summaries')) return 'ملخص مدمج للأقسام';
-    if (prompt.contains('final summary of a full lecture')) return 'الملخص النهائي للمحاضرة';
-    return 'ملخص القسم';
-  }
+  /// A distinct sentence per call, so later sections are not dropped as
+  /// restatements of earlier ones.
+  static String defaultResponse(String prompt) =>
+      'ملخص القسم ${prompt.hashCode.toUnsigned(16)} عن موضوع مهم.';
 }

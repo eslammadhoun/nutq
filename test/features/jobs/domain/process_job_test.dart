@@ -12,6 +12,7 @@ import 'package:nutq/features/jobs/domain/entities/source_info.dart';
 import 'package:nutq/features/jobs/domain/usecases/process_job.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 
+import '../../../support/sample_text.dart';
 import '../support/fake_transcript_source.dart';
 import '../support/job_harness.dart';
 
@@ -26,12 +27,19 @@ void main() {
   group('pasted text', () {
     test('runs a pending job to completion and saves the summary with its provenance', () async {
       final id = await h.createJob(sampleTranscript);
+      h.gemma.responder = (prompt, call) async => 'النقطة رقم $call من المحاضرة.';
       final events = await h.processJob(id).events.toList();
 
       final job = (await h.repo.getJob(id))!;
       expect(job.status, JobRunStatus.completed);
-      expect(job.summary!.summaryText, 'الملخص النهائي للمحاضرة');
-      expect(job.summary!.takeaways, ['فكرة رئيسية عن الموضوع']);
+      expect(h.gemma.calls, greaterThan(1), reason: 'one call per section');
+      expect(
+        job.summary!.summaryText,
+        [for (var i = 1; i <= h.gemma.calls; i++) 'النقطة رقم $i من المحاضرة.'].join('\n\n'),
+        reason: 'one paragraph per section, in source order',
+      );
+      expect(job.summary!.takeaways, isEmpty);
+      expect(job.summary!.needsReview, isFalse);
       expect(job.summary!.modelName, h.summarization.modelId);
       expect(job.summary!.promptVersion, h.summarization.promptVersion);
       expect(job.summary!.tokensOut, greaterThan(0));
@@ -39,8 +47,8 @@ void main() {
 
       final stages = events.whereType<JobRunProgress>().map((e) => e.progress.stage).toList();
       expect(stages.first, JobStage.preparing);
-      expect(stages, containsAll([JobStage.analyzing, JobStage.finalizing, JobStage.checking]));
-      expect(events.whereType<JobRunPartialSummary>().last.text, 'الملخص النهائي للمحاضرة');
+      expect(stages, contains(JobStage.summarizing));
+      expect(events.whereType<JobRunPartialSummary>().last.text, job.summary!.summaryText);
     });
 
     test('progress is monotonic and stays within 0–1', () async {
@@ -75,26 +83,21 @@ void main() {
     test('the summary language and length drive the pipeline, not the source language', () async {
       final job = await h.repo.createJob(
         NewJobDraft.text(
-          text: 'Attendance reached 250 people in 2024. The team said results were good.',
+          text: englishTranscript(3),
           language: ContentLanguage.en,
           summaryLanguage: ContentLanguage.ar,
         ),
       );
       await h.processJob(job.id).events.drain<void>();
-      expect(h.gemma.prompts.every((p) => p.contains('Arabic')), isTrue);
-      expect(h.gemma.prompts.last, contains('250-400 Arabic words'), reason: 'medium length');
+      expect(h.gemma.prompts, isNotEmpty);
+      expect(h.gemma.prompts.every((p) => p.startsWith('لخّص النص التالي')), isTrue);
     });
   });
 
   group('failures and cancellation', () {
     test('a pipeline failure marks the job failed with a matching reason', () async {
       final id = await h.createJob(sampleTranscript);
-      h.gemma.responder = (prompt, call) async {
-        if (prompt.contains('final summary of a full lecture')) {
-          throw const GemmaGenerationException('x');
-        }
-        return null;
-      };
+      h.gemma.responder = (prompt, call) async => throw const GemmaGenerationException('x');
       await h.processJob(id).events.drain<void>();
 
       final job = (await h.repo.getJob(id))!;
@@ -271,7 +274,7 @@ void main() {
         final stages = progress.map((p) => p.stage).toList();
         expect(
           stages,
-          containsAll([JobStage.acquiring, JobStage.transcribing, JobStage.analyzing]),
+          containsAll([JobStage.acquiring, JobStage.transcribing, JobStage.summarizing]),
         );
         for (var i = 1; i < progress.length; i++) {
           expect(
@@ -288,7 +291,7 @@ void main() {
           closeTo(0.4, 1e-9),
           reason: 'the source fills exactly its share',
         );
-        final firstSummarization = progress.firstWhere((p) => p.stage == JobStage.analyzing);
+        final firstSummarization = progress.firstWhere((p) => p.stage == JobStage.summarizing);
         expect(firstSummarization.fraction, greaterThanOrEqualTo(0.4));
         expect(progress.last.fraction, 1.0);
       },

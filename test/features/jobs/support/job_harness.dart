@@ -21,13 +21,8 @@ import '../../../support/sample_text.dart';
 import '../../summarization/support/fake_gemma.dart';
 import 'job_fixtures.dart';
 
-/// Small budgets so a few paragraphs become several chunks.
-const testSummarizationConfig = SummarizationConfig(
-  targetTokens: 60,
-  overlapTokens: 10,
-  minTokens: 30,
-  maxTokens: 90,
-);
+/// A small per-call budget so a few paragraphs become several sections.
+const testSummarizationConfig = SummarizationConfig(wordsPerCall: 8, debugLogging: false);
 
 /// The real persistence, processing and queue stack (in-memory SQLite,
 /// scripted model), wired the way the app wires it. The runner is started, so
@@ -100,5 +95,5 @@ class JobHarness {
   }
 }
 
-/// Six paragraphs of Arabic — several chunks under [testSummarizationConfig].
+/// Six paragraphs of Arabic — several sections under [testSummarizationConfig].
 final sampleTranscript = arabicTranscript(6);

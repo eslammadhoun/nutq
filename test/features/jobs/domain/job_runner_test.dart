@@ -9,9 +9,12 @@ import 'package:nutq/features/jobs/domain/services/job_scheduler.dart';
 
 import '../support/job_harness.dart';
 
-/// Distinct one-chunk transcripts, so a job can be recognised in the model's
-/// prompts.
-String _text(String tag) => 'نص قصير رقم $tag عن موضوع واحد فقط.';
+/// Distinct one-section transcripts, so a job can be recognised in the
+/// model's prompts. Long enough to be summarized rather than kept as is.
+String _text(String tag) => List.generate(
+  3,
+  (i) => 'النص رقم $tag في الفقرة $i يتناول موضوع التعلم الآلي ونتائج التجربة الأخيرة.',
+).join(' ');
 
 void main() {
   late JobHarness h;
@@ -121,7 +124,7 @@ void main() {
       };
       final a = await h.submit(_text('AAA'));
       final b = await h.submit(_text('BBB'));
-      await eventually(() async => await statusOf(a) == JobRunStatus.running);
+      await eventually(() => h.gemma.calls == 1); // A is inside a model call
 
       final cancelling = h.runner.cancel(a);
       await pumpEventQueue();
@@ -174,7 +177,7 @@ void main() {
     test('a subscriber that arrives mid-run immediately gets the current state', () async {
       final gate = Completer<void>();
       h.gemma.responder = (prompt, call) async {
-        if (call == 2) await gate.future;
+        if (call == 1) await gate.future;
         return null;
       };
       final id = await h.submit(_text('A'));
@@ -193,8 +196,7 @@ void main() {
     test('the streaming summary is throttled, not delivered word by word', () async {
       const words = 40;
       final summary = List.generate(words, (i) => 'كلمة$i').join(' ');
-      h.gemma.responder = (prompt, call) async =>
-          prompt.contains('final summary of a full lecture') ? summary : null;
+      h.gemma.responder = (prompt, call) async => summary;
       final id = await h.createJob(_text('A'));
       final partials = <String>[];
       final sub = h.runner.watchLive(id).listen((l) {

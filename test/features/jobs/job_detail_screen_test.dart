@@ -105,15 +105,15 @@ void main() {
   ) async {
     final gate = Completer<void>();
     h.gemma.responder = (prompt, call) async {
-      if (call == 3) await gate.future;
-      return null;
+      if (call == 1) await gate.future;
+      return 'النقطة رقم $call من المحاضرة.';
     };
     final cubit = await open(tester, sampleTranscript);
     await advance(tester, 50);
 
     expect(find.byType(JobProgressCard), findsOneWidget);
     expect(find.text('Processing'), findsWidgets);
-    expect(find.textContaining('sections'), findsOneWidget);
+    expect(find.textContaining(RegExp(r'^\d+ of \d+ sections$')), findsOneWidget);
     expect(find.text('Cancel Job'), findsOneWidget);
     expect(find.text("The summary isn't ready yet."), findsOneWidget);
     final barBefore = tester
@@ -125,8 +125,8 @@ void main() {
 
     expect(find.byType(JobProgressCard), findsNothing);
     expect(find.text('Summary Complete'), findsOneWidget);
-    expect(find.text('الملخص النهائي للمحاضرة'), findsOneWidget);
-    expect(find.text('فكرة رئيسية عن الموضوع'), findsOneWidget);
+    expect(find.text(cubit.state.job!.summary!.summaryText), findsOneWidget);
+    expect(find.text('KEY TAKEAWAYS'), findsNothing, reason: 'the pipeline writes no takeaways');
     expect(find.text('Copy Text'), findsOneWidget);
     expect(find.text('Cancel Job'), findsNothing);
     expect(barBefore, lessThan(1.0));
@@ -146,7 +146,7 @@ void main() {
       await advance(tester, 100);
 
       expect(find.byType(JobProgressCard), findsNothing);
-      expect(find.text('الملخص النهائي للمحاضرة'), findsOneWidget);
+      expect(find.text(first.state.job!.summary!.summaryText), findsOneWidget);
       expect(find.text('Summary Complete'), findsOneWidget);
       expect(h.gemma.calls, callsAfterFirst);
     },
@@ -226,13 +226,15 @@ void main() {
     const longFinal =
         'الملخص النهائي يشرح الفكرة الرئيسية للمحاضرة ثم ينتقل إلى النقاط المهمة والأرقام والتواريخ ويختم بالخلاصة والتوصيات النهائية للمستمعين في نهاية اللقاء';
     h.gemma.wordDelay = const Duration(milliseconds: 30);
-    h.gemma.responder = (prompt, call) async =>
-        prompt.contains('final summary of a full lecture') ? longFinal : null;
+    h.gemma.responder = (prompt, call) async => call == 1 ? longFinal : 'النقطة رقم $call.';
     final cubit = await open(tester, sampleTranscript);
 
     final seen = <String>[];
-    for (var i = 0; i < 120; i++) {
+    for (var i = 0; i < 400 && !(cubit.state.job?.status.isTerminal ?? false); i++) {
       await advance(tester, 20);
+      // Render anything the last frame's microtasks emitted, so the screen and
+      // the state being compared are the same emission.
+      await tester.pump();
       final live = cubit.state.streamingSummary;
       if (live != null &&
           !(cubit.state.job?.status.isTerminal ?? false) &&
@@ -249,8 +251,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(seen, isNotEmpty);
-    expect(find.text(longFinal), findsOneWidget);
     expect(cubit.state.job!.status, JobRunStatus.completed);
+    expect(cubit.state.job!.summary!.summaryText, startsWith(longFinal));
+    expect(find.text(cubit.state.job!.summary!.summaryText), findsOneWidget);
     expect(
       find.descendant(of: find.byType(SummaryCard), matching: find.text('Show more')),
       findsNothing,
@@ -322,19 +325,17 @@ void main() {
 
   group('text direction follows the job language, not the app locale', () {
     const cardPad = 16.0;
-    const chipPad = 12.0;
     const headerTextInset = 28.0;
 
     testWidgets(
-      'Arabic job in an English app: transcript, summary and takeaways start from the right',
+      'Arabic job in an English app: transcript and summary start from the right',
       (tester) async {
-        const transcript = 'نص قصير.';
+        // One section: long enough to be summarized, short enough for one call.
+        const transcript =
+            'ناقش الاجتماع ميزانية العام القادم وخطط التوظيف في الأقسام الثلاثة، '
+            'واتفق المديرون على زيادة الإنفاق على التدريب وتأجيل المشاريع الجديدة.';
         const summary = 'ملخص قصير.';
-        h.gemma.responder = (prompt, call) async {
-          if (prompt.contains('information extraction assistant')) return 'MAIN:\nنقطة رئيسية';
-          if (prompt.contains('final summary of a full lecture')) return summary;
-          return null;
-        };
+        h.gemma.responder = (prompt, call) async => summary;
         final cubit = await open(tester, transcript);
         await untilSettled(tester, cubit);
         expect(cubit.state.job!.status, JobRunStatus.completed);
@@ -346,8 +347,6 @@ void main() {
 
         expect(tester.getTopRight(find.text(transcript)).dx, closeTo(tRight, 1));
         expect(tester.getTopRight(find.text(summary)).dx, closeTo(sRight, 1));
-        expect(tester.getTopRight(find.text('نقطة رئيسية')).dx, closeTo(sRight - chipPad, 1));
-        expect(tester.getTopRight(find.text('KEY TAKEAWAYS')).dx, closeTo(sRight, 1));
 
         expect(
           tester.getTopLeft(find.text('AI Summary')).dx,
@@ -361,15 +360,14 @@ void main() {
     );
 
     testWidgets(
-      'English job in an Arabic app: transcript, summary and takeaways start from the left',
+      'English job in an Arabic app: transcript and summary start from the left',
       (tester) async {
-        const transcript = 'Short text.';
+        // One section: long enough to be summarized, short enough for one call.
+        const transcript =
+            'The meeting discussed next year budget and hiring plans across the three '
+            'departments, and the managers agreed to spend more on training.';
         const summary = 'Short summary.';
-        h.gemma.responder = (prompt, call) async {
-          if (prompt.contains('information extraction assistant')) return 'MAIN:\nKey point';
-          if (prompt.contains('final summary of a full lecture')) return summary;
-          return null;
-        };
+        h.gemma.responder = (prompt, call) async => summary;
         final cubit = await open(
           tester,
           transcript,
@@ -386,8 +384,6 @@ void main() {
 
         expect(tester.getTopLeft(find.text(transcript)).dx, closeTo(tLeft, 1));
         expect(tester.getTopLeft(find.text(summary)).dx, closeTo(sLeft, 1));
-        expect(tester.getTopLeft(find.text('Key point')).dx, closeTo(sLeft + chipPad, 1));
-        expect(tester.getTopLeft(find.text('أبرز النقاط')).dx, closeTo(sLeft, 1));
 
         final summaryHeaderRight = tester.getTopRight(summaryCard).dx - cardPad - headerTextInset;
         expect(

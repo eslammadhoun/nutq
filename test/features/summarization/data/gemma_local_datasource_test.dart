@@ -177,9 +177,55 @@ void main() {
       },
     );
 
-    test('without onPartial the reply is requested whole', () async {
-      runtime.sessionFor = (_) => FakeLlmSession(reply: 'كامل', tokens: ['لن', 'يستخدم']);
-      expect((await source.generate('p', config)).text, 'كامل');
+    test('the reply is streamed even without onPartial, so the guards always apply', () async {
+      runtime.sessionFor = (_) => FakeLlmSession(reply: 'لا يستخدم', tokens: ['مت', 'دفق']);
+      expect((await source.generate('p', config)).text, 'متدفق');
+    });
+  });
+
+  group('guards', () {
+    test('a loop is cut off and generation stopped', () async {
+      final looping = FakeLlmSession(
+        tokens: ['ملخص مفيد. ', for (var i = 0; i < 30; i++) 'من '],
+      );
+      runtime.sessionFor = (_) => looping;
+      final response = await source.generate('p', config);
+      expect(response.text, startsWith('ملخص مفيد.'));
+      expect(response.text.split('من').length, lessThan(6), reason: 'the loop was cut');
+      expect(response.stoppedOnLoop, isTrue);
+      expect(looping.stopCalls, 1);
+    });
+
+    test('garbage output stops early and fails without a retry', () async {
+      const garbage = ['ৈতন্য ', 'بال', 'camera', 'AutoFocus ', 'SRPGoGet ', '<unused607> '];
+      final broken = FakeLlmSession(tokens: [for (var i = 0; i < 20; i++) ...garbage]);
+      runtime.sessionFor = (_) => broken;
+      await expectLater(
+        source.generate('p', config),
+        throwsA(
+          isA<SummarizationFailure>().having(
+            (f) => f.kind,
+            'kind',
+            SummarizationFailureKind.generationFailed,
+          ),
+        ),
+      );
+      expect(runtime.sessions, hasLength(1), reason: 'the same backend would fail again');
+      expect(broken.stopCalls, 1, reason: 'stopped after a few dozen tokens');
+    });
+
+    test('a reply cut off by the output cap keeps only whole sentences', () async {
+      runtime.sessionFor = (_) => FakeLlmSession(
+        tokens: ['الجملة الأولى كاملة. ', 'والجملة الثانية ', 'أيضا كاملة. ', 'وجملة مقطوعة'],
+      );
+      final response = await source.generate('p', config.copyWith(maxOutputTokens: 4));
+      expect(response.hitCap, isTrue);
+      expect(response.text, 'الجملة الأولى كاملة. والجملة الثانية أيضا كاملة.');
+    });
+
+    test('measures the prefill as the time to the first token', () async {
+      final response = await source.generate('p', config);
+      expect(response.prefillMs, lessThanOrEqualTo(response.durationMs));
     });
   });
 

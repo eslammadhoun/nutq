@@ -11,10 +11,17 @@ import 'package:nutq/features/jobs/presentation/cubit/job_detail_state.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 
 import '../../support/async_helpers.dart';
+import '../../support/sample_text.dart';
 import 'support/job_harness.dart';
 
 const _longFinal =
     'الملخص النهائي يشرح الفكرة الرئيسية للمحاضرة ثم ينتقل إلى النقاط المهمة والأرقام والتواريخ ويختم بالخلاصة';
+
+/// One distinct paragraph per model call.
+Future<String?> _numbered(String prompt, int call) async => 'النقطة رقم $call من المحاضرة.';
+
+String _numberedSummary(int calls) =>
+    [for (var i = 1; i <= calls; i++) 'النقطة رقم $i من المحاضرة.'].join('\n\n');
 
 void main() {
   late JobHarness h;
@@ -57,8 +64,9 @@ void main() {
   });
 
   test(
-    'streams progress into state, then completes with the stored summary and takeaways',
+    'streams progress into state, then completes with the stored summary',
     () async {
+      h.gemma.responder = _numbered;
       final id = await h.submit(sampleTranscript);
       final cubit = open(id);
       final seen = <JobDetailState>[];
@@ -67,8 +75,7 @@ void main() {
       await sub.cancel();
 
       final stages = seen.map((s) => s.progress?.stage).whereType<JobStage>().toList();
-      expect(stages, contains(JobStage.analyzing));
-      expect(stages, contains(JobStage.finalizing));
+      expect(stages, contains(JobStage.summarizing));
       final fractions = seen.map((s) => s.progress?.fraction).whereType<double>().toList();
       for (var i = 1; i < fractions.length; i++) {
         expect(fractions[i], greaterThanOrEqualTo(fractions[i - 1]));
@@ -83,8 +90,8 @@ void main() {
         isNull,
         reason: 'the stored summary takes over once the job settles',
       );
-      expect(done.job!.summary!.summaryText, 'الملخص النهائي للمحاضرة');
-      expect(done.job!.summary!.takeaways, ['فكرة رئيسية عن الموضوع']);
+      expect(done.job!.summary!.summaryText, _numberedSummary(h.gemma.calls));
+      expect(done.job!.summary!.takeaways, isEmpty);
       expect(done.job!.summary!.length.name, 'medium');
     },
   );
@@ -98,7 +105,7 @@ void main() {
     final second = open(id);
     await eventually(() => second.state.job != null);
     expect(second.state.job!.status, JobRunStatus.completed);
-    expect(second.state.job!.summary!.summaryText, 'الملخص النهائي للمحاضرة');
+    expect(second.state.job!.summary!.summaryText, first.state.job!.summary!.summaryText);
     expect(second.state.progress, isNull);
     expect(
       h.gemma.calls,
@@ -107,9 +114,9 @@ void main() {
     );
   });
 
-  test('flags a summary whose numbers are not in the transcript', () async {
-    h.gemma.responder = (prompt, call) async =>
-        prompt.contains('final summary of a full lecture') ? 'شارك 9999 شخصا في الفعالية.' : null;
+  test('flags a summary that left part of the source out', () async {
+    // The first section writes nothing usable, even when retried.
+    h.gemma.responder = (prompt, call) async => call <= 2 ? '' : 'النقطة رقم $call.';
     final cubit = open(await h.submit(sampleTranscript));
     await untilSettled(cubit);
     expect(cubit.state.job!.status, JobRunStatus.completed);
@@ -117,12 +124,7 @@ void main() {
   });
 
   test('a failed run is stored as failed with its failure kind', () async {
-    h.gemma.responder = (prompt, call) async {
-      if (prompt.contains('final summary of a full lecture')) {
-        throw const GemmaGenerationException('x');
-      }
-      return null;
-    };
+    h.gemma.responder = (prompt, call) async => throw const GemmaGenerationException('x');
     final cubit = open(await h.submit(sampleTranscript));
     await untilSettled(cubit);
     expect(cubit.state.job!.status, JobRunStatus.failed);
@@ -186,7 +188,7 @@ void main() {
   test('a screen opened mid-run picks up the live progress already made', () async {
     final gate = Completer<void>();
     h.gemma.responder = (prompt, call) async {
-      if (call == 3) await gate.future;
+      if (call == 2) await gate.future;
       return null;
     };
     final id = await h.submit(sampleTranscript);
@@ -232,23 +234,19 @@ void main() {
   });
 
   test('the job language drives the pipeline (English)', () async {
-    final id = await h.submit(
-      'Attendance reached 250 people in 2024. The team said results were good.',
-      language: ContentLanguage.en,
-    );
+    final id = await h.submit(englishTranscript(3), language: ContentLanguage.en);
     final cubit = open(id);
     await untilSettled(cubit);
     expect(cubit.state.job!.sourceLanguage, ContentLanguage.en);
     expect(h.gemma.prompts, isNotEmpty);
-    expect(h.gemma.prompts.every((p) => p.contains('English') && !p.contains('Arabic')), isTrue);
+    expect(h.gemma.prompts.every((p) => p.startsWith('Summarize the following text')), isTrue);
   });
 
   group('word-by-word summary', () {
     test(
       'streamingSummary grows as prefixes, is throttled, then hands over to the stored summary',
       () async {
-        h.gemma.responder = (prompt, call) async =>
-            prompt.contains('final summary of a full lecture') ? _longFinal : null;
+        h.gemma.responder = (prompt, call) async => call == 1 ? _longFinal : 'النقطة رقم $call.';
         final cubit = open(await h.submit(sampleTranscript));
         final live = <String>[];
         final sub = cubit.stream.listen((s) {
@@ -267,7 +265,7 @@ void main() {
           lessThan(_longFinal.split(' ').length),
           reason: 'coalesced, not one rebuild per word',
         );
-        expect(cubit.state.job!.summary!.summaryText, _longFinal);
+        expect(cubit.state.job!.summary!.summaryText, startsWith(_longFinal));
         expect(cubit.state.streamingSummary, isNull);
       },
     );
@@ -275,15 +273,12 @@ void main() {
     test('a running job has no stored summary yet', () async {
       final gate = Completer<void>();
       h.gemma.responder = (prompt, call) async {
-        if (prompt.contains('final summary of a full lecture')) {
-          await gate.future;
-          return _longFinal;
-        }
-        return null;
+        if (call == 1) await gate.future;
+        return _longFinal;
       };
       final cubit = open(await h.submit(sampleTranscript));
       await eventually(() => cubit.state.job?.status == JobRunStatus.running);
-      await eventually(() => cubit.state.progress?.stage == JobStage.finalizing);
+      await eventually(() => cubit.state.progress?.stage == JobStage.summarizing);
       expect(cubit.state.job!.summary, isNull);
       gate.complete();
       await untilSettled(cubit);
@@ -293,14 +288,11 @@ void main() {
     test('cancelling clears the partial text', () async {
       final gate = Completer<void>();
       h.gemma.responder = (prompt, call) async {
-        if (prompt.contains('final summary of a full lecture')) {
-          await gate.future;
-          return _longFinal;
-        }
-        return null;
+        if (call == 1) await gate.future;
+        return _longFinal;
       };
       final cubit = open(await h.submit(sampleTranscript));
-      await eventually(() => cubit.state.progress?.stage == JobStage.finalizing);
+      await eventually(() => cubit.state.progress?.stage == JobStage.summarizing);
       unawaited(cubit.cancelJob());
       gate.complete();
       await untilSettled(cubit);

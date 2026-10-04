@@ -53,6 +53,7 @@ class FakeLlmSession implements LlmSession {
 
   @override
   Stream<String> respondStream() async* {
+    if (gate != null && error != null) await gate!.future;
     if (error != null) {
       yield* Stream<String>.error(error!);
       return;
