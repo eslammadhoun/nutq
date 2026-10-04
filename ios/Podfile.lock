@@ -1,0 +1,80 @@
+PODS:
+  - background_downloader (0.0.1):
+    - Flutter
+  - ffmpeg_kit_flutter_new_min (8.1.2):
+    - ffmpeg_kit_flutter_new_min/min (= 8.1.2)
+    - Flutter
+  - ffmpeg_kit_flutter_new_min/min (8.1.2):
+    - Flutter
+  - file_picker_darwin (1.0.0):
+    - Flutter
+    - FlutterMacOS
+  - Flutter (1.0.0)
+  - flutter_gemma (1.8.3):
+    - Flutter
+  - integration_test (0.0.1):
+    - Flutter
+  - large_file_handler (0.5.0):
+    - Flutter
+  - MoonshineVoice (0.1.5)
+  - package_info_plus (0.4.5):
+    - Flutter
+  - share_plus (0.0.1):
+    - Flutter
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - background_downloader (from `.symlinks/plugins/background_downloader/ios`)
+  - ffmpeg_kit_flutter_new_min (from `.symlinks/plugins/ffmpeg_kit_flutter_new_min/ios`)
+  - file_picker_darwin (from `.symlinks/plugins/file_picker_darwin/darwin`)
+  - Flutter (from `Flutter`)
+  - flutter_gemma (from `.symlinks/plugins/flutter_gemma/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - large_file_handler (from `.symlinks/plugins/large_file_handler/ios`)
+  - MoonshineVoice (from `../third_party/moonshine`)
+  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
+  - share_plus (from `.symlinks/plugins/share_plus/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+
+EXTERNAL SOURCES:
+  background_downloader:
+    :path: ".symlinks/plugins/background_downloader/ios"
+  ffmpeg_kit_flutter_new_min:
+    :path: ".symlinks/plugins/ffmpeg_kit_flutter_new_min/ios"
+  file_picker_darwin:
+    :path: ".symlinks/plugins/file_picker_darwin/darwin"
+  Flutter:
+    :path: Flutter
+  flutter_gemma:
+    :path: ".symlinks/plugins/flutter_gemma/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+  large_file_handler:
+    :path: ".symlinks/plugins/large_file_handler/ios"
+  MoonshineVoice:
+    :path: "../third_party/moonshine"
+  package_info_plus:
+    :path: ".symlinks/plugins/package_info_plus/ios"
+  share_plus:
+    :path: ".symlinks/plugins/share_plus/ios"
+  shared_preferences_foundation:
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+
+SPEC CHECKSUMS:
+  background_downloader: 50e91d979067b82081aba359d7d916b3ba5fadad
+  ffmpeg_kit_flutter_new_min: 2d44c39c41f0c8e25681e17183f62724f3c4fc22
+  file_picker_darwin: 4c2b9a50ea44cb3b071381ea0cf48591bdd80251
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_gemma: 9f26ff0380559163bee787602f85b9fefe46eeb5
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
+  large_file_handler: 0a9dfa3e7c1f2eececae5d2d938ad31be10250ae
+  MoonshineVoice: 76ab45bd104f1bbc0e5ade7560bfb082b98334b1
+  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
+  share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
+  shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
+
+PODFILE CHECKSUM: 6443fa3522f215f4f497e186e4a3d78ab6221420
+
+COCOAPODS: 1.16.2
