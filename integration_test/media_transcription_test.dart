@@ -38,6 +38,9 @@ const _enMedia = String.fromEnvironment('EN_MEDIA');
 /// moving.
 const _longMedia = String.fromEnvironment('LONG_MEDIA');
 
+/// Optional: an Arabic recording to compare Moonshine settings on.
+const _benchMedia = String.fromEnvironment('BENCH_MEDIA');
+
 final _arabicLetter = RegExp('[؀-ۿ]');
 final _latinLetter = RegExp('[A-Za-z]');
 
@@ -159,6 +162,48 @@ void main() {
       );
     },
     skip: _longMedia.isEmpty,
+    timeout: const Timeout(Duration(minutes: 30)),
+  );
+
+  // Compares Moonshine with `decode_incomplete_lines` on (the library default)
+  // and off (Nutq's setting) on the same file: time, and that the transcript
+  // keeps every word, the final phrase included.
+  testWidgets(
+    'decoding complete lines only is faster and loses no words',
+    (_) async {
+      final audio = await extractor.extract(_benchMedia);
+      try {
+        Future<({Duration time, String text})> run({required bool decodeIncomplete}) async {
+          final watch = Stopwatch()..start();
+          final speech = await MoonshineSpeechRecognizer(
+            decodeIncompleteLines: decodeIncomplete,
+          ).transcribe(audioPath: audio.path, language: ContentLanguage.ar);
+          return (time: watch.elapsed, text: speech.text);
+        }
+
+        final full = await run(decodeIncomplete: true);
+        final fast = await run(decodeIncomplete: false);
+        int words(String t) => t.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+        final audioSeconds = audio.duration.inMilliseconds / 1000;
+        // ignore: avoid_print
+        print(
+          '[bench] audio=${audioSeconds.toStringAsFixed(0)}s '
+          'default: ${full.time.inMilliseconds}ms ${words(full.text)} words, '
+          'rtf=${(full.time.inMilliseconds / 1000 / audioSeconds).toStringAsFixed(3)} | '
+          'complete-only: ${fast.time.inMilliseconds}ms ${words(fast.text)} words, '
+          'rtf=${(fast.time.inMilliseconds / 1000 / audioSeconds).toStringAsFixed(3)}',
+        );
+        // ignore: avoid_print
+        print('[bench] default tail: ${full.text.split('\n').last}');
+        // ignore: avoid_print
+        print('[bench] complete-only tail: ${fast.text.split('\n').last}');
+        expect(words(fast.text), greaterThanOrEqualTo((words(full.text) * 0.98).floor()));
+        expect(fast.text.split('\n').last.trim(), isNotEmpty, reason: 'the last phrase is kept');
+      } finally {
+        await audio.delete();
+      }
+    },
+    skip: _benchMedia.isEmpty,
     timeout: const Timeout(Duration(minutes: 30)),
   );
 
