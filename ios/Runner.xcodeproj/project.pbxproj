@@ -12,6 +12,7 @@
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		A1C4F0B2D3E6400111223302 /* MoonshineBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C4F0B2D3E6400111223301 /* MoonshineBridge.swift */; };
+		B2D5E1C3F4A7400111223304 /* JobBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D5E1C3F4A7400111223303 /* JobBridge.swift */; };
 		A1C4F0B2D3E6400111223304 /* moonshine_models in Resources */ = {isa = PBXBuildFile; fileRef = A1C4F0B2D3E6400111223303 /* moonshine_models */; };
 		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
 		7A9731D6CA6146BB4B77583E /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2F1B8DC6820F8CC2DB635B9 /* Pods_Runner.framework */; };
@@ -56,6 +57,7 @@
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A1C4F0B2D3E6400111223301 /* MoonshineBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonshineBridge.swift; sourceTree = "<group>"; };
+		B2D5E1C3F4A7400111223303 /* JobBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobBridge.swift; sourceTree = "<group>"; };
 		A1C4F0B2D3E6400111223303 /* moonshine_models */ = {isa = PBXFileReference; lastKnownFileType = folder; path = moonshine_models; sourceTree = "<group>"; };
 		7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				A1C4F0B2D3E6400111223301 /* MoonshineBridge.swift */,
+				B2D5E1C3F4A7400111223303 /* JobBridge.swift */,
 				A1C4F0B2D3E6400111223303 /* moonshine_models */,
 				7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
@@ -388,6 +391,7 @@
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				A1C4F0B2D3E6400111223302 /* MoonshineBridge.swift in Sources */,
+				B2D5E1C3F4A7400111223304 /* JobBridge.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */,
 			);

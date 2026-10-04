@@ -19,6 +19,12 @@ import UIKit
       MoonshineBridge.register(with: registrar)
     }
 
+    // Keeps a transcription going when the user leaves the app, and shows its
+    // progress on the lock screen.
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "JobBridge") {
+      JobBridge.register(with: registrar)
+    }
+
     // The summarizer runs on the CPU in the Simulator, whose emulated Metal
     // makes the GPU backend produce garbage (FlutterGemmaRuntime).
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "NutqDevice") {
