@@ -1,6 +1,7 @@
 import Flutter
 import Foundation
 import Moonshine
+import UIKit
 
 /// Exposes the Moonshine C API to Dart over a method channel.
 ///
@@ -52,10 +53,24 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
   /// touched on the transcription queue.
   private var unsentFinished: [[String: Any]] = []
 
+  /// Relaxed and total passes of the stream that just ended, for its log line.
+  /// Only touched on the transcription queue.
+  private var lastStreamPasses = (relaxed: 0, total: 0)
+
 
   /// Pause and cancel requests, set from the platform thread and honoured by
   /// the chunk loop on the transcription queue.
   private let control = RunControl()
+
+  /// Whether the app is on screen, kept current from app-state notifications
+  /// so the transcription queue can read it without touching UIKit.
+  private let appActive = AtomicFlag(true)
+
+  /// Seconds per pass when no one is reading the live text (the app is not on
+  /// screen) or the phone is hot. Fewer passes is less work for the same
+  /// transcript: 20 s costs about 18% less than 5 s. Live text then arrives
+  /// every 20 s, which nobody sees in the background anyway.
+  private static let relaxedChunkSeconds = 20.0
 
   /// Transcription is CPU-bound and long, so it runs off the platform thread
   /// to keep the UI responsive.
@@ -76,6 +91,25 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
       binaryMessenger: registrar.messenger()
     )
     progress.setStreamHandler(instance)
+
+    let center = NotificationCenter.default
+    center.addObserver(
+      forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil
+    ) { [weak instance] _ in instance?.appActive.set(true) }
+    center.addObserver(
+      forName: UIApplication.willResignActiveNotification, object: nil, queue: nil
+    ) { [weak instance] _ in instance?.appActive.set(false) }
+  }
+
+  /// Frames for the next pass: [requested] while someone may be watching the
+  /// text arrive on a cool phone, otherwise the relaxed size. Decided per pass,
+  /// so a run speeds up its text again when the user comes back and slows its
+  /// work down as soon as the phone heats up.
+  private func passFrames(requested: Int) -> (frames: Int, relaxed: Bool) {
+    let thermal = ProcessInfo.processInfo.thermalState
+    let hot = thermal == .serious || thermal == .critical
+    guard hot || !appActive.get() else { return (requested, false) }
+    return (max(requested, Int(Self.relaxedChunkSeconds * Double(Self.sampleRate))), true)
   }
 
   // MARK: - FlutterStreamHandler
@@ -302,12 +336,15 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
       let endFrame = pass.resumeFrame ?? audio.frameCount
       let streamAudio = Double(endFrame - startFrame) / Double(Self.sampleRate)
       let streamSeconds = Self.seconds(since: started) - (control.pausedSeconds - pausedBefore)
+      // `relaxed` is how many of the stream's passes used the larger chunk
+      // (app off screen or phone hot).
       NSLog(
-        "[moonshine] stream %d audio=%.0f-%.0fs infer=%.1fs rtf=%.3f thermal=%@ footprint=%dMB",
+        "[moonshine] stream %d audio=%.0f-%.0fs infer=%.1fs rtf=%.3f thermal=%@ relaxed=%d/%d "
+          + "footprint=%dMB",
         streams, Double(startFrame) / Double(Self.sampleRate),
         Double(endFrame) / Double(Self.sampleRate), streamSeconds,
         streamAudio > 0 ? streamSeconds / streamAudio : 0, Self.thermalState() as NSString,
-        Self.footprintMegabytes())
+        lastStreamPasses.relaxed, lastStreamPasses.total, Self.footprintMegabytes())
 
       guard let resumeFrame = pass.resumeFrame else { break }
       startFrame = resumeFrame
@@ -350,6 +387,9 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
     let rotationFrames = Int(Self.streamRotationSeconds * Double(Self.sampleRate))
     var transcriptPtr: UnsafeMutablePointer<transcript_t>?
     var fed = 0
+    var relaxedPasses = 0
+    var totalPasses = 0
+    defer { lastStreamPasses = (relaxedPasses, totalPasses) }
 
     // Adding audio is cheap and buffers only; the analysis happens in
     // moonshine_transcribe_stream, which is why progress is reported per chunk
@@ -358,7 +398,10 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
       // Blocks here while paused; throws once cancelled.
       try control.checkpoint()
 
-      let frames = try audio.read(maxFrames: chunkFrames, into: &buffer)
+      let pass = passFrames(requested: chunkFrames)
+      if pass.relaxed { relaxedPasses += 1 }
+      totalPasses += 1
+      let frames = try audio.read(maxFrames: pass.frames, into: &buffer)
       if frames == 0 { break }
 
       try buffer.withUnsafeBufferPointer { pointer in
@@ -736,6 +779,26 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
     }
     return FlutterError(
       code: moonshine.code, message: moonshine.errorDescription, details: nil)
+  }
+}
+
+/// A Bool shared between the main thread and the transcription queue.
+private final class AtomicFlag {
+  private let lock = NSLock()
+  private var value: Bool
+
+  init(_ value: Bool) { self.value = value }
+
+  func get() -> Bool {
+    lock.lock()
+    defer { lock.unlock() }
+    return value
+  }
+
+  func set(_ newValue: Bool) {
+    lock.lock()
+    value = newValue
+    lock.unlock()
   }
 }
 
