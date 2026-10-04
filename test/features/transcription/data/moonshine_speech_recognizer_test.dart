@@ -82,6 +82,38 @@ void main() {
     expect(calls.map((c) => c.method), ['transcribe', 'release']);
   });
 
+  test('streams the transcript as it grows: finished lines kept, live lines replaced', () async {
+    fakeBridge(
+      events: [
+        {
+          'progress': 0.3,
+          'finished': <Object>[],
+          'live': [_line('مرحبا', 0, 1), _line('بكم في', 1, 1)],
+        },
+        {
+          'progress': 0.6,
+          'finished': [_line('مرحبا', 0, 1)],
+          'live': [_line('بكم في النشرة', 1, 2)],
+        },
+        {'progress': 0.9}, // progress only
+        {
+          'progress': 1,
+          'finished': [_line('بكم في النشرة', 1, 2)],
+          'live': <Object>[],
+        },
+      ],
+      result: [_line('مرحبا', 0, 1), _line('بكم في النشرة', 1, 2)],
+    );
+    final partials = <String>[];
+    final speech = await recognizer.transcribe(
+      audioPath: '/tmp/a.wav',
+      language: ContentLanguage.ar,
+      onPartialText: partials.add,
+    );
+    expect(partials, ['مرحبا\nبكم في', 'مرحبا\nبكم في النشرة', 'مرحبا\nبكم في النشرة']);
+    expect(speech.text, partials.last, reason: 'live text ends where the result does');
+  });
+
   test('a cancelled run throws CancelledException and still releases the model', () async {
     fakeBridge(error: PlatformException(code: 'moonshine_cancelled'));
     await expectLater(

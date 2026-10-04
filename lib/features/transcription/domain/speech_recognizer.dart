@@ -23,13 +23,17 @@ abstract interface class SpeechRecognizer {
 
   /// Transcribes a 16 kHz mono WAV file spoken in [language].
   ///
-  /// [onProgress] receives 0.0–1.0 over the file. Throws
+  /// [onProgress] receives 0.0–1.0 over the file. [onPartialText] receives
+  /// the transcript so far as it grows, one line per row; the last line may
+  /// still be revised as more audio is heard, so each value replaces the one
+  /// before. The returned text is the one to keep. Throws
   /// [SpeechRecognitionException] on failure and `CancelledException` after
   /// [cancel].
   Future<RecognizedSpeech> transcribe({
     required String audioPath,
     required ContentLanguage language,
     void Function(double progress)? onProgress,
+    void Function(String text)? onPartialText,
   });
 
   /// Stops a running [transcribe]. Never throws.

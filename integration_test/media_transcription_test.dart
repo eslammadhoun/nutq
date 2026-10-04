@@ -52,12 +52,16 @@ void main() {
     try {
       expect(audio.duration, greaterThan(Duration.zero));
       final progress = <double>[];
+      final partials = <String>[];
       final speech = await recognizer.transcribe(
         audioPath: audio.path,
         language: language,
         onProgress: progress.add,
+        onPartialText: partials.add,
       );
       expect(progress.last, 1);
+      expect(partials, isNotEmpty, reason: 'text arrives while transcribing');
+      expect(partials.last, speech.text, reason: 'the live text ends at the result');
       // Logged so a run shows what the model heard.
       // ignore: avoid_print
       print('[${language.code}] ${speech.modelName}: ${speech.text}');

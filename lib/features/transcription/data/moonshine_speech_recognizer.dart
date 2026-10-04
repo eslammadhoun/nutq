@@ -60,11 +60,12 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
   /// `MOONSHINE_MODEL_ARCH_TINY_STREAMING` in `moonshine-c-api.h`.
   static const modelArchTinyStreaming = 2;
 
-  /// Seconds of audio per streaming pass. Measured in whisper_playground on a
-  /// 194 s clip: 5 s chunks cost 18% more than 20 s for the same transcript.
-  /// The playground chose 5 s to show live text; Nutq shows none, so it takes
-  /// the faster setting.
-  static const chunkSeconds = 20.0;
+  /// Seconds of audio per streaming pass. Each pass publishes the transcript
+  /// so far, so this is how often live text arrives. Measured in
+  /// whisper_playground on a 194 s clip: 5 s chunks cost 18% more than 20 s
+  /// for the same transcript; 5 s is what makes the text readable as it comes.
+  /// The library's own throttle is 0.5 s, so going lower buys nothing.
+  static const chunkSeconds = 5.0;
 
   /// The bridge's error code for a run stopped by [cancel].
   static const _cancelledCode = 'moonshine_cancelled';
@@ -80,12 +81,17 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
     required String audioPath,
     required ContentLanguage language,
     void Function(double progress)? onProgress,
+    void Function(String text)? onPartialText,
   }) async {
     if (!isAvailable) {
       throw const SpeechRecognitionException('Moonshine is only available on iOS');
     }
     final model = MoonshineModel.of(language);
     onProgress?.call(0);
+
+    // Lines the bridge is done with. Each event adds only those finished since
+    // the last one, so an event stays small however long the file is.
+    final finished = <String>[];
 
     // Subscribed before the call, because the bridge reports progress while
     // the call is in flight. Best-effort: a failure here must not mask the
@@ -95,6 +101,13 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
         if (event is! Map) return;
         final progress = (event['progress'] as num?)?.toDouble();
         if (progress != null) onProgress?.call(progress.clamp(0, 1));
+        if (onPartialText == null) return;
+        final newlyFinished = event['finished'];
+        if (newlyFinished is List) finished.addAll(_lines(newlyFinished));
+        // The lines still being worked on are replaced, not merged: the one in
+        // progress is revised on every pass.
+        final live = event['live'];
+        if (live is List) onPartialText([...finished, ..._lines(live)].join('\n'));
       },
       onError: (Object _) {},
     );
@@ -132,12 +145,15 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
   }
 
   /// Joins the bridge's line maps (`text`, `start`, `duration`) into text, one
-  /// line per row.
-  static String textOf(List<Object?> lines) => [
+  /// line per row. The live updates and the final result both go through
+  /// [_lines], so the two cannot drift apart.
+  static String textOf(List<Object?> lines) => _lines(lines).join('\n');
+
+  static List<String> _lines(List<Object?> lines) => [
     for (final line in lines)
       if (line is Map && line['text'] is String && (line['text'] as String).trim().isNotEmpty)
         (line['text'] as String).trim(),
-  ].join('\n');
+  ];
 
   @override
   Future<void> cancel() => _quietly('cancel');
