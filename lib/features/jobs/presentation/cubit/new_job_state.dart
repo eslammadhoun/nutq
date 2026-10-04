@@ -1,27 +1,14 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:nutq/core/network/error/api_error.dart';
-import 'package:nutq/core/utils/validators.dart';
+import 'package:nutq/core/errors/app_error.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 
 part 'new_job_state.freezed.dart';
 
 /// The four New-Job sheet tabs, in display order.
-enum NewJobSourceType { text, video, audio, youtube }
-
 enum JobLanguage { ar, en }
 
 enum NewJobStatus { idle, submitting, success, failure }
-
-extension NewJobSourceTypeX on NewJobSourceType {
-  /// Wire value expected by POST /jobs (`source_type`). Video and audio both
-  /// use the backend's generic "upload" type.
-  String get wireValue => switch (this) {
-    NewJobSourceType.text => 'text',
-    NewJobSourceType.video => 'upload',
-    NewJobSourceType.audio => 'upload',
-    NewJobSourceType.youtube => 'youtube',
-  };
-}
 
 extension JobLanguageX on JobLanguage {
   String get wireValue => name;
@@ -30,17 +17,17 @@ extension JobLanguageX on JobLanguage {
 @freezed
 abstract class NewJobState with _$NewJobState {
   const factory NewJobState({
-    @Default(NewJobSourceType.text) NewJobSourceType sourceType,
+    @Default(JobSourceType.text) JobSourceType sourceType,
+
+    /// Source types the app can process (the registered transcript sources).
+    @Default({JobSourceType.text}) Set<JobSourceType> supportedSources,
     @Default(JobLanguage.ar) JobLanguage language,
     @Default('') String text,
     UploadFile? pickedFile,
     @Default('') String sourceUrl,
-    @Default(false) bool forceWhisper,
-    @Default(true) bool idempotencyEnabled,
-    String? idempotencyKey,
     @Default(false) bool fileTooLarge,
     @Default(NewJobStatus.idle) NewJobStatus status,
-    ApiError? lastError,
+    AppError? lastError,
     String? submittedJobId,
   }) = _NewJobState;
 
@@ -48,11 +35,17 @@ abstract class NewJobState with _$NewJobState {
 
   static const int maxTextLength = 500000;
 
-  bool get canSubmit => switch (sourceType) {
-    NewJobSourceType.text =>
-      text.trim().isNotEmpty && text.length <= maxTextLength,
-    NewJobSourceType.video ||
-    NewJobSourceType.audio => pickedFile != null && pickedFile!.sizeBytes <= UploadFile.maxBytes,
-    NewJobSourceType.youtube => Validators.isValidYouTubeUrl(sourceUrl),
-  };
+  /// Only pasted text can be processed on-device today; audio, video and
+  /// YouTube sources need transcription, which is not available.
+  bool get isSourceSupported => supportedSources.contains(sourceType);
+
+  /// Whether the chosen source has valid input. Only sources in
+  /// [supportedSources] can be submitted.
+  bool get canSubmit =>
+      isSourceSupported &&
+      switch (sourceType) {
+        JobSourceType.text => text.trim().isNotEmpty && text.length <= maxTextLength,
+        JobSourceType.youtube => sourceUrl.trim().isNotEmpty,
+        JobSourceType.audio || JobSourceType.video => pickedFile != null && !fileTooLarge,
+      };
 }

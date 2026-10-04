@@ -14,7 +14,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Summary {
 
- String get summaryText; String get toneAndFormat; List<Map<String, dynamic>> get takeaways; String get modelName; String get promptVersion; int? get tokensIn; int? get tokensOut;
+ String get summaryText; SummaryLength get length; List<String> get takeaways; String get modelName; String get promptVersion;/// True when the heuristic checks could not match some detail of the
+/// summary to the transcript.
+ bool get needsReview; int? get tokensIn; int? get tokensOut; int? get processingTimeMs;
 /// Create a copy of Summary
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +27,16 @@ $SummaryCopyWith<Summary> get copyWith => _$SummaryCopyWithImpl<Summary>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Summary&&(identical(other.summaryText, summaryText) || other.summaryText == summaryText)&&(identical(other.toneAndFormat, toneAndFormat) || other.toneAndFormat == toneAndFormat)&&const DeepCollectionEquality().equals(other.takeaways, takeaways)&&(identical(other.modelName, modelName) || other.modelName == modelName)&&(identical(other.promptVersion, promptVersion) || other.promptVersion == promptVersion)&&(identical(other.tokensIn, tokensIn) || other.tokensIn == tokensIn)&&(identical(other.tokensOut, tokensOut) || other.tokensOut == tokensOut));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Summary&&(identical(other.summaryText, summaryText) || other.summaryText == summaryText)&&(identical(other.length, length) || other.length == length)&&const DeepCollectionEquality().equals(other.takeaways, takeaways)&&(identical(other.modelName, modelName) || other.modelName == modelName)&&(identical(other.promptVersion, promptVersion) || other.promptVersion == promptVersion)&&(identical(other.needsReview, needsReview) || other.needsReview == needsReview)&&(identical(other.tokensIn, tokensIn) || other.tokensIn == tokensIn)&&(identical(other.tokensOut, tokensOut) || other.tokensOut == tokensOut)&&(identical(other.processingTimeMs, processingTimeMs) || other.processingTimeMs == processingTimeMs));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,summaryText,toneAndFormat,const DeepCollectionEquality().hash(takeaways),modelName,promptVersion,tokensIn,tokensOut);
+int get hashCode => Object.hash(runtimeType,summaryText,length,const DeepCollectionEquality().hash(takeaways),modelName,promptVersion,needsReview,tokensIn,tokensOut,processingTimeMs);
 
 @override
 String toString() {
-  return 'Summary(summaryText: $summaryText, toneAndFormat: $toneAndFormat, takeaways: $takeaways, modelName: $modelName, promptVersion: $promptVersion, tokensIn: $tokensIn, tokensOut: $tokensOut)';
+  return 'Summary(summaryText: $summaryText, length: $length, takeaways: $takeaways, modelName: $modelName, promptVersion: $promptVersion, needsReview: $needsReview, tokensIn: $tokensIn, tokensOut: $tokensOut, processingTimeMs: $processingTimeMs)';
 }
 
 
@@ -45,7 +47,7 @@ abstract mixin class $SummaryCopyWith<$Res>  {
   factory $SummaryCopyWith(Summary value, $Res Function(Summary) _then) = _$SummaryCopyWithImpl;
 @useResult
 $Res call({
- String summaryText, String toneAndFormat, List<Map<String, dynamic>> takeaways, String modelName, String promptVersion, int? tokensIn, int? tokensOut
+ String summaryText, SummaryLength length, List<String> takeaways, String modelName, String promptVersion, bool needsReview, int? tokensIn, int? tokensOut, int? processingTimeMs
 });
 
 
@@ -62,15 +64,17 @@ class _$SummaryCopyWithImpl<$Res>
 
 /// Create a copy of Summary
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? summaryText = null,Object? toneAndFormat = null,Object? takeaways = null,Object? modelName = null,Object? promptVersion = null,Object? tokensIn = freezed,Object? tokensOut = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? summaryText = null,Object? length = null,Object? takeaways = null,Object? modelName = null,Object? promptVersion = null,Object? needsReview = null,Object? tokensIn = freezed,Object? tokensOut = freezed,Object? processingTimeMs = freezed,}) {
   return _then(_self.copyWith(
 summaryText: null == summaryText ? _self.summaryText : summaryText // ignore: cast_nullable_to_non_nullable
-as String,toneAndFormat: null == toneAndFormat ? _self.toneAndFormat : toneAndFormat // ignore: cast_nullable_to_non_nullable
-as String,takeaways: null == takeaways ? _self.takeaways : takeaways // ignore: cast_nullable_to_non_nullable
-as List<Map<String, dynamic>>,modelName: null == modelName ? _self.modelName : modelName // ignore: cast_nullable_to_non_nullable
+as String,length: null == length ? _self.length : length // ignore: cast_nullable_to_non_nullable
+as SummaryLength,takeaways: null == takeaways ? _self.takeaways : takeaways // ignore: cast_nullable_to_non_nullable
+as List<String>,modelName: null == modelName ? _self.modelName : modelName // ignore: cast_nullable_to_non_nullable
 as String,promptVersion: null == promptVersion ? _self.promptVersion : promptVersion // ignore: cast_nullable_to_non_nullable
-as String,tokensIn: freezed == tokensIn ? _self.tokensIn : tokensIn // ignore: cast_nullable_to_non_nullable
+as String,needsReview: null == needsReview ? _self.needsReview : needsReview // ignore: cast_nullable_to_non_nullable
+as bool,tokensIn: freezed == tokensIn ? _self.tokensIn : tokensIn // ignore: cast_nullable_to_non_nullable
 as int?,tokensOut: freezed == tokensOut ? _self.tokensOut : tokensOut // ignore: cast_nullable_to_non_nullable
+as int?,processingTimeMs: freezed == processingTimeMs ? _self.processingTimeMs : processingTimeMs // ignore: cast_nullable_to_non_nullable
 as int?,
   ));
 }
@@ -153,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String summaryText,  String toneAndFormat,  List<Map<String, dynamic>> takeaways,  String modelName,  String promptVersion,  int? tokensIn,  int? tokensOut)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String summaryText,  SummaryLength length,  List<String> takeaways,  String modelName,  String promptVersion,  bool needsReview,  int? tokensIn,  int? tokensOut,  int? processingTimeMs)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Summary() when $default != null:
-return $default(_that.summaryText,_that.toneAndFormat,_that.takeaways,_that.modelName,_that.promptVersion,_that.tokensIn,_that.tokensOut);case _:
+return $default(_that.summaryText,_that.length,_that.takeaways,_that.modelName,_that.promptVersion,_that.needsReview,_that.tokensIn,_that.tokensOut,_that.processingTimeMs);case _:
   return orElse();
 
 }
@@ -174,10 +178,10 @@ return $default(_that.summaryText,_that.toneAndFormat,_that.takeaways,_that.mode
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String summaryText,  String toneAndFormat,  List<Map<String, dynamic>> takeaways,  String modelName,  String promptVersion,  int? tokensIn,  int? tokensOut)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String summaryText,  SummaryLength length,  List<String> takeaways,  String modelName,  String promptVersion,  bool needsReview,  int? tokensIn,  int? tokensOut,  int? processingTimeMs)  $default,) {final _that = this;
 switch (_that) {
 case _Summary():
-return $default(_that.summaryText,_that.toneAndFormat,_that.takeaways,_that.modelName,_that.promptVersion,_that.tokensIn,_that.tokensOut);}
+return $default(_that.summaryText,_that.length,_that.takeaways,_that.modelName,_that.promptVersion,_that.needsReview,_that.tokensIn,_that.tokensOut,_that.processingTimeMs);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -191,10 +195,10 @@ return $default(_that.summaryText,_that.toneAndFormat,_that.takeaways,_that.mode
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String summaryText,  String toneAndFormat,  List<Map<String, dynamic>> takeaways,  String modelName,  String promptVersion,  int? tokensIn,  int? tokensOut)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String summaryText,  SummaryLength length,  List<String> takeaways,  String modelName,  String promptVersion,  bool needsReview,  int? tokensIn,  int? tokensOut,  int? processingTimeMs)?  $default,) {final _that = this;
 switch (_that) {
 case _Summary() when $default != null:
-return $default(_that.summaryText,_that.toneAndFormat,_that.takeaways,_that.modelName,_that.promptVersion,_that.tokensIn,_that.tokensOut);case _:
+return $default(_that.summaryText,_that.length,_that.takeaways,_that.modelName,_that.promptVersion,_that.needsReview,_that.tokensIn,_that.tokensOut,_that.processingTimeMs);case _:
   return null;
 
 }
@@ -206,13 +210,13 @@ return $default(_that.summaryText,_that.toneAndFormat,_that.takeaways,_that.mode
 
 
 class _Summary implements Summary {
-  const _Summary({required this.summaryText, required this.toneAndFormat, required final  List<Map<String, dynamic>> takeaways, required this.modelName, required this.promptVersion, this.tokensIn, this.tokensOut}): _takeaways = takeaways;
+  const _Summary({required this.summaryText, required this.length, required final  List<String> takeaways, required this.modelName, required this.promptVersion, this.needsReview = false, this.tokensIn, this.tokensOut, this.processingTimeMs}): _takeaways = takeaways;
   
 
 @override final  String summaryText;
-@override final  String toneAndFormat;
- final  List<Map<String, dynamic>> _takeaways;
-@override List<Map<String, dynamic>> get takeaways {
+@override final  SummaryLength length;
+ final  List<String> _takeaways;
+@override List<String> get takeaways {
   if (_takeaways is EqualUnmodifiableListView) return _takeaways;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_takeaways);
@@ -220,8 +224,12 @@ class _Summary implements Summary {
 
 @override final  String modelName;
 @override final  String promptVersion;
+/// True when the heuristic checks could not match some detail of the
+/// summary to the transcript.
+@override@JsonKey() final  bool needsReview;
 @override final  int? tokensIn;
 @override final  int? tokensOut;
+@override final  int? processingTimeMs;
 
 /// Create a copy of Summary
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +241,16 @@ _$SummaryCopyWith<_Summary> get copyWith => __$SummaryCopyWithImpl<_Summary>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Summary&&(identical(other.summaryText, summaryText) || other.summaryText == summaryText)&&(identical(other.toneAndFormat, toneAndFormat) || other.toneAndFormat == toneAndFormat)&&const DeepCollectionEquality().equals(other._takeaways, _takeaways)&&(identical(other.modelName, modelName) || other.modelName == modelName)&&(identical(other.promptVersion, promptVersion) || other.promptVersion == promptVersion)&&(identical(other.tokensIn, tokensIn) || other.tokensIn == tokensIn)&&(identical(other.tokensOut, tokensOut) || other.tokensOut == tokensOut));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Summary&&(identical(other.summaryText, summaryText) || other.summaryText == summaryText)&&(identical(other.length, length) || other.length == length)&&const DeepCollectionEquality().equals(other._takeaways, _takeaways)&&(identical(other.modelName, modelName) || other.modelName == modelName)&&(identical(other.promptVersion, promptVersion) || other.promptVersion == promptVersion)&&(identical(other.needsReview, needsReview) || other.needsReview == needsReview)&&(identical(other.tokensIn, tokensIn) || other.tokensIn == tokensIn)&&(identical(other.tokensOut, tokensOut) || other.tokensOut == tokensOut)&&(identical(other.processingTimeMs, processingTimeMs) || other.processingTimeMs == processingTimeMs));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,summaryText,toneAndFormat,const DeepCollectionEquality().hash(_takeaways),modelName,promptVersion,tokensIn,tokensOut);
+int get hashCode => Object.hash(runtimeType,summaryText,length,const DeepCollectionEquality().hash(_takeaways),modelName,promptVersion,needsReview,tokensIn,tokensOut,processingTimeMs);
 
 @override
 String toString() {
-  return 'Summary(summaryText: $summaryText, toneAndFormat: $toneAndFormat, takeaways: $takeaways, modelName: $modelName, promptVersion: $promptVersion, tokensIn: $tokensIn, tokensOut: $tokensOut)';
+  return 'Summary(summaryText: $summaryText, length: $length, takeaways: $takeaways, modelName: $modelName, promptVersion: $promptVersion, needsReview: $needsReview, tokensIn: $tokensIn, tokensOut: $tokensOut, processingTimeMs: $processingTimeMs)';
 }
 
 
@@ -253,7 +261,7 @@ abstract mixin class _$SummaryCopyWith<$Res> implements $SummaryCopyWith<$Res> {
   factory _$SummaryCopyWith(_Summary value, $Res Function(_Summary) _then) = __$SummaryCopyWithImpl;
 @override @useResult
 $Res call({
- String summaryText, String toneAndFormat, List<Map<String, dynamic>> takeaways, String modelName, String promptVersion, int? tokensIn, int? tokensOut
+ String summaryText, SummaryLength length, List<String> takeaways, String modelName, String promptVersion, bool needsReview, int? tokensIn, int? tokensOut, int? processingTimeMs
 });
 
 
@@ -270,15 +278,17 @@ class __$SummaryCopyWithImpl<$Res>
 
 /// Create a copy of Summary
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? summaryText = null,Object? toneAndFormat = null,Object? takeaways = null,Object? modelName = null,Object? promptVersion = null,Object? tokensIn = freezed,Object? tokensOut = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? summaryText = null,Object? length = null,Object? takeaways = null,Object? modelName = null,Object? promptVersion = null,Object? needsReview = null,Object? tokensIn = freezed,Object? tokensOut = freezed,Object? processingTimeMs = freezed,}) {
   return _then(_Summary(
 summaryText: null == summaryText ? _self.summaryText : summaryText // ignore: cast_nullable_to_non_nullable
-as String,toneAndFormat: null == toneAndFormat ? _self.toneAndFormat : toneAndFormat // ignore: cast_nullable_to_non_nullable
-as String,takeaways: null == takeaways ? _self._takeaways : takeaways // ignore: cast_nullable_to_non_nullable
-as List<Map<String, dynamic>>,modelName: null == modelName ? _self.modelName : modelName // ignore: cast_nullable_to_non_nullable
+as String,length: null == length ? _self.length : length // ignore: cast_nullable_to_non_nullable
+as SummaryLength,takeaways: null == takeaways ? _self._takeaways : takeaways // ignore: cast_nullable_to_non_nullable
+as List<String>,modelName: null == modelName ? _self.modelName : modelName // ignore: cast_nullable_to_non_nullable
 as String,promptVersion: null == promptVersion ? _self.promptVersion : promptVersion // ignore: cast_nullable_to_non_nullable
-as String,tokensIn: freezed == tokensIn ? _self.tokensIn : tokensIn // ignore: cast_nullable_to_non_nullable
+as String,needsReview: null == needsReview ? _self.needsReview : needsReview // ignore: cast_nullable_to_non_nullable
+as bool,tokensIn: freezed == tokensIn ? _self.tokensIn : tokensIn // ignore: cast_nullable_to_non_nullable
 as int?,tokensOut: freezed == tokensOut ? _self.tokensOut : tokensOut // ignore: cast_nullable_to_non_nullable
+as int?,processingTimeMs: freezed == processingTimeMs ? _self.processingTimeMs : processingTimeMs // ignore: cast_nullable_to_non_nullable
 as int?,
   ));
 }

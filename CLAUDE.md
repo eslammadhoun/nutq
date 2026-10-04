@@ -8,14 +8,22 @@ Arabic Speech Transcription client app. Connects to the `transcription_api` back
 # Run app (iOS simulator or connected device)
 flutter run --dart-define=API_BASE_URL=http://<LAN_IP>:8000/v1
 
-# Regenerate code after adding/editing models or API services
-dart run build_runner build --delete-conflicting-outputs
+# Regenerate code after editing freezed models or Drift tables/DAOs
+dart run build_runner build
 
 # Regenerate localizations after editing lib/l10n/*.arb
 flutter gen-l10n
 
-# Analyze (CI runs with --fatal-infos — infos fail the build)
+# Format (CI fails on unformatted code; width 100, see analysis_options.yaml)
+dart format .
+
+# Analyze (CI runs with --fatal-infos — infos fail the build; strict-casts/inference/raw-types are on)
 flutter analyze --fatal-infos
+
+# After changing the Drift schema: bump schemaVersion, add the migration step, then
+dart run drift_dev schema dump lib/core/database/app_database.dart drift_schemas/
+dart run drift_dev schema steps drift_schemas/ lib/core/database/schema_versions.dart
+dart run drift_dev schema generate drift_schemas/ test/core/database/generated/
 
 # Tests
 flutter test
@@ -36,6 +44,7 @@ flutter test
 ```
 lib/
   core/
+    database/       # AppDatabase (Drift/SQLite) — tables & DAOs live in each feature's data/local; see docs/LOCAL_STORAGE.md
     di/             # dependency_injection.dart — GetIt setup (sl)
     extensions/     # theme_extension (context.appColors/.typography/.l10n), error_l10n_extension
     locale/         # LocaleCubit — persisted language choice (ar/en)

@@ -62,8 +62,7 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -93,10 +91,7 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[
-    Locale('ar'),
-    Locale('en'),
-  ];
+  static const List<Locale> supportedLocales = <Locale>[Locale('ar'), Locale('en')];
 
   /// The application title
   ///
@@ -151,36 +146,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong'**
   String get somethingWentWrong;
-
-  /// No description provided for @errorNoConnection.
-  ///
-  /// In en, this message translates to:
-  /// **'No internet connection'**
-  String get errorNoConnection;
-
-  /// No description provided for @errorServerUnreachable.
-  ///
-  /// In en, this message translates to:
-  /// **'Can\'t reach the server. Please try again later.'**
-  String get errorServerUnreachable;
-
-  /// No description provided for @errorTimeout.
-  ///
-  /// In en, this message translates to:
-  /// **'Request timed out'**
-  String get errorTimeout;
-
-  /// No description provided for @errorInvalidCredentials.
-  ///
-  /// In en, this message translates to:
-  /// **'Invalid credentials'**
-  String get errorInvalidCredentials;
-
-  /// No description provided for @errorLoginAgain.
-  ///
-  /// In en, this message translates to:
-  /// **'Please log in again'**
-  String get errorLoginAgain;
 
   /// No description provided for @jobFallbackTitle.
   ///
@@ -272,126 +237,6 @@ abstract class AppLocalizations {
   /// **'Username can only contain letters, numbers, underscores, and hyphens'**
   String get validationUsernameChars;
 
-  /// No description provided for @authEmailLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Email address'**
-  String get authEmailLabel;
-
-  /// No description provided for @authEmailHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your email'**
-  String get authEmailHint;
-
-  /// No description provided for @authPasswordLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Password'**
-  String get authPasswordLabel;
-
-  /// No description provided for @authPasswordHidden.
-  ///
-  /// In en, this message translates to:
-  /// **'••••••••'**
-  String get authPasswordHidden;
-
-  /// No description provided for @authShowPassword.
-  ///
-  /// In en, this message translates to:
-  /// **'Show'**
-  String get authShowPassword;
-
-  /// No description provided for @authHidePassword.
-  ///
-  /// In en, this message translates to:
-  /// **'Hide'**
-  String get authHidePassword;
-
-  /// No description provided for @loginWelcomeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome back'**
-  String get loginWelcomeTitle;
-
-  /// No description provided for @loginWelcomeSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to your account to continue'**
-  String get loginWelcomeSubtitle;
-
-  /// No description provided for @loginSubmit.
-  ///
-  /// In en, this message translates to:
-  /// **'Log In'**
-  String get loginSubmit;
-
-  /// No description provided for @loginFooterPrompt.
-  ///
-  /// In en, this message translates to:
-  /// **'Don\'t have an account? '**
-  String get loginFooterPrompt;
-
-  /// No description provided for @loginFooterAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign up'**
-  String get loginFooterAction;
-
-  /// No description provided for @registerWelcomeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Create Account'**
-  String get registerWelcomeTitle;
-
-  /// No description provided for @registerWelcomeSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Join Nutq to start transcribing Arabic speech'**
-  String get registerWelcomeSubtitle;
-
-  /// No description provided for @registerUsernameLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Username'**
-  String get registerUsernameLabel;
-
-  /// No description provided for @registerUsernameHint.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. ahmed_ali'**
-  String get registerUsernameHint;
-
-  /// No description provided for @registerConfirmPasswordLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm password'**
-  String get registerConfirmPasswordLabel;
-
-  /// No description provided for @registerConfirmPasswordHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Repeat your password'**
-  String get registerConfirmPasswordHint;
-
-  /// No description provided for @registerSubmit.
-  ///
-  /// In en, this message translates to:
-  /// **'Create Account'**
-  String get registerSubmit;
-
-  /// No description provided for @registerFooterPrompt.
-  ///
-  /// In en, this message translates to:
-  /// **'Already have an account? '**
-  String get registerFooterPrompt;
-
-  /// No description provided for @registerFooterAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Log in'**
-  String get registerFooterAction;
-
   /// No description provided for @jobsHistoryTitle.
   ///
   /// In en, this message translates to:
@@ -439,12 +284,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'YouTube'**
   String get sourceYoutube;
-
-  /// No description provided for @sourceWebUrl.
-  ///
-  /// In en, this message translates to:
-  /// **'Web URL'**
-  String get sourceWebUrl;
 
   /// No description provided for @sourceText.
   ///
@@ -505,12 +344,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'English (EN)'**
   String get newJobLanguageEnglish;
-
-  /// No description provided for @newJobIdempotencyKeyLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Idempotency Key'**
-  String get newJobIdempotencyKeyLabel;
 
   /// No description provided for @newJobTextLabel.
   ///
@@ -638,21 +471,266 @@ abstract class AppLocalizations {
   /// **'Alerts — coming soon'**
   String get alertsComingSoon;
 
+  /// No description provided for @jobDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Job Detail'**
+  String get jobDetailTitle;
+
+  /// No description provided for @jobDetailTranscriptionComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcription Complete'**
+  String get jobDetailTranscriptionComplete;
+
+  /// No description provided for @jobDetailTranscript.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcript'**
+  String get jobDetailTranscript;
+
+  /// No description provided for @jobDetailTranscriptPending.
+  ///
+  /// In en, this message translates to:
+  /// **'The transcript isn\'t ready yet.'**
+  String get jobDetailTranscriptPending;
+
+  /// No description provided for @jobDetailAiSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Summary'**
+  String get jobDetailAiSummary;
+
+  /// No description provided for @jobDetailSummaryPending.
+  ///
+  /// In en, this message translates to:
+  /// **'The summary isn\'t ready yet.'**
+  String get jobDetailSummaryPending;
+
+  /// No description provided for @jobDetailDownloadTranscript.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Transcript'**
+  String get jobDetailDownloadTranscript;
+
+  /// No description provided for @jobDetailShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get jobDetailShare;
+
+  /// No description provided for @jobDetailCopyText.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Text'**
+  String get jobDetailCopyText;
+
+  /// No description provided for @jobDetailKeyTakeaways.
+  ///
+  /// In en, this message translates to:
+  /// **'KEY TAKEAWAYS'**
+  String get jobDetailKeyTakeaways;
+
+  /// No description provided for @jobDetailWordCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} words'**
+  String jobDetailWordCount(int count);
+
+  /// No description provided for @jobDetailCancelJob.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Job'**
+  String get jobDetailCancelJob;
+
+  /// No description provided for @jobDetailCancelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelling…'**
+  String get jobDetailCancelling;
+
+  /// No description provided for @jobDetailJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get jobDetailJustNow;
+
+  /// No description provided for @jobDetailMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} minutes ago'**
+  String jobDetailMinutesAgo(int count);
+
+  /// No description provided for @jobDetailHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hours ago'**
+  String jobDetailHoursAgo(int count);
+
+  /// No description provided for @jobDetailDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days ago'**
+  String jobDetailDaysAgo(int count);
+
+  /// No description provided for @jobDetailShowMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get jobDetailShowMore;
+
+  /// No description provided for @jobDetailShowLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get jobDetailShowLess;
+
   /// No description provided for @profileComingSoon.
   ///
   /// In en, this message translates to:
   /// **'Profile — coming soon'**
   String get profileComingSoon;
 
-  /// No description provided for @profileLogOut.
+  /// No description provided for @jobStagePreparing.
   ///
   /// In en, this message translates to:
-  /// **'Log out'**
-  String get profileLogOut;
+  /// **'Preparing transcript'**
+  String get jobStagePreparing;
+
+  /// No description provided for @jobStageAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing transcript'**
+  String get jobStageAnalyzing;
+
+  /// No description provided for @jobStageSummarizing.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarizing sections'**
+  String get jobStageSummarizing;
+
+  /// No description provided for @jobStageCombining.
+  ///
+  /// In en, this message translates to:
+  /// **'Combining information'**
+  String get jobStageCombining;
+
+  /// No description provided for @jobStageChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking summary'**
+  String get jobStageChecking;
+
+  /// No description provided for @jobStageFinalizing.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalizing'**
+  String get jobStageFinalizing;
+
+  /// No description provided for @jobStageCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get jobStageCompleted;
+
+  /// No description provided for @jobStageSections.
+  ///
+  /// In en, this message translates to:
+  /// **'{processed} of {total} sections'**
+  String jobStageSections(int processed, int total);
+
+  /// No description provided for @jobSummaryNeedsReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Some details in this summary could not be verified against the transcript. Please review it.'**
+  String get jobSummaryNeedsReview;
+
+  /// No description provided for @jobFailureEmptyTranscript.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no transcript text to summarize.'**
+  String get jobFailureEmptyTranscript;
+
+  /// No description provided for @jobFailureModelUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The on-device summarization model isn\'t available.'**
+  String get jobFailureModelUnavailable;
+
+  /// No description provided for @jobFailureGenerationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The summary could not be generated. Please try again.'**
+  String get jobFailureGenerationFailed;
+
+  /// No description provided for @newJobSourceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Only pasted text can be summarized on this device for now. Audio, video and YouTube sources aren\'t available yet.'**
+  String get newJobSourceUnavailable;
+
+  /// No description provided for @jobDetailSummaryComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary Complete'**
+  String get jobDetailSummaryComplete;
+
+  /// No description provided for @errorStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t access saved jobs on this device. Please try again.'**
+  String get errorStorage;
+
+  /// No description provided for @jobDetailNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This job no longer exists.'**
+  String get jobDetailNotFound;
+
+  /// No description provided for @jobFailureInterrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'This job was interrupted because the app was closed before it finished.'**
+  String get jobFailureInterrupted;
+
+  /// No description provided for @jobStageAcquiring.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching source'**
+  String get jobStageAcquiring;
+
+  /// No description provided for @jobStageTranscribing.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcribing audio'**
+  String get jobStageTranscribing;
+
+  /// No description provided for @jobFailureSourceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The source couldn\'t be reached. Check your connection and try again.'**
+  String get jobFailureSourceUnavailable;
+
+  /// No description provided for @jobFailureUnsupportedMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'This file\'s format isn\'t supported.'**
+  String get jobFailureUnsupportedMedia;
+
+  /// No description provided for @jobFailureTranscriptionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The audio couldn\'t be transcribed.'**
+  String get jobFailureTranscriptionFailed;
+
+  /// No description provided for @jobFailureInsufficientStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'There isn\'t enough free storage to process this job.'**
+  String get jobFailureInsufficientStorage;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -661,8 +739,7 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['ar', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['ar', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;

@@ -1,100 +1,131 @@
-import 'package:nutq/features/jobs/data/models/job_detail_response.dart';
-import 'package:nutq/features/jobs/data/models/job_list_response.dart';
-import 'package:nutq/features/jobs/data/models/job_response.dart';
-import 'package:nutq/features/jobs/data/models/submit_job_request.dart';
-import 'package:nutq/features/jobs/data/models/summary_response.dart';
-import 'package:nutq/features/jobs/data/models/transcript_response.dart';
-import 'package:nutq/features/jobs/data/models/upload_slot_response.dart';
+import 'package:drift/drift.dart';
+import 'package:nutq/core/database/app_database.dart';
+import 'package:nutq/features/jobs/data/local/daos/jobs_dao.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
-import 'package:nutq/features/jobs/domain/entities/jobs_page.dart';
-import 'package:nutq/features/jobs/domain/entities/submit_job_params.dart';
+import 'package:nutq/features/jobs/domain/entities/source_info.dart';
 import 'package:nutq/features/jobs/domain/entities/summary.dart';
 import 'package:nutq/features/jobs/domain/entities/transcript.dart';
-import 'package:nutq/features/jobs/domain/entities/upload_slot.dart';
 
-/// Data → domain mappers for the jobs feature. Keeps the repository
-/// implementation the only place aware of both layers' types.
-extension UploadSlotResponseMapper on UploadSlotResponse {
-  UploadSlot toEntity() => UploadSlot(
-    uploadUrl: uploadUrl,
-    uploadToken: uploadToken,
-    expiresInSeconds: expiresInSeconds,
-  );
+/// First [maxLength] characters with whitespace collapsed, ellipsized.
+String transcriptPreview(String text, {int maxLength = 140}) {
+  final collapsed = text.replaceAll(RegExp(r'\s+'), ' ').trim();
+  if (collapsed.length <= maxLength) return collapsed;
+  return '${collapsed.substring(0, maxLength).trimRight()}…';
 }
 
-extension TranscriptResponseMapper on TranscriptResponse {
-  Transcript toEntity() => Transcript(
-    language: language,
-    wordCount: wordCount,
-    durationSeconds: durationSeconds,
-    modelName: modelName,
-    modelVersion: modelVersion,
-    quantization: quantization,
-    downloadUrl: downloadUrl,
-  );
-}
-
-extension SummaryResponseMapper on SummaryResponse {
-  Summary toEntity() => Summary(
-    summaryText: summaryText,
-    toneAndFormat: toneAndFormat,
-    takeaways: takeaways,
-    modelName: modelName,
-    promptVersion: promptVersion,
-    tokensIn: tokensIn,
-    tokensOut: tokensOut,
-  );
-}
-
-extension JobResponseMapper on JobResponse {
+extension JobRowMapper on JobRow {
   JobEntity toEntity() => JobEntity(
     id: id,
     status: status,
     sourceType: sourceType,
-    language: language,
+    sourceLanguage: sourceLanguage,
     createdAt: createdAt,
     updatedAt: updatedAt,
-    errorCode: errorCode,
-    errorDetail: errorDetail,
-    contentType: contentType,
-    uploadSlot: uploadSlot?.toEntity(),
     preview: preview,
+    sourceTitle: sourceTitle,
+    failureKind: failureKind,
   );
 }
 
-extension JobDetailResponseMapper on JobDetailResponse {
-  JobDetailEntity toEntity() => JobDetailEntity(
+extension JobDetailRowsMapper on JobDetailRows {
+  JobDetailEntity toEntity() {
+    final t = transcript;
+    final s = summary;
+    return JobDetailEntity(
+      id: job.id,
+      status: job.status,
+      sourceType: job.sourceType,
+      sourceLanguage: job.sourceLanguage,
+      summaryLanguage: job.summaryLanguage,
+      requestedLength: job.requestedLength,
+      createdAt: job.createdAt,
+      updatedAt: job.updatedAt,
+      failureKind: job.failureKind,
+      sourceUrl: job.sourceUrl,
+      sourceFilePath: job.sourceFilePath,
+      sourceMimeType: job.sourceMimeType,
+      sourceTitle: job.sourceTitle,
+      durationSeconds: job.durationSeconds,
+      transcript: t == null
+          ? null
+          : Transcript(
+              text: t.content,
+              wordCount: t.wordCount,
+              modelName: t.modelName,
+              modelVersion: t.modelVersion,
+            ),
+      summary: s == null
+          ? null
+          : Summary(
+              summaryText: s.summaryText,
+              length: job.requestedLength,
+              takeaways: s.takeaways,
+              modelName: s.modelName,
+              promptVersion: s.promptVersion,
+              needsReview: s.needsReview,
+              tokensIn: s.tokensIn,
+              tokensOut: s.tokensOut,
+              processingTimeMs: s.processingTimeMs,
+            ),
+    );
+  }
+}
+
+extension JobDetailEntityMapper on JobDetailEntity {
+  JobsCompanion toJobCompanion() => JobsCompanion.insert(
     id: id,
     status: status,
     sourceType: sourceType,
-    language: language,
+    sourceLanguage: sourceLanguage,
+    summaryLanguage: Value(summaryLanguage),
+    requestedLength: requestedLength,
     createdAt: createdAt,
     updatedAt: updatedAt,
-    errorCode: errorCode,
-    errorDetail: errorDetail,
-    contentType: contentType,
-    uploadSlot: uploadSlot?.toEntity(),
-    transcript: transcript?.toEntity(),
-    summary: summary?.toEntity(),
+    failureKind: Value(failureKind),
+    preview: Value(transcript == null ? null : transcriptPreview(transcript!.text)),
+    sourceUrl: Value(sourceUrl),
+    sourceFilePath: Value(sourceFilePath),
+    sourceMimeType: Value(sourceMimeType),
+    sourceTitle: Value(sourceTitle),
+    durationSeconds: Value(durationSeconds),
+  );
+
+  /// Null for jobs that start from media and have no transcript yet.
+  JobTranscriptsCompanion? toTranscriptCompanion() => transcript?.toCompanion(id);
+}
+
+extension TranscriptMapper on Transcript {
+  JobTranscriptsCompanion toCompanion(String jobId) => JobTranscriptsCompanion.insert(
+    jobId: jobId,
+    content: text,
+    wordCount: wordCount,
+    modelName: Value(modelName),
+    modelVersion: Value(modelVersion),
   );
 }
 
-extension JobListResponseMapper on JobListResponse {
-  JobsPage toEntity() =>
-      JobsPage(items: items.map((e) => e.toEntity()).toList(), nextCursor: nextCursor);
+extension SummaryMapper on Summary {
+  JobSummariesCompanion toCompanion(String jobId) => JobSummariesCompanion.insert(
+    jobId: jobId,
+    summaryText: summaryText,
+    takeaways: takeaways,
+    modelName: modelName,
+    promptVersion: promptVersion,
+    needsReview: Value(needsReview),
+    tokensIn: Value(tokensIn),
+    tokensOut: Value(tokensOut),
+    processingTimeMs: Value(processingTimeMs),
+  );
 }
 
-extension SubmitJobParamsMapper on SubmitJobParams {
-  SubmitJobRequest toRequest() => SubmitJobRequest(
-    sourceType: sourceType,
-    language: language,
-    sourceUrl: sourceUrl,
-    forceWhisper: forceWhisper,
-    text: text,
-    filename: filename,
-    contentType: contentType,
-    sizeHint: sizeHint,
-    idempotencyKey: idempotencyKey,
+extension SourceInfoMapper on SourceInfo {
+  /// Only the fields that are set, so a partial update never erases the rest.
+  JobsCompanion toCompanion(DateTime at) => JobsCompanion(
+    updatedAt: Value(at),
+    sourceTitle: title == null ? const Value.absent() : Value(title),
+    sourceFilePath: filePath == null ? const Value.absent() : Value(filePath),
+    sourceMimeType: mimeType == null ? const Value.absent() : Value(mimeType),
+    durationSeconds: durationSeconds == null ? const Value.absent() : Value(durationSeconds),
   );
 }

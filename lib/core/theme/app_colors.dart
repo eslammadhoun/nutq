@@ -68,6 +68,12 @@ final class AppColors extends ThemeExtension<AppColors> {
   // ── scrim ────────────────────────────────────────────────────────────────
   final Color scrimOverlay;
 
+  // ── job detail screen ─────────────────────────────────────────────────────
+  final Color cardMuted;
+  final Color accentBlue;
+  final Color heroGradientStart;
+  final Color heroGradientEnd;
+
   const AppColors({
     required this.primary,
     required this.primaryDark,
@@ -104,6 +110,10 @@ final class AppColors extends ThemeExtension<AppColors> {
     required this.navBarBg,
     required this.navIndicator,
     required this.scrimOverlay,
+    required this.cardMuted,
+    required this.accentBlue,
+    required this.heroGradientStart,
+    required this.heroGradientEnd,
   });
 
   /// Light-mode token values (`com.figma.modeName: "Light"`).
@@ -143,6 +153,10 @@ final class AppColors extends ThemeExtension<AppColors> {
     navBarBg: Color(0xFFFFFFFF),
     navIndicator: Color(0xFF1A56DB),
     scrimOverlay: Color(0xFF11182A),
+    cardMuted: Color(0xFFF3F4F6),
+    accentBlue: Color(0xFF2563EB),
+    heroGradientStart: Color(0xFF069268),
+    heroGradientEnd: Color(0xFF0FAE7E),
   );
 
   /// Dark-mode token values (`com.figma.modeName: "Dark"`).
@@ -182,6 +196,10 @@ final class AppColors extends ThemeExtension<AppColors> {
     navBarBg: Color(0xFF1F2A37),
     navIndicator: Color(0xFF4F83F1),
     scrimOverlay: Color(0xFF000000),
+    cardMuted: Color(0xFF1F2A37),
+    accentBlue: Color(0xFF4F83F1),
+    heroGradientStart: Color(0xFF069268),
+    heroGradientEnd: Color(0xFF0FAE7E),
   );
 
   @override
@@ -221,6 +239,10 @@ final class AppColors extends ThemeExtension<AppColors> {
     Color? navBarBg,
     Color? navIndicator,
     Color? scrimOverlay,
+    Color? cardMuted,
+    Color? accentBlue,
+    Color? heroGradientStart,
+    Color? heroGradientEnd,
   }) {
     return AppColors(
       primary: primary ?? this.primary,
@@ -258,6 +280,10 @@ final class AppColors extends ThemeExtension<AppColors> {
       navBarBg: navBarBg ?? this.navBarBg,
       navIndicator: navIndicator ?? this.navIndicator,
       scrimOverlay: scrimOverlay ?? this.scrimOverlay,
+      cardMuted: cardMuted ?? this.cardMuted,
+      accentBlue: accentBlue ?? this.accentBlue,
+      heroGradientStart: heroGradientStart ?? this.heroGradientStart,
+      heroGradientEnd: heroGradientEnd ?? this.heroGradientEnd,
     );
   }
 
@@ -301,6 +327,10 @@ final class AppColors extends ThemeExtension<AppColors> {
       navBarBg: l(navBarBg, other.navBarBg),
       navIndicator: l(navIndicator, other.navIndicator),
       scrimOverlay: l(scrimOverlay, other.scrimOverlay),
+      cardMuted: l(cardMuted, other.cardMuted),
+      accentBlue: l(accentBlue, other.accentBlue),
+      heroGradientStart: l(heroGradientStart, other.heroGradientStart),
+      heroGradientEnd: l(heroGradientEnd, other.heroGradientEnd),
     );
   }
 }

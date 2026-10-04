@@ -3,16 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nutq/core/di/dependency_injection.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/routing/routes.dart';
-import 'package:nutq/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:nutq/features/auth/presentation/ui/login/screens/login_screen.dart';
-import 'package:nutq/features/auth/presentation/ui/register/screens/register_screen.dart';
 import 'package:nutq/features/home/presentation/screens/home_screen.dart';
+import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
+import 'package:nutq/features/jobs/presentation/screens/job_detail_screen.dart';
 import 'package:nutq/features/onBoarding/presentation/screens/on_boarding_screen.dart';
 import 'package:nutq/features/onBoarding/presentation/screens/splash_screen.dart';
 
 class AppRouter {
   /// Global access to the navigator for imperative navigation from
-  /// non-widget code (e.g. the session-expiry listener in main.dart).
+  /// non-widget code.
   static final navigatorKey = GlobalKey<NavigatorState>();
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -23,26 +22,18 @@ class AppRouter {
       case Routes.onboarding:
         return _buildRoute(settings, const OnBoardingScreen());
 
-      case Routes.login:
-        return _buildRoute(
-          settings,
-          BlocProvider<AuthCubit>(
-            create: (context) => sl<AuthCubit>(),
-            child: LoginScreen(),
-          ),
-        );
-
-      case Routes.register:
-        return _buildRoute(
-          settings,
-          BlocProvider<AuthCubit>(
-            create: (context) => sl<AuthCubit>(),
-            child: RegisterScreen(),
-          ),
-        );
-
       case Routes.home:
         return _buildRoute(settings, HomeScreen());
+
+      case Routes.jobDetail:
+        final jobId = settings.arguments as String;
+        return _buildRoute(
+          settings,
+          BlocProvider<JobDetailCubit>(
+            create: (_) => sl<JobDetailCubit>(param1: jobId),
+            child: const JobDetailScreen(),
+          ),
+        );
       default:
         return _buildRoute(
           settings,
@@ -57,8 +48,8 @@ class AppRouter {
     }
   }
 
-  static PageRouteBuilder _buildRoute(RouteSettings settings, Widget page) {
-    return PageRouteBuilder(
+  static PageRouteBuilder<void> _buildRoute(RouteSettings settings, Widget page) {
+    return PageRouteBuilder<void>(
       settings: settings,
 
       transitionDuration: const Duration(milliseconds: 180),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/di/dependency_injection.dart';
@@ -21,32 +23,20 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('🔥 SPLASH INIT: ${identityHashCode(this)}');
     _handleNavigation();
   }
 
   Future<void> _handleNavigation() async {
-    await Future.delayed(const Duration(milliseconds: 1500));
+    await Future<void>.delayed(const Duration(milliseconds: 1500));
 
     if (!mounted) return;
 
-    debugPrint('➡️ isLoggedIn: ${appPreferences.isLoggedIn}');
-
-    debugPrint('➡️ hasSeenOnboarding: ${appPreferences.hasSeenOnboarding}');
-
-    if (appPreferences.isLoggedIn) {
-      context.pushNamedAndRemoveUntil(Routes.home);
-      return;
-    }
-
     if (appPreferences.hasSeenOnboarding) {
-      debugPrint('➡️ GOING LOGIN');
-      context.pushNamedAndRemoveUntil(Routes.login);
+      unawaited(context.pushNamedAndRemoveUntil(Routes.home));
       return;
     }
 
-    debugPrint('➡️ GOING ONBOARDING');
-    context.pushNamedAndRemoveUntil(Routes.onboarding);
+    unawaited(context.pushNamedAndRemoveUntil(Routes.onboarding));
   }
 
   @override
@@ -67,8 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                   Positioned(
                     top: 220.h,
-                    child: Text(context.l10n.appTitle,
-                        style: context.typography.display),
+                    child: Text(context.l10n.appTitle, style: context.typography.display),
                   ),
                   Positioned(
                     bottom: 40,

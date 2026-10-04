@@ -7,17 +7,17 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('registered fonts', () {
-    test('FontManifest contains Inter and NotoSansArabic with needed weights',
-        () async {
+    test('FontManifest contains Inter and NotoSansArabic with needed weights', () async {
       final manifestJson = await rootBundle.loadString('FontManifest.json');
       final manifest = jsonDecode(manifestJson) as List<dynamic>;
 
       final families = <String, Set<int>>{};
       for (final entry in manifest.cast<Map<String, dynamic>>()) {
         final family = entry['family'] as String;
-        final fonts = (entry['fonts'] as List<dynamic>)
-            .cast<Map<String, dynamic>>();
-        families.putIfAbsent(family, () => {}).addAll(
+        final fonts = (entry['fonts'] as List<dynamic>).cast<Map<String, dynamic>>();
+        families
+            .putIfAbsent(family, () => {})
+            .addAll(
               fonts.map((f) => (f['weight'] as num?)?.toInt() ?? 400),
             );
       }

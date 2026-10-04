@@ -12,5 +12,23 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+
+    // The summarizer runs on the CPU in the Simulator, whose emulated Metal
+    // makes the GPU backend produce garbage (FlutterGemmaRuntime).
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "NutqDevice") {
+      let channel = FlutterMethodChannel(
+        name: "nutq/device", binaryMessenger: registrar.messenger())
+      channel.setMethodCallHandler { call, result in
+        if call.method == "isSimulator" {
+          #if targetEnvironment(simulator)
+          result(true)
+          #else
+          result(false)
+          #endif
+        } else {
+          result(FlutterMethodNotImplemented)
+        }
+      }
+    }
   }
 }

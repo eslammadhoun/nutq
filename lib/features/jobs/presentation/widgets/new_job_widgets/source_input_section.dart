@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
 import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/file_source_section.dart';
@@ -13,22 +14,19 @@ class SourceInputSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<NewJobCubit, NewJobState>(
-      buildWhen: (previous, current) =>
-          previous.sourceType != current.sourceType,
+      buildWhen: (previous, current) => previous.sourceType != current.sourceType,
       builder: (context, state) {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
           switchInCurve: Curves.easeOut,
           switchOutCurve: Curves.easeIn,
-          transitionBuilder: (child, animation) =>
-              FadeTransition(opacity: animation, child: child),
+          transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
           child: KeyedSubtree(
-            key: ValueKey<NewJobSourceType>(state.sourceType),
+            key: ValueKey<JobSourceType>(state.sourceType),
             child: switch (state.sourceType) {
-              NewJobSourceType.text => const TextSourceSection(),
-              NewJobSourceType.video ||
-              NewJobSourceType.audio => const FileSourceSection(),
-              NewJobSourceType.youtube => const YoutubeSourceSection(),
+              JobSourceType.text => const TextSourceSection(),
+              JobSourceType.video || JobSourceType.audio => const FileSourceSection(),
+              JobSourceType.youtube => const YoutubeSourceSection(),
             },
           ),
         );

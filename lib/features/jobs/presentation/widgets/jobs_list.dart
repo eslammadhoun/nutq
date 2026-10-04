@@ -4,10 +4,11 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:nutq/core/extensions/error_l10n_extension.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/widgets/global_button.dart';
+import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
-import 'package:nutq/features/jobs/presentation/models/job.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_card.dart';
 
 class JobsList extends StatefulWidget {
@@ -34,8 +35,7 @@ class _JobsListState extends State<JobsList> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
       context.read<JobsCubit>().loadMore();
     }
   }
@@ -44,38 +44,41 @@ class _JobsListState extends State<JobsList> {
   Widget build(BuildContext context) {
     return BlocListener<JobsCubit, JobsState>(
       listenWhen: (previous, current) =>
-          current.deleteError != null &&
-          previous.deleteErrorToken != current.deleteErrorToken,
+          current.deleteError != null && previous.deleteErrorToken != current.deleteErrorToken,
       listener: (context, state) {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(
             SnackBar(
-              content: Text(context.l10n.jobsErrorMessage(state.deleteError!)),
+              content: Text(context.l10n.errorMessage(state.deleteError!)),
               backgroundColor: context.appColors.statusFailed,
             ),
           );
       },
       child: BlocBuilder<JobsCubit, JobsState>(
         builder: (context, state) {
-          if (state.status == JobsStatus.loading && state.allJobs.isEmpty) {
+          if (state.status == JobsStatus.loading && state.jobs.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state.status == JobsStatus.failure && state.allJobs.isEmpty) {
+          if (state.status == JobsStatus.failure && state.jobs.isEmpty) {
             return LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
                   padding: EdgeInsets.symmetric(horizontal: 32.w),
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
                     child: Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             state.lastError != null
-                                ? context.l10n.jobsErrorMessage(state.lastError!)
+                                ? context.l10n.errorMessage(
+                                    state.lastError!,
+                                  )
                                 : context.l10n.somethingWentWrong,
                             textAlign: TextAlign.center,
                             style: context.typography.bodySmall.copyWith(
@@ -97,7 +100,7 @@ class _JobsListState extends State<JobsList> {
             );
           }
 
-          final jobs = state.filteredJobs;
+          final jobs = state.jobs;
 
           if (jobs.isEmpty) {
             return RefreshIndicator(
@@ -129,7 +132,7 @@ class _JobsListState extends State<JobsList> {
               itemCount: jobs.length + (state.isLoadingMore ? 1 : 0),
               separatorBuilder: (_, _) => SizedBox(height: 12.h),
               itemBuilder: (context, index) {
-                final Job job = jobs[index];
+                final JobEntity job = jobs[index];
                 if (index >= jobs.length) {
                   return const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
@@ -139,8 +142,7 @@ class _JobsListState extends State<JobsList> {
                 return Dismissible(
                   key: Key(job.id),
                   direction: DismissDirection.endToStart,
-                  onDismissed: (dir) =>
-                      context.read<JobsCubit>().deleteJob(job.id),
+                  onDismissed: (dir) => context.read<JobsCubit>().deleteJob(job.id),
                   background: Container(
                     alignment: AlignmentDirectional.centerEnd,
                     padding: EdgeInsetsDirectional.only(end: 24.w),
@@ -153,7 +155,14 @@ class _JobsListState extends State<JobsList> {
                       color: context.appColors.statusFailed,
                     ),
                   ),
-                  child: JobCard(job: job),
+                  child: GestureDetector(
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      Routes.jobDetail,
+                      arguments: job.id,
+                    ),
+                    child: JobCard(job: job),
+                  ),
                 );
               },
             ),

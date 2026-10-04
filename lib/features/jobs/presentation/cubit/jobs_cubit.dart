@@ -1,91 +1,144 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:async';
 
-import 'package:nutq/core/network/result/api_result.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nutq/core/errors/app_error.dart';
+import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
+import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
-import 'package:nutq/features/jobs/presentation/models/job.dart';
 
+/// The jobs list. The database is the source of truth: the cubit subscribes to
+/// a live query, so jobs created, finished or deleted anywhere appear here
+/// without a manual refresh. Filtering, searching and paging are done by the
+/// query, not in memory.
 class JobsCubit extends Cubit<JobsState> {
-  JobsCubit({required this._repo}) : super(const JobsState());
+  JobsCubit(
+    this._repository, {
+    this.searchDebounce = const Duration(milliseconds: 300),
+  }) : super(const JobsState());
 
-  final JobsRepository _repo;
+  final JobsRepository _repository;
+  final Duration searchDebounce;
 
-  static const _pageSize = 20;
+  static const _pageSize = JobsQuery.defaultLimit;
 
-  Future<void> fetchJobs() async {
-    emit(state.copyWith(status: JobsStatus.loading));
-    final result = await _repo.listJobs(limit: _pageSize);
-    result.when(
-      success: (page) => emit(
-        state.copyWith(
-          status: JobsStatus.success,
-          allJobs: page.items.map(Job.fromEntity).toList(),
-          nextCursor: page.nextCursor,
-          clearNextCursor: page.nextCursor == null,
-        ),
-      ),
-      failure: (error) =>
-          emit(state.copyWith(status: JobsStatus.failure, lastError: error)),
-    );
+  StreamSubscription<List<JobEntity>>? _subscription;
+  Timer? _searchTimer;
+  int _limit = _pageSize;
+  String _appliedSearch = '';
+
+  JobsQuery get _query => JobsQuery(
+    statuses: state.selectedFilter == null ? null : {state.selectedFilter!},
+    text: _appliedSearch,
+    limit: _limit,
+  );
+
+  /// Starts (or restarts) the live query. Completes once the first result — or
+  /// an error — has arrived.
+  Future<void> fetchJobs() {
+    if (state.jobs.isEmpty) emit(state.copyWith(status: JobsStatus.loading));
+    return _subscribe();
   }
 
-  Future<void> refresh() => fetchJobs();
+  /// Pull-to-refresh. The query is live already, so this only re-runs it.
+  Future<void> refresh() => _subscribe();
 
-  Future<void> loadMore() async {
-    if (!state.hasMore || state.isLoadingMore) return;
-
+  Future<void> loadMore() {
+    if (!state.hasMore || state.isLoadingMore) return Future.value();
     emit(state.copyWith(isLoadingMore: true));
-    final result = await _repo.listJobs(
-      cursor: state.nextCursor,
-      limit: _pageSize,
-    );
-    result.when(
-      success: (page) => emit(
-        state.copyWith(
-          allJobs: [...state.allJobs, ...page.items.map(Job.fromEntity)],
-          nextCursor: page.nextCursor,
-          clearNextCursor: page.nextCursor == null,
-          isLoadingMore: false,
-        ),
-      ),
-      failure: (_) => emit(state.copyWith(isLoadingMore: false)),
-    );
+    _limit += _pageSize;
+    return _subscribe();
   }
 
-  void selectFilter(JobStatus? status) {
-    if (status == null) {
-      emit(state.copyWith(clearFilter: true));
-    } else {
-      emit(state.copyWith(selectedFilter: status));
-    }
+  void selectFilter(JobRunStatus? status) {
+    emit(
+      status == null ? state.copyWith(clearFilter: true) : state.copyWith(selectedFilter: status),
+    );
+    _limit = _pageSize;
+    unawaited(_subscribe());
   }
 
   void search(String query) {
     emit(state.copyWith(searchQuery: query));
+    _searchTimer?.cancel();
+    _searchTimer = Timer(searchDebounce, () {
+      if (isClosed || query == _appliedSearch) return;
+      _appliedSearch = query;
+      _limit = _pageSize;
+      unawaited(_subscribe());
+    });
   }
 
-  /// Optimistically removes [jobId] from the list — the swipe-to-delete
-  /// gesture already animates the row away, so the state needs to agree
-  /// before the next rebuild or the row would reappear. Rolled back with
-  /// [deleteError] surfaced if the server call fails.
+  /// Removes the row immediately (the swipe gesture already animated it away),
+  /// then deletes it. If that fails the query is re-run, which brings the row
+  /// back, and the error is surfaced once.
   Future<void> deleteJob(String jobId) async {
-    final previousJobs = state.allJobs;
     emit(
       state.copyWith(
-        allJobs: previousJobs.where((job) => job.id != jobId).toList(),
+        jobs: [
+          for (final j in state.jobs)
+            if (j.id != jobId) j,
+        ],
       ),
     );
-
-    final result = await _repo.deleteJob(jobId);
-    result.when(
-      success: (_) {},
-      failure: (error) => emit(
+    try {
+      await _repository.deleteJob(jobId);
+    } catch (_) {
+      if (isClosed) return;
+      emit(
         state.copyWith(
-          allJobs: previousJobs,
-          deleteError: error,
+          deleteError: AppError.storage,
           deleteErrorToken: state.deleteErrorToken + 1,
         ),
-      ),
-    );
+      );
+      await _subscribe();
+    }
+  }
+
+  Future<void> _subscribe() async {
+    await _subscription?.cancel();
+    final firstResult = Completer<void>();
+    void complete() {
+      if (!firstResult.isCompleted) firstResult.complete();
+    }
+
+    _subscription = _repository
+        .watchJobs(_query)
+        .listen(
+          (entities) {
+            if (isClosed) return;
+            emit(
+              state.copyWith(
+                status: JobsStatus.success,
+                jobs: entities,
+                hasMore: entities.length >= _limit,
+                isLoadingMore: false,
+                clearLastError: true,
+              ),
+            );
+            complete();
+          },
+          onError: (Object _) {
+            if (!isClosed) {
+              emit(
+                state.copyWith(
+                  status: JobsStatus.failure,
+                  isLoadingMore: false,
+                  lastError: AppError.storage,
+                ),
+              );
+            }
+            complete();
+          },
+        );
+    return firstResult.future;
+  }
+
+  @override
+  Future<void> close() async {
+    _searchTimer?.cancel();
+    await _subscription?.cancel();
+    return super.close();
   }
 }

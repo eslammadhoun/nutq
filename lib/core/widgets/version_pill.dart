@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/theme/app_typography.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 /// Small tinted pill showing the app version (Figma splash "v 1.0" badge).
 ///
@@ -52,9 +52,7 @@ class _VersionPillState extends State<VersionPill> {
             context.l10n.versionLabel(version ?? ''),
             style: AppTypography.caption.copyWith(
               fontWeight: FontWeight.w500,
-              color: context.isDark
-                  ? context.appColors.textPrimary
-                  : context.appColors.primary,
+              color: context.isDark ? context.appColors.textPrimary : context.appColors.primary,
             ),
           );
         },

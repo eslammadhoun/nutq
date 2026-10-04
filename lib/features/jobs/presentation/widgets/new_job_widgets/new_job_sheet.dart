@@ -8,7 +8,6 @@ import 'package:nutq/core/extensions/navigation_extension.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
-import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/idempotency_row.dart';
 import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/language_row.dart';
 import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/source_input_section.dart';
 import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/source_type_selector.dart';
@@ -17,8 +16,8 @@ import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/submit_j
 class NewJobSheet extends StatelessWidget {
   const NewJobSheet({super.key, this.onSubmitted});
 
-  /// Called after a job was submitted successfully (upload + confirm done).
-  final VoidCallback? onSubmitted;
+  /// Called with the new job's id after it was saved.
+  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -31,14 +30,14 @@ class NewJobSheet extends StatelessWidget {
         listener: (context, state) {
           switch (state.status) {
             case NewJobStatus.success:
-              onSubmitted?.call();
+              onSubmitted?.call(state.submittedJobId!);
             case NewJobStatus.failure when state.lastError != null:
               ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()
                 ..showSnackBar(
                   SnackBar(
                     content: Text(
-                      context.l10n.jobsErrorMessage(state.lastError!),
+                      context.l10n.errorMessage(state.lastError!),
                     ),
                     backgroundColor: colors.statusFailed,
                   ),
@@ -78,12 +77,25 @@ class NewJobSheet extends StatelessWidget {
                     SizedBox(height: 12.h),
                     const LanguageRow(),
                     SizedBox(height: 8.h),
-                    const IdempotencyRow(),
                     SizedBox(height: 16.h),
                     Flexible(
                       child: SingleChildScrollView(
                         child: const SourceInputSection(),
                       ),
+                    ),
+                    BlocBuilder<NewJobCubit, NewJobState>(
+                      buildWhen: (p, c) => p.sourceType != c.sourceType,
+                      builder: (context, state) => state.isSourceSupported
+                          ? const SizedBox.shrink()
+                          : Padding(
+                              padding: EdgeInsets.only(top: 12.h),
+                              child: Text(
+                                context.l10n.newJobSourceUnavailable,
+                                style: context.typography.bodySmall.copyWith(
+                                  color: colors.statusWarning,
+                                ),
+                              ),
+                            ),
                     ),
                     Padding(
                       padding: EdgeInsets.fromLTRB(0.w, 16.h, 0.w, 12.h),

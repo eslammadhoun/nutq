@@ -25,6 +25,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # pubspec.yaml bundles the on-device model as an asset, but the ~579 MB file
+      # is not in git and no test loads it. An empty placeholder keeps the asset
+      # bundle valid for analyze and test.
+      - name: Create placeholder model asset
+        run: |
+          mkdir -p assets/models
+          : > assets/models/gemma3-1b-arabic-summarizer-v3_q4_block32_ekv2048.litertlm
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+
       - name: Analyze
         run: flutter analyze --fatal-infos
 

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:nutq/core/network/error/api_error.dart';
-import 'package:nutq/features/jobs/presentation/models/job.dart';
+import 'package:nutq/core/errors/app_error.dart';
+import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 
 enum JobsStatus { initial, loading, success, failure }
 
@@ -8,10 +9,10 @@ enum JobsStatus { initial, loading, success, failure }
 class JobsState {
   const JobsState({
     this.status = JobsStatus.initial,
-    this.allJobs = const [],
+    this.jobs = const [],
     this.selectedFilter,
     this.searchQuery = '',
-    this.nextCursor,
+    this.hasMore = false,
     this.isLoadingMore = false,
     this.lastError,
     this.deleteError,
@@ -19,60 +20,47 @@ class JobsState {
   });
 
   final JobsStatus status;
-  final List<Job> allJobs;
-  final JobStatus? selectedFilter;
+
+  /// Jobs matching the current filter and search, newest first.
+  final List<JobEntity> jobs;
+  final JobRunStatus? selectedFilter;
+
+  /// Text in the search field (applied to the query after a short debounce).
   final String searchQuery;
-  final String? nextCursor;
+
+  /// True while more jobs exist beyond the ones loaded.
+  final bool hasMore;
   final bool isLoadingMore;
 
-  /// Raw error from the last failed fetch — localized at display time via
-  /// `context.l10n.jobsErrorMessage(error)` (cubits have no BuildContext).
-  final ApiError? lastError;
+  /// Raw error from the last failed load — localized at display time.
+  final AppError? lastError;
 
-  /// Raw error from the last failed [deleteJob] call — a transient signal
-  /// for a one-off SnackBar, not the list-level [lastError]. Paired with
-  /// [deleteErrorToken] (bumped on every failure) so the UI's `listenWhen`
-  /// still fires when the same error repeats back to back.
-  final ApiError? deleteError;
+  /// Transient signal for a one-off SnackBar, paired with [deleteErrorToken]
+  /// (bumped on every failure) so `listenWhen` fires on repeats.
+  final AppError? deleteError;
   final int deleteErrorToken;
-
-  bool get hasMore => nextCursor != null;
-
-  List<Job> get filteredJobs {
-    final query = searchQuery.trim().toLowerCase();
-    return allJobs.where((job) {
-      final matchesFilter =
-          selectedFilter == null || job.status == selectedFilter;
-      final matchesQuery = query.isEmpty ||
-          job.id.toLowerCase().contains(query) ||
-          (job.subtitle?.toLowerCase().contains(query) ?? false);
-      return matchesFilter && matchesQuery;
-    }).toList();
-  }
 
   JobsState copyWith({
     JobsStatus? status,
-    List<Job>? allJobs,
-    JobStatus? selectedFilter,
+    List<JobEntity>? jobs,
+    JobRunStatus? selectedFilter,
     bool clearFilter = false,
     String? searchQuery,
-    String? nextCursor,
-    bool clearNextCursor = false,
+    bool? hasMore,
     bool? isLoadingMore,
-    ApiError? lastError,
-    ApiError? deleteError,
+    AppError? lastError,
+    bool clearLastError = false,
+    AppError? deleteError,
     int? deleteErrorToken,
-  }) {
-    return JobsState(
-      status: status ?? this.status,
-      allJobs: allJobs ?? this.allJobs,
-      selectedFilter: clearFilter ? null : (selectedFilter ?? this.selectedFilter),
-      searchQuery: searchQuery ?? this.searchQuery,
-      nextCursor: clearNextCursor ? null : (nextCursor ?? this.nextCursor),
-      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-      lastError: lastError,
-      deleteError: deleteError ?? this.deleteError,
-      deleteErrorToken: deleteErrorToken ?? this.deleteErrorToken,
-    );
-  }
+  }) => JobsState(
+    status: status ?? this.status,
+    jobs: jobs ?? this.jobs,
+    selectedFilter: clearFilter ? null : (selectedFilter ?? this.selectedFilter),
+    searchQuery: searchQuery ?? this.searchQuery,
+    hasMore: hasMore ?? this.hasMore,
+    isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+    lastError: clearLastError ? null : (lastError ?? this.lastError),
+    deleteError: deleteError ?? this.deleteError,
+    deleteErrorToken: deleteErrorToken ?? this.deleteErrorToken,
+  );
 }

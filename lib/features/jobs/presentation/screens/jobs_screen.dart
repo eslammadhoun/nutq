@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/theme/app_colors.dart';
 import 'package:nutq/core/widgets/global_text_field.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
@@ -132,15 +133,15 @@ class _JobsScreenState extends State<JobsScreen> {
   }
 
   void _openNewJobSheet(BuildContext context) {
-    final jobsCubit = context.read<JobsCubit>();
+    final navigator = Navigator.of(context);
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) => NewJobSheet(
-        onSubmitted: () {
+        onSubmitted: (jobId) {
           Navigator.of(sheetContext).pop();
-          jobsCubit.refresh();
+          navigator.pushNamed(Routes.jobDetail, arguments: jobId);
         },
       ),
     );

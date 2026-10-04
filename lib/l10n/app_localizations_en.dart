@@ -38,22 +38,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get somethingWentWrong => 'Something went wrong';
 
   @override
-  String get errorNoConnection => 'No internet connection';
-
-  @override
-  String get errorServerUnreachable =>
-      'Can\'t reach the server. Please try again later.';
-
-  @override
-  String get errorTimeout => 'Request timed out';
-
-  @override
-  String get errorInvalidCredentials => 'Invalid credentials';
-
-  @override
-  String get errorLoginAgain => 'Please log in again';
-
-  @override
   String jobFallbackTitle(String id) {
     return 'Job #$id';
   }
@@ -91,16 +75,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validationEmailInvalid => 'Please enter a valid email address';
 
   @override
-  String get validationPasswordLowercase =>
-      'Password must contain at least one lowercase letter';
+  String get validationPasswordLowercase => 'Password must contain at least one lowercase letter';
 
   @override
-  String get validationPasswordUppercase =>
-      'Password must contain at least one uppercase letter';
+  String get validationPasswordUppercase => 'Password must contain at least one uppercase letter';
 
   @override
-  String get validationPasswordNumber =>
-      'Password must contain at least one number';
+  String get validationPasswordNumber => 'Password must contain at least one number';
 
   @override
   String get validationPasswordsMismatch => 'Passwords do not match';
@@ -112,67 +93,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get validationUsernameChars =>
       'Username can only contain letters, numbers, underscores, and hyphens';
-
-  @override
-  String get authEmailLabel => 'Email address';
-
-  @override
-  String get authEmailHint => 'Enter your email';
-
-  @override
-  String get authPasswordLabel => 'Password';
-
-  @override
-  String get authPasswordHidden => '••••••••';
-
-  @override
-  String get authShowPassword => 'Show';
-
-  @override
-  String get authHidePassword => 'Hide';
-
-  @override
-  String get loginWelcomeTitle => 'Welcome back';
-
-  @override
-  String get loginWelcomeSubtitle => 'Sign in to your account to continue';
-
-  @override
-  String get loginSubmit => 'Log In';
-
-  @override
-  String get loginFooterPrompt => 'Don\'t have an account? ';
-
-  @override
-  String get loginFooterAction => 'Sign up';
-
-  @override
-  String get registerWelcomeTitle => 'Create Account';
-
-  @override
-  String get registerWelcomeSubtitle =>
-      'Join Nutq to start transcribing Arabic speech';
-
-  @override
-  String get registerUsernameLabel => 'Username';
-
-  @override
-  String get registerUsernameHint => 'e.g. ahmed_ali';
-
-  @override
-  String get registerConfirmPasswordLabel => 'Confirm password';
-
-  @override
-  String get registerConfirmPasswordHint => 'Repeat your password';
-
-  @override
-  String get registerSubmit => 'Create Account';
-
-  @override
-  String get registerFooterPrompt => 'Already have an account? ';
-
-  @override
-  String get registerFooterAction => 'Log in';
 
   @override
   String get jobsHistoryTitle => 'History';
@@ -187,8 +107,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jobsEmptyTitle => 'No transcriptions yet';
 
   @override
-  String get jobsEmptySubtitle =>
-      'Submit your first Arabic audio, video, \nor text to get started';
+  String get jobsEmptySubtitle => 'Submit your first Arabic audio, video, \nor text to get started';
 
   @override
   String get sourceAudioFile => 'Audio File';
@@ -198,9 +117,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sourceYoutube => 'YouTube';
-
-  @override
-  String get sourceWebUrl => 'Web URL';
 
   @override
   String get sourceText => 'Text';
@@ -233,14 +149,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newJobLanguageEnglish => 'English (EN)';
 
   @override
-  String get newJobIdempotencyKeyLabel => 'Idempotency Key';
-
-  @override
   String get newJobTextLabel => 'Enter or paste your Arabic text';
 
   @override
-  String get newJobTextPlaceholder =>
-      'Example: enter Arabic text here to get a summary...';
+  String get newJobTextPlaceholder => 'Example: enter Arabic text here to get a summary...';
 
   @override
   String newJobCharCounter(int count, int max) {
@@ -305,8 +217,146 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alertsComingSoon => 'Alerts — coming soon';
 
   @override
+  String get jobDetailTitle => 'Job Detail';
+
+  @override
+  String get jobDetailTranscriptionComplete => 'Transcription Complete';
+
+  @override
+  String get jobDetailTranscript => 'Transcript';
+
+  @override
+  String get jobDetailTranscriptPending => 'The transcript isn\'t ready yet.';
+
+  @override
+  String get jobDetailAiSummary => 'AI Summary';
+
+  @override
+  String get jobDetailSummaryPending => 'The summary isn\'t ready yet.';
+
+  @override
+  String get jobDetailDownloadTranscript => 'Download Transcript';
+
+  @override
+  String get jobDetailShare => 'Share';
+
+  @override
+  String get jobDetailCopyText => 'Copy Text';
+
+  @override
+  String get jobDetailKeyTakeaways => 'KEY TAKEAWAYS';
+
+  @override
+  String jobDetailWordCount(int count) {
+    return '$count words';
+  }
+
+  @override
+  String get jobDetailCancelJob => 'Cancel Job';
+
+  @override
+  String get jobDetailCancelling => 'Cancelling…';
+
+  @override
+  String get jobDetailJustNow => 'Just now';
+
+  @override
+  String jobDetailMinutesAgo(int count) {
+    return '$count minutes ago';
+  }
+
+  @override
+  String jobDetailHoursAgo(int count) {
+    return '$count hours ago';
+  }
+
+  @override
+  String jobDetailDaysAgo(int count) {
+    return '$count days ago';
+  }
+
+  @override
+  String get jobDetailShowMore => 'Show more';
+
+  @override
+  String get jobDetailShowLess => 'Show less';
+
+  @override
   String get profileComingSoon => 'Profile — coming soon';
 
   @override
-  String get profileLogOut => 'Log out';
+  String get jobStagePreparing => 'Preparing transcript';
+
+  @override
+  String get jobStageAnalyzing => 'Analyzing transcript';
+
+  @override
+  String get jobStageSummarizing => 'Summarizing sections';
+
+  @override
+  String get jobStageCombining => 'Combining information';
+
+  @override
+  String get jobStageChecking => 'Checking summary';
+
+  @override
+  String get jobStageFinalizing => 'Finalizing';
+
+  @override
+  String get jobStageCompleted => 'Completed';
+
+  @override
+  String jobStageSections(int processed, int total) {
+    return '$processed of $total sections';
+  }
+
+  @override
+  String get jobSummaryNeedsReview =>
+      'Some details in this summary could not be verified against the transcript. Please review it.';
+
+  @override
+  String get jobFailureEmptyTranscript => 'There is no transcript text to summarize.';
+
+  @override
+  String get jobFailureModelUnavailable => 'The on-device summarization model isn\'t available.';
+
+  @override
+  String get jobFailureGenerationFailed => 'The summary could not be generated. Please try again.';
+
+  @override
+  String get newJobSourceUnavailable =>
+      'Only pasted text can be summarized on this device for now. Audio, video and YouTube sources aren\'t available yet.';
+
+  @override
+  String get jobDetailSummaryComplete => 'Summary Complete';
+
+  @override
+  String get errorStorage => 'Couldn\'t access saved jobs on this device. Please try again.';
+
+  @override
+  String get jobDetailNotFound => 'This job no longer exists.';
+
+  @override
+  String get jobFailureInterrupted =>
+      'This job was interrupted because the app was closed before it finished.';
+
+  @override
+  String get jobStageAcquiring => 'Fetching source';
+
+  @override
+  String get jobStageTranscribing => 'Transcribing audio';
+
+  @override
+  String get jobFailureSourceUnavailable =>
+      'The source couldn\'t be reached. Check your connection and try again.';
+
+  @override
+  String get jobFailureUnsupportedMedia => 'This file\'s format isn\'t supported.';
+
+  @override
+  String get jobFailureTranscriptionFailed => 'The audio couldn\'t be transcribed.';
+
+  @override
+  String get jobFailureInsufficientStorage =>
+      'There isn\'t enough free storage to process this job.';
 }

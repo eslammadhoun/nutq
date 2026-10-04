@@ -6,8 +6,13 @@ plugins {
 
 android {
     namespace = "com.nutq.nutq"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // whisper_ggml's native build (whisper.cpp via CMake) requires NDK
+    // 29.0.13113456 and compileSdk 34 — pin explicitly rather than
+    // trusting `flutter.ndkVersion`/`flutter.compileSdkVersion` to already
+    // be new enough, since a mismatch fails the Gradle build outright
+    // rather than just warning.
+    compileSdk = maxOf(flutter.compileSdkVersion, 34)
+    ndkVersion = "29.0.13113456"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

@@ -21,12 +21,6 @@
   "retry": "Retry",
   "somethingWentWrong": "Something went wrong",
 
-  "errorNoConnection": "No internet connection",
-  "errorServerUnreachable": "Can't reach the server. Please try again later.",
-  "errorTimeout": "Request timed out",
-  "errorInvalidCredentials": "Invalid credentials",
-  "errorLoginAgain": "Please log in again",
-
   "jobFallbackTitle": "Job #{id}",
   "@jobFallbackTitle": {
     "placeholders": { "id": { "type": "String" } }
@@ -65,29 +59,6 @@
   "validationNameChars": "Name can only contain letters, spaces, hyphens, and apostrophes",
   "validationUsernameChars": "Username can only contain letters, numbers, underscores, and hyphens",
 
-  "authEmailLabel": "Email address",
-  "authEmailHint": "Enter your email",
-  "authPasswordLabel": "Password",
-  "authPasswordHidden": "••••••••",
-  "authShowPassword": "Show",
-  "authHidePassword": "Hide",
-
-  "loginWelcomeTitle": "Welcome back",
-  "loginWelcomeSubtitle": "Sign in to your account to continue",
-  "loginSubmit": "Log In",
-  "loginFooterPrompt": "Don't have an account? ",
-  "loginFooterAction": "Sign up",
-
-  "registerWelcomeTitle": "Create Account",
-  "registerWelcomeSubtitle": "Join Nutq to start transcribing Arabic speech",
-  "registerUsernameLabel": "Username",
-  "registerUsernameHint": "e.g. ahmed_ali",
-  "registerConfirmPasswordLabel": "Confirm password",
-  "registerConfirmPasswordHint": "Repeat your password",
-  "registerSubmit": "Create Account",
-  "registerFooterPrompt": "Already have an account? ",
-  "registerFooterAction": "Log in",
-
   "jobsHistoryTitle": "History",
   "jobsSearchHint": "Search transcriptions...",
   "jobsFilterAll": "All",
@@ -98,7 +69,6 @@
   "sourceAudioFile": "Audio File",
   "sourceVideo": "Video",
   "sourceYoutube": "YouTube",
-  "sourceWebUrl": "Web URL",
   "sourceText": "Text",
 
   "statusDone": "Done",
@@ -111,7 +81,6 @@
   "newJobLanguageLabel": "Language",
   "newJobLanguageArabic": "Arabic (AR)",
   "newJobLanguageEnglish": "English (EN)",
-  "newJobIdempotencyKeyLabel": "Idempotency Key",
   "newJobTextLabel": "Enter or paste your Arabic text",
   "newJobTextPlaceholder": "Example: enter Arabic text here to get a summary...",
   "newJobCharCounter": "{count} / {max}",
@@ -142,6 +111,62 @@
 
   "alertsComingSoon": "Alerts — coming soon",
 
+  "jobDetailTitle": "Job Detail",
+  "jobDetailTranscriptionComplete": "Transcription Complete",
+  "jobDetailTranscript": "Transcript",
+  "jobDetailTranscriptPending": "The transcript isn't ready yet.",
+  "jobDetailAiSummary": "AI Summary",
+  "jobDetailSummaryPending": "The summary isn't ready yet.",
+  "jobDetailDownloadTranscript": "Download Transcript",
+  "jobDetailShare": "Share",
+  "jobDetailCopyText": "Copy Text",
+  "jobDetailKeyTakeaways": "KEY TAKEAWAYS",
+  "jobDetailWordCount": "{count} words",
+  "@jobDetailWordCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailCancelJob": "Cancel Job",
+  "jobDetailCancelling": "Cancelling…",
+  "jobDetailJustNow": "Just now",
+  "jobDetailMinutesAgo": "{count} minutes ago",
+  "@jobDetailMinutesAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailHoursAgo": "{count} hours ago",
+  "@jobDetailHoursAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailDaysAgo": "{count} days ago",
+  "@jobDetailDaysAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailShowMore": "Show more",
+  "jobDetailShowLess": "Show less",
+
   "profileComingSoon": "Profile — coming soon",
-  "profileLogOut": "Log out"
+
+  "jobStagePreparing": "Preparing transcript",
+  "jobStageAnalyzing": "Analyzing transcript",
+  "jobStageSummarizing": "Summarizing sections",
+  "jobStageCombining": "Combining information",
+  "jobStageChecking": "Checking summary",
+  "jobStageFinalizing": "Finalizing",
+  "jobStageCompleted": "Completed",
+  "jobStageSections": "{processed} of {total} sections",
+  "@jobStageSections": {"placeholders": {"processed": {"type": "int"}, "total": {"type": "int"}}},
+  "jobSummaryNeedsReview": "Some details in this summary could not be verified against the transcript. Please review it.",
+  "jobFailureEmptyTranscript": "There is no transcript text to summarize.",
+  "jobFailureModelUnavailable": "The on-device summarization model isn't available.",
+  "jobFailureGenerationFailed": "The summary could not be generated. Please try again.",
+  "newJobSourceUnavailable": "Only pasted text can be summarized on this device for now. Audio, video and YouTube sources aren't available yet.",
+  "jobDetailSummaryComplete": "Summary Complete",
+  "errorStorage": "Couldn't access saved jobs on this device. Please try again.",
+  "jobDetailNotFound": "This job no longer exists.",
+  "jobFailureInterrupted": "This job was interrupted because the app was closed before it finished.",
+  "jobStageAcquiring": "Fetching source",
+  "jobStageTranscribing": "Transcribing audio",
+  "jobFailureSourceUnavailable": "The source couldn't be reached. Check your connection and try again.",
+  "jobFailureUnsupportedMedia": "This file's format isn't supported.",
+  "jobFailureTranscriptionFailed": "The audio couldn't be transcribed.",
+  "jobFailureInsufficientStorage": "There isn't enough free storage to process this job."
 }

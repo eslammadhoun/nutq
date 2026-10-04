@@ -34,7 +34,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 children: [
                   InkWell(
                     onTap: () {
-                      context.pushNamedAndRemoveUntil(Routes.login);
+                      context.pushNamedAndRemoveUntil(Routes.home);
                       appPreferences.setSeenOnboarding();
                     },
                     child: Text(
@@ -65,7 +65,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
   void changeSelectedIndex(int newIndex) {
     if (newIndex >= 3) {
-      context.pushNamedAndRemoveUntil(Routes.login);
+      context.pushNamedAndRemoveUntil(Routes.home);
       appPreferences.setSeenOnboarding();
       return;
     }

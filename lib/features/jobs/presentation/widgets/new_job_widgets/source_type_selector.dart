@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
 
@@ -11,8 +12,7 @@ class SourceTypeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<NewJobCubit, NewJobState>(
-      buildWhen: (previous, current) =>
-          previous.sourceType != current.sourceType,
+      buildWhen: (previous, current) => previous.sourceType != current.sourceType,
       builder: (BuildContext context, state) {
         final NewJobCubit cubit = context.read<NewJobCubit>();
 
@@ -25,9 +25,8 @@ class SourceTypeSelector extends StatelessWidget {
             color: context.appColors.subtle,
           ),
           child: Row(
-            children: List.generate(NewJobSourceType.values.length, (index) {
-              final bool isSelected =
-                  state.sourceType == NewJobSourceType.values[index];
+            children: List.generate(JobSourceType.values.length, (index) {
+              final bool isSelected = state.sourceType == JobSourceType.values[index];
 
               return Expanded(
                 child: InkWell(
@@ -46,7 +45,7 @@ class SourceTypeSelector extends StatelessWidget {
                           : Colors.transparent,
                     ),
                     child: Text(
-                      _label(context, NewJobSourceType.values[index]),
+                      _label(context, JobSourceType.values[index]),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: context.typography.label2XS.copyWith(
@@ -67,13 +66,13 @@ class SourceTypeSelector extends StatelessWidget {
     );
   }
 
-  String _label(BuildContext context, NewJobSourceType type) {
+  String _label(BuildContext context, JobSourceType type) {
     final l10n = context.l10n;
     return switch (type) {
-      NewJobSourceType.text => l10n.sourceText,
-      NewJobSourceType.video => l10n.sourceVideo,
-      NewJobSourceType.audio => l10n.sourceAudioFile,
-      NewJobSourceType.youtube => l10n.sourceYoutube,
+      JobSourceType.text => l10n.sourceText,
+      JobSourceType.video => l10n.sourceVideo,
+      JobSourceType.audio => l10n.sourceAudioFile,
+      JobSourceType.youtube => l10n.sourceYoutube,
     };
   }
 }

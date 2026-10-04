@@ -46,3 +46,6 @@ app.*.map.json
 
 # Claude Code — share skills/agents/settings.json, keep per-machine settings local
 .claude/settings.local.json
+
+# On-device model binaries (hundreds of MB): provisioned per machine, never committed.
+assets/models/*.litertlm
