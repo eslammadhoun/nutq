@@ -47,6 +47,8 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
     MethodChannel? channel,
     EventChannel? progressChannel,
     bool? isAvailable,
+    this.decodeIncompleteLines = false,
+    this.singleThread = false,
   }) : _channel = channel ?? const MethodChannel(channelName),
        _progress = progressChannel ?? const EventChannel(progressChannelName),
        isAvailable = isAvailable ?? Platform.isIOS;
@@ -72,6 +74,38 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
 
   final MethodChannel _channel;
   final EventChannel _progress;
+
+  /// Moonshine's `decode_incomplete_lines`. Off: every line is decoded once,
+  /// when complete, about 12% less work for a file; the bridge recovers the
+  /// phrase still in progress at the end. On re-decodes the phrase in progress
+  /// on every pass (live captions for someone still talking). Benchmarks
+  /// compare the two.
+  final bool decodeIncompleteLines;
+
+  /// One ONNX Runtime thread instead of the library's spinning thread pool.
+  /// Benchmarks compare the two.
+  final bool singleThread;
+
+  /// The phone's thermal state (`nominal`, `fair`, `serious`, `critical`), so
+  /// benchmarks can wait for a cool phone between runs. Null off iOS.
+  /// CPU time the app has used so far, all threads, in seconds; the
+  /// difference across a run is its work, which is what heats the phone.
+  /// Null off iOS. For benchmarks.
+  Future<double?> cpuSeconds() async {
+    try {
+      return await _channel.invokeMethod<double>('cpuSeconds');
+    } on MissingPluginException {
+      return null;
+    }
+  }
+
+  Future<String?> thermalState() async {
+    try {
+      return await _channel.invokeMethod<String>('thermalState');
+    } on MissingPluginException {
+      return null;
+    }
+  }
 
   @override
   final bool isAvailable;
@@ -122,6 +156,8 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
             'keepLoaded': false,
             'chunkSeconds': chunkSeconds,
             'startFrame': 0,
+            'decodeIncompleteLines': decodeIncompleteLines,
+            'singleThread': singleThread,
           }) ??
           const [];
     } on PlatformException catch (e) {
@@ -137,8 +173,12 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
     }
 
     onProgress?.call(1);
+    final text = textOf(lines);
+    // The live text ends on the transcript that is kept, including the final
+    // phrase the bridge recovers after the stream (see `decodeTail`).
+    onPartialText?.call(text);
     return RecognizedSpeech(
-      text: textOf(lines),
+      text: text,
       modelName: model.name,
       modelVersion: model.version,
     );

@@ -80,6 +80,8 @@ void main() {
     );
     expect(seen, [0, 0.25, 0.75, 1]);
     expect(calls.map((c) => c.method), ['transcribe', 'release']);
+    expect(calls.first.arguments, containsPair('decodeIncompleteLines', false));
+    expect(calls.first.arguments, containsPair('singleThread', false));
   });
 
   test('streams the transcript as it grows: finished lines kept, live lines replaced', () async {
@@ -110,7 +112,12 @@ void main() {
       language: ContentLanguage.ar,
       onPartialText: partials.add,
     );
-    expect(partials, ['مرحبا\nبكم في', 'مرحبا\nبكم في النشرة', 'مرحبا\nبكم في النشرة']);
+    expect(partials, [
+      'مرحبا\nبكم في',
+      'مرحبا\nبكم في النشرة',
+      'مرحبا\nبكم في النشرة',
+      'مرحبا\nبكم في النشرة', // the result, sent once more at the end
+    ]);
     expect(speech.text, partials.last, reason: 'live text ends where the result does');
   });
 
