@@ -35,36 +35,56 @@ ProcessJob ──► MediaTranscriptSource.resolve                        ▼
 
 ## Running in the background
 
-`ios/Runner/JobBridge.swift` (ported from whisper_playground) keeps a media job alive while the user
-is elsewhere, from extraction to the end of transcription:
+`ios/Runner/JobBridge.swift` (ported from whisper_playground) shows a media job on the lock screen
+from start to finish, and keeps it running while the user is elsewhere during transcription.
 
 - **How.** It plays silence through a `.playback` audio session (`UIBackgroundModes: audio` in
   `Info.plist`), so iOS does not suspend the app when it leaves the screen or the phone locks.
-  **Apple rejects apps that do this (App Store Review Guideline 2.5.4).** Before an App Store
-  release this has to be replaced, for example by `BGContinuedProcessingTask` (iOS 26+), which
-  exists for exactly this kind of user-started long task.
-- **Lock screen.** Holding the audio session makes Nutq the "now playing" app: the lock screen,
-  Control Center and Dynamic Island show the file name, a timeline over the audio and play/pause,
-  which pauses Moonshine after the chunk in flight. Starting a job stops whatever the user was
-  listening to, as any media app does.
-- **Interruptions.** If another app takes the audio (music, a call), iOS suspends Nutq soon after.
-  The run freezes rather than failing, a notification says so, and it carries on when the user
-  comes back.
+  **Apple rejects apps that do this (App Store Review Guideline 2.5.4).** Nutq is not going to the
+  App Store for now (October 2026); before it does, this has to be replaced, for example by
+  `BGContinuedProcessingTask` (iOS 26+).
+- **Phases** (`BackgroundJobPhase`, set by `ProcessJob`):
+  - *transcribing*: kept alive; play/pause pauses Moonshine after the chunk in flight.
+  - *summarizing*: iOS allows no GPU work in the background, so the silent audio is paused and
+    the app is not kept alive. The lock screen keeps showing progress while the app is open.
+  - *waitingForApp*: the transcript finished in the background. A notification says to open Nutq,
+    and `ProcessJob` waits on a `ForegroundGate` before summarizing.
+  Leaving the app *during* summarization is not handled: the app is suspended (or a GPU call fails)
+  as for a pasted-text job.
+- **Interruptions.** If another app takes the audio during transcription (music, a call), iOS
+  suspends Nutq soon after. The run freezes rather than failing, a notification says so, and it
+  carries on when the user comes back.
 - **Strings.** The bridge has none of its own. `IosBackgroundJob` sends the `backgroundJob*` ARB
   strings in the app's language at the start of each job; the bridge fills in `{percent}` and
   `{title}`.
-- **Summarizing waits for the app.** iOS does not let a backgrounded app submit GPU work, so
-  `ProcessJob` waits on a `ForegroundGate` before summarizing. A transcription that finishes in the
-  background posts "Transcript ready, open Nutq to summarize", and the summary starts when the user
-  returns. Leaving the app *during* summarization is not handled: the app is suspended (or a GPU
-  call fails) as before this change.
+
+## Progress estimate
+
+The app's progress bar and the lock screen show the same number: estimated time done ÷ estimated
+total time for the whole job (`JobPlan` in `features/jobs/domain/services/job_estimate.dart`). The
+lock-screen timeline is the estimated total, so its playhead moves in real time.
+
+| Step | Estimated from |
+|---|---|
+| Extraction + transcription | audio length × `sourceRealTimeFactor` |
+| Summary | expected output tokens ÷ `outputTokensPerSecond` (all-in: load, prefill, generation) |
+| Expected output tokens | transcript words × summary ratio × `outputTokensPerWord`; before transcription, words = audio length × `spokenWordsPerSecond` |
+
+During the summary, progress is the tokens written so far (summary words × tokens per word)
+against the tokens expected, or the share of sections done if that is further.
+
+The rates start at iPhone XR values and are re-measured after every job, each new measurement
+counting half (`JobRates.afterTranscription` / `afterSummary`), and kept in SharedPreferences
+(`job_rates`). The estimate sharpens as the job learns more (audio length after extraction,
+transcript length after transcription); the bar never goes backwards, so a longer new estimate
+holds it still for a moment and a shorter one moves it ahead.
 
 ## Native setup
 
 | Piece | Where |
 |---|---|
 | Bridge (method channel `nutq/moonshine`, events on `nutq/moonshine/progress`) | `ios/Runner/MoonshineBridge.swift`, registered in `AppDelegate.swift` |
-| Background and lock screen (method channel `nutq/background_job`) | `ios/Runner/JobBridge.swift`, registered in `AppDelegate.swift` |
+| Background and lock screen (method channel `nutq/background_job`: `begin`, `update`, `setPhase`, `setPaused`, `end`) | `ios/Runner/JobBridge.swift`, registered in `AppDelegate.swift` |
 | Framework (not committed) | `third_party/moonshine/Moonshine.xcframework`, from `fetch-framework.sh`, linked by the `MoonshineVoice` pod |
 | Models (not committed) | `ios/Runner/moonshine_models/`, from `fetch-model.sh`, bundled as a folder reference |
 
