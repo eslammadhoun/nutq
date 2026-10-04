@@ -29,6 +29,13 @@ ProcessJob ──► MediaTranscriptSource.resolve                        ▼
   failed or cancelled one, so it is never in memory with Gemma.
 - **Cancel.** `CancellationToken.onCancel` stops the FFmpeg session or tells the bridge to stop
   after the 20 s chunk in flight.
+- **Live transcript.** The bridge feeds Moonshine 5 s of audio per pass and publishes the transcript
+  so far after each one: lines it is done with (sent once, then kept) and the lines still being
+  decoded (replaced every time). `MoonshineSpeechRecognizer` joins them into text, which travels
+  `SourceRequest.onPartialTranscript` → `JobRunPartialTranscript` → `JobLive.partialTranscript`
+  (throttled) → Job Detail. The transcript card shows the newest 8 lines, like captions, until the
+  stored transcript replaces it. 5 s passes cost about 18% more transcription time than 20 s (measured
+  in whisper_playground); the progress estimate learns the real speed.
 - **Background.** See below.
 - **Failures.** Unreadable media → `unsupportedMedia`; missing file → `sourceUnavailable`;
   recognition error → `transcriptionFailed`; disk error while extracting → `insufficientStorage`.
@@ -107,5 +114,4 @@ From whisper_playground, left out of this first cut:
 
 - **Resume after a kill.** The playground checkpoints the stable lines and resumes from that frame.
   Here an interrupted job fails as `interrupted` and is started over.
-- **Live transcript.** The bridge streams partial lines; Job Detail shows only progress.
 - **Android.** No Moonshine bridge yet (the playground's Android work is still in progress).
