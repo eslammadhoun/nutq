@@ -572,6 +572,35 @@ void main() {
       // real-time factor's update is covered in job_estimate_test.dart.
     });
 
+    test(
+      'a media job frees the summarizer before transcribing, and pasted text does not',
+      () async {
+        final source = FakeMediaSource(gate: Completer<void>());
+        await h.dispose();
+        h = JobHarness(extraSources: [source]);
+        // The summarizer is still loaded from an earlier job.
+        await h.gemma.activate();
+        final id = (await h.repo.createJob(
+          NewJobDraft.media(
+            type: JobSourceType.audio,
+            filePath: '/f.m4a',
+            language: ContentLanguage.ar,
+          ),
+        )).id;
+        final done = h.processJob(id).events.drain<void>();
+        await pumpEventQueue();
+        expect(h.gemma.disposals, 1);
+        expect(h.gemma.activated, isFalse, reason: 'not in memory while transcribing');
+        source.gate!.complete();
+        await done;
+        expect(await statusOf(id), JobRunStatus.completed, reason: 'reloaded for the summary');
+
+        final before = h.gemma.disposals;
+        await h.processJob(await h.createJob(sampleTranscript)).events.drain<void>();
+        expect(h.gemma.disposals, before, reason: 'pasted text keeps a loaded model');
+      },
+    );
+
     test('pasted text is never shown outside the app', () async {
       background = _RecordingBackgroundJob();
       await h.dispose();

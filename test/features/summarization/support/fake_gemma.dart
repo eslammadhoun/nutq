@@ -35,8 +35,14 @@ class FakeGemma implements GemmaLocalDataSource {
   @override
   Future<void> cancel() async => cancelled = true;
 
+  /// Times the model was freed, and whether it is loaded now.
+  int disposals = 0;
+
   @override
-  Future<void> dispose() async {}
+  Future<void> dispose() async {
+    disposals++;
+    activated = false;
+  }
 
   @override
   Future<GemmaResponse> generate(

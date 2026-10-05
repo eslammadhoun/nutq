@@ -221,6 +221,13 @@ class ProcessJob {
         if (source.progressShare > 0) {
           background = _background;
           await background.begin(title: job.sourceTitle ?? job.sourceType.name);
+          // The summarizer may still be loaded from the job before (it is freed
+          // only after two idle minutes). Free it now: speech recognition then
+          // has the phone's memory to itself, instead of iOS compressing
+          // memory, which costs CPU and heat, under a 579 MB model it will not
+          // need for many minutes. It reloads in seconds when the summary
+          // starts.
+          await _summarization.release();
         }
         emit(const JobRunProgress(JobProgress(JobStage.preparing, fraction: 0.01)));
 
