@@ -48,6 +48,10 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
   private var loadedDecodeIncomplete = false
   private var loadedSingleThread = false
 
+  /// A single-threaded transcriber with [handle]'s settings, for streams run
+  /// while the app is in the background. See [backgroundTranscriber].
+  private var backgroundHandle: Int32 = -1
+
   /// A second transcriber with the library's default options, loaded only when
   /// a file ends on a phrase the main one never decoded. See [decodeTail].
   private var tailHandle: Int32 = -1
@@ -63,9 +67,6 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
   /// touched on the transcription queue.
   private var unsentFinished: [[String: Any]] = []
 
-  /// Relaxed and total passes of the stream that just ended, for its log line.
-  /// Only touched on the transcription queue.
-  private var lastStreamPasses = (relaxed: 0, total: 0)
 
 
   /// Pause and cancel requests, set from the platform thread and honoured by
@@ -81,6 +82,13 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
   /// transcript: 20 s costs about 18% less than 5 s. Live text then arrives
   /// every 20 s, which nobody sees in the background anyway.
   private static let relaxedChunkSeconds = 20.0
+
+  /// Share of one core transcription averages while the app is in the
+  /// background. iOS kills a background app that averages more than 80% of a
+  /// core over a minute (`cpu_resource_fatal`, "exceeding limit of 80% cpu
+  /// over 60 seconds"), which ended a 2-hour job on an iPhone XR. 60% leaves
+  /// room for the app's other threads.
+  private static let backgroundCpuShare = 0.6
 
   /// Transcription is CPU-bound and long, so it runs off the platform thread
   /// to keep the UI responsive.
@@ -349,9 +357,13 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
       try audio.seek(toFrame: startFrame)
       let started = DispatchTime.now().uptimeNanoseconds
       let pausedBefore = control.pausedSeconds
+      // Each stream runs in the mode that fits where the app is now: the
+      // library's thread pool on screen, one paced thread in the background.
+      let background = !appActive.get()
       let pass = try transcribeOneStream(
-        transcriber: transcriber, audio: audio, startFrame: startFrame,
-        chunkFrames: chunkFrames, buffer: &buffer)
+        transcriber: background ? try backgroundTranscriber() : transcriber, audio: audio,
+        startFrame: startFrame, chunkFrames: chunkFrames, buffer: &buffer,
+        background: background)
       streams += 1
       finished += pass.lines
       unsentFinished += pass.lines
@@ -364,14 +376,16 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
       let streamAudio = Double(endFrame - startFrame) / Double(Self.sampleRate)
       let streamSeconds = Self.seconds(since: started) - (control.pausedSeconds - pausedBefore)
       // `relaxed` is how many of the stream's passes used the larger chunk
-      // (app off screen or phone hot).
+      // (app off screen or phone hot); `background` streams ran on one paced
+      // thread and rested `rested` seconds of their time.
       NSLog(
         "[moonshine] stream %d audio=%.0f-%.0fs infer=%.1fs rtf=%.3f thermal=%@ relaxed=%d/%d "
-          + "footprint=%dMB",
+          + "background=%d rested=%.0fs footprint=%dMB",
         streams, Double(startFrame) / Double(Self.sampleRate),
         Double(endFrame) / Double(Self.sampleRate), streamSeconds,
         streamAudio > 0 ? streamSeconds / streamAudio : 0, Self.thermalState() as NSString,
-        lastStreamPasses.relaxed, lastStreamPasses.total, Self.footprintMegabytes())
+        pass.relaxedPasses, pass.totalPasses, background ? 1 : 0, pass.restedSeconds,
+        Self.footprintMegabytes())
 
       guard let resumeFrame = pass.resumeFrame else { break }
       startFrame = resumeFrame
@@ -399,8 +413,11 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
   /// visible through the `covered` figure in the log.
   private func transcribeOneStream(
     transcriber: Int32, audio: WavStream, startFrame: Int, chunkFrames: Int,
-    buffer: inout [Float]
-  ) throws -> (lines: [[String: Any]], resumeFrame: Int?) {
+    buffer: inout [Float], background: Bool
+  ) throws -> (
+    lines: [[String: Any]], resumeFrame: Int?, relaxedPasses: Int, totalPasses: Int,
+    restedSeconds: Double
+  ) {
     let stream = moonshine_create_stream(transcriber, 0)
     guard stream >= 0 else {
       throw MoonshineError.failed(
@@ -416,7 +433,7 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
     var fed = 0
     var relaxedPasses = 0
     var totalPasses = 0
-    defer { lastStreamPasses = (relaxedPasses, totalPasses) }
+    var restedSeconds = 0.0
 
     // Adding audio is cheap and buffers only; the analysis happens in
     // moonshine_transcribe_stream, which is why progress is reported per chunk
@@ -425,56 +442,87 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
       // Blocks here while paused; throws once cancelled.
       try control.checkpoint()
 
-      let pass = passFrames(requested: chunkFrames)
-      if pass.relaxed { relaxedPasses += 1 }
-      totalPasses += 1
-      let frames = try audio.read(maxFrames: pass.frames, into: &buffer)
-      if frames == 0 { break }
+      // Each pass in its own autorelease pool. This loop runs for the whole
+      // file on one queue block, so objects Foundation autoreleases (the Data
+      // of every audio read) were only freed when the job ended: ~10 MB per
+      // 5-minute stream, 500 MB by the end of a 2-hour file, which left no
+      // room to load the summarizer afterwards.
+      let outcome: PassOutcome = try autoreleasepool {
+        let pass = passFrames(requested: chunkFrames)
+        if pass.relaxed { relaxedPasses += 1 }
+        totalPasses += 1
+        let passStarted = DispatchTime.now().uptimeNanoseconds
+        let frames = try audio.read(maxFrames: pass.frames, into: &buffer)
+        if frames == 0 { return .ended }
 
-      try buffer.withUnsafeBufferPointer { pointer in
+        try buffer.withUnsafeBufferPointer { pointer in
+          try check(
+            moonshine_transcribe_add_audio_to_stream(
+              transcriber, stream, pointer.baseAddress!, UInt64(frames),
+              Int32(Self.sampleRate), 0),
+            "add_audio_to_stream")
+        }
         try check(
-          moonshine_transcribe_add_audio_to_stream(
-            transcriber, stream, pointer.baseAddress!, UInt64(frames),
-            Int32(Self.sampleRate), 0),
-          "add_audio_to_stream")
-      }
-      try check(
-        moonshine_transcribe_stream(transcriber, stream, 0, &transcriptPtr),
-        "transcribe_stream")
-      fed += frames
+          moonshine_transcribe_stream(transcriber, stream, 0, &transcriptPtr),
+          "transcribe_stream")
+        fed += frames
 
-      let current = transcriptPtr.map { Self.copySegments(from: $0, offset: offset) } ?? []
+        let current = transcriptPtr.map { Self.copySegments(from: $0, offset: offset) } ?? []
 
-      // Where a killed run could pick up: the end of this stream's last
-      // finished line, or the stream's start before any line has finished.
-      // The same seam a stream switch uses, so no word is cut. Sent with every
-      // event; the receiver saves it only when it moves.
-      var checkpoint = (frame: startFrame, stable: 0)
-      if let transcript = transcriptPtr, let last = Self.lastCompleteLine(in: transcript) {
-        let endFrame = Int((Double(last.end) * Double(Self.sampleRate)).rounded())
-        if endFrame > 0 {
-          // `current` skips empty lines, so count the finished ones the same way.
-          let stable = Self.copySegments(from: transcript, offset: offset, throughLine: last.index)
-          checkpoint = (startFrame + endFrame, stable.count)
+        // Where a killed run could pick up: the end of this stream's last
+        // finished line, or the stream's start before any line has finished.
+        // The same seam a stream switch uses, so no word is cut. Sent with
+        // every event; the receiver saves it only when it moves.
+        var checkpoint = (frame: startFrame, stable: 0)
+        let lastComplete = transcriptPtr.flatMap { Self.lastCompleteLine(in: $0) }
+        if let transcript = transcriptPtr, let last = lastComplete {
+          let endFrame = Int((Double(last.end) * Double(Self.sampleRate)).rounded())
+          if endFrame > 0 {
+            // `current` skips empty lines, so count the finished ones the same way.
+            let stable = Self.copySegments(
+              from: transcript, offset: offset, throughLine: last.index)
+            checkpoint = (startFrame + endFrame, stable.count)
+          }
         }
-      }
-      reportProgress(
-        audio.frameCount > 0 ? Double(startFrame + fed) / Double(audio.frameCount) : 1,
-        live: current, checkpoint: checkpoint)
+        reportProgress(
+          audio.frameCount > 0 ? Double(startFrame + fed) / Double(audio.frameCount) : 1,
+          live: current, checkpoint: checkpoint)
 
-      // Retire the stream at a line boundary. If no line has completed yet —
-      // one unbroken stretch of speech — keep going: that is rare, and cutting
-      // mid-phrase would lose words.
-      if fed >= rotationFrames, let transcript = transcriptPtr,
-        let lastComplete = Self.lastCompleteLine(in: transcript)
-      {
-        let endFrame = Int((Double(lastComplete.end) * Double(Self.sampleRate)).rounded())
-        if endFrame > 0 {
-          let kept = Self.copySegments(
-            from: transcript, offset: offset, throughLine: lastComplete.index)
-          return (kept, startFrame + endFrame)
+        // In the background, rest after each pass so the app averages about
+        // [backgroundCpuShare] of one core (see [backgroundCpuShare]).
+        if background {
+          let worked = Self.seconds(since: passStarted)
+          let rest = worked * (1 / Self.backgroundCpuShare - 1)
+          restedSeconds += rest
+          try control.rest(seconds: rest)
         }
+
+        // Retire the stream at a line boundary: when it has run long enough,
+        // or when the app went to or came back from the background, so the
+        // next stream runs in the mode that fits. If no line has completed yet
+        // (one unbroken stretch of speech), a long stream keeps going, since
+        // cutting mid-phrase would lose words; a change of mode cannot wait,
+        // so it restarts from this stream's start instead.
+        let modeChanged = background == appActive.get()
+        guard fed >= rotationFrames || modeChanged else { return .next }
+        if let transcript = transcriptPtr, let last = lastComplete {
+          let endFrame = Int((Double(last.end) * Double(Self.sampleRate)).rounded())
+          if endFrame > 0 {
+            let kept = Self.copySegments(
+              from: transcript, offset: offset, throughLine: last.index)
+            return .retire(kept, startFrame + endFrame)
+          }
+        }
+        return modeChanged ? .retire([], startFrame) : .next
       }
+
+      switch outcome {
+      case .next: continue
+      case .ended: break
+      case .retire(let kept, let resumeFrame):
+        return (kept, resumeFrame, relaxedPasses, totalPasses, restedSeconds)
+      }
+      break
     }
 
     // Stopping keeps the leftover audio and lets the final call analyse it even
@@ -491,7 +539,7 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
     // `decode_incomplete_lines` off the last phrase has no text yet.
     let decoded = Self.copySegments(from: transcript, offset: offset)
     let tail = loadedDecodeIncomplete ? [] : try decodeTail(of: transcript, offset: offset)
-    return (decoded + tail, nil)
+    return (decoded + tail, nil, relaxedPasses, totalPasses, restedSeconds)
   }
 
   /// The last line Moonshine has finished with, and where it ends in seconds
@@ -695,6 +743,27 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
     return recovered
   }
 
+  /// The transcriber for background streams: one thread, so pacing can hold
+  /// the app under iOS's background CPU limit. The library's pool would use
+  /// two or three cores between rests. Loaded the first time the app leaves
+  /// the screen during a run.
+  private func backgroundTranscriber() throws -> Int32 {
+    if backgroundHandle >= 0 { return backgroundHandle }
+    guard let path = loadedModelPath else {
+      throw MoonshineError.failed("no transcriber loaded")
+    }
+    setenv("MOONSHINE_ORT_SINGLE_THREAD", "1", 1)
+    defer { if !loadedSingleThread { unsetenv("MOONSHINE_ORT_SINGLE_THREAD") } }
+    let loaded = Self.loadTranscriber(
+      path: path, modelArch: loadedModelArch, decodeIncomplete: loadedDecodeIncomplete)
+    if loaded < 0 {
+      throw MoonshineError.failed(
+        "load background transcriber: \(String(cString: moonshine_error_to_string(loaded)))")
+    }
+    backgroundHandle = loaded
+    return loaded
+  }
+
   /// Turns a model reference into a directory on disk.
   ///
   /// Absolute paths are used as-is. A bare name is looked up inside the app
@@ -731,6 +800,10 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
     if tailHandle >= 0 {
       moonshine_free_transcriber(tailHandle)
       tailHandle = -1
+    }
+    if backgroundHandle >= 0 {
+      moonshine_free_transcriber(backgroundHandle)
+      backgroundHandle = -1
     }
   }
 
@@ -907,6 +980,16 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
   }
 }
 
+/// What one pass of a stream decided.
+private enum PassOutcome {
+  /// Keep feeding this stream.
+  case next
+  /// The audio ended.
+  case ended
+  /// Retire the stream: keep these lines and resume the file at this frame.
+  case retire([[String: Any]], Int)
+}
+
 /// A Bool shared between the main thread and the transcription queue.
 private final class AtomicFlag {
   private let lock = NSLock()
@@ -965,6 +1048,17 @@ private final class RunControl {
     paused = value
     condition.broadcast()
     condition.unlock()
+  }
+
+  /// Waits [seconds] without using CPU, ending early if the run is cancelled.
+  /// Time spent here is not counted as paused: it is part of the work's pace.
+  func rest(seconds: Double) throws {
+    guard seconds > 0 else { return }
+    condition.lock()
+    defer { condition.unlock() }
+    let deadline = Date().addingTimeInterval(seconds)
+    while !cancelled, condition.wait(until: deadline) {}
+    if cancelled { throw MoonshineError.cancelled }
   }
 
   /// Returns straight away unless paused, in which case it waits for resume
