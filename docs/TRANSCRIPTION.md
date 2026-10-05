@@ -58,6 +58,31 @@ makes heat without making progress:
 - **Streamed text at most 4 times a second.** Live transcript and summary updates are coalesced
   (`JobRunner.partialInterval`, 250 ms), since each one re-lays-out the growing text.
 
+- **The summarizer is freed before transcription.** Gemma (579 MB) is otherwise kept for two idle
+  minutes after a job, so a media job started soon after another transcribed next to it, with iOS
+  compressing memory under it.
+- **Each line is decoded once.** Moonshine's `decode_incomplete_lines` (on by default) re-decodes
+  the phrase in progress on every pass for live captions; off, a line is decoded when complete. The
+  phrase still in progress when a file ends is decoded from its own audio (`decodeTail`), so it is
+  not lost, which is why whisper_playground had turned the option back on.
+
+### Benchmarks (`integration_test/moonshine_benchmark_test.dart`)
+
+64 minutes of Arabic speech, October 2026. Same words in every row (±2, recognition noise).
+
+| Setting | iPhone XR | XR CPU time | Simulator | Simulator CPU time |
+|---|---|---|---|---|
+| Library default | | | 96.5 s | 364 s |
+| Complete lines only, thread pool (**shipped**) | **312.6 s, rtf 0.081** | 844 s | 88.3 s | 309 s |
+| Complete lines only, 1 thread | 348.4 s, rtf 0.090 | 356 s | 136.2 s | 138 s |
+
+- On the XR the thread pool stays ~11% faster than one thread at every heat level, though it
+  reaches `serious` after ~1 minute against ~4 and does 2.4× the work. Speed wins, so the pool
+  stays; `singleThread` is kept for benchmarks.
+- Two transcribers running at once (parallel workers on halves of a file) were the fastest on the
+  Simulator, but two identical runs returned different transcripts: the library is not safe to run
+  concurrently. Not used.
+
 The log keeps `thermal=` on every stream line, so a slow run can be told apart: a climbing rtf at
 `nominal` is a code problem; at `serious` it is the phone.
 
