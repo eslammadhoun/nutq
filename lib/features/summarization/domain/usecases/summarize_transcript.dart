@@ -127,6 +127,9 @@ class SummarizeTranscript {
       tokensPerWord: tokensPerWord,
       maxWords: config.sectionWords(ratio),
     );
+    // Counting is over: free its session before writing, so only one KV cache
+    // is in memory while the sections are written.
+    await repository.doneCounting();
     token.throwIfCancelled();
 
     // Paragraphs so far, each anchored at the first source unit it covers.

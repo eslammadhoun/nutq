@@ -35,6 +35,12 @@ class FakeGemma implements GemmaLocalDataSource {
   @override
   Future<void> cancel() async => cancelled = true;
 
+  /// Times the token-counting session was closed.
+  int tokenizerCloses = 0;
+
+  @override
+  Future<void> closeTokenizer() async => tokenizerCloses++;
+
   /// Times the model was freed, and whether it is loaded now.
   int disposals = 0;
 

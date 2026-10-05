@@ -77,6 +77,10 @@ abstract class SummarizationRepository {
   /// Model-tokenizer token count.
   Future<int> countTokens(String text);
 
+  /// Frees what token counting holds. Called once the sections are planned,
+  /// before any is written, so generation has the memory to itself.
+  Future<void> doneCounting();
+
   /// Tokens the section prompt takes around its text.
   Future<int> promptOverheadTokens(ContentLanguage language);
 

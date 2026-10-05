@@ -50,6 +50,17 @@ void main() {
     expect(sent.indexOf('رقم 0 '), lessThan(sent.indexOf('رقم 5 ')));
   });
 
+  test('frees the token-counting session before writing the first section', () async {
+    final closesAtCall = <int>[];
+    gemma.responder = (prompt, call) async {
+      closesAtCall.add(gemma.tokenizerCloses);
+      return 'النقطة رقم $call.';
+    };
+    await summarize(arabicTranscript(6), _config);
+    expect(closesAtCall.first, 1, reason: 'closed once, before any section was written');
+    expect(gemma.tokenizerCloses, 1);
+  });
+
   test('a longer summary length means smaller sections and more calls', () async {
     Future<int> callsFor(SummaryLength length) async {
       final g = FakeGemma();
