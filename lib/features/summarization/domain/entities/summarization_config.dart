@@ -14,7 +14,7 @@ class SummarizationConfig {
     this.wordsPerCall = 80,
     this.keyPointFactor = 1.0,
     this.minWordsToSummarize = 20,
-    this.debugLogging = !kReleaseMode,
+    this.debugLogging = true,
   });
 
   final SummaryLength length;
@@ -37,9 +37,10 @@ class SummarizationConfig {
   /// as its own summary.
   final int minWordsToSummarize;
 
-  /// Logs one `[summarizer]` line per run, counts and timings only, never
-  /// transcript content. On in debug and profile builds, so device benchmarks
-  /// (`flutter run --profile`) report it.
+  /// Logs a `[summarizer]` line per section and one per run: counts,
+  /// timings, memory and heat only, never transcript content. On in every
+  /// build, release included, so a slow run on a phone can be explained from
+  /// its device log.
   final bool debugLogging;
 
   /// Summary length as a share of the source: 15% for a few-minute clip,

@@ -7,6 +7,7 @@ import 'package:nutq/core/locale/locale_cubit.dart';
 import 'package:nutq/core/preferences/app_preferences.dart';
 import 'package:nutq/core/utils/background_work.dart';
 import 'package:nutq/core/utils/lifecycle_foreground_gate.dart';
+import 'package:nutq/core/utils/platform_device_status.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/media/platform_media_files.dart';
 import 'package:nutq/features/jobs/data/preferences/shared_preferences_job_rates_store.dart';
@@ -77,6 +78,7 @@ void _registerSummarization() {
       () => SummarizeTranscript(
         repository: sl<SummarizationRepository>(),
         background: const IsolateBackgroundWork(),
+        device: const PlatformDeviceStatus(),
       ),
     );
 }

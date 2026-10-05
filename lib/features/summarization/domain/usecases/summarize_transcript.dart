@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:nutq/core/domain/cancellation.dart';
+import 'package:nutq/core/domain/device_status.dart';
 import 'package:nutq/core/utils/background_work.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
@@ -67,6 +68,7 @@ class SummarizeTranscript {
   const SummarizeTranscript({
     required this.repository,
     this.background = const InlineBackgroundWork(),
+    this.device = const NoDeviceStatus(),
   });
 
   final SummarizationRepository repository;
@@ -74,6 +76,9 @@ class SummarizeTranscript {
   /// Where the pure, CPU-heavy source analysis runs (257 ms for a 100-minute
   /// lecture). The app passes an isolate-backed one so it never blocks the UI.
   final BackgroundWork background;
+
+  /// Memory and heat for the per-section log lines.
+  final DeviceStatus device;
 
   /// Throws [SummarizationFailure] or [CancelledException].
   Future<SummaryResult> call(
@@ -160,6 +165,8 @@ class SummarizeTranscript {
     for (var i = 0; i < sections.length; i++) {
       report(SummarizationStage.summarizing, i, sections.length);
       final section = sections[i];
+      final statsBefore = repository.stats;
+      final sectionWatch = Stopwatch()..start();
       var added = await write(section);
 
       final expected = section.fold<int>(0, (sum, u) => sum + u.wordCount) * ratio;
@@ -172,6 +179,20 @@ class SummarizeTranscript {
         added += await write(keys);
       }
       if (added == 0) dropped++;
+      if (config.debugLogging) {
+        final words = section.fold<int>(0, (sum, u) => sum + u.wordCount);
+        debugPrint(
+          _sectionLogLine(
+            i + 1,
+            sections.length,
+            words,
+            statsBefore,
+            repository.stats,
+            sectionWatch.elapsedMilliseconds,
+            await device.snapshot(),
+          ),
+        );
+      }
     }
 
     final summary = assembled();
@@ -197,7 +218,10 @@ class SummarizeTranscript {
       coverage: tracker.ratio(summary),
     );
     if (config.debugLogging) {
-      debugPrint(_logLine(debug, stats, sourceWords, _wordCount(summary), tracker));
+      debugPrint(
+        '${_logLine(debug, stats, sourceWords, _wordCount(summary), tracker)} '
+        '${await device.snapshot()}',
+      );
     }
     return SummaryResult(summary: summary, needsReview: dropped > 0, debug: debug);
   }
@@ -313,6 +337,32 @@ class SummarizeTranscript {
 
   /// Same shape as gemma_playground's `[summarizer]` line, so device runs can
   /// be compared across the two apps. Counts and timings only.
+  /// One section: its source words, the model calls' tokens and timings
+  /// (prefill reads the prompt, decode writes the summary), and the app's
+  /// memory and the phone's heat right after. A slow section at
+  /// `thermal=serious` is the phone; slow decode with a large footprint
+  /// points at memory pressure.
+  static String _sectionLogLine(
+    int index,
+    int total,
+    int sourceWords,
+    GenerationStats before,
+    GenerationStats after,
+    int elapsedMs,
+    DeviceSnapshot device,
+  ) {
+    String s(int ms) => '${(ms / 1000).toStringAsFixed(1)}s';
+    final input = after.inputTokens - before.inputTokens;
+    final output = after.outputTokens - before.outputTokens;
+    final prefill = after.prefillTimeMs - before.prefillTimeMs;
+    final decode = after.generationTimeMs - before.generationTimeMs - prefill;
+    final decodeTps = decode > 0 ? output * 1000 / decode : 0;
+    return '[summarizer] section $index/$total words=$sourceWords '
+        'calls=${after.calls - before.calls} in=${input}tok out=${output}tok '
+        'prefill=${s(prefill)} decode=${s(decode)} '
+        'decode_tps=${decodeTps.toStringAsFixed(1)} total=${s(elapsedMs)} $device';
+  }
+
   String _logLine(
     SummaryDebugInfo d,
     GenerationStats stats,
