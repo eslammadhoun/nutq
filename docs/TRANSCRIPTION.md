@@ -66,6 +66,17 @@ makes heat without making progress:
   phrase still in progress when a file ends is decoded from its own audio (`decodeTail`), so it is
   not lost, which is why whisper_playground had turned the option back on.
 
+- **The app stays under iOS's background CPU limit.** iOS kills a background app that averages
+  more than 80% of one core over a minute (`cpu_resource_fatal`); that ended a 2-hour job on an
+  iPhone XR. When Nutq leaves the screen, the stream in progress retires at the next line boundary
+  and the next ones run on a single-threaded transcriber that rests after each pass to average 60%
+  of a core (`backgroundCpuShare`). Back on screen, the next stream returns to the thread pool. iOS
+  also lowers a background app's CPU priority, so background streams are slower: rtf ~0.25 on the
+  Simulator against 0.023 on screen. Log lines carry `background=1 rested=29s`.
+- **Memory stays flat over long files.** Each pass runs in its own autorelease pool. The audio reads'
+  buffers used to pile up until the job ended, ~10 MB per 5-minute stream (500 MB after 2 hours),
+  which left no room to load the summarizer afterwards; now +1.4 MB per stream on the Simulator.
+
 ### Benchmarks (`integration_test/moonshine_benchmark_test.dart`)
 
 64 minutes of Arabic speech, October 2026. Same words in every row (±2, recognition noise).
