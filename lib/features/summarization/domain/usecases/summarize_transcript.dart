@@ -14,6 +14,7 @@ import 'package:nutq/features/summarization/domain/repositories/summarization_re
 import 'package:nutq/features/summarization/domain/text/coverage.dart';
 import 'package:nutq/features/summarization/domain/text/key_line_extractor.dart';
 import 'package:nutq/features/summarization/domain/text/output_format.dart';
+import 'package:nutq/features/summarization/domain/text/takeaways.dart';
 import 'package:nutq/features/summarization/domain/text/transcript_cleaner.dart';
 
 /// An event on the stream returned by [SummarizeTranscript.stream].
@@ -299,7 +300,18 @@ class SummarizeTranscript {
         '${await device.snapshot()}',
       );
     }
-    return SummaryResult(summary: summary, needsReview: dropped > 0, debug: debug);
+    return SummaryResult(
+      summary: summary,
+      keyPoints: pickTakeaways(
+        summary,
+        keySources: tracker.important,
+        ignore: tracker.topicTerms,
+        // One per paragraph at most, three to five.
+        max: paragraphs.length.clamp(3, 5),
+      ),
+      needsReview: dropped > 0,
+      debug: debug,
+    );
   }
 
   /// Runs the pipeline and streams progress as it happens, ending with one
