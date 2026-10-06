@@ -64,6 +64,17 @@ class PlatformMediaFiles implements MediaFiles {
   }
 
   @override
+  Future<int> storageBytes() async {
+    final dir = await _storage();
+    if (!await dir.exists()) return 0;
+    var total = 0;
+    await for (final entity in dir.list()) {
+      if (entity is File) total += await entity.length();
+    }
+    return total;
+  }
+
+  @override
   Future<String> import(UploadFile file) async {
     final dir = await (await _storage()).create(recursive: true);
     final target = p.join(dir.path, '${_newId()}${p.extension(file.path).toLowerCase()}');

@@ -10,4 +10,7 @@ abstract interface class MediaFiles {
   /// Moves a picked file into app storage, where it stays until its job is
   /// deleted. Returns the new path. Throws `FileSystemException` on failure.
   Future<String> import(UploadFile file);
+
+  /// Bytes the imported media files take, for the Settings storage line.
+  Future<int> storageBytes();
 }
