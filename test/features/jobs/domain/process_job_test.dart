@@ -31,6 +31,9 @@ class _ManualGate implements ForegroundGate {
   bool get isInForeground => _open.isCompleted;
 
   @override
+  Stream<bool> get changes => const Stream.empty();
+
+  @override
   Future<void> whenInForeground(CancellationToken cancellation) async {
     waits++;
     final cancelled = Completer<void>();

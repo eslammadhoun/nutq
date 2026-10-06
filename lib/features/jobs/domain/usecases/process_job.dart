@@ -322,6 +322,12 @@ class ProcessJob {
             case SummarizationProgressUpdate(:final progress):
               summaryProgress = progress;
               reportSummary();
+            case SummarizationPausedUpdate(:final paused):
+              // The app left mid-summary: say so on the lock screen until it
+              // is back.
+              await background.setPhase(
+                paused ? BackgroundJobPhase.waitingForApp : BackgroundJobPhase.summarizing,
+              );
             case SummarizationPartialSummaryUpdate(:final text):
               summaryWords = _wordCount(text);
               reportSummary();

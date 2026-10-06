@@ -60,6 +60,8 @@ class FakeGemma implements GemmaLocalDataSource {
     prompts.add(prompt);
     if (failEverything) throw const GemmaGenerationException('boom');
     final scripted = await responder?.call(prompt, prompts.length);
+    // A stop requested while the call was in flight, as the real model does.
+    if (cancelled) throw const CancelledException();
     final text = scripted ?? defaultResponse(prompt);
     if (onPartial != null) {
       // Stream word by word, yielding between words so events interleave.

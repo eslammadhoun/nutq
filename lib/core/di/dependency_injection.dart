@@ -79,6 +79,7 @@ void _registerSummarization() {
         repository: sl<SummarizationRepository>(),
         background: const IsolateBackgroundWork(),
         device: const PlatformDeviceStatus(),
+        foreground: const LifecycleForegroundGate(),
       ),
     );
 }

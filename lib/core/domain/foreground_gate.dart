@@ -13,6 +13,11 @@ abstract interface class ForegroundGate {
   /// next comes back. Throws `CancelledException` if [cancellation] is
   /// cancelled while waiting.
   Future<void> whenInForeground(CancellationToken cancellation);
+
+  /// Emits whenever the app goes to the background (`false`, the app is no
+  /// longer visible) or comes back (`true`). A passing overlay such as Control
+  /// Center is not a departure. Broadcast; listening has no side effects.
+  Stream<bool> get changes;
 }
 
 /// For tests and platforms where background GPU work is not an issue.
@@ -25,4 +30,7 @@ class AlwaysInForeground implements ForegroundGate {
   @override
   Future<void> whenInForeground(CancellationToken cancellation) async =>
       cancellation.throwIfCancelled();
+
+  @override
+  Stream<bool> get changes => const Stream.empty();
 }

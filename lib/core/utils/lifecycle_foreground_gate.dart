@@ -19,6 +19,24 @@ class LifecycleForegroundGate implements ForegroundGate {
   }
 
   @override
+  Stream<bool> get changes {
+    late final StreamController<bool> controller;
+    AppLifecycleListener? listener;
+    controller = StreamController<bool>.broadcast(
+      onListen: () => listener = AppLifecycleListener(
+        onHide: () => controller.add(false),
+        onResume: () => controller.add(true),
+      ),
+      onCancel: () {
+        listener?.dispose();
+        listener = null;
+        unawaited(controller.close());
+      },
+    );
+    return controller.stream;
+  }
+
+  @override
   Future<void> whenInForeground(CancellationToken cancellation) async {
     cancellation.throwIfCancelled();
     if (_inForeground) return;
