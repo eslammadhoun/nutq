@@ -41,7 +41,15 @@ JobDetailCubit = watchJob(id)  (durable state, from the database)
 ## Adding a source type
 
 Audio and video are implemented by `MediaTranscriptSource` (iOS, see `docs/TRANSCRIPTION.md`).
-YouTube is the one left.
+YouTube by `YouTubeTranscriptSource`, which reads the video's **subtitles** in the job's language
+(a person's first, YouTube's auto-generated otherwise) through `SubtitleProvider` /
+`YouTubeSubtitleProvider` (`youtube_explode_dart`, pure Dart, every platform): no download and no
+speech recognition. No subtitles in that language fails as `noSubtitles`; offline or a removed or
+private video as `sourceUnavailable`. The official Data API gives captions only to a video's owner,
+so this reads them unofficially, as the YouTube apps do; YouTube can change that at any time.
+
+A source that does not transcribe audio sets `transcribesAudio` false, so the duration it reports
+does not drive the time estimate or the learned transcription speed.
 
 1. **Implement `TranscriptSource`** (`features/jobs/domain/sources/`):
    - `type`: the `JobSourceType` it handles.
