@@ -18,6 +18,26 @@ void main() {
     source = GemmaLocalDataSourceImpl(runtime);
   });
 
+  group('token counting', () {
+    test('keeps one tokenizer session until closed, then opens a new one', () async {
+      await source.countTokens('أ ب');
+      await source.countTokens('ج');
+      expect(runtime.tokenizerOpens, 1);
+      final first = runtime.tokenizer!;
+
+      await source.closeTokenizer();
+      expect(first.closed, isTrue, reason: 'its KV cache is freed');
+
+      await source.countTokens('د');
+      expect(runtime.tokenizerOpens, 2);
+    });
+
+    test('closing with no tokenizer open is harmless', () async {
+      await source.closeTokenizer();
+      expect(runtime.tokenizerOpens, 0);
+    });
+  });
+
   group('activation', () {
     test('loads the model once, on first use', () async {
       expect(runtime.loadCalls, 0);

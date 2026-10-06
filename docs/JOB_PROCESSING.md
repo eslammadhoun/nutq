@@ -38,7 +38,10 @@ JobDetailCubit = watchJob(id)  (durable state, from the database)
 - **Not handled:** the OS suspending or killing the app mid-job. That needs platform background
   execution (foreground service on Android, background tasks on iOS).
 
-## Adding a source type (audio, video, YouTube)
+## Adding a source type
+
+Audio and video are implemented by `MediaTranscriptSource` (iOS, see `docs/TRANSCRIPTION.md`).
+YouTube is the one left.
 
 1. **Implement `TranscriptSource`** (`features/jobs/domain/sources/`):
    - `type`: the `JobSourceType` it handles.

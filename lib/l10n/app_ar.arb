@@ -82,6 +82,7 @@
   "jobDetailTranscriptionComplete": "اكتمل النسخ",
   "jobDetailTranscript": "النص المفرَّغ",
   "jobDetailTranscriptPending": "النص المفرَّغ غير جاهز بعد.",
+  "jobDetailTranscriptLive": "مباشر",
   "jobDetailAiSummary": "ملخص الذكاء الاصطناعي",
   "jobDetailSummaryPending": "الملخص غير جاهز بعد.",
   "jobDetailDownloadTranscript": "تنزيل النص",
@@ -132,5 +133,16 @@
   "jobFailureSourceUnavailable": "تعذّر الوصول إلى المصدر. تحقق من اتصالك وحاول مرة أخرى.",
   "jobFailureUnsupportedMedia": "صيغة هذا الملف غير مدعومة.",
   "jobFailureTranscriptionFailed": "تعذّر تفريغ الصوت.",
-  "jobFailureInsufficientStorage": "لا توجد مساحة تخزين كافية لمعالجة هذه المهمة."
+  "jobFailureInsufficientStorage": "لا توجد مساحة تخزين كافية لمعالجة هذه المهمة.",
+
+  "backgroundJobTranscribing": "جارٍ التفريغ · {percent}",
+  "backgroundJobPaused": "متوقف مؤقتًا · {percent}",
+  "backgroundJobInterruptedTitle": "توقف التفريغ عند {percent}",
+  "backgroundJobInterruptedBody": "تطبيق آخر يشغّل الصوت. افتح نطق لمتابعة {title}.",
+  "backgroundJobReadyTitle": "النص جاهز",
+  "backgroundJobReadyBody": "افتح نطق لتلخيص {title}.",
+  "backgroundJobSummarizing": "جارٍ التلخيص · {percent}",
+  "backgroundJobWaitingForApp": "افتح نطق للتلخيص · {percent}",
+  "backgroundJobDoneTitle": "الملخص جاهز",
+  "backgroundJobDoneBody": "تم تلخيص {title}."
 }

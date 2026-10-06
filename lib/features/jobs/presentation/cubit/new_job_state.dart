@@ -35,8 +35,8 @@ abstract class NewJobState with _$NewJobState {
 
   static const int maxTextLength = 500000;
 
-  /// Only pasted text can be processed on-device today; audio, video and
-  /// YouTube sources need transcription, which is not available.
+  /// Whether a source is registered for the chosen tab: pasted text always,
+  /// audio and video where on-device speech recognition exists (iOS).
   bool get isSourceSupported => supportedSources.contains(sourceType);
 
   /// Whether the chosen source has valid input. Only sources in

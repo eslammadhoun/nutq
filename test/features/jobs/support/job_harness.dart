@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:nutq/core/database/app_database.dart';
 import 'package:nutq/core/domain/content_language.dart';
+import 'package:nutq/core/domain/foreground_gate.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
+import 'package:nutq/features/jobs/domain/services/background_job.dart';
+import 'package:nutq/features/jobs/domain/services/job_estimate.dart';
 import 'package:nutq/features/jobs/domain/services/job_runner.dart';
 import 'package:nutq/features/jobs/domain/sources/text_transcript_source.dart';
 import 'package:nutq/features/jobs/domain/sources/transcript_source.dart';
@@ -19,6 +22,7 @@ import 'package:nutq/features/summarization/domain/usecases/summarize_transcript
 
 import '../../../support/sample_text.dart';
 import '../../summarization/support/fake_gemma.dart';
+import 'fake_media_files.dart';
 import 'job_fixtures.dart';
 
 /// A small per-call budget so a few paragraphs become several sections.
@@ -31,7 +35,12 @@ class JobHarness {
   /// [autoStart] starts the runner right away. Widget tests turn it off and
   /// start it inside `tester.runAsync`, because its startup database call
   /// needs real (not fake-async) time.
-  JobHarness({Iterable<TranscriptSource> extraSources = const [], bool autoStart = true}) {
+  JobHarness({
+    Iterable<TranscriptSource> extraSources = const [],
+    bool autoStart = true,
+    ForegroundGate foreground = const AlwaysInForeground(),
+    BackgroundJob background = const NoBackgroundJob(),
+  }) {
     db = newTestDatabase();
     repoFixture = TestRepo(db);
     gemma = FakeGemma();
@@ -43,6 +52,9 @@ class JobHarness {
       summarize: SummarizeTranscript(repository: summarization),
       summarization: summarization,
       config: testSummarizationConfig,
+      foreground: foreground,
+      background: background,
+      rates: rates,
     );
     runner = JobRunner(
       jobs: repoFixture.repo,
@@ -84,8 +96,14 @@ class JobHarness {
   JobsCubit jobsCubit({Duration searchDebounce = const Duration(milliseconds: 20)}) =>
       JobsCubit(repo, searchDebounce: searchDebounce);
 
+  final media = FakeMediaFiles();
+
+  /// The device speeds jobs are estimated from; every finished job updates it.
+  final rates = InMemoryJobRatesStore();
+
   NewJobCubit newJobCubit({Set<JobSourceType>? supportedSources}) => NewJobCubit(
     submitJob,
+    media,
     supportedSources: supportedSources ?? registry.supportedTypes,
   );
 

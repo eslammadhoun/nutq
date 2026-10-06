@@ -28,7 +28,7 @@ class JobRunner implements JobScheduler {
     required this._process,
     this.onIdle,
     this.idleAfter = const Duration(minutes: 2),
-    this.partialInterval = const Duration(milliseconds: 50),
+    this.partialInterval = const Duration(milliseconds: 250),
     DateTime Function()? now,
   }) : _startedAt = (now ?? DateTime.now)().toUtc();
 
@@ -39,7 +39,9 @@ class JobRunner implements JobScheduler {
   final Future<void> Function()? onIdle;
   final Duration idleAfter;
 
-  /// Streaming summary text is delivered at most this often.
+  /// Streaming transcript and summary text is delivered at most this often.
+  /// Each delivery re-lays-out the growing text on Job Detail, so a quarter of
+  /// a second keeps it reading as a stream without keeping the phone busy.
   final Duration partialInterval;
 
   final DateTime _startedAt;
@@ -124,12 +126,18 @@ class JobRunner implements JobScheduler {
       partialInterval,
       (text) => _update(id, (live) => live.copyWith(partialSummary: text)),
     );
+    final transcripts = Throttler<String>(
+      partialInterval,
+      (text) => _update(id, (live) => live.copyWith(partialTranscript: text)),
+    );
     final done = Completer<void>();
     final subscription = run.events.listen(
       (event) {
         switch (event) {
           case JobRunProgress(:final progress):
             _update(id, (live) => live.copyWith(progress: progress));
+          case JobRunPartialTranscript(:final text):
+            transcripts.add(text);
           case JobRunPartialSummary(:final text):
             partials.add(text);
         }
@@ -143,6 +151,7 @@ class JobRunner implements JobScheduler {
 
     await done.future;
     partials.cancel();
+    transcripts.cancel();
     await subscription.cancel();
 
     _currentId = null;

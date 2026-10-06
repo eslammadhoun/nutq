@@ -87,9 +87,10 @@ class _JobContent extends StatelessWidget {
           SizedBox(height: 16.h),
           const _ProgressSection(),
           const _NoticesSection(),
-          BlocSelector<JobDetailCubit, JobDetailState, JobDetailEntity>(
-            selector: (state) => state.job!,
-            builder: (context, job) => TranscriptCard(job: job),
+          BlocSelector<JobDetailCubit, JobDetailState, ({JobDetailEntity job, String? live})>(
+            selector: (state) => (job: state.job!, live: state.streamingTranscript),
+            builder: (context, data) =>
+                TranscriptCard(job: data.job, streamingTranscript: data.live),
           ),
           SizedBox(height: 16.h),
           BlocBuilder<JobDetailCubit, JobDetailState>(

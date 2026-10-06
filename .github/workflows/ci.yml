@@ -34,7 +34,7 @@ jobs:
           : > assets/models/gemma3-1b-arabic-summarizer-v3_q4_block32_ekv2048.litertlm
 
       - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed .
+        run: dart format --output=none --set-exit-if-changed lib test
 
       - name: Analyze
         run: flutter analyze --fatal-infos

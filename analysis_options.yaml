@@ -6,6 +6,8 @@ analyzer:
     - "**/*.freezed.dart"
     - "test/core/database/generated/**"
     - "lib/core/database/schema_versions.dart"
+    # Vendored upstream code, kept byte-for-byte apart from its patch.
+    - "third_party/**"
   language:
     # Catch implicit dynamic and unchecked casts instead of letting them
     # surface at runtime.

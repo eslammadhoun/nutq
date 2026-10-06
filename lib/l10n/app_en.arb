@@ -115,6 +115,7 @@
   "jobDetailTranscriptionComplete": "Transcription Complete",
   "jobDetailTranscript": "Transcript",
   "jobDetailTranscriptPending": "The transcript isn't ready yet.",
+  "jobDetailTranscriptLive": "Live",
   "jobDetailAiSummary": "AI Summary",
   "jobDetailSummaryPending": "The summary isn't ready yet.",
   "jobDetailDownloadTranscript": "Download Transcript",
@@ -168,5 +169,24 @@
   "jobFailureSourceUnavailable": "The source couldn't be reached. Check your connection and try again.",
   "jobFailureUnsupportedMedia": "This file's format isn't supported.",
   "jobFailureTranscriptionFailed": "The audio couldn't be transcribed.",
-  "jobFailureInsufficientStorage": "There isn't enough free storage to process this job."
+  "jobFailureInsufficientStorage": "There isn't enough free storage to process this job.",
+
+  "backgroundJobTranscribing": "Transcribing · {percent}",
+  "@backgroundJobTranscribing": {"placeholders": {"percent": {"type": "String"}}},
+  "backgroundJobPaused": "Paused · {percent}",
+  "@backgroundJobPaused": {"placeholders": {"percent": {"type": "String"}}},
+  "backgroundJobInterruptedTitle": "Transcription paused at {percent}",
+  "@backgroundJobInterruptedTitle": {"placeholders": {"percent": {"type": "String"}}},
+  "backgroundJobInterruptedBody": "Another app is playing audio. Open Nutq to continue {title}.",
+  "@backgroundJobInterruptedBody": {"placeholders": {"title": {"type": "String"}}},
+  "backgroundJobReadyTitle": "Transcript ready",
+  "backgroundJobReadyBody": "Open Nutq to summarize {title}.",
+  "@backgroundJobReadyBody": {"placeholders": {"title": {"type": "String"}}},
+  "backgroundJobSummarizing": "Summarizing · {percent}",
+  "@backgroundJobSummarizing": {"placeholders": {"percent": {"type": "String"}}},
+  "backgroundJobWaitingForApp": "Open Nutq to summarize · {percent}",
+  "@backgroundJobWaitingForApp": {"placeholders": {"percent": {"type": "String"}}},
+  "backgroundJobDoneTitle": "Summary ready",
+  "backgroundJobDoneBody": "{title} is summarized.",
+  "@backgroundJobDoneBody": {"placeholders": {"title": {"type": "String"}}}
 }

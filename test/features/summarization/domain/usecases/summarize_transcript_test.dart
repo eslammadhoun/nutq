@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/core/domain/content_language.dart';
+import 'package:nutq/core/domain/foreground_gate.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
@@ -15,6 +17,34 @@ import '../../../../support/sample_text.dart';
 import '../../support/fake_gemma.dart';
 
 const _config = SummarizationConfig(wordsPerCall: 8, debugLogging: false);
+
+/// An app the test moves on and off the screen.
+class _Presence implements ForegroundGate {
+  bool visible = true;
+  final _changes = StreamController<bool>.broadcast();
+  Completer<void> _back = Completer<void>()..complete();
+
+  void leave() {
+    visible = false;
+    _back = Completer<void>();
+    _changes.add(false);
+  }
+
+  void returnToApp() {
+    visible = true;
+    _back.complete();
+    _changes.add(true);
+  }
+
+  @override
+  bool get isInForeground => visible;
+
+  @override
+  Future<void> whenInForeground(CancellationToken cancellation) => _back.future;
+
+  @override
+  Stream<bool> get changes => _changes.stream;
+}
 
 void main() {
   late FakeGemma gemma;
@@ -48,6 +78,102 @@ void main() {
       expect(sent, contains('في الفقرة رقم $i '));
     }
     expect(sent.indexOf('رقم 0 '), lessThan(sent.indexOf('رقم 5 ')));
+  });
+
+  group('leaving the app mid-summary', () {
+    late _Presence presence;
+    late SummarizeTranscript pausable;
+
+    setUp(() {
+      presence = _Presence();
+      pausable = SummarizeTranscript(
+        repository: SummarizationRepositoryImpl(dataSource: gemma),
+        foreground: presence,
+      );
+    });
+
+    test('stops the section, unloads the model, and writes it again on return', () async {
+      final paused = <bool>[];
+      gemma.responder = (prompt, call) async {
+        if (call == 2) {
+          presence.leave();
+          // The app comes back a moment later.
+          unawaited(Future<void>(() => presence.returnToApp()));
+        }
+        return 'النقطة رقم $call.';
+      };
+      final result = await pausable(
+        arabicTranscript(6),
+        _config,
+        onPaused: paused.add,
+      );
+
+      expect(paused, [true, false]);
+      expect(gemma.disposals, 1, reason: 'unloaded while away');
+      expect(gemma.prompts[2], gemma.prompts[1], reason: 'the interrupted section is redone');
+      expect(result.debug.sectionCount, gemma.calls - 1, reason: 'one extra call, no lost section');
+      expect(
+        result.summary,
+        isNot(contains('النقطة رقم 2.')),
+        reason: 'the stopped call is dropped',
+      );
+      expect(result.needsReview, isFalse);
+    });
+
+    test('does not load the model until the app is back', () async {
+      final paused = <bool>[];
+      presence
+        ..visible = false
+        .._back = Completer<void>();
+      final run = pausable(arabicTranscript(6), _config, onPaused: paused.add);
+      await pumpEventQueue();
+      expect(gemma.calls, 0, reason: 'no GPU work while away');
+      expect(gemma.activated, isFalse, reason: 'the model is not even loaded while away');
+      presence.returnToApp();
+      final result = await run;
+      expect(paused, isEmpty, reason: 'nothing was running to pause');
+      expect(result.summary, isNotEmpty);
+    });
+
+    test('leaving while the model loads frees it at once and loads it again on return', () async {
+      final paused = <bool>[];
+      gemma.onActivate = () {
+        // The first load finishes after the app has left.
+        if (gemma.disposals == 0 && presence.visible) presence.leave();
+      };
+      final run = pausable(arabicTranscript(6), _config, onPaused: paused.add);
+      await pumpEventQueue();
+      expect(gemma.disposals, 1, reason: 'released right after loading in the background');
+      expect(gemma.calls, 0);
+      presence.returnToApp();
+      final result = await run;
+      expect(paused, [true, false]);
+      expect(gemma.activated, isTrue, reason: 'loaded again on return');
+      expect(result.summary, isNotEmpty);
+    });
+
+    test('a real cancel while away still cancels the job', () async {
+      presence
+        ..visible = false
+        .._back = Completer<void>();
+      final token = CancellationToken();
+      final run = pausable(arabicTranscript(6), _config, cancellation: token);
+      await pumpEventQueue();
+      token.cancel();
+      presence.returnToApp();
+      await expectLater(run, throwsA(isA<CancelledException>()));
+    });
+  });
+
+  test('frees the token-counting session before writing the first section', () async {
+    final closesAtCall = <int>[];
+    gemma.responder = (prompt, call) async {
+      closesAtCall.add(gemma.tokenizerCloses);
+      return 'النقطة رقم $call.';
+    };
+    await summarize(arabicTranscript(6), _config);
+    expect(closesAtCall.first, 1, reason: 'closed once, before any section was written');
+    expect(gemma.tokenizerCloses, 1);
   });
 
   test('a longer summary length means smaller sections and more calls', () async {

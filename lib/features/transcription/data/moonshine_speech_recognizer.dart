@@ -1,0 +1,218 @@
+import 'dart:io';
+
+import 'package:flutter/services.dart';
+import 'package:nutq/core/domain/cancellation.dart';
+import 'package:nutq/core/domain/content_language.dart';
+import 'package:nutq/features/transcription/domain/speech_recognizer.dart';
+
+/// A bundled Moonshine model. Moonshine publishes one model per language, so
+/// choosing the language chooses the model; audio run through the wrong one
+/// comes out as fragments of the other script.
+class MoonshineModel {
+  const MoonshineModel({required this.directory, required this.version});
+
+  /// Folder under `ios/Runner/moonshine_models/`, resolved by the bridge
+  /// inside the app bundle. See `third_party/moonshine/fetch-model.sh`.
+  final String directory;
+
+  /// The CDN release the weights came from.
+  final String version;
+
+  static const arabic = MoonshineModel(
+    directory: 'tiny-streaming-ar',
+    version: 'quantized_26_08_24',
+  );
+  static const english = MoonshineModel(
+    directory: 'tiny-streaming-en',
+    version: 'quantized_26_08_21',
+  );
+
+  static MoonshineModel of(ContentLanguage language) => switch (language) {
+    ContentLanguage.ar => arabic,
+    ContentLanguage.en => english,
+  };
+
+  String get name => 'moonshine-$directory';
+}
+
+/// Moonshine inference through the native bridge in
+/// `ios/Runner/MoonshineBridge.swift`. iOS only.
+///
+/// The bridge feeds the file to Moonshine's streaming API in [chunkSeconds]
+/// pieces, which is what gives a real progress fraction and lets [cancel] stop
+/// between chunks. The model is released after every run, so it never sits in
+/// memory next to the summarization model.
+class MoonshineSpeechRecognizer implements SpeechRecognizer {
+  MoonshineSpeechRecognizer({
+    MethodChannel? channel,
+    EventChannel? progressChannel,
+    bool? isAvailable,
+    this.decodeIncompleteLines = false,
+    this.singleThread = false,
+  }) : _channel = channel ?? const MethodChannel(channelName),
+       _progress = progressChannel ?? const EventChannel(progressChannelName),
+       isAvailable = isAvailable ?? Platform.isIOS;
+
+  static const channelName = 'nutq/moonshine';
+
+  /// Progress events, separate from [channelName] because they are a stream,
+  /// not a request/response.
+  static const progressChannelName = '$channelName/progress';
+
+  /// `MOONSHINE_MODEL_ARCH_TINY_STREAMING` in `moonshine-c-api.h`.
+  static const modelArchTinyStreaming = 2;
+
+  /// Seconds of audio per streaming pass. Each pass publishes the transcript
+  /// so far, so this is how often live text arrives. Measured in
+  /// whisper_playground on a 194 s clip: 5 s chunks cost 18% more than 20 s
+  /// for the same transcript; 5 s is what makes the text readable as it comes.
+  /// The library's own throttle is 0.5 s, so going lower buys nothing.
+  static const chunkSeconds = 5.0;
+
+  /// The bridge's error code for a run stopped by [cancel].
+  static const _cancelledCode = 'moonshine_cancelled';
+
+  final MethodChannel _channel;
+  final EventChannel _progress;
+
+  /// Moonshine's `decode_incomplete_lines`. Off: every line is decoded once,
+  /// when complete, about 12% less work for a file; the bridge recovers the
+  /// phrase still in progress at the end. On re-decodes the phrase in progress
+  /// on every pass (live captions for someone still talking). Benchmarks
+  /// compare the two.
+  final bool decodeIncompleteLines;
+
+  /// One ONNX Runtime thread instead of the library's spinning thread pool.
+  /// Benchmarks compare the two.
+  final bool singleThread;
+
+  /// The phone's thermal state (`nominal`, `fair`, `serious`, `critical`), so
+  /// benchmarks can wait for a cool phone between runs. Null off iOS.
+  /// CPU time the app has used so far, all threads, in seconds; the
+  /// difference across a run is its work, which is what heats the phone.
+  /// Null off iOS. For benchmarks.
+  Future<double?> cpuSeconds() async {
+    try {
+      return await _channel.invokeMethod<double>('cpuSeconds');
+    } on MissingPluginException {
+      return null;
+    }
+  }
+
+  Future<String?> thermalState() async {
+    try {
+      return await _channel.invokeMethod<String>('thermalState');
+    } on MissingPluginException {
+      return null;
+    }
+  }
+
+  @override
+  final bool isAvailable;
+
+  @override
+  Future<RecognizedSpeech> transcribe({
+    required String audioPath,
+    required ContentLanguage language,
+    void Function(double progress)? onProgress,
+    void Function(String text)? onPartialText,
+  }) async {
+    if (!isAvailable) {
+      throw const SpeechRecognitionException('Moonshine is only available on iOS');
+    }
+    final model = MoonshineModel.of(language);
+    onProgress?.call(0);
+
+    // Lines the bridge is done with. Each event adds only those finished since
+    // the last one, so an event stays small however long the file is.
+    final finished = <String>[];
+
+    // Subscribed before the call, because the bridge reports progress while
+    // the call is in flight. Best-effort: a failure here must not mask the
+    // transcription result.
+    final subscription = _progress.receiveBroadcastStream().listen(
+      (event) {
+        if (event is! Map) return;
+        final progress = (event['progress'] as num?)?.toDouble();
+        if (progress != null) onProgress?.call(progress.clamp(0, 1));
+        if (onPartialText == null) return;
+        final newlyFinished = event['finished'];
+        if (newlyFinished is List) finished.addAll(_lines(newlyFinished));
+        // The lines still being worked on are replaced, not merged: the one in
+        // progress is revised on every pass.
+        final live = event['live'];
+        if (live is List) onPartialText([...finished, ..._lines(live)].join('\n'));
+      },
+      onError: (Object _) {},
+    );
+
+    final List<Object?> lines;
+    try {
+      lines =
+          await _channel.invokeListMethod<Object?>('transcribe', {
+            'audioPath': audioPath,
+            'modelPath': model.directory,
+            'modelArch': modelArchTinyStreaming,
+            'keepLoaded': false,
+            'chunkSeconds': chunkSeconds,
+            'startFrame': 0,
+            'decodeIncompleteLines': decodeIncompleteLines,
+            'singleThread': singleThread,
+          }) ??
+          const [];
+    } on PlatformException catch (e) {
+      if (e.code == _cancelledCode) throw const CancelledException();
+      throw SpeechRecognitionException(e.message ?? e.code);
+    } on MissingPluginException {
+      throw const SpeechRecognitionException('Moonshine bridge is not registered');
+    } finally {
+      await subscription.cancel();
+      // The bridge frees the model after a successful run but keeps it after a
+      // failure or cancel; release it so it never sits next to Gemma.
+      await _quietly('release');
+    }
+
+    onProgress?.call(1);
+    final text = textOf(lines);
+    // The live text ends on the transcript that is kept, including the final
+    // phrase the bridge recovers after the stream (see `decodeTail`).
+    onPartialText?.call(text);
+    return RecognizedSpeech(
+      text: text,
+      modelName: model.name,
+      modelVersion: model.version,
+    );
+  }
+
+  /// Joins the bridge's line maps (`text`, `start`, `duration`) into text, one
+  /// line per row. The live updates and the final result both go through
+  /// [_lines], so the two cannot drift apart.
+  static String textOf(List<Object?> lines) => _lines(lines).join('\n');
+
+  static List<String> _lines(List<Object?> lines) => [
+    for (final line in lines)
+      if (line is Map && line['text'] is String && (line['text'] as String).trim().isNotEmpty)
+        (line['text'] as String).trim(),
+  ];
+
+  @override
+  Future<void> cancel() => _quietly('cancel');
+
+  @override
+  Future<void> pause() => _quietly('pause');
+
+  @override
+  Future<void> resume() => _quietly('resume');
+
+  /// For requests that may arrive after the run ended: there is nothing useful
+  /// to report if the bridge cannot act on them.
+  Future<void> _quietly(String method) async {
+    try {
+      await _channel.invokeMethod<void>(method);
+    } on MissingPluginException {
+      // No bridge on this platform.
+    } on PlatformException {
+      // The run finished in the meantime.
+    }
+  }
+}

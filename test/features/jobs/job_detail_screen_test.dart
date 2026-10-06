@@ -433,6 +433,27 @@ void main() {
     expect(rebuilds[JobStatusHeroCard], isNull);
   });
 
+  testWidgets('a running job draws nothing between updates (no endless animation)', (
+    tester,
+  ) async {
+    final gate = Completer<void>();
+    h.gemma.responder = (prompt, call) async {
+      await gate.future;
+      return null;
+    };
+    final cubit = await open(tester, sampleTranscript);
+    expect(cubit.state.job!.status.isActive, isTrue);
+    expect(find.byType(JobProgressCard), findsOneWidget);
+
+    // An indeterminate spinner would keep scheduling frames forever and heat
+    // the phone for the whole job; settling proves the screen goes idle.
+    await tester.pumpAndSettle();
+    expect(tester.binding.hasScheduledFrame, isFalse);
+
+    gate.complete();
+    await untilSettled(tester, cubit);
+  });
+
   testWidgets('progress ticks rebuild only the progress card', (tester) async {
     final gate = Completer<void>();
     h.gemma.responder = (prompt, call) async {

@@ -228,6 +228,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get jobDetailTranscriptPending => 'النص المفرَّغ غير جاهز بعد.';
 
   @override
+  String get jobDetailTranscriptLive => 'مباشر';
+
+  @override
   String get jobDetailAiSummary => 'ملخص الذكاء الاصطناعي';
 
   @override
@@ -357,4 +360,50 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get jobFailureInsufficientStorage => 'لا توجد مساحة تخزين كافية لمعالجة هذه المهمة.';
+
+  @override
+  String backgroundJobTranscribing(String percent) {
+    return 'جارٍ التفريغ · $percent';
+  }
+
+  @override
+  String backgroundJobPaused(String percent) {
+    return 'متوقف مؤقتًا · $percent';
+  }
+
+  @override
+  String backgroundJobInterruptedTitle(String percent) {
+    return 'توقف التفريغ عند $percent';
+  }
+
+  @override
+  String backgroundJobInterruptedBody(String title) {
+    return 'تطبيق آخر يشغّل الصوت. افتح نطق لمتابعة $title.';
+  }
+
+  @override
+  String get backgroundJobReadyTitle => 'النص جاهز';
+
+  @override
+  String backgroundJobReadyBody(String title) {
+    return 'افتح نطق لتلخيص $title.';
+  }
+
+  @override
+  String backgroundJobSummarizing(String percent) {
+    return 'جارٍ التلخيص · $percent';
+  }
+
+  @override
+  String backgroundJobWaitingForApp(String percent) {
+    return 'افتح نطق للتلخيص · $percent';
+  }
+
+  @override
+  String get backgroundJobDoneTitle => 'الملخص جاهز';
+
+  @override
+  String backgroundJobDoneBody(String title) {
+    return 'تم تلخيص $title.';
+  }
 }

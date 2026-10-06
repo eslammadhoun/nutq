@@ -23,10 +23,14 @@ class FakeGemma implements GemmaLocalDataSource {
   @override
   Future<bool> isModelAvailable() async => true;
 
+  /// Called at the end of every [activate], to script events during a load.
+  void Function()? onActivate;
+
   @override
   Future<void> activate() async {
     activated = true;
     cancelled = false;
+    onActivate?.call();
   }
 
   @override
@@ -35,8 +39,20 @@ class FakeGemma implements GemmaLocalDataSource {
   @override
   Future<void> cancel() async => cancelled = true;
 
+  /// Times the token-counting session was closed.
+  int tokenizerCloses = 0;
+
   @override
-  Future<void> dispose() async {}
+  Future<void> closeTokenizer() async => tokenizerCloses++;
+
+  /// Times the model was freed, and whether it is loaded now.
+  int disposals = 0;
+
+  @override
+  Future<void> dispose() async {
+    disposals++;
+    activated = false;
+  }
 
   @override
   Future<GemmaResponse> generate(
@@ -48,6 +64,8 @@ class FakeGemma implements GemmaLocalDataSource {
     prompts.add(prompt);
     if (failEverything) throw const GemmaGenerationException('boom');
     final scripted = await responder?.call(prompt, prompts.length);
+    // A stop requested while the call was in flight, as the real model does.
+    if (cancelled) throw const CancelledException();
     final text = scripted ?? defaultResponse(prompt);
     if (onPartial != null) {
       // Stream word by word, yielding between words so events interleave.

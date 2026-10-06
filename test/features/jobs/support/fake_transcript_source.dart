@@ -30,6 +30,9 @@ class FakeMediaSource implements TranscriptSource {
 
   final String text;
 
+  /// Reported as the transcript so far, halfway through transcribing.
+  String get partialText => text.split(' ').take(5).join(' ');
+
   /// Thrown from [resolve] after progress was reported.
   final Object? error;
 
@@ -50,6 +53,7 @@ class FakeMediaSource implements TranscriptSource {
     if (gate != null) await gate!.future;
     request.cancellation.throwIfCancelled();
     request.onProgress(const JobProgress(JobStage.transcribing, fraction: 0.5));
+    request.onPartialTranscript(partialText);
     // A test double that throws whatever the test scripted.
     // ignore: only_throw_errors
     if (error != null) throw error!;

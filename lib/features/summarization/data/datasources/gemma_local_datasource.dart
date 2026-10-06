@@ -73,6 +73,12 @@ abstract class GemmaLocalDataSource {
   /// Model-tokenizer token count.
   Future<int> countTokens(String text);
 
+  /// Closes the session [countTokens] keeps open. Each LiteRT-LM session
+  /// holds its own KV cache, so leaving it open while generating costs a
+  /// second cache (~200 MB on the GPU on an iPhone XR). The next
+  /// [countTokens] opens it again.
+  Future<void> closeTokenizer();
+
   /// Stops in-flight generation, if any.
   Future<void> cancel();
 
@@ -244,6 +250,15 @@ class GemmaLocalDataSourceImpl implements GemmaLocalDataSource {
     await activate();
     _tokenizer ??= await _runtime.openTokenizer();
     return _tokenizer!.countTokens(text);
+  }
+
+  @override
+  Future<void> closeTokenizer() async {
+    final tokenizer = _tokenizer;
+    _tokenizer = null;
+    try {
+      await tokenizer?.close();
+    } catch (_) {}
   }
 
   @override

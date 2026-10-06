@@ -58,6 +58,7 @@ class JobDetailCubit extends Cubit<JobDetailState> {
         job: job,
         isCancelling: settled ? false : state.isCancelling,
         progress: settled ? null : state.progress,
+        streamingTranscript: settled ? null : state.streamingTranscript,
         streamingSummary: settled ? null : state.streamingSummary,
       ),
     );
@@ -68,7 +69,13 @@ class JobDetailCubit extends Cubit<JobDetailState> {
     if (live == null) {
       emit(state.copyWith(clearLive: true));
     } else {
-      emit(state.copyWith(progress: live.progress, streamingSummary: live.partialSummary));
+      emit(
+        state.copyWith(
+          progress: live.progress,
+          streamingTranscript: live.partialTranscript,
+          streamingSummary: live.partialSummary,
+        ),
+      );
     }
   }
 

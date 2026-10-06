@@ -1,13 +1,24 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:get_it/get_it.dart';
 import 'package:nutq/core/database/app_database.dart';
 import 'package:nutq/core/locale/locale_cubit.dart';
 import 'package:nutq/core/preferences/app_preferences.dart';
 import 'package:nutq/core/utils/background_work.dart';
+import 'package:nutq/core/utils/lifecycle_foreground_gate.dart';
+import 'package:nutq/core/utils/platform_device_status.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
+import 'package:nutq/features/jobs/data/media/platform_media_files.dart';
+import 'package:nutq/features/jobs/data/preferences/shared_preferences_job_rates_store.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
+import 'package:nutq/features/jobs/domain/repositories/media_files.dart';
+import 'package:nutq/features/jobs/domain/services/background_job.dart';
 import 'package:nutq/features/jobs/domain/services/job_runner.dart';
 import 'package:nutq/features/jobs/domain/services/job_scheduler.dart';
+import 'package:nutq/features/jobs/domain/sources/media_transcript_source.dart';
 import 'package:nutq/features/jobs/domain/sources/text_transcript_source.dart';
 import 'package:nutq/features/jobs/domain/sources/transcript_source_registry.dart';
 import 'package:nutq/features/jobs/domain/usecases/process_job.dart';
@@ -21,6 +32,12 @@ import 'package:nutq/features/summarization/data/datasources/llm_runtime.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
 import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
+import 'package:nutq/features/transcription/data/ffmpeg_audio_extractor.dart';
+import 'package:nutq/features/transcription/data/ios_background_job.dart';
+import 'package:nutq/features/transcription/data/moonshine_speech_recognizer.dart';
+import 'package:nutq/features/transcription/domain/audio_extractor.dart';
+import 'package:nutq/features/transcription/domain/speech_recognizer.dart';
+import 'package:nutq/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -35,11 +52,13 @@ Future<void> setupDI({
   final prefs = preferences ?? await SharedPreferences.getInstance();
   _registerCore(prefs, openDatabase ?? AppDatabase.new);
   _registerSummarization();
+  _registerTranscription();
   _registerJobs();
 }
 
 void _registerCore(SharedPreferences prefs, AppDatabase Function() openDatabase) {
   sl
+    ..registerLazySingleton<SharedPreferences>(() => prefs)
     ..registerLazySingleton<AppPreferences>(() => AppPreferences(prefs))
     ..registerLazySingleton<LocaleCubit>(() => LocaleCubit(sl<AppPreferences>()))
     ..registerLazySingleton<AppDatabase>(openDatabase, dispose: (db) => db.close());
@@ -59,8 +78,30 @@ void _registerSummarization() {
       () => SummarizeTranscript(
         repository: sl<SummarizationRepository>(),
         background: const IsolateBackgroundWork(),
+        device: const PlatformDeviceStatus(),
+        foreground: const LifecycleForegroundGate(),
       ),
     );
+}
+
+/// On-device speech recognition for audio and video jobs.
+void _registerTranscription() {
+  sl
+    ..registerLazySingleton<AudioExtractor>(FfmpegAudioExtractor.new)
+    ..registerLazySingleton<SpeechRecognizer>(MoonshineSpeechRecognizer.new)
+    ..registerLazySingleton<BackgroundJob>(
+      () => Platform.isIOS
+          ? IosBackgroundJob(localizations: _currentLocalizations)
+          : const NoBackgroundJob(),
+    );
+}
+
+/// Strings in the language the app is showing: the user's choice, or the
+/// device language when they made none.
+AppLocalizations _currentLocalizations() {
+  final chosen = sl<LocaleCubit>().state ?? PlatformDispatcher.instance.locale;
+  final supported = supportedLocales.any((l) => l.languageCode == chosen.languageCode);
+  return lookupAppLocalizations(supported ? Locale(chosen.languageCode) : supportedLocales.first);
 }
 
 /// Jobs: storage, the sources that can be processed, and the app-wide queue.
@@ -77,7 +118,19 @@ void _registerJobs() {
     )
     // Register a TranscriptSource here to make a new source type usable.
     ..registerLazySingleton<TranscriptSourceRegistry>(
-      () => TranscriptSourceRegistry(const [TextTranscriptSource()]),
+      () => TranscriptSourceRegistry([
+        const TextTranscriptSource(),
+        // Speech recognition (Moonshine) exists only on iOS; elsewhere the
+        // New Job sheet keeps the audio and video tabs disabled.
+        if (sl<SpeechRecognizer>().isAvailable)
+          for (final type in const [JobSourceType.audio, JobSourceType.video])
+            MediaTranscriptSource(
+              type: type,
+              extractor: sl<AudioExtractor>(),
+              recognizer: sl<SpeechRecognizer>(),
+              background: sl<BackgroundJob>(),
+            ),
+      ]),
     )
     ..registerLazySingleton<ProcessJob>(
       () => ProcessJob(
@@ -85,6 +138,9 @@ void _registerJobs() {
         sources: sl<TranscriptSourceRegistry>(),
         summarize: sl<SummarizeTranscript>(),
         summarization: sl<SummarizationRepository>(),
+        foreground: const LifecycleForegroundGate(),
+        background: sl<BackgroundJob>(),
+        rates: SharedPreferencesJobRatesStore(sl<SharedPreferences>()),
       ),
     )
     ..registerLazySingleton<JobRunner>(
@@ -101,9 +157,11 @@ void _registerJobs() {
       () => SubmitJob(sl<JobsRepository>(), sl<JobScheduler>()),
     )
     ..registerFactory<JobsCubit>(() => JobsCubit(sl<JobsRepository>()))
+    ..registerLazySingleton<MediaFiles>(() => PlatformMediaFiles(newId: () => const Uuid().v4()))
     ..registerFactory<NewJobCubit>(
       () => NewJobCubit(
         sl<SubmitJob>(),
+        sl<MediaFiles>(),
         supportedSources: sl<TranscriptSourceRegistry>().supportedTypes,
       ),
     )

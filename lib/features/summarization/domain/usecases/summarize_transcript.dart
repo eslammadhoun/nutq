@@ -3,6 +3,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:nutq/core/domain/cancellation.dart';
+import 'package:nutq/core/domain/device_status.dart';
+import 'package:nutq/core/domain/foreground_gate.dart';
 import 'package:nutq/core/utils/background_work.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_config.dart';
 import 'package:nutq/features/summarization/domain/entities/summarization_failure.dart';
@@ -30,6 +32,14 @@ class SummarizationPartialSummaryUpdate extends SummarizationUpdate {
   const SummarizationPartialSummaryUpdate(this.text);
 
   final String text;
+}
+
+/// The app left the screen mid-summary ([paused] true) or came back (false).
+/// While paused no section is written and the model is unloaded.
+class SummarizationPausedUpdate extends SummarizationUpdate {
+  const SummarizationPausedUpdate({required this.paused});
+
+  final bool paused;
 }
 
 class SummarizationCompletedUpdate extends SummarizationUpdate {
@@ -67,6 +77,8 @@ class SummarizeTranscript {
   const SummarizeTranscript({
     required this.repository,
     this.background = const InlineBackgroundWork(),
+    this.device = const NoDeviceStatus(),
+    this.foreground = const AlwaysInForeground(),
   });
 
   final SummarizationRepository repository;
@@ -75,6 +87,16 @@ class SummarizeTranscript {
   /// lecture). The app passes an isolate-backed one so it never blocks the UI.
   final BackgroundWork background;
 
+  /// Memory and heat for the per-section log lines.
+  final DeviceStatus device;
+
+  /// Where the app is. iOS allows no GPU work in the background and ends
+  /// large background apps first, so when the app leaves the screen the
+  /// section being written is stopped, the model is unloaded, and the same
+  /// section is written again once the app is back. Sections already written
+  /// are kept.
+  final ForegroundGate foreground;
+
   /// Throws [SummarizationFailure] or [CancelledException].
   Future<SummaryResult> call(
     String transcript,
@@ -82,6 +104,7 @@ class SummarizeTranscript {
     CancellationToken? cancellation,
     void Function(SummarizationProgress progress)? onProgress,
     void Function(String partialSummary)? onPartialSummary,
+    void Function(bool paused)? onPaused,
   }) async {
     final token = cancellation ?? CancellationToken();
     final watch = Stopwatch()..start();
@@ -103,7 +126,19 @@ class SummarizeTranscript {
     }
 
     token.throwIfCancelled();
+    await foreground.whenInForeground(token);
     await repository.prepare();
+    // Loading takes several seconds and cannot be stopped. If the app left
+    // meanwhile, free the model at once rather than keep 760 MB in the
+    // background (the likeliest app for iOS to end), and load it again on
+    // return.
+    while (!foreground.isInForeground) {
+      onPaused?.call(true);
+      await repository.release();
+      await foreground.whenInForeground(token);
+      onPaused?.call(false);
+      await repository.prepare();
+    }
     token.throwIfCancelled();
     repository.resetStats();
 
@@ -122,6 +157,9 @@ class SummarizeTranscript {
       tokensPerWord: tokensPerWord,
       maxWords: config.sectionWords(ratio),
     );
+    // Counting is over: free its session before writing, so only one KV cache
+    // is in memory while the sections are written.
+    await repository.doneCounting();
     token.throwIfCancelled();
 
     // Paragraphs so far, each anchored at the first source unit it covers.
@@ -157,23 +195,82 @@ class SummarizeTranscript {
     var retries = 0;
     var dropped = 0;
 
-    for (var i = 0; i < sections.length; i++) {
-      report(SummarizationStage.summarizing, i, sections.length);
-      final section = sections[i];
-      var added = await write(section);
+    // Leaving the screen mid-call stops the call; writeHere then waits for the
+    // app and writes the section again.
+    var writing = false;
+    var leaving = false;
+    final presence = foreground.changes.listen((visible) {
+      if (visible || !writing) return;
+      leaving = true;
+      unawaited(repository.cancel());
+    });
 
-      final expected = section.fold<int>(0, (sum, u) => sum + u.wordCount) * ratio;
-      final keys = [
-        for (final u in section)
-          if (keyPoints.contains(u.index)) u,
-      ];
-      if (added < expected / 3 && keys.isNotEmpty && keys.length < section.length) {
-        retries++;
-        added += await write(keys);
+    Future<int> writeHere(List<SourceUnit> batch) async {
+      var interrupted = false;
+      while (true) {
+        if (!foreground.isInForeground) {
+          onPaused?.call(true);
+          // Nothing runs on the GPU in the background, and a smaller app is
+          // less likely to be the one iOS ends to free memory.
+          await repository.release();
+          await foreground.whenInForeground(token);
+          onPaused?.call(false);
+          interrupted = true;
+        }
+        // Reloads the model if it was released, and clears a stop request
+        // from a call that was interrupted.
+        if (interrupted) await repository.prepare();
+        writing = true;
+        try {
+          return await write(batch);
+        } on CancelledException {
+          if (token.isCancelled || !leaving) rethrow;
+          leaving = false;
+          interrupted = true;
+          // Drop the half-written section from the visible summary.
+          onPartialSummary?.call(assembled());
+        } finally {
+          writing = false;
+        }
       }
-      if (added == 0) dropped++;
     }
 
+    try {
+      for (var i = 0; i < sections.length; i++) {
+        report(SummarizationStage.summarizing, i, sections.length);
+        final section = sections[i];
+        final statsBefore = repository.stats;
+        final sectionWatch = Stopwatch()..start();
+        var added = await writeHere(section);
+
+        final expected = section.fold<int>(0, (sum, u) => sum + u.wordCount) * ratio;
+        final keys = [
+          for (final u in section)
+            if (keyPoints.contains(u.index)) u,
+        ];
+        if (added < expected / 3 && keys.isNotEmpty && keys.length < section.length) {
+          retries++;
+          added += await writeHere(keys);
+        }
+        if (added == 0) dropped++;
+        if (config.debugLogging) {
+          final words = section.fold<int>(0, (sum, u) => sum + u.wordCount);
+          debugPrint(
+            _sectionLogLine(
+              i + 1,
+              sections.length,
+              words,
+              statsBefore,
+              repository.stats,
+              sectionWatch.elapsedMilliseconds,
+              await device.snapshot(),
+            ),
+          );
+        }
+      }
+    } finally {
+      await presence.cancel();
+    }
     final summary = assembled();
     if (summary.isEmpty) {
       throw const SummarizationFailure(
@@ -197,7 +294,10 @@ class SummarizeTranscript {
       coverage: tracker.ratio(summary),
     );
     if (config.debugLogging) {
-      debugPrint(_logLine(debug, stats, sourceWords, _wordCount(summary), tracker));
+      debugPrint(
+        '${_logLine(debug, stats, sourceWords, _wordCount(summary), tracker)} '
+        '${await device.snapshot()}',
+      );
     }
     return SummaryResult(summary: summary, needsReview: dropped > 0, debug: debug);
   }
@@ -225,6 +325,9 @@ class SummarizeTranscript {
             },
             onPartialSummary: (text) {
               if (!controller.isClosed) controller.add(SummarizationPartialSummaryUpdate(text));
+            },
+            onPaused: (paused) {
+              if (!controller.isClosed) controller.add(SummarizationPausedUpdate(paused: paused));
             },
           );
           if (!controller.isClosed) controller.add(SummarizationCompletedUpdate(result));
@@ -313,6 +416,32 @@ class SummarizeTranscript {
 
   /// Same shape as gemma_playground's `[summarizer]` line, so device runs can
   /// be compared across the two apps. Counts and timings only.
+  /// One section: its source words, the model calls' tokens and timings
+  /// (prefill reads the prompt, decode writes the summary), and the app's
+  /// memory and the phone's heat right after. A slow section at
+  /// `thermal=serious` is the phone; slow decode with a large footprint
+  /// points at memory pressure.
+  static String _sectionLogLine(
+    int index,
+    int total,
+    int sourceWords,
+    GenerationStats before,
+    GenerationStats after,
+    int elapsedMs,
+    DeviceSnapshot device,
+  ) {
+    String s(int ms) => '${(ms / 1000).toStringAsFixed(1)}s';
+    final input = after.inputTokens - before.inputTokens;
+    final output = after.outputTokens - before.outputTokens;
+    final prefill = after.prefillTimeMs - before.prefillTimeMs;
+    final decode = after.generationTimeMs - before.generationTimeMs - prefill;
+    final decodeTps = decode > 0 ? output * 1000 / decode : 0;
+    return '[summarizer] section $index/$total words=$sourceWords '
+        'calls=${after.calls - before.calls} in=${input}tok out=${output}tok '
+        'prefill=${s(prefill)} decode=${s(decode)} '
+        'decode_tps=${decodeTps.toStringAsFixed(1)} total=${s(elapsedMs)} $device';
+  }
+
   String _logLine(
     SummaryDebugInfo d,
     GenerationStats stats,

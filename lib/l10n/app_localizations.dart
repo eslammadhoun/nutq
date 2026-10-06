@@ -495,6 +495,12 @@ abstract class AppLocalizations {
   /// **'The transcript isn\'t ready yet.'**
   String get jobDetailTranscriptPending;
 
+  /// No description provided for @jobDetailTranscriptLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get jobDetailTranscriptLive;
+
   /// No description provided for @jobDetailAiSummary.
   ///
   /// In en, this message translates to:
@@ -728,6 +734,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There isn\'t enough free storage to process this job.'**
   String get jobFailureInsufficientStorage;
+
+  /// No description provided for @backgroundJobTranscribing.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcribing · {percent}'**
+  String backgroundJobTranscribing(String percent);
+
+  /// No description provided for @backgroundJobPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused · {percent}'**
+  String backgroundJobPaused(String percent);
+
+  /// No description provided for @backgroundJobInterruptedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcription paused at {percent}'**
+  String backgroundJobInterruptedTitle(String percent);
+
+  /// No description provided for @backgroundJobInterruptedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Another app is playing audio. Open Nutq to continue {title}.'**
+  String backgroundJobInterruptedBody(String title);
+
+  /// No description provided for @backgroundJobReadyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcript ready'**
+  String get backgroundJobReadyTitle;
+
+  /// No description provided for @backgroundJobReadyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Nutq to summarize {title}.'**
+  String backgroundJobReadyBody(String title);
+
+  /// No description provided for @backgroundJobSummarizing.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarizing · {percent}'**
+  String backgroundJobSummarizing(String percent);
+
+  /// No description provided for @backgroundJobWaitingForApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Nutq to summarize · {percent}'**
+  String backgroundJobWaitingForApp(String percent);
+
+  /// No description provided for @backgroundJobDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary ready'**
+  String get backgroundJobDoneTitle;
+
+  /// No description provided for @backgroundJobDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} is summarized.'**
+  String backgroundJobDoneBody(String title);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

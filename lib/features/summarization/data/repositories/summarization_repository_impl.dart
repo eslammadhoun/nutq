@@ -58,6 +58,9 @@ class SummarizationRepositoryImpl implements SummarizationRepository {
   @override
   Future<int> countTokens(String text) => _dataSource.countTokens(text);
 
+  @override
+  Future<void> doneCounting() => _dataSource.closeTokenizer();
+
   String _prompt(String text, ContentLanguage language, {int? sentences}) => sectionSummaryPrompt(
     text,
     language: language,
