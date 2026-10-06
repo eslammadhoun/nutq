@@ -57,9 +57,34 @@ A section whose call fails or leaves nothing usable is left out, and the summary
 
 ## Logging
 
-In debug and profile builds each run logs one `[summarizer] …` line, with counts and timings only, never text.
-It uses the same fields as gemma_playground's line, so device runs from the two apps can be
-compared.
+Every build, release included, logs one `[summarizer] section i/n …` line per section (source
+words, calls, tokens out, prefill and decode time, decode tokens/s, the app's memory footprint and
+the phone's thermal state) and one summary line per run, counts and timings only, never text. The
+run line uses the same fields as gemma_playground's, so device runs from the two apps can be
+compared. Footprint and thermal state come from the `status` method of the `nutq/device` channel
+(`AppDelegate.swift`).
+
+## Memory and speed on an iPhone XR
+
+`integration_test/summary_benchmark_test.dart` summarizes one transcript on a phone with the app's
+pipeline. A 2 h 17 min recording's transcript (23,043 words, 22 sections), October 2026, GPU:
+
+| | Before | After closing the tokenizer session |
+|---|---|---|
+| Footprint while writing | 955–980 MB (a memory kill at 959 MB in the app) | 741–769 MB, flat |
+| Total | 588 s in the app | 452 s |
+| Per section at `serious` heat | 35–49 s | 17–25 s |
+
+- **One KV cache at a time.** Each LiteRT-LM session holds its own KV cache. Token counting kept a
+  session open through every call, a second cache of ~210 MB that put the phone into memory
+  thrashing (`proc-thrashing` in the kill report) and slowed every call. `SummarizeTranscript`
+  now calls `doneCounting()` once the sections are planned.
+- **Where the time goes:** prefill (reading each ~940-word section) is ~59%, decode ~39%
+  (~11.7 tokens/s at `serious`).
+- **Decided: always read the whole transcript.** Sending only the key sentences of long
+  transcripts would halve the calls (~4–5 min instead of 7.5 for 2 hours) but also halve the
+  summary, since the model writes about the same per call. The fuller summary was preferred
+  (October 2026).
 
 ## Known gaps
 
