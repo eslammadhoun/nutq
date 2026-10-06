@@ -40,6 +40,9 @@ class MediaTranscriptSource implements TranscriptSource {
   @override
   double get progressShare => 0.5;
 
+  @override
+  bool get transcribesAudio => true;
+
   /// The share of this source's work spent extracting audio; the rest is
   /// recognition.
   static const extractionShare = 0.1;

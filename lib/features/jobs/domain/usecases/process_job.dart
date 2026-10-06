@@ -254,7 +254,7 @@ class ProcessJob {
             ),
             saveSourceInfo: (info) async {
               final seconds = info.durationSeconds;
-              if (seconds != null) {
+              if (seconds != null && source.transcribesAudio) {
                 jobPlan.audio = audio = Duration(milliseconds: (seconds * 1000).round());
                 estimateChanged = true;
               }

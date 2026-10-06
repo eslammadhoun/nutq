@@ -28,6 +28,9 @@ class FakeMediaSource implements TranscriptSource {
   @override
   final double progressShare;
 
+  @override
+  bool get transcribesAudio => type != JobSourceType.youtube;
+
   final String text;
 
   /// Reported as the transcript so far, halfway through transcribing.
