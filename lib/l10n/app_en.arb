@@ -109,7 +109,6 @@
   "onboardingSlide3Title": "Browse Your\nHistory",
   "onboardingSlide3Subtitle": "Search, share, and export all your\npast transcriptions with ease.",
 
-  "alertsComingSoon": "Alerts — coming soon",
 
   "jobDetailTitle": "Job Detail",
   "jobDetailTranscriptionComplete": "Transcription Complete",
@@ -144,7 +143,6 @@
   "jobDetailShowMore": "Show more",
   "jobDetailShowLess": "Show less",
 
-  "profileComingSoon": "Profile — coming soon",
 
   "jobStagePreparing": "Preparing transcript",
   "jobStageAnalyzing": "Analyzing transcript",
@@ -188,5 +186,33 @@
   "@backgroundJobWaitingForApp": {"placeholders": {"percent": {"type": "String"}}},
   "backgroundJobDoneTitle": "Summary ready",
   "backgroundJobDoneBody": "{title} is summarized.",
-  "@backgroundJobDoneBody": {"placeholders": {"title": {"type": "String"}}}
+  "@backgroundJobDoneBody": {"placeholders": {"title": {"type": "String"}}},
+  "alertsTitle": "Alerts",
+  "alertsClearAll": "Clear all",
+  "alertsEmpty": "No alerts yet. Finished jobs show up here.",
+  "alertsUntitled": "Untitled job",
+  "alertJobDone": "Summary ready",
+  "alertJobFailed": "Job failed",
+  "alertBannerDone": "Summary ready: {title}",
+  "@alertBannerDone": {"placeholders": {"title": {"type": "String"}}},
+  "alertBannerFailed": "Job failed: {title}",
+  "@alertBannerFailed": {"placeholders": {"title": {"type": "String"}}},
+  "alertBannerView": "View",
+  "profileTitle": "Settings",
+  "profileAppearance": "Appearance",
+  "profileThemeSystem": "System",
+  "profileThemeLight": "Light",
+  "profileThemeDark": "Dark",
+  "profileLanguage": "Language",
+  "profileStorage": "Storage",
+  "profileStorageSummary": "{count, plural, =0{No jobs} =1{1 job} other{{count} jobs}} · {size}",
+  "@profileStorageSummary": {"placeholders": {"count": {"type": "int"}, "size": {"type": "String"}}},
+  "profileDeleteAll": "Delete all jobs",
+  "profileDeleteAllTitle": "Delete all jobs?",
+  "profileDeleteAllBody": "Every job is deleted with its transcript, summary and media file. This can't be undone.",
+  "profileDeleteAllConfirm": "Delete",
+  "profileCancel": "Cancel",
+  "profileAbout": "About",
+  "profileVersion": "Version",
+  "profileOnDevice": "Everything runs on this phone. Nothing is uploaded."
 }

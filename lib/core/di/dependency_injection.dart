@@ -5,9 +5,13 @@ import 'package:get_it/get_it.dart';
 import 'package:nutq/core/database/app_database.dart';
 import 'package:nutq/core/locale/locale_cubit.dart';
 import 'package:nutq/core/preferences/app_preferences.dart';
+import 'package:nutq/core/theme/theme_cubit.dart';
 import 'package:nutq/core/utils/background_work.dart';
 import 'package:nutq/core/utils/lifecycle_foreground_gate.dart';
 import 'package:nutq/core/utils/platform_device_status.dart';
+import 'package:nutq/features/alerts/data/job_alerts_repository.dart';
+import 'package:nutq/features/alerts/domain/alerts_repository.dart';
+import 'package:nutq/features/alerts/presentation/cubit/alerts_cubit.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/media/platform_media_files.dart';
 import 'package:nutq/features/jobs/data/preferences/shared_preferences_job_rates_store.dart';
@@ -26,6 +30,9 @@ import 'package:nutq/features/jobs/domain/usecases/submit_job.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
+import 'package:nutq/features/profile/data/local_job_storage.dart';
+import 'package:nutq/features/profile/domain/job_storage.dart';
+import 'package:nutq/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:nutq/features/summarization/data/datasources/flutter_gemma_runtime.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 import 'package:nutq/features/summarization/data/datasources/llm_runtime.dart';
@@ -54,6 +61,7 @@ Future<void> setupDI({
   _registerSummarization();
   _registerTranscription();
   _registerJobs();
+  _registerAlertsAndProfile();
 }
 
 void _registerCore(SharedPreferences prefs, AppDatabase Function() openDatabase) {
@@ -61,6 +69,7 @@ void _registerCore(SharedPreferences prefs, AppDatabase Function() openDatabase)
     ..registerLazySingleton<SharedPreferences>(() => prefs)
     ..registerLazySingleton<AppPreferences>(() => AppPreferences(prefs))
     ..registerLazySingleton<LocaleCubit>(() => LocaleCubit(sl<AppPreferences>()))
+    ..registerLazySingleton<ThemeCubit>(() => ThemeCubit(sl<AppPreferences>()))
     ..registerLazySingleton<AppDatabase>(openDatabase, dispose: (db) => db.close());
 }
 
@@ -172,4 +181,22 @@ void _registerJobs() {
         jobId: jobId,
       ),
     );
+}
+
+/// Alerts (finished jobs) and the Settings tab's storage.
+void _registerAlertsAndProfile() {
+  sl
+    ..registerLazySingleton<AlertsRepository>(
+      () => JobAlertsRepository(sl<JobsRepository>(), sl<AppPreferences>()),
+      dispose: (repository) => (repository as JobAlertsRepository).dispose(),
+    )
+    ..registerFactory<AlertsCubit>(() => AlertsCubit(sl<AlertsRepository>()))
+    ..registerLazySingleton<JobStorage>(
+      () => LocalJobStorage(
+        jobs: sl<JobsRepository>(),
+        media: sl<MediaFiles>(),
+        scheduler: sl<JobScheduler>(),
+      ),
+    )
+    ..registerFactory<ProfileCubit>(() => ProfileCubit(sl<JobStorage>()));
 }

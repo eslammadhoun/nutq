@@ -76,7 +76,6 @@
   "onboardingSlide3Title": "تصفّح\nسجلّك",
   "onboardingSlide3Subtitle": "ابحث وشارك وصدّر كل تفريغاتك\nالسابقة بسهولة.",
 
-  "alertsComingSoon": "التنبيهات — قريباً",
 
   "jobDetailTitle": "تفاصيل المهمة",
   "jobDetailTranscriptionComplete": "اكتمل النسخ",
@@ -108,7 +107,6 @@
   "jobDetailShowMore": "عرض المزيد",
   "jobDetailShowLess": "عرض أقل",
 
-  "profileComingSoon": "الملف الشخصي — قريباً",
 
   "jobStagePreparing": "تجهيز النص",
   "jobStageAnalyzing": "تحليل النص",
@@ -144,5 +142,30 @@
   "backgroundJobSummarizing": "جارٍ التلخيص · {percent}",
   "backgroundJobWaitingForApp": "افتح نطق للتلخيص · {percent}",
   "backgroundJobDoneTitle": "الملخص جاهز",
-  "backgroundJobDoneBody": "تم تلخيص {title}."
+  "backgroundJobDoneBody": "تم تلخيص {title}.",
+  "alertsTitle": "التنبيهات",
+  "alertsClearAll": "مسح الكل",
+  "alertsEmpty": "لا توجد تنبيهات بعد. تظهر هنا المهام المنتهية.",
+  "alertsUntitled": "مهمة بلا عنوان",
+  "alertJobDone": "الملخص جاهز",
+  "alertJobFailed": "فشلت المهمة",
+  "alertBannerDone": "الملخص جاهز: {title}",
+  "alertBannerFailed": "فشلت المهمة: {title}",
+  "alertBannerView": "عرض",
+  "profileTitle": "الإعدادات",
+  "profileAppearance": "المظهر",
+  "profileThemeSystem": "النظام",
+  "profileThemeLight": "فاتح",
+  "profileThemeDark": "داكن",
+  "profileLanguage": "اللغة",
+  "profileStorage": "التخزين",
+  "profileStorageSummary": "{count, plural, =0{لا توجد مهام} =1{مهمة واحدة} =2{مهمتان} few{{count} مهام} other{{count} مهمة}} · {size}",
+  "profileDeleteAll": "حذف كل المهام",
+  "profileDeleteAllTitle": "حذف كل المهام؟",
+  "profileDeleteAllBody": "ستُحذف كل مهمة مع نصها وملخصها وملفها. لا يمكن التراجع عن ذلك.",
+  "profileDeleteAllConfirm": "حذف",
+  "profileCancel": "إلغاء",
+  "profileAbout": "حول التطبيق",
+  "profileVersion": "الإصدار",
+  "profileOnDevice": "كل شيء يعمل على هذا الهاتف، ولا يُرفع أي شيء."
 }

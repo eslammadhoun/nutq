@@ -213,9 +213,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onboardingSlide3Subtitle => 'ابحث وشارك وصدّر كل تفريغاتك\nالسابقة بسهولة.';
 
   @override
-  String get alertsComingSoon => 'التنبيهات — قريباً';
-
-  @override
   String get jobDetailTitle => 'تفاصيل المهمة';
 
   @override
@@ -282,9 +279,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get jobDetailShowLess => 'عرض أقل';
-
-  @override
-  String get profileComingSoon => 'الملف الشخصي — قريباً';
 
   @override
   String get jobStagePreparing => 'تجهيز النص';
@@ -406,4 +400,95 @@ class AppLocalizationsAr extends AppLocalizations {
   String backgroundJobDoneBody(String title) {
     return 'تم تلخيص $title.';
   }
+
+  @override
+  String get alertsTitle => 'التنبيهات';
+
+  @override
+  String get alertsClearAll => 'مسح الكل';
+
+  @override
+  String get alertsEmpty => 'لا توجد تنبيهات بعد. تظهر هنا المهام المنتهية.';
+
+  @override
+  String get alertsUntitled => 'مهمة بلا عنوان';
+
+  @override
+  String get alertJobDone => 'الملخص جاهز';
+
+  @override
+  String get alertJobFailed => 'فشلت المهمة';
+
+  @override
+  String alertBannerDone(String title) {
+    return 'الملخص جاهز: $title';
+  }
+
+  @override
+  String alertBannerFailed(String title) {
+    return 'فشلت المهمة: $title';
+  }
+
+  @override
+  String get alertBannerView => 'عرض';
+
+  @override
+  String get profileTitle => 'الإعدادات';
+
+  @override
+  String get profileAppearance => 'المظهر';
+
+  @override
+  String get profileThemeSystem => 'النظام';
+
+  @override
+  String get profileThemeLight => 'فاتح';
+
+  @override
+  String get profileThemeDark => 'داكن';
+
+  @override
+  String get profileLanguage => 'اللغة';
+
+  @override
+  String get profileStorage => 'التخزين';
+
+  @override
+  String profileStorageSummary(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مهمة',
+      few: '$count مهام',
+      two: 'مهمتان',
+      one: 'مهمة واحدة',
+      zero: 'لا توجد مهام',
+    );
+    return '$_temp0 · $size';
+  }
+
+  @override
+  String get profileDeleteAll => 'حذف كل المهام';
+
+  @override
+  String get profileDeleteAllTitle => 'حذف كل المهام؟';
+
+  @override
+  String get profileDeleteAllBody =>
+      'ستُحذف كل مهمة مع نصها وملخصها وملفها. لا يمكن التراجع عن ذلك.';
+
+  @override
+  String get profileDeleteAllConfirm => 'حذف';
+
+  @override
+  String get profileCancel => 'إلغاء';
+
+  @override
+  String get profileAbout => 'حول التطبيق';
+
+  @override
+  String get profileVersion => 'الإصدار';
+
+  @override
+  String get profileOnDevice => 'كل شيء يعمل على هذا الهاتف، ولا يُرفع أي شيء.';
 }

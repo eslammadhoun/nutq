@@ -465,12 +465,6 @@ abstract class AppLocalizations {
   /// **'Search, share, and export all your\npast transcriptions with ease.'**
   String get onboardingSlide3Subtitle;
 
-  /// No description provided for @alertsComingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Alerts — coming soon'**
-  String get alertsComingSoon;
-
   /// No description provided for @jobDetailTitle.
   ///
   /// In en, this message translates to:
@@ -590,12 +584,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show less'**
   String get jobDetailShowLess;
-
-  /// No description provided for @profileComingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Profile — coming soon'**
-  String get profileComingSoon;
 
   /// No description provided for @jobStagePreparing.
   ///
@@ -794,6 +782,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{title} is summarized.'**
   String backgroundJobDoneBody(String title);
+
+  /// No description provided for @alertsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get alertsTitle;
+
+  /// No description provided for @alertsClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get alertsClearAll;
+
+  /// No description provided for @alertsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts yet. Finished jobs show up here.'**
+  String get alertsEmpty;
+
+  /// No description provided for @alertsUntitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled job'**
+  String get alertsUntitled;
+
+  /// No description provided for @alertJobDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary ready'**
+  String get alertJobDone;
+
+  /// No description provided for @alertJobFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Job failed'**
+  String get alertJobFailed;
+
+  /// No description provided for @alertBannerDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary ready: {title}'**
+  String alertBannerDone(String title);
+
+  /// No description provided for @alertBannerFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Job failed: {title}'**
+  String alertBannerFailed(String title);
+
+  /// No description provided for @alertBannerView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get alertBannerView;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get profileTitle;
+
+  /// No description provided for @profileAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get profileAppearance;
+
+  /// No description provided for @profileThemeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get profileThemeSystem;
+
+  /// No description provided for @profileThemeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get profileThemeLight;
+
+  /// No description provided for @profileThemeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get profileThemeDark;
+
+  /// No description provided for @profileLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get profileLanguage;
+
+  /// No description provided for @profileStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage'**
+  String get profileStorage;
+
+  /// No description provided for @profileStorageSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No jobs} =1{1 job} other{{count} jobs}} · {size}'**
+  String profileStorageSummary(int count, String size);
+
+  /// No description provided for @profileDeleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all jobs'**
+  String get profileDeleteAll;
+
+  /// No description provided for @profileDeleteAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all jobs?'**
+  String get profileDeleteAllTitle;
+
+  /// No description provided for @profileDeleteAllBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every job is deleted with its transcript, summary and media file. This can\'t be undone.'**
+  String get profileDeleteAllBody;
+
+  /// No description provided for @profileDeleteAllConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get profileDeleteAllConfirm;
+
+  /// No description provided for @profileCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get profileCancel;
+
+  /// No description provided for @profileAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get profileAbout;
+
+  /// No description provided for @profileVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get profileVersion;
+
+  /// No description provided for @profileOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything runs on this phone. Nothing is uploaded.'**
+  String get profileOnDevice;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
