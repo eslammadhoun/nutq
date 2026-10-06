@@ -113,8 +113,11 @@ from start to finish, and keeps it running while the user is elsewhere during tr
     the app is not kept alive. The lock screen keeps showing progress while the app is open.
   - *waitingForApp*: the transcript finished in the background. A notification says to open Nutq,
     and `ProcessJob` waits on a `ForegroundGate` before summarizing.
-  Leaving the app *during* summarization is not handled: the app is suspended (or a GPU call fails)
-  as for a pasted-text job.
+  Leaving the app *during* summarization pauses it (`SummarizeTranscript.foreground`): the section
+  being written is stopped, Gemma is unloaded (~760 MB → ~250 MB, so iOS is less likely to end
+  Nutq to free memory for the other app), the lock screen says to open Nutq, and the same section
+  is written again on return; sections already written are kept. Switching to Snapchat mid-summary
+  used to end the job: Nutq was the largest background app and was terminated without a report.
 - **Interruptions.** If another app takes the audio during transcription (music, a call), iOS
   suspends Nutq soon after. The run freezes rather than failing, a notification says so, and it
   carries on when the user comes back.
