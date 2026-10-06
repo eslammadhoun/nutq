@@ -54,8 +54,11 @@ void main() {
   });
 
   test('only sources that are registered can be submitted', () {
-    expect(sl<TranscriptSourceRegistry>().supportedTypes, {JobSourceType.text});
-    expect(sl<NewJobCubit>().state.supportedSources, {JobSourceType.text});
+    // Text and YouTube (subtitles, pure Dart) everywhere; audio and video only
+    // where speech recognition exists (iOS), which tests are not.
+    const expected = {JobSourceType.text, JobSourceType.youtube};
+    expect(sl<TranscriptSourceRegistry>().supportedTypes, expected);
+    expect(sl<NewJobCubit>().state.supportedSources, expected);
   });
 
   test('a job submitted through the wired stack is saved and queued', () async {

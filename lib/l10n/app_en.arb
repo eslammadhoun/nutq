@@ -214,5 +214,7 @@
   "profileCancel": "Cancel",
   "profileAbout": "About",
   "profileVersion": "Version",
-  "profileOnDevice": "Everything runs on this phone. Nothing is uploaded."
+  "profileOnDevice": "Everything runs on this phone. Nothing is uploaded.",
+  "jobFailureNoSubtitles": "This video has no subtitles in the chosen language. Try the other language.",
+  "newJobYoutubeInvalid": "That doesn't look like a YouTube link."
 }

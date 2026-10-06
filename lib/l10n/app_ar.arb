@@ -167,5 +167,7 @@
   "profileCancel": "إلغاء",
   "profileAbout": "حول التطبيق",
   "profileVersion": "الإصدار",
-  "profileOnDevice": "كل شيء يعمل على هذا الهاتف، ولا يُرفع أي شيء."
+  "profileOnDevice": "كل شيء يعمل على هذا الهاتف، ولا يُرفع أي شيء.",
+  "jobFailureNoSubtitles": "لا توجد ترجمة لهذا الفيديو باللغة المختارة. جرّب اللغة الأخرى.",
+  "newJobYoutubeInvalid": "هذا لا يبدو رابط يوتيوب."
 }
