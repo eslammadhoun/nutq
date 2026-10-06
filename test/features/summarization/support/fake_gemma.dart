@@ -23,10 +23,14 @@ class FakeGemma implements GemmaLocalDataSource {
   @override
   Future<bool> isModelAvailable() async => true;
 
+  /// Called at the end of every [activate], to script events during a load.
+  void Function()? onActivate;
+
   @override
   Future<void> activate() async {
     activated = true;
     cancelled = false;
+    onActivate?.call();
   }
 
   @override

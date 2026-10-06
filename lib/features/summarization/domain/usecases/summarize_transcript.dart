@@ -126,7 +126,19 @@ class SummarizeTranscript {
     }
 
     token.throwIfCancelled();
+    await foreground.whenInForeground(token);
     await repository.prepare();
+    // Loading takes several seconds and cannot be stopped. If the app left
+    // meanwhile, free the model at once rather than keep 760 MB in the
+    // background (the likeliest app for iOS to end), and load it again on
+    // return.
+    while (!foreground.isInForeground) {
+      onPaused?.call(true);
+      await repository.release();
+      await foreground.whenInForeground(token);
+      onPaused?.call(false);
+      await repository.prepare();
+    }
     token.throwIfCancelled();
     repository.resetStats();
 

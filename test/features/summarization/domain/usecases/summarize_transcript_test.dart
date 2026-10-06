@@ -120,7 +120,7 @@ void main() {
       expect(result.needsReview, isFalse);
     });
 
-    test('waits before a section if the app is already away', () async {
+    test('does not load the model until the app is back', () async {
       final paused = <bool>[];
       presence
         ..visible = false
@@ -128,9 +128,27 @@ void main() {
       final run = pausable(arabicTranscript(6), _config, onPaused: paused.add);
       await pumpEventQueue();
       expect(gemma.calls, 0, reason: 'no GPU work while away');
+      expect(gemma.activated, isFalse, reason: 'the model is not even loaded while away');
+      presence.returnToApp();
+      final result = await run;
+      expect(paused, isEmpty, reason: 'nothing was running to pause');
+      expect(result.summary, isNotEmpty);
+    });
+
+    test('leaving while the model loads frees it at once and loads it again on return', () async {
+      final paused = <bool>[];
+      gemma.onActivate = () {
+        // The first load finishes after the app has left.
+        if (gemma.disposals == 0 && presence.visible) presence.leave();
+      };
+      final run = pausable(arabicTranscript(6), _config, onPaused: paused.add);
+      await pumpEventQueue();
+      expect(gemma.disposals, 1, reason: 'released right after loading in the background');
+      expect(gemma.calls, 0);
       presence.returnToApp();
       final result = await run;
       expect(paused, [true, false]);
+      expect(gemma.activated, isTrue, reason: 'loaded again on return');
       expect(result.summary, isNotEmpty);
     });
 
