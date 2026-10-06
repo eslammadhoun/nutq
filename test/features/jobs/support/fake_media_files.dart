@@ -27,6 +27,12 @@ class FakeMediaFiles implements MediaFiles {
     return next;
   }
 
+  /// What [storageBytes] reports.
+  int bytes = 0;
+
+  @override
+  Future<int> storageBytes() async => bytes;
+
   @override
   Future<String> import(UploadFile file) async {
     if (importError != null) throw const FileSystemException('disk full');

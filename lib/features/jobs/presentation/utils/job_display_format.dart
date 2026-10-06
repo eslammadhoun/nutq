@@ -57,6 +57,16 @@ String languageName(AppLocalizations l10n, String code) => switch (code) {
 /// "3m 42s" / "42s" — duration isn't split into localized minute/second
 /// words since the app has no ICU plural rules set up yet; a compact
 /// numeric form reads fine in both LTR and RTL layouts.
+/// A file size for display: `512 KB`, `48 MB`, `1.2 GB`.
+String formatBytes(int bytes) {
+  const kb = 1024;
+  const mb = kb * 1024;
+  const gb = mb * 1024;
+  if (bytes >= gb) return '${(bytes / gb).toStringAsFixed(1)} GB';
+  if (bytes >= mb) return '${(bytes / mb).round()} MB';
+  return '${(bytes / kb).ceil()} KB';
+}
+
 String formatDuration(double seconds) {
   final total = seconds.round();
   final minutes = total ~/ 60;

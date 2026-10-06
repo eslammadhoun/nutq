@@ -214,9 +214,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Search, share, and export all your\npast transcriptions with ease.';
 
   @override
-  String get alertsComingSoon => 'Alerts — coming soon';
-
-  @override
   String get jobDetailTitle => 'Job Detail';
 
   @override
@@ -283,9 +280,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get jobDetailShowLess => 'Show less';
-
-  @override
-  String get profileComingSoon => 'Profile — coming soon';
 
   @override
   String get jobStagePreparing => 'Preparing transcript';
@@ -408,4 +402,93 @@ class AppLocalizationsEn extends AppLocalizations {
   String backgroundJobDoneBody(String title) {
     return '$title is summarized.';
   }
+
+  @override
+  String get alertsTitle => 'Alerts';
+
+  @override
+  String get alertsClearAll => 'Clear all';
+
+  @override
+  String get alertsEmpty => 'No alerts yet. Finished jobs show up here.';
+
+  @override
+  String get alertsUntitled => 'Untitled job';
+
+  @override
+  String get alertJobDone => 'Summary ready';
+
+  @override
+  String get alertJobFailed => 'Job failed';
+
+  @override
+  String alertBannerDone(String title) {
+    return 'Summary ready: $title';
+  }
+
+  @override
+  String alertBannerFailed(String title) {
+    return 'Job failed: $title';
+  }
+
+  @override
+  String get alertBannerView => 'View';
+
+  @override
+  String get profileTitle => 'Settings';
+
+  @override
+  String get profileAppearance => 'Appearance';
+
+  @override
+  String get profileThemeSystem => 'System';
+
+  @override
+  String get profileThemeLight => 'Light';
+
+  @override
+  String get profileThemeDark => 'Dark';
+
+  @override
+  String get profileLanguage => 'Language';
+
+  @override
+  String get profileStorage => 'Storage';
+
+  @override
+  String profileStorageSummary(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jobs',
+      one: '1 job',
+      zero: 'No jobs',
+    );
+    return '$_temp0 · $size';
+  }
+
+  @override
+  String get profileDeleteAll => 'Delete all jobs';
+
+  @override
+  String get profileDeleteAllTitle => 'Delete all jobs?';
+
+  @override
+  String get profileDeleteAllBody =>
+      'Every job is deleted with its transcript, summary and media file. This can\'t be undone.';
+
+  @override
+  String get profileDeleteAllConfirm => 'Delete';
+
+  @override
+  String get profileCancel => 'Cancel';
+
+  @override
+  String get profileAbout => 'About';
+
+  @override
+  String get profileVersion => 'Version';
+
+  @override
+  String get profileOnDevice => 'Everything runs on this phone. Nothing is uploaded.';
 }
