@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/core/widgets/app_icon.dart';
 
 enum AppNavTab { home, alerts, profile }
 
@@ -31,14 +32,16 @@ class AppBottomNavBar extends StatelessWidget {
         child: Row(
           children: [
             _NavItem(
-              emoji: '🏠',
+              iconPath: AppIcons.home,
+              activeIconPath: AppIcons.homeActive,
               label: l10n.navHome,
               tab: AppNavTab.home,
               isActive: current == AppNavTab.home,
               onTap: () => onTap(AppNavTab.home),
             ),
             _NavItem(
-              emoji: '🔔',
+              iconPath: AppIcons.alerts,
+              activeIconPath: AppIcons.alertsActive,
               label: l10n.navAlerts,
               tab: AppNavTab.alerts,
               isActive: current == AppNavTab.alerts,
@@ -46,7 +49,8 @@ class AppBottomNavBar extends StatelessWidget {
               onTap: () => onTap(AppNavTab.alerts),
             ),
             _NavItem(
-              emoji: '👤',
+              iconPath: AppIcons.profile,
+              activeIconPath: AppIcons.profileActive,
               label: l10n.navProfile,
               tab: AppNavTab.profile,
               isActive: current == AppNavTab.profile,
@@ -61,7 +65,8 @@ class AppBottomNavBar extends StatelessWidget {
 
 class _NavItem extends StatelessWidget {
   const _NavItem({
-    required this.emoji,
+    required this.iconPath,
+    required this.activeIconPath,
     required this.label,
     required this.tab,
     required this.isActive,
@@ -69,7 +74,9 @@ class _NavItem extends StatelessWidget {
     this.badgeCount = 0,
   });
 
-  final String emoji;
+  /// Outline icon while idle, filled when this tab is open.
+  final String iconPath;
+  final String activeIconPath;
   final String label;
   final AppNavTab tab;
   final bool isActive;
@@ -107,7 +114,11 @@ class _NavItem extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(emoji, style: TextStyle(fontSize: 22.sp)),
+                    AppIcon(
+                      isActive ? activeIconPath : iconPath,
+                      size: 24.w,
+                      color: isActive ? colors.primary : colors.textSecondary,
+                    ),
                     SizedBox(height: 2.h),
                     Text(
                       label,
