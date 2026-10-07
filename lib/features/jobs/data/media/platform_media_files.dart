@@ -48,10 +48,18 @@ class PlatformMediaFiles implements MediaFiles {
     final types = type == JobSourceType.audio ? audioTypes : videoTypes;
     // Copies from earlier picks that were never submitted.
     await FilePicker.clearTemporaryFiles();
-    final file = await FilePicker.pickFile(
-      type: FileType.custom,
-      allowedExtensions: types.keys.toList(),
-    );
+    // Android filters by MIME type, which it guesses wrongly from some
+    // extensions (m4a as audio/mpeg, hiding every .m4a file), so there the
+    // picker offers all audio or video. Media FFmpeg cannot read fails the job
+    // as unsupported.
+    final file = Platform.isAndroid
+        ? await FilePicker.pickFile(
+            type: type == JobSourceType.audio ? FileType.audio : FileType.video,
+          )
+        : await FilePicker.pickFile(
+            type: FileType.custom,
+            allowedExtensions: types.keys.toList(),
+          );
     final path = file?.path;
     if (file == null || path == null) return null;
     final extension = p.extension(path).replaceFirst('.', '').toLowerCase();
