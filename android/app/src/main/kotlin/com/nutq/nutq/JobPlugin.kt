@@ -12,6 +12,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.PluginRegistry
 
 /**
  * A job's presence outside the app, on the same channel as
@@ -22,7 +23,11 @@ import io.flutter.plugin.common.MethodChannel
  * Every word the notification shows comes from Dart (`labels` in `begin`),
  * already in the app's language.
  */
-class JobPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCallHandler {
+class JobPlugin :
+    FlutterPlugin,
+    ActivityAware,
+    MethodChannel.MethodCallHandler,
+    PluginRegistry.RequestPermissionsResultListener {
     companion object {
         private const val CHANNEL = "nutq/background_job"
         private const val PERMISSION_REQUEST = 7301
@@ -31,6 +36,7 @@ class JobPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCallHandler 
     private lateinit var context: Context
     private lateinit var channel: MethodChannel
     private var activity: Activity? = null
+    private var activityBinding: ActivityPluginBinding? = null
     private var active = false
     private var state = JobState()
 
@@ -107,19 +113,39 @@ class JobPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCallHandler 
         }
     }
 
-    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+    /**
+     * Notifications were allowed mid-job: the progress notification posted
+     * before that was dropped, so post it now rather than at the next update,
+     * which a model load can hold back for a while.
+     */
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ): Boolean {
+        if (requestCode != PERMISSION_REQUEST) return false
+        if (active && grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
+            JobService.update(context, state)
+        }
+        return true
+    }
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) = attach(binding)
+
+    override fun onDetachedFromActivityForConfigChanges() = detach()
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) = attach(binding)
+
+    override fun onDetachedFromActivity() = detach()
+
+    private fun attach(binding: ActivityPluginBinding) {
         activity = binding.activity
+        activityBinding = binding.apply { addRequestPermissionsResultListener(this@JobPlugin) }
     }
 
-    override fun onDetachedFromActivityForConfigChanges() {
-        activity = null
-    }
-
-    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-        activity = binding.activity
-    }
-
-    override fun onDetachedFromActivity() {
+    private fun detach() {
+        activityBinding?.removeRequestPermissionsResultListener(this)
+        activityBinding = null
         activity = null
     }
 }
