@@ -52,9 +52,13 @@ class _RecordingBackgroundJob implements BackgroundJob {
   final calls = <String>[];
   final updates = <double>[];
   Duration? lastTotal;
+  final _commands = StreamController<BackgroundJobCommand>.broadcast();
+
+  /// A button pressed on the notification or lock screen.
+  void press(BackgroundJobCommand command) => _commands.add(command);
 
   @override
-  Stream<BackgroundJobCommand> get commands => const Stream.empty();
+  Stream<BackgroundJobCommand> get commands => _commands.stream;
 
   @override
   Future<void> begin({required String title}) async => calls.add('begin $title');
@@ -654,6 +658,31 @@ void main() {
         ),
       )).id;
       await h.processJob(id).events.drain<void>();
+      expect(background.calls.last, 'end false');
+    });
+
+    test("the notification's Cancel button cancels the whole job", () async {
+      background = _RecordingBackgroundJob();
+      final gate = Completer<void>();
+      await h.dispose();
+      h = JobHarness(
+        extraSources: [FakeMediaSource(gate: gate)],
+        background: background,
+      );
+      final id = (await h.repo.createJob(
+        NewJobDraft.media(
+          type: JobSourceType.audio,
+          filePath: '/f.m4a',
+          language: ContentLanguage.ar,
+        ),
+      )).id;
+      final done = h.processJob(id).events.drain<void>();
+      await pumpEventQueue();
+      background.press(BackgroundJobCommand.cancel);
+      gate.complete();
+      await done;
+      expect(await statusOf(id), JobRunStatus.cancelled);
+      expect(h.gemma.calls, 0, reason: 'nothing is summarized');
       expect(background.calls.last, 'end false');
     });
   });
