@@ -9,6 +9,7 @@ import 'package:nutq/features/alerts/presentation/cubit/alerts_cubit.dart';
 import 'package:nutq/features/alerts/presentation/screens/alerts_screen.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/screens/jobs_screen.dart';
+import 'package:nutq/features/profile/presentation/cubit/notifications_cubit.dart';
 import 'package:nutq/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:nutq/features/profile/presentation/screens/profile_screen.dart';
 
@@ -21,6 +22,7 @@ class HomeScreen extends StatelessWidget {
       providers: [
         BlocProvider<AlertsCubit>(create: (_) => sl<AlertsCubit>()),
         BlocProvider<ProfileCubit>(create: (_) => sl<ProfileCubit>()),
+        BlocProvider<NotificationsCubit>(create: (_) => sl<NotificationsCubit>()),
       ],
       child: const _HomeShell(),
     );

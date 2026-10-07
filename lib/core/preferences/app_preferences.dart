@@ -10,6 +10,7 @@ class AppPreferences {
   static const _keyThemeMode = 'theme_mode';
   static const _keyAlertsSeenAt = 'alerts_seen_at';
   static const _keyAlertsDismissed = 'alerts_dismissed';
+  static const _keyNotifyWhenDone = 'notify_when_done';
 
   /// SRS 4.1: onboarding is shown only on first launch.
   bool get hasSeenOnboarding => _prefs.getBool(_keySeenOnboarding) ?? false;
@@ -41,4 +42,10 @@ class AppPreferences {
 
   Future<void> setAlertsDismissed(Set<String> ids) =>
       _prefs.setStringList(_keyAlertsDismissed, ids.toList());
+
+  /// Whether a job that finishes outside the app posts "Summary ready". On
+  /// until the user turns it off in Settings.
+  bool get notifyWhenDone => _prefs.getBool(_keyNotifyWhenDone) ?? true;
+
+  Future<void> setNotifyWhenDone(bool value) => _prefs.setBool(_keyNotifyWhenDone, value);
 }

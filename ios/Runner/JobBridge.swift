@@ -108,7 +108,7 @@ final class JobBridge: NSObject {
     case "setPaused":
       setPaused(args["paused"] as? Bool ?? false)
     case "end":
-      end(completed: args["completed"] as? Bool ?? false)
+      end(completed: args["completed"] as? Bool ?? false, notify: args["notify"] as? Bool ?? true)
     default:
       result(FlutterMethodNotImplemented)
       return
@@ -179,7 +179,8 @@ final class JobBridge: NSObject {
     publishNowPlaying()
   }
 
-  private func end(completed: Bool) {
+  /// [notify] is the Settings switch for the "Summary ready" notification.
+  private func end(completed: Bool, notify: Bool) {
     guard active else { return }
     active = false
     paused = false
@@ -187,7 +188,7 @@ final class JobBridge: NSObject {
     MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     stopKeepAlive()
     removeNotifications()
-    if completed && UIApplication.shared.applicationState != .active {
+    if completed && notify && UIApplication.shared.applicationState != .active {
       post(id: Self.doneNotification, title: text("doneTitle"), body: text("doneBody"))
     }
   }

@@ -12,14 +12,23 @@ import 'package:nutq/l10n/app_localizations.dart';
 /// The bridge has no strings of its own: [localizations] supplies them in the
 /// app's current language at the start of every job.
 class PlatformBackgroundJob implements BackgroundJob {
-  PlatformBackgroundJob({required this._localizations, MethodChannel? channel})
-    : _channel = channel ?? const MethodChannel(channelName) {
+  PlatformBackgroundJob({
+    required this._localizations,
+    this._notifyWhenDone = _always,
+    MethodChannel? channel,
+  }) : _channel = channel ?? const MethodChannel(channelName) {
     _channel.setMethodCallHandler(_onNativeCall);
   }
 
   static const channelName = 'nutq/background_job';
 
   final AppLocalizations Function() _localizations;
+
+  /// The Settings switch for the "Summary ready" notification, read when a
+  /// job ends.
+  final bool Function() _notifyWhenDone;
+
+  static bool _always() => true;
   final MethodChannel _channel;
   final _commands = StreamController<BackgroundJobCommand>.broadcast();
 
@@ -77,7 +86,8 @@ class PlatformBackgroundJob implements BackgroundJob {
   Future<void> setPaused(bool paused) => _invoke('setPaused', {'paused': paused});
 
   @override
-  Future<void> end({required bool completed}) => _invoke('end', {'completed': completed});
+  Future<void> end({required bool completed}) =>
+      _invoke('end', {'completed': completed, 'notify': _notifyWhenDone()});
 
   Future<void> _invoke(String method, Map<String, Object> arguments) async {
     try {

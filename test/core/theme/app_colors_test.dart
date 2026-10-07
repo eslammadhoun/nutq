@@ -43,6 +43,10 @@ void main() {
     'accentBlue': '#2563EB',
     'heroGradientStart': '#069268',
     'heroGradientEnd': '#0FAE7E',
+    'iconMuted': '#D1D5DB',
+    'accentPremium': '#7C3AED',
+    'accentPremiumBg': '#E5E7EB',
+    'cardShadow': '#000000',
   };
 
   const darkHex = {
@@ -85,6 +89,10 @@ void main() {
     'accentBlue': '#4F83F1',
     'heroGradientStart': '#069268',
     'heroGradientEnd': '#0FAE7E',
+    'iconMuted': '#6B7280',
+    'accentPremium': '#818CF8',
+    'accentPremiumBg': '#312E5F',
+    'cardShadow': '#000000',
   };
 
   Color nameOf(AppColors c, String field) {
@@ -167,6 +175,14 @@ void main() {
         return c.heroGradientStart;
       case 'heroGradientEnd':
         return c.heroGradientEnd;
+      case 'iconMuted':
+        return c.iconMuted;
+      case 'accentPremium':
+        return c.accentPremium;
+      case 'accentPremiumBg':
+        return c.accentPremiumBg;
+      case 'cardShadow':
+        return c.cardShadow;
       default:
         throw ArgumentError('Unknown field: $field');
     }
@@ -181,8 +197,8 @@ void main() {
     final mode = identical(colors, AppColors.light) ? 'light' : 'dark';
     expect(
       expected.keys.length,
-      39,
-      reason: 'expected exactly 39 color tokens to be checked',
+      43,
+      reason: 'expected exactly 43 color tokens to be checked',
     );
     for (final entry in expected.entries) {
       expect(

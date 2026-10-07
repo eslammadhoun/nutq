@@ -843,29 +843,23 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get profileTitle;
 
-  /// No description provided for @profileAppearance.
+  /// No description provided for @profilePreferences.
   ///
   /// In en, this message translates to:
-  /// **'Appearance'**
-  String get profileAppearance;
+  /// **'Preferences'**
+  String get profilePreferences;
 
-  /// No description provided for @profileThemeSystem.
+  /// No description provided for @profileDarkMode.
   ///
   /// In en, this message translates to:
-  /// **'System'**
-  String get profileThemeSystem;
+  /// **'Dark Mode'**
+  String get profileDarkMode;
 
-  /// No description provided for @profileThemeLight.
+  /// No description provided for @profileNotifications.
   ///
   /// In en, this message translates to:
-  /// **'Light'**
-  String get profileThemeLight;
-
-  /// No description provided for @profileThemeDark.
-  ///
-  /// In en, this message translates to:
-  /// **'Dark'**
-  String get profileThemeDark;
+  /// **'Notifications'**
+  String get profileNotifications;
 
   /// No description provided for @profileLanguage.
   ///

@@ -53,6 +53,21 @@ void main() {
     expect(calls[1].arguments, {'phase': 'summarizing'});
   });
 
+  test('end tells the bridge whether to post "Summary ready"', () async {
+    var notify = true;
+    final background = PlatformBackgroundJob(
+      localizations: () => lookupAppLocalizations(const Locale('en')),
+      notifyWhenDone: () => notify,
+    );
+    await background.end(completed: true);
+    notify = false;
+    await background.end(completed: true);
+    expect(calls.map((c) => c.arguments), [
+      {'completed': true, 'notify': true},
+      {'completed': true, 'notify': false},
+    ]);
+  });
+
   test('lock-screen presses arrive as commands', () async {
     final background = job();
     final commands = <BackgroundJobCommand>[];

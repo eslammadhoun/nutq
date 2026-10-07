@@ -36,6 +36,7 @@ import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/profile/data/local_job_storage.dart';
 import 'package:nutq/features/profile/domain/job_storage.dart';
+import 'package:nutq/features/profile/presentation/cubit/notifications_cubit.dart';
 import 'package:nutq/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:nutq/features/summarization/data/datasources/flutter_gemma_runtime.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
@@ -104,7 +105,10 @@ void _registerTranscription() {
     ..registerLazySingleton<SpeechRecognizer>(MoonshineSpeechRecognizer.new)
     ..registerLazySingleton<BackgroundJob>(
       () => Platform.isIOS || Platform.isAndroid
-          ? PlatformBackgroundJob(localizations: _currentLocalizations)
+          ? PlatformBackgroundJob(
+              localizations: _currentLocalizations,
+              notifyWhenDone: () => sl<AppPreferences>().notifyWhenDone,
+            )
           : const NoBackgroundJob(),
     );
 }
@@ -212,5 +216,6 @@ void _registerAlertsAndProfile() {
         scheduler: sl<JobScheduler>(),
       ),
     )
-    ..registerFactory<ProfileCubit>(() => ProfileCubit(sl<JobStorage>()));
+    ..registerFactory<ProfileCubit>(() => ProfileCubit(sl<JobStorage>()))
+    ..registerFactory<NotificationsCubit>(() => NotificationsCubit(sl<AppPreferences>()));
 }
