@@ -8,6 +8,7 @@
 //     --domain-identifier com.nutq.nutq --source t.txt --destination Documents/t.txt
 //   flutter test integration_test/summary_benchmark_test.dart -d <id> \
 //     --dart-define=SUMMARY_FILE=t.txt --dart-define=SUMMARY_BACKENDS=gpu,cpu
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_gemma/flutter_gemma.dart';
@@ -25,6 +26,11 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 const _file = String.fromEnvironment('SUMMARY_FILE');
+
+/// Or the transcript itself, base64-encoded UTF-8, for devices where a file
+/// cannot be placed in the app's storage before the test installs the app
+/// (an Android emulator). Fine for a few thousand words.
+const _textB64 = String.fromEnvironment('SUMMARY_TEXT_B64');
 const _backends = String.fromEnvironment('SUMMARY_BACKENDS', defaultValue: 'gpu');
 
 void main() {
@@ -33,9 +39,14 @@ void main() {
   testWidgets(
     'summarize a long transcript, logging every section',
     (_) async {
-      final path = p.join((await getApplicationDocumentsDirectory()).path, _file);
-      expect(File(path).existsSync(), isTrue, reason: 'copy the transcript to $path first');
-      final transcript = await File(path).readAsString();
+      final String transcript;
+      if (_textB64.isNotEmpty) {
+        transcript = utf8.decode(base64.decode(_textB64));
+      } else {
+        final path = p.join((await getApplicationDocumentsDirectory()).path, _file);
+        expect(File(path).existsSync(), isTrue, reason: 'copy the transcript to $path first');
+        transcript = await File(path).readAsString();
+      }
       const device = PlatformDeviceStatus();
 
       for (final name in _backends.split(',')) {
@@ -68,7 +79,7 @@ void main() {
         }
       }
     },
-    skip: _file.isEmpty,
+    skip: _file.isEmpty && _textB64.isEmpty,
     timeout: const Timeout(Duration(hours: 2)),
   );
 }
