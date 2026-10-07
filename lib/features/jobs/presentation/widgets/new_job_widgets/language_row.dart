@@ -20,7 +20,7 @@ class LanguageRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text('🌐', style: context.typography.bodyLarge),
+          Icon(Icons.language_rounded, size: 20.sp, color: context.appColors.primary),
           SizedBox(width: 16.w),
           Expanded(
             child: Text(

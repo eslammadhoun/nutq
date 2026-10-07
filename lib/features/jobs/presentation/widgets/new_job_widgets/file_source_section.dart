@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/core/widgets/app_icon.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
@@ -65,7 +66,11 @@ class _Dropzone extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(isAudio ? '🎵' : '🎬', style: TextStyle(fontSize: 20.sp)),
+            AppIcon(
+              isAudio ? AppIcons.audio : AppIcons.video,
+              size: 28.w,
+              color: filled ? colors.textInverse : colors.primary,
+            ),
             SizedBox(height: 6.h),
             Text(
               isAudio ? context.l10n.newJobChooseAudioFile : context.l10n.newJobChooseVideoFile,
