@@ -87,7 +87,11 @@ class JobPlugin :
             "end" -> if (active) {
                 active = false
                 JobService.stop(context)
-                if (call.argument<Boolean>("completed") == true && !AppVisibility.foreground) {
+                // "notify" is the Settings switch for the "Summary ready" notification.
+                if (call.argument<Boolean>("completed") == true &&
+                    call.argument<Boolean>("notify") != false &&
+                    !AppVisibility.foreground
+                ) {
                     JobService.postResult(context, state)
                 }
             }
