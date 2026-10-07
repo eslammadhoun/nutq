@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
-import 'package:nutq/core/locale/locale_cubit.dart';
-import 'package:nutq/core/theme/theme_cubit.dart';
 import 'package:nutq/core/widgets/version_pill.dart';
 import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
 import 'package:nutq/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:nutq/features/profile/presentation/widgets/preferences_section.dart';
 
-/// Settings: appearance, language, storage, about. Everything is on the phone,
+/// Settings: preferences (dark mode, notifications, language), storage, about. Everything is on the phone,
 /// so there is no account to show.
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -31,12 +30,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: EdgeInsets.fromLTRB(25.w, 10.h, 25.w, 24.h),
+          padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 24.h),
           children: [
-            Text(l10n.profileTitle, style: context.typography.headingLarge),
+            Padding(
+              padding: EdgeInsetsDirectional.only(start: 4.w),
+              child: Text(l10n.profileTitle, style: context.typography.headingLarge),
+            ),
             SizedBox(height: 18.h),
-            _Section(title: l10n.profileAppearance, child: const _ThemePicker()),
-            _Section(title: l10n.profileLanguage, child: const _LanguagePicker()),
+            const PreferencesSection(),
+            SizedBox(height: 16.h),
             _Section(title: l10n.profileStorage, child: const _Storage()),
             _Section(
               title: l10n.profileAbout,
@@ -100,83 +102,6 @@ class _Section extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// A row of choices; the selected one is filled.
-class _Choices<T> extends StatelessWidget {
-  const _Choices({required this.options, required this.selected, required this.onSelect});
-
-  final List<(T, String)> options;
-  final T selected;
-  final ValueChanged<T> onSelect;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    return Row(
-      children: [
-        for (final (value, label) in options)
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 3.w),
-              child: Material(
-                color: value == selected ? colors.primary : colors.subtle,
-                borderRadius: BorderRadius.circular(10.r),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10.r),
-                  onTap: () => onSelect(value),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 9.h),
-                    child: Text(
-                      label,
-                      textAlign: TextAlign.center,
-                      style: context.typography.labelSmall.copyWith(
-                        color: value == selected ? colors.textInverse : colors.textPrimary,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _ThemePicker extends StatelessWidget {
-  const _ThemePicker();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return BlocBuilder<ThemeCubit, ThemeMode>(
-      builder: (context, mode) => _Choices<ThemeMode>(
-        options: [
-          (ThemeMode.system, l10n.profileThemeSystem),
-          (ThemeMode.light, l10n.profileThemeLight),
-          (ThemeMode.dark, l10n.profileThemeDark),
-        ],
-        selected: mode,
-        onSelect: (m) => context.read<ThemeCubit>().setThemeMode(m),
-      ),
-    );
-  }
-}
-
-class _LanguagePicker extends StatelessWidget {
-  const _LanguagePicker();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final current = Localizations.localeOf(context).languageCode;
-    return _Choices<String>(
-      options: [('ar', l10n.languageArabic), ('en', l10n.languageEnglish)],
-      selected: current,
-      onSelect: (code) => context.read<LocaleCubit>().setLocale(Locale(code)),
     );
   }
 }

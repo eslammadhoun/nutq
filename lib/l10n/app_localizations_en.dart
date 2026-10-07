@@ -438,16 +438,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileTitle => 'Settings';
 
   @override
-  String get profileAppearance => 'Appearance';
+  String get profilePreferences => 'Preferences';
 
   @override
-  String get profileThemeSystem => 'System';
+  String get profileDarkMode => 'Dark Mode';
 
   @override
-  String get profileThemeLight => 'Light';
-
-  @override
-  String get profileThemeDark => 'Dark';
+  String get profileNotifications => 'Notifications';
 
   @override
   String get profileLanguage => 'Language';

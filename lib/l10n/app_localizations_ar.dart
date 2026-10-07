@@ -436,16 +436,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileTitle => 'الإعدادات';
 
   @override
-  String get profileAppearance => 'المظهر';
+  String get profilePreferences => 'التفضيلات';
 
   @override
-  String get profileThemeSystem => 'النظام';
+  String get profileDarkMode => 'الوضع الداكن';
 
   @override
-  String get profileThemeLight => 'فاتح';
-
-  @override
-  String get profileThemeDark => 'داكن';
+  String get profileNotifications => 'الإشعارات';
 
   @override
   String get profileLanguage => 'اللغة';

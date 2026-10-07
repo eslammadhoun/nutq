@@ -8,12 +8,14 @@ import 'package:nutq/core/locale/locale_cubit.dart';
 import 'package:nutq/core/preferences/app_preferences.dart';
 import 'package:nutq/core/theme/app_theme.dart';
 import 'package:nutq/core/theme/theme_cubit.dart';
+import 'package:nutq/core/widgets/app_switch.dart';
 import 'package:nutq/features/alerts/domain/alerts_repository.dart';
 import 'package:nutq/features/alerts/domain/job_alert.dart';
 import 'package:nutq/features/alerts/presentation/cubit/alerts_cubit.dart';
 import 'package:nutq/features/alerts/presentation/screens/alerts_screen.dart';
 import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/profile/domain/job_storage.dart';
+import 'package:nutq/features/profile/presentation/cubit/notifications_cubit.dart';
 import 'package:nutq/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:nutq/features/profile/presentation/screens/profile_screen.dart';
 import 'package:nutq/l10n/app_localizations.dart';
@@ -119,45 +121,66 @@ void main() {
   });
 
   group('Settings screen', () {
-    testWidgets('switches the theme, shows storage, and deletes all jobs after confirming', (
-      tester,
-    ) async {
-      SharedPreferences.setMockInitialValues({});
-      final prefs = AppPreferences(await SharedPreferences.getInstance());
-      final theme = ThemeCubit(prefs);
-      final locale = LocaleCubit(prefs);
-      final storage = _Storage();
-      final profile = ProfileCubit(storage);
-      addTearDown(() async {
-        await theme.close();
-        await locale.close();
-        await profile.close();
-      });
-      await _pump(
+    testWidgets(
+      'preferences switch the theme, notifications and language; storage deletes all jobs',
+      (
         tester,
-        const ProfileScreen(),
-        providers: [
-          BlocProvider<ThemeCubit>.value(value: theme),
-          BlocProvider<LocaleCubit>.value(value: locale),
-          BlocProvider<ProfileCubit>.value(value: profile),
-        ],
-      );
-      await tester.pump();
+      ) async {
+        SharedPreferences.setMockInitialValues({});
+        final prefs = AppPreferences(await SharedPreferences.getInstance());
+        final theme = ThemeCubit(prefs);
+        final locale = LocaleCubit(prefs);
+        final storage = _Storage();
+        final profile = ProfileCubit(storage);
+        final notifications = NotificationsCubit(prefs);
+        addTearDown(() async {
+          await theme.close();
+          await locale.close();
+          await profile.close();
+          await notifications.close();
+        });
+        await _pump(
+          tester,
+          const ProfileScreen(),
+          providers: [
+            BlocProvider<ThemeCubit>.value(value: theme),
+            BlocProvider<LocaleCubit>.value(value: locale),
+            BlocProvider<ProfileCubit>.value(value: profile),
+            BlocProvider<NotificationsCubit>.value(value: notifications),
+          ],
+        );
+        await tester.pump();
 
-      expect(find.text('Settings'), findsOneWidget);
-      expect(find.text('3 jobs · 12 MB'), findsOneWidget);
+        expect(find.text('Settings'), findsOneWidget);
+        expect(find.text('3 jobs · 12 MB'), findsOneWidget);
 
-      await tester.tap(find.text('Dark'));
-      await tester.pump();
-      expect(theme.state, ThemeMode.dark);
+        expect(find.text('PREFERENCES'), findsOneWidget);
+        final switches = find.byType(AppSwitch);
+        await tester.tap(switches.at(0));
+        await tester.pump();
+        expect(theme.state, ThemeMode.dark);
 
-      await tester.tap(find.text('Delete all jobs'));
-      await tester.pumpAndSettle();
-      expect(find.text('Delete all jobs?'), findsOneWidget);
-      await tester.tap(find.text('Delete'));
-      await tester.pumpAndSettle();
-      expect(storage.jobs, 0);
-      expect(find.text('No jobs · 12 MB'), findsOneWidget);
-    });
+        expect(notifications.state, isTrue, reason: 'on by default');
+        await tester.tap(switches.at(1));
+        await tester.pump();
+        expect(notifications.state, isFalse);
+        expect(prefs.notifyWhenDone, isFalse, reason: 'saved for the background job');
+
+        expect(find.text('English'), findsOneWidget, reason: 'the current language');
+        await tester.tap(find.text('Language'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Arabic'));
+        await tester.pumpAndSettle();
+        expect(locale.state, const Locale('ar'));
+
+        await tester.tap(find.text('Delete all jobs'));
+        await tester.pumpAndSettle();
+        expect(find.text('Delete all jobs?'), findsOneWidget);
+        await tester.tap(find.text('Delete'));
+        await tester.pumpAndSettle();
+        expect(storage.jobs, 0);
+        expect(find.text('No jobs · 12 MB'), findsOneWidget);
+      },
+    );
   });
 }
