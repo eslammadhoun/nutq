@@ -200,6 +200,7 @@
   "alertBannerView": "View",
   "profileTitle": "Settings",
   "profilePreferences": "Preferences",
+  "profileUseDeviceTheme": "Use device theme",
   "profileDarkMode": "Dark Mode",
   "profileNotifications": "Notifications",
   "profileLanguage": "Language",

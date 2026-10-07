@@ -8,8 +8,8 @@ import 'package:nutq/core/widgets/app_switch.dart';
 import 'package:nutq/features/profile/presentation/cubit/notifications_cubit.dart';
 import 'package:nutq/features/profile/presentation/widgets/settings_group.dart';
 
-/// PREFERENCES (Figma "Profile & Settings" 9:523): dark mode, the "Summary
-/// ready" notification, and the app language.
+/// PREFERENCES (Figma "Profile & Settings" 9:523): theme (following the
+/// phone, or dark mode), the "Summary ready" notification, and the language.
 class PreferencesSection extends StatelessWidget {
   const PreferencesSection({super.key});
 
@@ -20,21 +20,52 @@ class PreferencesSection extends StatelessWidget {
     return SettingsGroup(
       title: l10n.profilePreferences,
       children: [
-        SettingsRow(
-          icon: Icons.dark_mode_rounded,
-          iconColor: colors.accentPremium,
-          iconBackground: colors.accentPremiumBg,
-          title: l10n.profileDarkMode,
-          // On while the app is dark, including when it follows a dark phone;
-          // flipping it picks light or dark for good.
-          trailing: _SwitchSlot(
-            child: AppSwitch(
-              value: context.isDark,
-              label: l10n.profileDarkMode,
-              onChanged: (dark) =>
-                  context.read<ThemeCubit>().setThemeMode(dark ? ThemeMode.dark : ThemeMode.light),
-            ),
-          ),
+        // iOS draws the launch screen from the phone's light/dark setting
+        // before the app runs, so following the phone (the default) is the
+        // only way the app always matches it.
+        BlocBuilder<ThemeCubit, ThemeMode>(
+          builder: (context, mode) {
+            final followsDevice = mode == ThemeMode.system;
+            final dark = context.isDark;
+            return Column(
+              children: [
+                SettingsRow(
+                  icon: Icons.phone_iphone_rounded,
+                  iconColor: colors.textSecondary,
+                  iconBackground: colors.borderDefault,
+                  title: l10n.profileUseDeviceTheme,
+                  trailing: _SwitchSlot(
+                    child: AppSwitch(
+                      value: followsDevice,
+                      label: l10n.profileUseDeviceTheme,
+                      // Turning it off keeps the current look.
+                      onChanged: (follow) => context.read<ThemeCubit>().setThemeMode(
+                        follow ? ThemeMode.system : (dark ? ThemeMode.dark : ThemeMode.light),
+                      ),
+                    ),
+                  ),
+                ),
+                SettingsRow(
+                  icon: Icons.dark_mode_rounded,
+                  iconColor: colors.accentPremium,
+                  iconBackground: colors.accentPremiumBg,
+                  title: l10n.profileDarkMode,
+                  // Shows the phone's choice, inert, while following it.
+                  trailing: _SwitchSlot(
+                    child: AppSwitch(
+                      value: dark,
+                      label: l10n.profileDarkMode,
+                      onChanged: followsDevice
+                          ? null
+                          : (on) => context.read<ThemeCubit>().setThemeMode(
+                              on ? ThemeMode.dark : ThemeMode.light,
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
         SettingsRow(
           icon: Icons.notifications_rounded,

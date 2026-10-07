@@ -156,12 +156,25 @@ void main() {
 
         expect(find.text('PREFERENCES'), findsOneWidget);
         final switches = find.byType(AppSwitch);
-        await tester.tap(switches.at(0));
+        final (device, darkMode, notify) = (switches.at(0), switches.at(1), switches.at(2));
+
+        expect(theme.state, ThemeMode.system, reason: 'follows the phone by default');
+        await tester.tap(darkMode);
+        await tester.pump();
+        expect(theme.state, ThemeMode.system, reason: 'Dark Mode is inert while following');
+
+        await tester.tap(device);
+        await tester.pump();
+        expect(theme.state, ThemeMode.light, reason: 'stops following, keeping the current look');
+        await tester.tap(darkMode);
         await tester.pump();
         expect(theme.state, ThemeMode.dark);
+        await tester.tap(device);
+        await tester.pump();
+        expect(theme.state, ThemeMode.system);
 
         expect(notifications.state, isTrue, reason: 'on by default');
-        await tester.tap(switches.at(1));
+        await tester.tap(notify);
         await tester.pump();
         expect(notifications.state, isFalse);
         expect(prefs.notifyWhenDone, isFalse, reason: 'saved for the background job');
