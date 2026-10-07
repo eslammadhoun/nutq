@@ -7,6 +7,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/di/dependency_injection.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/locale/locale_cubit.dart';
+import 'package:nutq/core/preferences/app_preferences.dart';
 import 'package:nutq/core/routing/app_router.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/theme/app_theme.dart';
@@ -57,7 +58,15 @@ class NutqApp extends StatelessWidget {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              initialRoute: Routes.splash,
+              // No splash screen of its own: the system launch screen shows
+              // SplashArt until the first frame, then this route.
+              initialRoute: sl<AppPreferences>().hasSeenOnboarding
+                  ? Routes.home
+                  : Routes.onboarding,
+              // Just that route; by default Flutter would also push '/' under it.
+              onGenerateInitialRoutes: (name) => [
+                AppRouter.generateRoute(RouteSettings(name: name)),
+              ],
               onGenerateRoute: AppRouter.generateRoute,
               builder: (context, child) {
                 final bool isDark = context.isDark;
