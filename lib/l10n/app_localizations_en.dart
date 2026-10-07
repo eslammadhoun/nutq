@@ -498,4 +498,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get newJobYoutubeInvalid => 'That doesn\'t look like a YouTube link.';
+
+  @override
+  String get backgroundJobPauseAction => 'Pause';
+
+  @override
+  String get backgroundJobResumeAction => 'Resume';
+
+  @override
+  String get backgroundJobCancelAction => 'Cancel';
+
+  @override
+  String get backgroundJobProgressChannel => 'Job progress';
+
+  @override
+  String get backgroundJobDoneChannel => 'Finished jobs';
 }

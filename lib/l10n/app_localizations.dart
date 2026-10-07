@@ -944,6 +944,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That doesn\'t look like a YouTube link.'**
   String get newJobYoutubeInvalid;
+
+  /// No description provided for @backgroundJobPauseAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get backgroundJobPauseAction;
+
+  /// No description provided for @backgroundJobResumeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get backgroundJobResumeAction;
+
+  /// No description provided for @backgroundJobCancelAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get backgroundJobCancelAction;
+
+  /// No description provided for @backgroundJobProgressChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Job progress'**
+  String get backgroundJobProgressChannel;
+
+  /// No description provided for @backgroundJobDoneChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished jobs'**
+  String get backgroundJobDoneChannel;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

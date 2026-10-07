@@ -9,6 +9,7 @@
 //
 // On the Simulator any path on the Mac works. `say -v Majed -o ar.m4a
 // --data-format=aac "…"` makes a quick Arabic sample.
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
@@ -24,13 +25,29 @@ import 'package:nutq/features/jobs/domain/sources/media_transcript_source.dart';
 import 'package:nutq/features/jobs/domain/sources/transcript_source.dart';
 import 'package:nutq/features/summarization/domain/entities/summary_length.dart';
 import 'package:nutq/features/transcription/data/ffmpeg_audio_extractor.dart';
-import 'package:nutq/features/transcription/data/ios_background_job.dart';
 import 'package:nutq/features/transcription/data/moonshine_speech_recognizer.dart';
+import 'package:nutq/features/transcription/data/platform_background_job.dart';
 import 'package:nutq/features/transcription/domain/audio_extractor.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
-const _arMedia = String.fromEnvironment('AR_MEDIA');
-const _enMedia = String.fromEnvironment('EN_MEDIA');
+const _arPath = String.fromEnvironment('AR_MEDIA');
+const _enPath = String.fromEnvironment('EN_MEDIA');
+
+/// Or the clips themselves, base64-encoded, for devices that cannot read the
+/// Mac's files (an Android emulator); written to a temporary file first.
+const _arB64 = String.fromEnvironment('AR_MEDIA_B64');
+const _enB64 = String.fromEnvironment('EN_MEDIA_B64');
+
+const _hasAr = _arPath != '' || _arB64 != '';
+const _hasEn = _enPath != '' || _enB64 != '';
+
+/// A clip's path: the one given, or a temporary copy of the encoded one.
+Future<String> _media(String path, String b64, String name) async {
+  if (path.isNotEmpty) return path;
+  final file = File('${Directory.systemTemp.path}/$name');
+  await file.writeAsBytes(base64.decode(b64));
+  return file.path;
+}
 
 /// Optional: a long Arabic recording for checking background running by hand.
 /// Leave the app during the run (or `xcrun simctl launch booted
@@ -75,22 +92,22 @@ void main() {
   }
 
   testWidgets('Arabic speech comes out as Arabic text', (_) async {
-    final text = await transcribe(_arMedia, ContentLanguage.ar);
+    final text = await transcribe(await _media(_arPath, _arB64, 'ar.m4a'), ContentLanguage.ar);
     expect(_arabicLetter.allMatches(text).length, greaterThan(20));
-  }, skip: _arMedia.isEmpty);
+  }, skip: !_hasAr);
 
   testWidgets('English speech comes out as English text', (_) async {
-    final text = await transcribe(_enMedia, ContentLanguage.en);
+    final text = await transcribe(await _media(_enPath, _enB64, 'en.m4a'), ContentLanguage.en);
     expect(text.toLowerCase(), contains('budget'));
     expect(_latinLetter.allMatches(text).length, greaterThan(20));
-  }, skip: _enMedia.isEmpty);
+  }, skip: !_hasEn);
 
   testWidgets('a media job runs through the real lock-screen bridge', (_) async {
     final source = MediaTranscriptSource(
       type: JobSourceType.audio,
       extractor: extractor,
       recognizer: recognizer,
-      background: IosBackgroundJob(
+      background: PlatformBackgroundJob(
         localizations: () => lookupAppLocalizations(const Locale('ar')),
       ),
     );
@@ -106,7 +123,7 @@ void main() {
           requestedLength: SummaryLength.medium,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
-          sourceFilePath: _arMedia,
+          sourceFilePath: await _media(_arPath, _arB64, 'ar.m4a'),
           sourceTitle: 'speech.m4a',
         ),
         onProgress: (p) => stages.add(p.stage),
@@ -116,7 +133,7 @@ void main() {
     );
     expect(stages, {JobStage.acquiring, JobStage.transcribing});
     expect(_arabicLetter.allMatches(transcript.text).length, greaterThan(20));
-  }, skip: _arMedia.isEmpty);
+  }, skip: !_hasAr);
 
   testWidgets(
     'a long job keeps running outside the app',
@@ -125,7 +142,7 @@ void main() {
         type: JobSourceType.audio,
         extractor: extractor,
         recognizer: recognizer,
-        background: IosBackgroundJob(
+        background: PlatformBackgroundJob(
           localizations: () => lookupAppLocalizations(const Locale('ar')),
         ),
       );

@@ -9,7 +9,7 @@ Fully on-device: no backend. Jobs are stored locally (Drift/SQLite) and run
 one at a time:
 
 - **Pasted text** is summarized directly.
-- **Audio and video files** (iOS only) have their audio extracted with FFmpeg
+- **Audio and video files** (iOS and Android) have their audio extracted with FFmpeg
   and transcribed with [Moonshine](https://github.com/moonshine-ai/moonshine),
   then summarized.
 - **Summaries** come from a Gemma 3 1B model fine-tuned on Arabic, through

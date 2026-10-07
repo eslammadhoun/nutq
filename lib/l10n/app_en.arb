@@ -216,5 +216,10 @@
   "profileVersion": "Version",
   "profileOnDevice": "Everything runs on this phone. Nothing is uploaded.",
   "jobFailureNoSubtitles": "This video has no subtitles in the chosen language. Try the other language.",
-  "newJobYoutubeInvalid": "That doesn't look like a YouTube link."
+  "newJobYoutubeInvalid": "That doesn't look like a YouTube link.",
+  "backgroundJobPauseAction": "Pause",
+  "backgroundJobResumeAction": "Resume",
+  "backgroundJobCancelAction": "Cancel",
+  "backgroundJobProgressChannel": "Job progress",
+  "backgroundJobDoneChannel": "Finished jobs"
 }

@@ -1,9 +1,10 @@
 # Transcription (audio and video jobs)
 
 On-device speech recognition, ported from `whisper_playground` (October 2026), where Moonshine was
-measured against whisper.cpp and came out about 3.8× faster on an iPhone XR. **iOS only:** the
-Moonshine bridge is Swift. On other platforms `SpeechRecognizer.isAvailable` is false, no media
-source is registered, and the New Job sheet keeps the audio and video tabs disabled.
+measured against whisper.cpp and came out about 3.8× faster on an iPhone XR. **iOS and Android:**
+the bridge is Swift on iOS and Kotlin + JNI on Android (see [Android](#android)). On other
+platforms `SpeechRecognizer.isAvailable` is false, no media source is registered, and the New Job
+sheet keeps the audio and video tabs disabled.
 
 ## Flow
 
@@ -121,9 +122,33 @@ from start to finish, and keeps it running while the user is elsewhere during tr
 - **Interruptions.** If another app takes the audio during transcription (music, a call), iOS
   suspends Nutq soon after. The run freezes rather than failing, a notification says so, and it
   carries on when the user comes back.
-- **Strings.** The bridge has none of its own. `IosBackgroundJob` sends the `backgroundJob*` ARB
+- **Strings.** The bridge has none of its own. `PlatformBackgroundJob` sends the `backgroundJob*` ARB
   strings in the app's language at the start of each job; the bridge fills in `{percent}` and
   `{title}`.
+
+## Android
+
+The same channels (`nutq/moonshine`, `nutq/background_job`, `nutq/device`) are served by Kotlin
+in `android/app/src/main/kotlin/com/nutq/nutq/`, ported from whisper_playground, so the Dart side
+is shared.
+
+- **Moonshine.** `MoonshinePlugin` + `MoonshineNative` over a small JNI layer
+  (`android/app/src/main/cpp/nutq_moonshine.cpp`, built with CMake) against the native libraries of
+  `ai.moonshine:moonshine-voice` (the AAR's Java side is not used). Models are copied from
+  `ios/Runner/moonshine_models/` into the APK's assets at build time (`syncMoonshineModels`) and
+  unpacked to app storage on first use (`ModelInstaller`). One difference from iOS:
+  `decode_incomplete_lines` stays on, so there is no tail recovery pass.
+- **Background.** `JobService` is a foreground service (`dataSync|mediaProcessing`, with a wake
+  lock) for the length of a media job. Its notification shows the whole-job progress with Pause /
+  Resume (while transcribing) and Cancel, and a "summary ready" notice is posted when the job ends
+  off screen. Unlike iOS, the summary keeps running in the background (`AlwaysInForeground` gate):
+  a foreground service gets full CPU, and the emulator measured 27.8 tokens/s off screen.
+- **Notifications permission.** Asked when the first job starts (Android 13+). The job runs either
+  way; if allowed mid-job, the progress notification appears straight away.
+- **Emulators** use the CPU for Gemma (`isSimulator`): the emulated GPU writes about a token a
+  second against ~20 on the CPU.
+- **File picker.** Offers all audio or all video rather than an extension list, since Android maps
+  `m4a` to `audio/mpeg` and would hide every `.m4a` file.
 
 ## Progress estimate
 
@@ -153,7 +178,8 @@ holds it still for a moment and a shorter one moves it ahead.
 | Bridge (method channel `nutq/moonshine`, events on `nutq/moonshine/progress`) | `ios/Runner/MoonshineBridge.swift`, registered in `AppDelegate.swift` |
 | Background and lock screen (method channel `nutq/background_job`: `begin`, `update`, `setPhase`, `setPaused`, `end`) | `ios/Runner/JobBridge.swift`, registered in `AppDelegate.swift` |
 | Framework (not committed) | `third_party/moonshine/Moonshine.xcframework`, from `fetch-framework.sh`, linked by the `MoonshineVoice` pod |
-| Models (not committed) | `ios/Runner/moonshine_models/`, from `fetch-model.sh`, bundled as a folder reference |
+| Models (not committed) | `ios/Runner/moonshine_models/`, from `fetch-model.sh`, bundled as a folder reference (and copied into the Android APK) |
+| Android bridge, service and JNI | `android/app/src/main/kotlin/com/nutq/nutq/` (`MoonshinePlugin`, `JobPlugin`, `JobService`, registered in `MainActivity.kt`), `android/app/src/main/cpp/` |
 
 The bridge logs one `[moonshine] …` line per run (load, inference, real-time factor, `covered`)
 to the device console, in the same format as whisper_playground.
@@ -167,6 +193,11 @@ to the device console, in the same format as whisper_playground.
 - Background, same Simulator: a 64-minute Arabic recording (`LONG_MEDIA`) kept transcribing from
   20% to 50% while Settings was in front, and finished in 195 s. The Simulator suspends apps less
   strictly than a phone, so the lock screen and a locked phone still need checking on a device.
+- Android emulator (Pixel 7, API 36, arm64), October 2026: the device test passed (pass the
+  samples as `AR_MEDIA_B64` / `EN_MEDIA_B64`, since the emulator cannot read the Mac's files), and
+  a 16 s Arabic news clip went through the app end to end (picker, transcript at rtf 0.06–0.33,
+  summary and takeaways, notification progress and "summary ready" notice), both on screen and
+  with the app in the background.
 
 ## Not ported yet
 
@@ -174,4 +205,5 @@ From whisper_playground, left out of this first cut:
 
 - **Resume after a kill.** The playground checkpoints the stable lines and resumes from that frame.
   Here an interrupted job fails as `interrupted` and is started over.
-- **Android.** No Moonshine bridge yet (the playground's Android work is still in progress).
+- **Android tail recovery.** Android keeps `decode_incomplete_lines` on; turning it off with a
+  tail pass, as on iOS, needs more of the C API exposed through JNI.

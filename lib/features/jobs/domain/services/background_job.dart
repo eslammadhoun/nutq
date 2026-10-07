@@ -1,5 +1,6 @@
-/// A request from the lock screen or Control Center's play/pause button.
-enum BackgroundJobCommand { pause, resume }
+/// A request from outside the app: the lock screen's play/pause on iOS, or the
+/// notification's buttons on Android, which add Cancel.
+enum BackgroundJobCommand { pause, resume, cancel }
 
 /// What the job is doing, which decides what the lock screen says and whether
 /// the app is kept running outside the screen.

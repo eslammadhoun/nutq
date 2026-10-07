@@ -5,13 +5,14 @@ import 'package:flutter/services.dart';
 import 'package:nutq/features/jobs/domain/services/background_job.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
-/// Talks to `ios/Runner/JobBridge.swift`, which keeps the app alive in the
-/// background with silent audio and shows the job on the lock screen.
+/// Talks to `ios/Runner/JobBridge.swift` (silent audio and the lock screen)
+/// or, on Android, `JobPlugin.kt` (a foreground service and its notification),
+/// which keep a media job running outside the app and show its progress.
 ///
 /// The bridge has no strings of its own: [localizations] supplies them in the
 /// app's current language at the start of every job.
-class IosBackgroundJob implements BackgroundJob {
-  IosBackgroundJob({required this._localizations, MethodChannel? channel})
+class PlatformBackgroundJob implements BackgroundJob {
+  PlatformBackgroundJob({required this._localizations, MethodChannel? channel})
     : _channel = channel ?? const MethodChannel(channelName) {
     _channel.setMethodCallHandler(_onNativeCall);
   }
@@ -32,6 +33,8 @@ class IosBackgroundJob implements BackgroundJob {
         _commands.add(BackgroundJobCommand.pause);
       case 'resume':
         _commands.add(BackgroundJobCommand.resume);
+      case 'cancel':
+        _commands.add(BackgroundJobCommand.cancel);
     }
     return null;
   }
@@ -49,6 +52,12 @@ class IosBackgroundJob implements BackgroundJob {
     'readyBody': l10n.backgroundJobReadyBody('{title}'),
     'doneTitle': l10n.backgroundJobDoneTitle,
     'doneBody': l10n.backgroundJobDoneBody('{title}'),
+    // Android's notification buttons and settings names.
+    'pauseAction': l10n.backgroundJobPauseAction,
+    'resumeAction': l10n.backgroundJobResumeAction,
+    'cancelAction': l10n.backgroundJobCancelAction,
+    'progressChannel': l10n.backgroundJobProgressChannel,
+    'doneChannel': l10n.backgroundJobDoneChannel,
   };
 
   @override

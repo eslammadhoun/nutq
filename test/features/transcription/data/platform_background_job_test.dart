@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/features/jobs/domain/services/background_job.dart';
-import 'package:nutq/features/transcription/data/ios_background_job.dart';
+import 'package:nutq/features/transcription/data/platform_background_job.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-  const channel = MethodChannel(IosBackgroundJob.channelName);
+  const channel = MethodChannel(PlatformBackgroundJob.channelName);
 
   late List<MethodCall> calls;
   setUp(() {
@@ -20,8 +20,8 @@ void main() {
   });
   tearDown(() => messenger.setMockMethodCallHandler(channel, null));
 
-  IosBackgroundJob job([String language = 'en']) =>
-      IosBackgroundJob(localizations: () => lookupAppLocalizations(Locale(language)));
+  PlatformBackgroundJob job([String language = 'en']) =>
+      PlatformBackgroundJob(localizations: () => lookupAppLocalizations(Locale(language)));
 
   test('begin sends the title and the strings in the app language', () async {
     await job('ar').begin(title: 'talk.m4a');
@@ -34,7 +34,7 @@ void main() {
   });
 
   test('labels keep the placeholders the bridge fills in', () {
-    final labels = IosBackgroundJob.labelsOf(lookupAppLocalizations(const Locale('en')));
+    final labels = PlatformBackgroundJob.labelsOf(lookupAppLocalizations(const Locale('en')));
     expect(labels['transcribing'], 'Transcribing · {percent}');
     expect(labels.keys, containsAll(BackgroundJobPhase.values.map((p) => p.name)));
     expect(labels['interruptedBody'], contains('{title}'));
@@ -59,7 +59,7 @@ void main() {
     background.commands.listen(commands.add);
     for (final press in ['pause', 'resume']) {
       await messenger.handlePlatformMessage(
-        IosBackgroundJob.channelName,
+        PlatformBackgroundJob.channelName,
         const StandardMethodCodec().encodeMethodCall(MethodCall('command', press)),
         (_) {},
       );

@@ -121,19 +121,19 @@ class _NavItem extends StatelessWidget {
               Positioned(
                 top: 12.h,
                 right: 48.w,
-                child: tab == AppNavTab.alerts
+                child: badgeCount > 0
                     ? Container(
                         width: 16.w,
                         height: 16.h,
                         decoration: BoxDecoration(
-                          color: Colors.red,
+                          color: colors.statusFailed,
                           shape: BoxShape.circle,
                         ),
                         child: Center(
                           child: Text(
-                            '3',
+                            badgeCount > 9 ? '9+' : '$badgeCount',
                             style: context.typography.labelMicro.copyWith(
-                              color: Colors.white,
+                              color: colors.textInverse,
                             ),
                           ),
                         ),

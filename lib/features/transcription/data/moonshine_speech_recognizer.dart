@@ -51,7 +51,7 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
     this.singleThread = false,
   }) : _channel = channel ?? const MethodChannel(channelName),
        _progress = progressChannel ?? const EventChannel(progressChannelName),
-       isAvailable = isAvailable ?? Platform.isIOS;
+       isAvailable = isAvailable ?? (Platform.isIOS || Platform.isAndroid);
 
   static const channelName = 'nutq/moonshine';
 
