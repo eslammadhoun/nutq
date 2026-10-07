@@ -74,6 +74,17 @@ final class AppColors extends ThemeExtension<AppColors> {
   final Color heroGradientStart;
   final Color heroGradientEnd;
 
+  // ── settings ───────────────────────────────────────────────────────────────
+  /// Chevrons and the off track of switches (`icon/muted`).
+  final Color iconMuted;
+
+  /// Accent icon and its tile (`accent/premium`).
+  final Color accentPremium;
+  final Color accentPremiumBg;
+
+  /// Grouped-card drop shadow: black 5% light, 20% dark.
+  final Color cardShadow;
+
   const AppColors({
     required this.primary,
     required this.primaryDark,
@@ -114,6 +125,10 @@ final class AppColors extends ThemeExtension<AppColors> {
     required this.accentBlue,
     required this.heroGradientStart,
     required this.heroGradientEnd,
+    required this.iconMuted,
+    required this.accentPremium,
+    required this.accentPremiumBg,
+    required this.cardShadow,
   });
 
   /// Light-mode token values (`com.figma.modeName: "Light"`).
@@ -157,6 +172,10 @@ final class AppColors extends ThemeExtension<AppColors> {
     accentBlue: Color(0xFF2563EB),
     heroGradientStart: Color(0xFF069268),
     heroGradientEnd: Color(0xFF0FAE7E),
+    iconMuted: Color(0xFFD1D5DB),
+    accentPremium: Color(0xFF7C3AED),
+    accentPremiumBg: Color(0xFFE5E7EB),
+    cardShadow: Color(0x0D000000),
   );
 
   /// Dark-mode token values (`com.figma.modeName: "Dark"`).
@@ -200,6 +219,10 @@ final class AppColors extends ThemeExtension<AppColors> {
     accentBlue: Color(0xFF4F83F1),
     heroGradientStart: Color(0xFF069268),
     heroGradientEnd: Color(0xFF0FAE7E),
+    iconMuted: Color(0xFF6B7280),
+    accentPremium: Color(0xFF818CF8),
+    accentPremiumBg: Color(0xFF312E5F),
+    cardShadow: Color(0x33000000),
   );
 
   @override
@@ -243,6 +266,10 @@ final class AppColors extends ThemeExtension<AppColors> {
     Color? accentBlue,
     Color? heroGradientStart,
     Color? heroGradientEnd,
+    Color? iconMuted,
+    Color? accentPremium,
+    Color? accentPremiumBg,
+    Color? cardShadow,
   }) {
     return AppColors(
       primary: primary ?? this.primary,
@@ -284,6 +311,10 @@ final class AppColors extends ThemeExtension<AppColors> {
       accentBlue: accentBlue ?? this.accentBlue,
       heroGradientStart: heroGradientStart ?? this.heroGradientStart,
       heroGradientEnd: heroGradientEnd ?? this.heroGradientEnd,
+      iconMuted: iconMuted ?? this.iconMuted,
+      accentPremium: accentPremium ?? this.accentPremium,
+      accentPremiumBg: accentPremiumBg ?? this.accentPremiumBg,
+      cardShadow: cardShadow ?? this.cardShadow,
     );
   }
 
@@ -331,6 +362,10 @@ final class AppColors extends ThemeExtension<AppColors> {
       accentBlue: l(accentBlue, other.accentBlue),
       heroGradientStart: l(heroGradientStart, other.heroGradientStart),
       heroGradientEnd: l(heroGradientEnd, other.heroGradientEnd),
+      iconMuted: l(iconMuted, other.iconMuted),
+      accentPremium: l(accentPremium, other.accentPremium),
+      accentPremiumBg: l(accentPremiumBg, other.accentPremiumBg),
+      cardShadow: l(cardShadow, other.cardShadow),
     );
   }
 }
