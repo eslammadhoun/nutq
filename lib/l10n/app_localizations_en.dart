@@ -441,6 +441,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profilePreferences => 'Preferences';
 
   @override
+  String get profileUseDeviceTheme => 'Use device theme';
+
+  @override
   String get profileDarkMode => 'Dark Mode';
 
   @override

@@ -849,6 +849,12 @@ abstract class AppLocalizations {
   /// **'Preferences'**
   String get profilePreferences;
 
+  /// No description provided for @profileUseDeviceTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Use device theme'**
+  String get profileUseDeviceTheme;
+
   /// No description provided for @profileDarkMode.
   ///
   /// In en, this message translates to:

@@ -439,6 +439,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profilePreferences => 'التفضيلات';
 
   @override
+  String get profileUseDeviceTheme => 'مطابقة مظهر الجهاز';
+
+  @override
   String get profileDarkMode => 'الوضع الداكن';
 
   @override
