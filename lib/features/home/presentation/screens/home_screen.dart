@@ -83,7 +83,7 @@ class _HomeShellState extends State<_HomeShell> {
           children: [
             BlocProvider<JobsCubit>(
               create: (context) => sl<JobsCubit>(),
-              child: const JobsScreen(),
+              child: JobsScreen(onOpenAlerts: () => _select(AppNavTab.alerts)),
             ),
             const AlertsScreen(),
             const ProfileScreen(),

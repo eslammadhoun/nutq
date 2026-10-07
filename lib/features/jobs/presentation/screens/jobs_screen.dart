@@ -5,13 +5,17 @@ import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/theme/app_colors.dart';
 import 'package:nutq/core/widgets/global_text_field.dart';
+import 'package:nutq/features/alerts/presentation/cubit/alerts_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/widgets/jobs_filter_chips.dart';
 import 'package:nutq/features/jobs/presentation/widgets/jobs_list.dart';
 import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/new_job_sheet.dart';
 
 class JobsScreen extends StatefulWidget {
-  const JobsScreen({super.key});
+  const JobsScreen({super.key, this.onOpenAlerts});
+
+  /// The bell in the header: opens the Alerts tab.
+  final VoidCallback? onOpenAlerts;
 
   @override
   State<JobsScreen> createState() => _JobsScreenState();
@@ -67,39 +71,50 @@ class _JobsScreenState extends State<JobsScreen> {
           context.l10n.jobsHistoryTitle,
           style: context.typography.headingLarge,
         ),
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              width: 36.w,
-              height: 36.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: colors.surface,
-                border: BoxBorder.all(color: colors.borderDefault),
-              ),
-              child: Icon(
-                Icons.notifications_none_rounded,
-                size: 18.sp,
-                color: colors.textPrimary,
-              ),
-            ),
-            Positioned(
-              right: 6.w,
-              top: -2,
-              child: Center(
-                child: Container(
-                  width: 8.w,
-                  height: 8.w,
+        Semantics(
+          button: true,
+          label: context.l10n.navAlerts,
+          child: GestureDetector(
+            onTap: widget.onOpenAlerts,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 36.w,
+                  height: 36.w,
                   decoration: BoxDecoration(
-                    color: colors.statusFailed,
                     shape: BoxShape.circle,
-                    border: Border.all(color: colors.borderDefault, width: 1.5),
+                    color: colors.surface,
+                    border: BoxBorder.all(color: colors.borderDefault),
+                  ),
+                  child: Icon(
+                    Icons.notifications_none_rounded,
+                    size: 18.sp,
+                    color: colors.textPrimary,
                   ),
                 ),
-              ),
+                // Unread alerts.
+                BlocSelector<AlertsCubit, AlertsState, bool>(
+                  selector: (state) => state.unreadCount > 0,
+                  builder: (context, unread) => unread
+                      ? Positioned(
+                          right: 6.w,
+                          top: -2,
+                          child: Container(
+                            width: 8.w,
+                            height: 8.w,
+                            decoration: BoxDecoration(
+                              color: colors.statusFailed,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: colors.borderDefault, width: 1.5),
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ],
     );
