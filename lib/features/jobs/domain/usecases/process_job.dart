@@ -187,6 +187,8 @@ class ProcessJob {
       }
     }
 
+    StreamSubscription<BackgroundJobCommand>? cancelButton;
+
     Future<void> body() async {
       var completed = false;
       try {
@@ -220,6 +222,13 @@ class ProcessJob {
         );
         if (source.progressShare > 0) {
           background = _background;
+          // Android's notification has a Cancel button.
+          cancelButton = background.commands.where((c) => c == BackgroundJobCommand.cancel).listen((
+            _,
+          ) {
+            token.cancel();
+            unawaited(_summarization.cancel());
+          });
           await background.begin(title: job.sourceTitle ?? job.sourceType.name);
           // The summarizer may still be loaded from the job before (it is freed
           // only after two idle minutes). Free it now: speech recognition then
@@ -367,6 +376,7 @@ class ProcessJob {
           await _summarization.cancel();
           await settle(() => _jobs.cancelJob(jobId));
         }
+        await cancelButton?.cancel();
         await background.end(completed: completed);
         if (!controller.isClosed) await controller.close();
       }

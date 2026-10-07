@@ -498,4 +498,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get newJobYoutubeInvalid => 'هذا لا يبدو رابط يوتيوب.';
+
+  @override
+  String get backgroundJobPauseAction => 'إيقاف مؤقت';
+
+  @override
+  String get backgroundJobResumeAction => 'استئناف';
+
+  @override
+  String get backgroundJobCancelAction => 'إلغاء';
+
+  @override
+  String get backgroundJobProgressChannel => 'تقدم المهام';
+
+  @override
+  String get backgroundJobDoneChannel => 'المهام المنتهية';
 }

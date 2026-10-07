@@ -89,6 +89,8 @@ class MediaTranscriptSource implements TranscriptSource {
     final stopRecognition = request.cancellation.onCancel(_recognizer.cancel);
     // Lock-screen play/pause. Recognition stops after the chunk in flight.
     final commands = _background.commands.listen((command) {
+      // Cancel is handled for the whole job by ProcessJob.
+      if (command == BackgroundJobCommand.cancel) return;
       final paused = command == BackgroundJobCommand.pause;
       unawaited(paused ? _recognizer.pause() : _recognizer.resume());
       unawaited(_background.setPaused(paused));

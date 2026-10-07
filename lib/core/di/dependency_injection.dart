@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:get_it/get_it.dart';
 import 'package:nutq/core/database/app_database.dart';
+import 'package:nutq/core/domain/foreground_gate.dart';
 import 'package:nutq/core/locale/locale_cubit.dart';
 import 'package:nutq/core/preferences/app_preferences.dart';
 import 'package:nutq/core/theme/theme_cubit.dart';
@@ -43,8 +44,8 @@ import 'package:nutq/features/summarization/data/repositories/summarization_repo
 import 'package:nutq/features/summarization/domain/repositories/summarization_repository.dart';
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
 import 'package:nutq/features/transcription/data/ffmpeg_audio_extractor.dart';
-import 'package:nutq/features/transcription/data/ios_background_job.dart';
 import 'package:nutq/features/transcription/data/moonshine_speech_recognizer.dart';
+import 'package:nutq/features/transcription/data/platform_background_job.dart';
 import 'package:nutq/features/transcription/domain/audio_extractor.dart';
 import 'package:nutq/features/transcription/domain/speech_recognizer.dart';
 import 'package:nutq/l10n/app_localizations.dart';
@@ -91,7 +92,7 @@ void _registerSummarization() {
         repository: sl<SummarizationRepository>(),
         background: const IsolateBackgroundWork(),
         device: const PlatformDeviceStatus(),
-        foreground: const LifecycleForegroundGate(),
+        foreground: _summaryForeground,
       ),
     );
 }
@@ -102,11 +103,18 @@ void _registerTranscription() {
     ..registerLazySingleton<AudioExtractor>(FfmpegAudioExtractor.new)
     ..registerLazySingleton<SpeechRecognizer>(MoonshineSpeechRecognizer.new)
     ..registerLazySingleton<BackgroundJob>(
-      () => Platform.isIOS
-          ? IosBackgroundJob(localizations: _currentLocalizations)
+      () => Platform.isIOS || Platform.isAndroid
+          ? PlatformBackgroundJob(localizations: _currentLocalizations)
           : const NoBackgroundJob(),
     );
 }
+
+/// Where the summary may run. iOS allows no GPU work in the background, so
+/// there it waits for the app; Android lets a foreground service (`JobService`)
+/// use the GPU, so there it carries on.
+final ForegroundGate _summaryForeground = Platform.isAndroid
+    ? const AlwaysInForeground()
+    : const LifecycleForegroundGate();
 
 /// Strings in the language the app is showing: the user's choice, or the
 /// device language when they made none.
@@ -152,7 +160,7 @@ void _registerJobs() {
         sources: sl<TranscriptSourceRegistry>(),
         summarize: sl<SummarizeTranscript>(),
         summarization: sl<SummarizationRepository>(),
-        foreground: const LifecycleForegroundGate(),
+        foreground: _summaryForeground,
         background: sl<BackgroundJob>(),
         rates: SharedPreferencesJobRatesStore(sl<SharedPreferences>()),
       ),
