@@ -491,4 +491,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileOnDevice => 'كل شيء يعمل على هذا الهاتف، ولا يُرفع أي شيء.';
+
+  @override
+  String get jobFailureNoSubtitles =>
+      'لا توجد ترجمة لهذا الفيديو باللغة المختارة. جرّب اللغة الأخرى.';
+
+  @override
+  String get newJobYoutubeInvalid => 'هذا لا يبدو رابط يوتيوب.';
 }

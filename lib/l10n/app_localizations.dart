@@ -932,6 +932,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Everything runs on this phone. Nothing is uploaded.'**
   String get profileOnDevice;
+
+  /// No description provided for @jobFailureNoSubtitles.
+  ///
+  /// In en, this message translates to:
+  /// **'This video has no subtitles in the chosen language. Try the other language.'**
+  String get jobFailureNoSubtitles;
+
+  /// No description provided for @newJobYoutubeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That doesn\'t look like a YouTube link.'**
+  String get newJobYoutubeInvalid;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

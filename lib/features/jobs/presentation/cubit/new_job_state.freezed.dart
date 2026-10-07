@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 mixin _$NewJobState {
 
  JobSourceType get sourceType;/// Source types the app can process (the registered transcript sources).
- Set<JobSourceType> get supportedSources; JobLanguage get language; String get text; UploadFile? get pickedFile; String get sourceUrl; bool get fileTooLarge; NewJobStatus get status; AppError? get lastError; String? get submittedJobId;
+ Set<JobSourceType> get supportedSources; JobLanguage get language; String get text; UploadFile? get pickedFile; String get sourceUrl;/// Whether [sourceUrl] is a video link the app can read.
+ bool get sourceUrlValid; bool get fileTooLarge; NewJobStatus get status; AppError? get lastError; String? get submittedJobId;
 /// Create a copy of NewJobState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26,16 +27,16 @@ $NewJobStateCopyWith<NewJobState> get copyWith => _$NewJobStateCopyWithImpl<NewJ
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NewJobState&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&const DeepCollectionEquality().equals(other.supportedSources, supportedSources)&&(identical(other.language, language) || other.language == language)&&(identical(other.text, text) || other.text == text)&&(identical(other.pickedFile, pickedFile) || other.pickedFile == pickedFile)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.fileTooLarge, fileTooLarge) || other.fileTooLarge == fileTooLarge)&&(identical(other.status, status) || other.status == status)&&(identical(other.lastError, lastError) || other.lastError == lastError)&&(identical(other.submittedJobId, submittedJobId) || other.submittedJobId == submittedJobId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NewJobState&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&const DeepCollectionEquality().equals(other.supportedSources, supportedSources)&&(identical(other.language, language) || other.language == language)&&(identical(other.text, text) || other.text == text)&&(identical(other.pickedFile, pickedFile) || other.pickedFile == pickedFile)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.sourceUrlValid, sourceUrlValid) || other.sourceUrlValid == sourceUrlValid)&&(identical(other.fileTooLarge, fileTooLarge) || other.fileTooLarge == fileTooLarge)&&(identical(other.status, status) || other.status == status)&&(identical(other.lastError, lastError) || other.lastError == lastError)&&(identical(other.submittedJobId, submittedJobId) || other.submittedJobId == submittedJobId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,sourceType,const DeepCollectionEquality().hash(supportedSources),language,text,pickedFile,sourceUrl,fileTooLarge,status,lastError,submittedJobId);
+int get hashCode => Object.hash(runtimeType,sourceType,const DeepCollectionEquality().hash(supportedSources),language,text,pickedFile,sourceUrl,sourceUrlValid,fileTooLarge,status,lastError,submittedJobId);
 
 @override
 String toString() {
-  return 'NewJobState(sourceType: $sourceType, supportedSources: $supportedSources, language: $language, text: $text, pickedFile: $pickedFile, sourceUrl: $sourceUrl, fileTooLarge: $fileTooLarge, status: $status, lastError: $lastError, submittedJobId: $submittedJobId)';
+  return 'NewJobState(sourceType: $sourceType, supportedSources: $supportedSources, language: $language, text: $text, pickedFile: $pickedFile, sourceUrl: $sourceUrl, sourceUrlValid: $sourceUrlValid, fileTooLarge: $fileTooLarge, status: $status, lastError: $lastError, submittedJobId: $submittedJobId)';
 }
 
 
@@ -46,7 +47,7 @@ abstract mixin class $NewJobStateCopyWith<$Res>  {
   factory $NewJobStateCopyWith(NewJobState value, $Res Function(NewJobState) _then) = _$NewJobStateCopyWithImpl;
 @useResult
 $Res call({
- JobSourceType sourceType, Set<JobSourceType> supportedSources, JobLanguage language, String text, UploadFile? pickedFile, String sourceUrl, bool fileTooLarge, NewJobStatus status, AppError? lastError, String? submittedJobId
+ JobSourceType sourceType, Set<JobSourceType> supportedSources, JobLanguage language, String text, UploadFile? pickedFile, String sourceUrl, bool sourceUrlValid, bool fileTooLarge, NewJobStatus status, AppError? lastError, String? submittedJobId
 });
 
 
@@ -63,7 +64,7 @@ class _$NewJobStateCopyWithImpl<$Res>
 
 /// Create a copy of NewJobState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? sourceType = null,Object? supportedSources = null,Object? language = null,Object? text = null,Object? pickedFile = freezed,Object? sourceUrl = null,Object? fileTooLarge = null,Object? status = null,Object? lastError = freezed,Object? submittedJobId = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? sourceType = null,Object? supportedSources = null,Object? language = null,Object? text = null,Object? pickedFile = freezed,Object? sourceUrl = null,Object? sourceUrlValid = null,Object? fileTooLarge = null,Object? status = null,Object? lastError = freezed,Object? submittedJobId = freezed,}) {
   return _then(_self.copyWith(
 sourceType: null == sourceType ? _self.sourceType : sourceType // ignore: cast_nullable_to_non_nullable
 as JobSourceType,supportedSources: null == supportedSources ? _self.supportedSources : supportedSources // ignore: cast_nullable_to_non_nullable
@@ -71,7 +72,8 @@ as Set<JobSourceType>,language: null == language ? _self.language : language // 
 as JobLanguage,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,pickedFile: freezed == pickedFile ? _self.pickedFile : pickedFile // ignore: cast_nullable_to_non_nullable
 as UploadFile?,sourceUrl: null == sourceUrl ? _self.sourceUrl : sourceUrl // ignore: cast_nullable_to_non_nullable
-as String,fileTooLarge: null == fileTooLarge ? _self.fileTooLarge : fileTooLarge // ignore: cast_nullable_to_non_nullable
+as String,sourceUrlValid: null == sourceUrlValid ? _self.sourceUrlValid : sourceUrlValid // ignore: cast_nullable_to_non_nullable
+as bool,fileTooLarge: null == fileTooLarge ? _self.fileTooLarge : fileTooLarge // ignore: cast_nullable_to_non_nullable
 as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as NewJobStatus,lastError: freezed == lastError ? _self.lastError : lastError // ignore: cast_nullable_to_non_nullable
 as AppError?,submittedJobId: freezed == submittedJobId ? _self.submittedJobId : submittedJobId // ignore: cast_nullable_to_non_nullable
@@ -172,10 +174,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( JobSourceType sourceType,  Set<JobSourceType> supportedSources,  JobLanguage language,  String text,  UploadFile? pickedFile,  String sourceUrl,  bool fileTooLarge,  NewJobStatus status,  AppError? lastError,  String? submittedJobId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( JobSourceType sourceType,  Set<JobSourceType> supportedSources,  JobLanguage language,  String text,  UploadFile? pickedFile,  String sourceUrl,  bool sourceUrlValid,  bool fileTooLarge,  NewJobStatus status,  AppError? lastError,  String? submittedJobId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NewJobState() when $default != null:
-return $default(_that.sourceType,_that.supportedSources,_that.language,_that.text,_that.pickedFile,_that.sourceUrl,_that.fileTooLarge,_that.status,_that.lastError,_that.submittedJobId);case _:
+return $default(_that.sourceType,_that.supportedSources,_that.language,_that.text,_that.pickedFile,_that.sourceUrl,_that.sourceUrlValid,_that.fileTooLarge,_that.status,_that.lastError,_that.submittedJobId);case _:
   return orElse();
 
 }
@@ -193,10 +195,10 @@ return $default(_that.sourceType,_that.supportedSources,_that.language,_that.tex
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( JobSourceType sourceType,  Set<JobSourceType> supportedSources,  JobLanguage language,  String text,  UploadFile? pickedFile,  String sourceUrl,  bool fileTooLarge,  NewJobStatus status,  AppError? lastError,  String? submittedJobId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( JobSourceType sourceType,  Set<JobSourceType> supportedSources,  JobLanguage language,  String text,  UploadFile? pickedFile,  String sourceUrl,  bool sourceUrlValid,  bool fileTooLarge,  NewJobStatus status,  AppError? lastError,  String? submittedJobId)  $default,) {final _that = this;
 switch (_that) {
 case _NewJobState():
-return $default(_that.sourceType,_that.supportedSources,_that.language,_that.text,_that.pickedFile,_that.sourceUrl,_that.fileTooLarge,_that.status,_that.lastError,_that.submittedJobId);case _:
+return $default(_that.sourceType,_that.supportedSources,_that.language,_that.text,_that.pickedFile,_that.sourceUrl,_that.sourceUrlValid,_that.fileTooLarge,_that.status,_that.lastError,_that.submittedJobId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -213,10 +215,10 @@ return $default(_that.sourceType,_that.supportedSources,_that.language,_that.tex
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( JobSourceType sourceType,  Set<JobSourceType> supportedSources,  JobLanguage language,  String text,  UploadFile? pickedFile,  String sourceUrl,  bool fileTooLarge,  NewJobStatus status,  AppError? lastError,  String? submittedJobId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( JobSourceType sourceType,  Set<JobSourceType> supportedSources,  JobLanguage language,  String text,  UploadFile? pickedFile,  String sourceUrl,  bool sourceUrlValid,  bool fileTooLarge,  NewJobStatus status,  AppError? lastError,  String? submittedJobId)?  $default,) {final _that = this;
 switch (_that) {
 case _NewJobState() when $default != null:
-return $default(_that.sourceType,_that.supportedSources,_that.language,_that.text,_that.pickedFile,_that.sourceUrl,_that.fileTooLarge,_that.status,_that.lastError,_that.submittedJobId);case _:
+return $default(_that.sourceType,_that.supportedSources,_that.language,_that.text,_that.pickedFile,_that.sourceUrl,_that.sourceUrlValid,_that.fileTooLarge,_that.status,_that.lastError,_that.submittedJobId);case _:
   return null;
 
 }
@@ -228,7 +230,7 @@ return $default(_that.sourceType,_that.supportedSources,_that.language,_that.tex
 
 
 class _NewJobState extends NewJobState {
-  const _NewJobState({this.sourceType = JobSourceType.text, final  Set<JobSourceType> supportedSources = const {JobSourceType.text}, this.language = JobLanguage.ar, this.text = '', this.pickedFile, this.sourceUrl = '', this.fileTooLarge = false, this.status = NewJobStatus.idle, this.lastError, this.submittedJobId}): _supportedSources = supportedSources,super._();
+  const _NewJobState({this.sourceType = JobSourceType.text, final  Set<JobSourceType> supportedSources = const {JobSourceType.text}, this.language = JobLanguage.ar, this.text = '', this.pickedFile, this.sourceUrl = '', this.sourceUrlValid = false, this.fileTooLarge = false, this.status = NewJobStatus.idle, this.lastError, this.submittedJobId}): _supportedSources = supportedSources,super._();
   
 
 @override@JsonKey() final  JobSourceType sourceType;
@@ -245,6 +247,8 @@ class _NewJobState extends NewJobState {
 @override@JsonKey() final  String text;
 @override final  UploadFile? pickedFile;
 @override@JsonKey() final  String sourceUrl;
+/// Whether [sourceUrl] is a video link the app can read.
+@override@JsonKey() final  bool sourceUrlValid;
 @override@JsonKey() final  bool fileTooLarge;
 @override@JsonKey() final  NewJobStatus status;
 @override final  AppError? lastError;
@@ -260,16 +264,16 @@ _$NewJobStateCopyWith<_NewJobState> get copyWith => __$NewJobStateCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NewJobState&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&const DeepCollectionEquality().equals(other._supportedSources, _supportedSources)&&(identical(other.language, language) || other.language == language)&&(identical(other.text, text) || other.text == text)&&(identical(other.pickedFile, pickedFile) || other.pickedFile == pickedFile)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.fileTooLarge, fileTooLarge) || other.fileTooLarge == fileTooLarge)&&(identical(other.status, status) || other.status == status)&&(identical(other.lastError, lastError) || other.lastError == lastError)&&(identical(other.submittedJobId, submittedJobId) || other.submittedJobId == submittedJobId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NewJobState&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&const DeepCollectionEquality().equals(other._supportedSources, _supportedSources)&&(identical(other.language, language) || other.language == language)&&(identical(other.text, text) || other.text == text)&&(identical(other.pickedFile, pickedFile) || other.pickedFile == pickedFile)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.sourceUrlValid, sourceUrlValid) || other.sourceUrlValid == sourceUrlValid)&&(identical(other.fileTooLarge, fileTooLarge) || other.fileTooLarge == fileTooLarge)&&(identical(other.status, status) || other.status == status)&&(identical(other.lastError, lastError) || other.lastError == lastError)&&(identical(other.submittedJobId, submittedJobId) || other.submittedJobId == submittedJobId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,sourceType,const DeepCollectionEquality().hash(_supportedSources),language,text,pickedFile,sourceUrl,fileTooLarge,status,lastError,submittedJobId);
+int get hashCode => Object.hash(runtimeType,sourceType,const DeepCollectionEquality().hash(_supportedSources),language,text,pickedFile,sourceUrl,sourceUrlValid,fileTooLarge,status,lastError,submittedJobId);
 
 @override
 String toString() {
-  return 'NewJobState(sourceType: $sourceType, supportedSources: $supportedSources, language: $language, text: $text, pickedFile: $pickedFile, sourceUrl: $sourceUrl, fileTooLarge: $fileTooLarge, status: $status, lastError: $lastError, submittedJobId: $submittedJobId)';
+  return 'NewJobState(sourceType: $sourceType, supportedSources: $supportedSources, language: $language, text: $text, pickedFile: $pickedFile, sourceUrl: $sourceUrl, sourceUrlValid: $sourceUrlValid, fileTooLarge: $fileTooLarge, status: $status, lastError: $lastError, submittedJobId: $submittedJobId)';
 }
 
 
@@ -280,7 +284,7 @@ abstract mixin class _$NewJobStateCopyWith<$Res> implements $NewJobStateCopyWith
   factory _$NewJobStateCopyWith(_NewJobState value, $Res Function(_NewJobState) _then) = __$NewJobStateCopyWithImpl;
 @override @useResult
 $Res call({
- JobSourceType sourceType, Set<JobSourceType> supportedSources, JobLanguage language, String text, UploadFile? pickedFile, String sourceUrl, bool fileTooLarge, NewJobStatus status, AppError? lastError, String? submittedJobId
+ JobSourceType sourceType, Set<JobSourceType> supportedSources, JobLanguage language, String text, UploadFile? pickedFile, String sourceUrl, bool sourceUrlValid, bool fileTooLarge, NewJobStatus status, AppError? lastError, String? submittedJobId
 });
 
 
@@ -297,7 +301,7 @@ class __$NewJobStateCopyWithImpl<$Res>
 
 /// Create a copy of NewJobState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? sourceType = null,Object? supportedSources = null,Object? language = null,Object? text = null,Object? pickedFile = freezed,Object? sourceUrl = null,Object? fileTooLarge = null,Object? status = null,Object? lastError = freezed,Object? submittedJobId = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? sourceType = null,Object? supportedSources = null,Object? language = null,Object? text = null,Object? pickedFile = freezed,Object? sourceUrl = null,Object? sourceUrlValid = null,Object? fileTooLarge = null,Object? status = null,Object? lastError = freezed,Object? submittedJobId = freezed,}) {
   return _then(_NewJobState(
 sourceType: null == sourceType ? _self.sourceType : sourceType // ignore: cast_nullable_to_non_nullable
 as JobSourceType,supportedSources: null == supportedSources ? _self._supportedSources : supportedSources // ignore: cast_nullable_to_non_nullable
@@ -305,7 +309,8 @@ as Set<JobSourceType>,language: null == language ? _self.language : language // 
 as JobLanguage,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,pickedFile: freezed == pickedFile ? _self.pickedFile : pickedFile // ignore: cast_nullable_to_non_nullable
 as UploadFile?,sourceUrl: null == sourceUrl ? _self.sourceUrl : sourceUrl // ignore: cast_nullable_to_non_nullable
-as String,fileTooLarge: null == fileTooLarge ? _self.fileTooLarge : fileTooLarge // ignore: cast_nullable_to_non_nullable
+as String,sourceUrlValid: null == sourceUrlValid ? _self.sourceUrlValid : sourceUrlValid // ignore: cast_nullable_to_non_nullable
+as bool,fileTooLarge: null == fileTooLarge ? _self.fileTooLarge : fileTooLarge // ignore: cast_nullable_to_non_nullable
 as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as NewJobStatus,lastError: freezed == lastError ? _self.lastError : lastError // ignore: cast_nullable_to_non_nullable
 as AppError?,submittedJobId: freezed == submittedJobId ? _self.submittedJobId : submittedJobId // ignore: cast_nullable_to_non_nullable

@@ -16,15 +16,18 @@ import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
 import 'package:nutq/features/jobs/data/media/platform_media_files.dart';
 import 'package:nutq/features/jobs/data/preferences/shared_preferences_job_rates_store.dart';
 import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
+import 'package:nutq/features/jobs/data/youtube/youtube_subtitle_provider.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
 import 'package:nutq/features/jobs/domain/repositories/media_files.dart';
 import 'package:nutq/features/jobs/domain/services/background_job.dart';
 import 'package:nutq/features/jobs/domain/services/job_runner.dart';
 import 'package:nutq/features/jobs/domain/services/job_scheduler.dart';
+import 'package:nutq/features/jobs/domain/services/video_subtitles.dart';
 import 'package:nutq/features/jobs/domain/sources/media_transcript_source.dart';
 import 'package:nutq/features/jobs/domain/sources/text_transcript_source.dart';
 import 'package:nutq/features/jobs/domain/sources/transcript_source_registry.dart';
+import 'package:nutq/features/jobs/domain/sources/youtube_transcript_source.dart';
 import 'package:nutq/features/jobs/domain/usecases/process_job.dart';
 import 'package:nutq/features/jobs/domain/usecases/submit_job.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
@@ -139,8 +142,10 @@ void _registerJobs() {
               recognizer: sl<SpeechRecognizer>(),
               background: sl<BackgroundJob>(),
             ),
+        YouTubeTranscriptSource(sl<SubtitleProvider>()),
       ]),
     )
+    ..registerLazySingleton<SubtitleProvider>(YouTubeSubtitleProvider.new)
     ..registerLazySingleton<ProcessJob>(
       () => ProcessJob(
         jobs: sl<JobsRepository>(),
@@ -171,6 +176,7 @@ void _registerJobs() {
       () => NewJobCubit(
         sl<SubmitJob>(),
         sl<MediaFiles>(),
+        recognizesLink: sl<SubtitleProvider>().recognizes,
         supportedSources: sl<TranscriptSourceRegistry>().supportedTypes,
       ),
     )

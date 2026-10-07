@@ -25,6 +25,9 @@ abstract class NewJobState with _$NewJobState {
     @Default('') String text,
     UploadFile? pickedFile,
     @Default('') String sourceUrl,
+
+    /// Whether [sourceUrl] is a video link the app can read.
+    @Default(false) bool sourceUrlValid,
     @Default(false) bool fileTooLarge,
     @Default(NewJobStatus.idle) NewJobStatus status,
     AppError? lastError,
@@ -45,7 +48,7 @@ abstract class NewJobState with _$NewJobState {
       isSourceSupported &&
       switch (sourceType) {
         JobSourceType.text => text.trim().isNotEmpty && text.length <= maxTextLength,
-        JobSourceType.youtube => sourceUrl.trim().isNotEmpty,
+        JobSourceType.youtube => sourceUrlValid,
         JobSourceType.audio || JobSourceType.video => pickedFile != null && !fileTooLarge,
       };
 }

@@ -14,6 +14,9 @@ class TextTranscriptSource implements TranscriptSource {
   double get progressShare => 0;
 
   @override
+  bool get transcribesAudio => false;
+
+  @override
   Future<SourceTranscript> resolve(SourceRequest request) async {
     final text = request.job.transcript?.text;
     if (text == null || text.trim().isEmpty) {

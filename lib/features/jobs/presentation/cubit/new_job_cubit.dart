@@ -14,7 +14,13 @@ class NewJobCubit extends Cubit<NewJobState> {
     this._submitJob,
     this._media, {
     required Set<JobSourceType> supportedSources,
-  }) : super(NewJobState(supportedSources: supportedSources));
+    bool Function(String link)? recognizesLink,
+  }) : _recognizesLink = recognizesLink ?? _anyLink,
+       super(NewJobState(supportedSources: supportedSources));
+
+  final bool Function(String link) _recognizesLink;
+
+  static bool _anyLink(String link) => link.trim().isNotEmpty;
 
   final SubmitJob _submitJob;
   final MediaFiles _media;
@@ -34,7 +40,8 @@ class NewJobCubit extends Cubit<NewJobState> {
 
   void setText(String value) => emit(state.copyWith(text: value));
 
-  void setSourceUrl(String value) => emit(state.copyWith(sourceUrl: value));
+  void setSourceUrl(String value) =>
+      emit(state.copyWith(sourceUrl: value, sourceUrlValid: _recognizesLink(value)));
 
   /// Opens the system picker for the current tab (audio or video). A file
   /// over [UploadFile.maxBytes] is kept so the sheet can say why it cannot be

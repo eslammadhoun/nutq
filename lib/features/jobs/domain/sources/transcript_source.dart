@@ -49,5 +49,10 @@ abstract interface class TranscriptSource {
   /// rest is summarization. Pasted text has none.
   double get progressShare;
 
+  /// Whether [resolve] runs speech recognition over the source's audio. Only
+  /// then does the duration it reports set the time estimate and teach the
+  /// device its transcription speed.
+  bool get transcribesAudio;
+
   Future<SourceTranscript> resolve(SourceRequest request);
 }

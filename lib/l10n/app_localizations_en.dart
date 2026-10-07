@@ -491,4 +491,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileOnDevice => 'Everything runs on this phone. Nothing is uploaded.';
+
+  @override
+  String get jobFailureNoSubtitles =>
+      'This video has no subtitles in the chosen language. Try the other language.';
+
+  @override
+  String get newJobYoutubeInvalid => 'That doesn\'t look like a YouTube link.';
 }

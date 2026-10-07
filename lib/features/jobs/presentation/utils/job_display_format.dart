@@ -173,4 +173,5 @@ String jobFailureMessage(AppLocalizations l10n, JobFailureKind kind) => switch (
   JobFailureKind.unsupportedMedia => l10n.jobFailureUnsupportedMedia,
   JobFailureKind.transcriptionFailed => l10n.jobFailureTranscriptionFailed,
   JobFailureKind.insufficientStorage => l10n.jobFailureInsufficientStorage,
+  JobFailureKind.noSubtitles => l10n.jobFailureNoSubtitles,
 };

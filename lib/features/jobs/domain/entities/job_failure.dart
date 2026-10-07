@@ -25,6 +25,9 @@ enum JobFailureKind {
 
   /// Not enough free space to store or process the source.
   insufficientStorage,
+
+  /// The video has no subtitles in the job's language.
+  noSubtitles,
 }
 
 /// Thrown by a source (or any stage) to fail a job with a specific reason.
