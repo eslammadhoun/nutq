@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/core/widgets/app_icon.dart';
 import 'package:nutq/features/jobs/domain/entities/job_detail_entity.dart';
 import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
 import 'package:nutq/features/jobs/presentation/widgets/job_detail_widgets/expandable_job_text.dart';
@@ -35,7 +36,7 @@ class TranscriptCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           JobDetailSectionHeader(
-            glyph: '\u{1F4C4}',
+            iconPath: AppIcons.transcript,
             title: l10n.jobDetailTranscript,
             tag: JobDetailTagChip(
               label: languageName(l10n, job.sourceLanguage.code),

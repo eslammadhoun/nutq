@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/core/widgets/app_icon.dart';
 
-/// Header shared by the Job Detail cards: section glyph, title and an
+/// Header shared by the Job Detail cards: section icon, title and an
 /// optional tag on one 26px row, then a hairline divider.
 class JobDetailSectionHeader extends StatelessWidget {
   const JobDetailSectionHeader({
     super.key,
-    required this.glyph,
+    required this.iconPath,
     required this.title,
     this.tag,
   });
 
-  final String glyph;
+  /// An [AppIcons] path.
+  final String iconPath;
   final String title;
   final Widget? tag;
 
@@ -28,7 +30,7 @@ class JobDetailSectionHeader extends StatelessWidget {
             children: [
               SizedBox(
                 width: 20.w,
-                child: Text(glyph, style: context.typography.bodyLarge),
+                child: AppIcon(iconPath, size: 20.w, color: colors.primary),
               ),
               SizedBox(width: 8.w),
               Expanded(

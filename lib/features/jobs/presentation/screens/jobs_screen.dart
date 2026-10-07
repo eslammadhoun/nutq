@@ -4,6 +4,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/theme/app_colors.dart';
+import 'package:nutq/core/widgets/app_icon.dart';
 import 'package:nutq/core/widgets/global_text_field.dart';
 import 'package:nutq/features/alerts/presentation/cubit/alerts_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
@@ -87,10 +88,8 @@ class _JobsScreenState extends State<JobsScreen> {
                     color: colors.surface,
                     border: BoxBorder.all(color: colors.borderDefault),
                   ),
-                  child: Icon(
-                    Icons.notifications_none_rounded,
-                    size: 18.sp,
-                    color: colors.textPrimary,
+                  child: Center(
+                    child: AppIcon(AppIcons.alerts, size: 18.w, color: colors.textPrimary),
                   ),
                 ),
                 // Unread alerts.
