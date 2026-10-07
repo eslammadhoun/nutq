@@ -7,7 +7,6 @@ import 'package:nutq/features/home/presentation/screens/home_screen.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
 import 'package:nutq/features/jobs/presentation/screens/job_detail_screen.dart';
 import 'package:nutq/features/onBoarding/presentation/screens/on_boarding_screen.dart';
-import 'package:nutq/features/onBoarding/presentation/screens/splash_screen.dart';
 
 class AppRouter {
   /// Global access to the navigator for imperative navigation from
@@ -16,9 +15,6 @@ class AppRouter {
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case Routes.splash:
-        return _buildRoute(settings, const SplashScreen());
-
       case Routes.onboarding:
         return _buildRoute(settings, const OnBoardingScreen());
 
