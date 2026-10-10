@@ -7,4 +7,13 @@
 enum AppError {
   /// Reading or writing the on-device database failed.
   storage,
+
+  /// A model download lost its connection or the server refused it.
+  modelDownloadNetwork,
+
+  /// The phone has no room for a model download.
+  modelDownloadNoSpace,
+
+  /// A downloaded model did not match its checksum, so it was thrown away.
+  modelDownloadCorrupt,
 }

@@ -331,6 +331,18 @@ class AppLocalizationsAr extends AppLocalizations {
       'تعذّر الوصول إلى المهام المحفوظة على هذا الجهاز. يُرجى المحاولة مرة أخرى.';
 
   @override
+  String get errorModelDownloadNetwork =>
+      'تعذّر تنزيل نماذج الذكاء الاصطناعي. تحقّق من اتصالك ثم حاول مرة أخرى.';
+
+  @override
+  String get errorModelDownloadNoSpace =>
+      'لا توجد مساحة كافية على هذا الجهاز لتنزيل نماذج الذكاء الاصطناعي.';
+
+  @override
+  String get errorModelDownloadCorrupt =>
+      'تلف أحد النماذج أثناء التنزيل فتم حذفه. يُرجى تنزيله مرة أخرى.';
+
+  @override
   String get jobDetailNotFound => 'لم تعد هذه المهمة موجودة.';
 
   @override

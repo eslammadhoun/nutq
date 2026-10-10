@@ -331,6 +331,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorStorage => 'Couldn\'t access saved jobs on this device. Please try again.';
 
   @override
+  String get errorModelDownloadNetwork =>
+      'Couldn\'t download the AI models. Check your connection and try again.';
+
+  @override
+  String get errorModelDownloadNoSpace =>
+      'Not enough free space on this device to download the AI models.';
+
+  @override
+  String get errorModelDownloadCorrupt =>
+      'A downloaded model was damaged, so it was removed. Please download it again.';
+
+  @override
   String get jobDetailNotFound => 'This job no longer exists.';
 
   @override

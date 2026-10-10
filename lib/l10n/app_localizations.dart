@@ -675,6 +675,24 @@ abstract class AppLocalizations {
   /// **'Couldn\'t access saved jobs on this device. Please try again.'**
   String get errorStorage;
 
+  /// No description provided for @errorModelDownloadNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t download the AI models. Check your connection and try again.'**
+  String get errorModelDownloadNetwork;
+
+  /// No description provided for @errorModelDownloadNoSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough free space on this device to download the AI models.'**
+  String get errorModelDownloadNoSpace;
+
+  /// No description provided for @errorModelDownloadCorrupt.
+  ///
+  /// In en, this message translates to:
+  /// **'A downloaded model was damaged, so it was removed. Please download it again.'**
+  String get errorModelDownloadCorrupt;
+
   /// No description provided for @jobDetailNotFound.
   ///
   /// In en, this message translates to:
