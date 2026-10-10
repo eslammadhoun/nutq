@@ -12,12 +12,16 @@ import 'package:nutq/core/routing/app_router.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/theme/app_theme.dart';
 import 'package:nutq/core/theme/theme_cubit.dart';
+import 'package:nutq/features/ai_models/domain/repositories/model_repository.dart';
 import 'package:nutq/features/jobs/domain/services/job_runner.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupDI();
+  // Reads the model manifest and which models are already downloaded: a few
+  // file checks, so the first screen knows what is missing.
+  await sl<ModelRepository>().init();
   runApp(const NutqApp());
   // After the first frame: recover jobs an earlier session left running, then
   // start processing the queue. Nothing here delays startup.

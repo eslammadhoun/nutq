@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
@@ -5,16 +7,24 @@ import 'package:nutq/features/summarization/data/datasources/gemma_generation_co
 import 'package:nutq/features/summarization/data/datasources/llm_runtime.dart';
 import 'package:nutq/features/summarization/data/datasources/summarizer_model.dart';
 
-/// [LlmRuntime] on `flutter_gemma` + LiteRT-LM: [model] installed from a
-/// bundled asset. Contains no logic beyond translating calls, so it is the only
+/// [LlmRuntime] on `flutter_gemma` + LiteRT-LM: [model] loaded from the file
+/// the app downloaded (`ModelRepository`), registered with flutter_gemma in
+/// place, without a copy. Contains no logic beyond translating calls, so it is the only
 /// part of summarization that needs a real device to verify.
 ///
 /// The engine is initialized on first use, not at app start: the native setup
 /// then happens with the first job instead of delaying startup.
 class FlutterGemmaRuntime implements LlmRuntime {
-  FlutterGemmaRuntime({this.model = activeSummarizerModel, this.backend = PreferredBackend.gpu});
+  FlutterGemmaRuntime({
+    required this.modelPath,
+    this.model = activeSummarizerModel,
+    this.backend = PreferredBackend.gpu,
+  });
 
   final SummarizerModel model;
+
+  /// Where the downloaded [model] file is.
+  final String Function() modelPath;
 
   /// Where inference runs. On an iPhone XR (3 GB) v3 on the GPU ran the AI
   /// lecture (2279 words) in 44.7 s — prefill ~160 tok/s, decode 15.8 tok/s —
@@ -55,8 +65,7 @@ class FlutterGemmaRuntime implements LlmRuntime {
   @override
   Future<bool> isModelAvailable() async {
     try {
-      await _ensureEngine();
-      return _isActive || await FlutterGemma.isModelInstalled(model.fileName);
+      return await File(modelPath()).exists();
     } catch (_) {
       return false;
     }
@@ -64,17 +73,23 @@ class FlutterGemmaRuntime implements LlmRuntime {
 
   /// flutter_gemma restores the last active model on launch, so after the app
   /// moves to a new model an installed old one would otherwise keep running.
-  bool get _isActive =>
-      FlutterGemmaPlugin.instance.modelManager.activeInferenceModel?.name == model.fileName;
+  /// The path counts too: iOS moves the app's folder on every update.
+  bool get _isActive {
+    final active = FlutterGemmaPlugin.instance.modelManager.activeInferenceModel;
+    if (active is! InferenceModelSpec || active.name != model.fileName) return false;
+    final source = active.modelSource;
+    return source is FileSource && source.path == modelPath();
+  }
 
   @override
   Future<void> load() async {
     await _ensureEngine();
     if (!_isActive) {
+      await _forgetEarlierInstall();
       await FlutterGemma.installModel(
         modelType: ModelType.gemmaIt,
         fileType: ModelFileType.litertlm,
-      ).fromAsset(model.asset).install();
+      ).fromFile(modelPath()).install();
     }
     final resolved = await _resolveBackend();
     _model = await FlutterGemma.getActiveModel(
@@ -82,6 +97,19 @@ class FlutterGemmaRuntime implements LlmRuntime {
       preferredBackend: resolved,
     );
     runningBackend = resolved;
+  }
+
+  /// Drops flutter_gemma's record of the model from an earlier install: a
+  /// stale path, or, from builds that bundled the model, its own ~580 MB copy
+  /// of the asset, which this deletes.
+  Future<void> _forgetEarlierInstall() async {
+    try {
+      if (await FlutterGemma.isModelInstalled(model.fileName)) {
+        await FlutterGemma.uninstallModel(model.fileName);
+      }
+    } catch (_) {
+      // Best effort: installing from the file below works either way.
+    }
   }
 
   @override

@@ -5,14 +5,13 @@ import 'package:nutq/core/domain/cancellation.dart';
 import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/transcription/domain/speech_recognizer.dart';
 
-/// A bundled Moonshine model. Moonshine publishes one model per language, so
+/// A Moonshine model. Moonshine publishes one model per language, so
 /// choosing the language chooses the model; audio run through the wrong one
 /// comes out as fragments of the other script.
 class MoonshineModel {
   const MoonshineModel({required this.directory, required this.version});
 
-  /// Folder under `ios/Runner/moonshine_models/`, resolved by the bridge
-  /// inside the app bundle. See `third_party/moonshine/fetch-model.sh`.
+  /// The model's name on Moonshine's CDN (`tiny-streaming-ar`).
   final String directory;
 
   /// The CDN release the weights came from.
@@ -49,7 +48,9 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
     bool? isAvailable,
     this.decodeIncompleteLines = false,
     this.singleThread = false,
-  }) : _channel = channel ?? const MethodChannel(channelName),
+    String Function(ContentLanguage language)? modelPath,
+  }) : _modelPath = modelPath ?? ((language) => MoonshineModel.of(language).directory),
+       _channel = channel ?? const MethodChannel(channelName),
        _progress = progressChannel ?? const EventChannel(progressChannelName),
        isAvailable = isAvailable ?? (Platform.isIOS || Platform.isAndroid);
 
@@ -74,6 +75,10 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
 
   final MethodChannel _channel;
   final EventChannel _progress;
+
+  /// The folder holding the model for a language: the downloaded one
+  /// (`ModelRepository`). A bare name is looked up inside the app bundle.
+  final String Function(ContentLanguage language) _modelPath;
 
   /// Moonshine's `decode_incomplete_lines`. Off: every line is decoded once,
   /// when complete, about 12% less work for a file; the bridge recovers the
@@ -121,6 +126,7 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
       throw const SpeechRecognitionException('Moonshine is only available on iOS');
     }
     final model = MoonshineModel.of(language);
+    final modelPath = _modelPath(language);
     onProgress?.call(0);
 
     // Lines the bridge is done with. Each event adds only those finished since
@@ -151,7 +157,7 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
       lines =
           await _channel.invokeListMethod<Object?>('transcribe', {
             'audioPath': audioPath,
-            'modelPath': model.directory,
+            'modelPath': modelPath,
             'modelArch': modelArchTinyStreaming,
             'keepLoaded': false,
             'chunkSeconds': chunkSeconds,

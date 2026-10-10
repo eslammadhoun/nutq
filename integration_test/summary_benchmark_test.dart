@@ -17,6 +17,9 @@ import 'package:integration_test/integration_test.dart';
 import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/core/utils/background_work.dart';
 import 'package:nutq/core/utils/platform_device_status.dart';
+import 'package:nutq/features/ai_models/data/model_manifest.dart';
+import 'package:nutq/features/ai_models/data/model_repository_impl.dart';
+import 'package:nutq/features/ai_models/data/model_storage.dart';
 import 'package:nutq/features/summarization/data/datasources/flutter_gemma_runtime.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
@@ -48,13 +51,23 @@ void main() {
         transcript = await File(path).readAsString();
       }
       const device = PlatformDeviceStatus();
+      final models = ModelRepositoryImpl(
+        loadPacks: ModelManifest.load,
+        storage: const PlatformModelStorage(),
+      );
+      await models.init();
+      await models.download([models.summarizer.id]);
+      expect(models.statuses[models.summarizer.id]!.isReady, isTrue, reason: 'model download');
+      final modelPath = models.fileOf(models.summarizer.id);
 
       for (final name in _backends.split(',')) {
         final backend = name.trim() == 'cpu' ? PreferredBackend.cpu : PreferredBackend.gpu;
         // ignore: avoid_print
         print('[bench] backend=${backend.name} start ${await device.snapshot()}');
         final repository = SummarizationRepositoryImpl(
-          dataSource: GemmaLocalDataSourceImpl(FlutterGemmaRuntime(backend: backend)),
+          dataSource: GemmaLocalDataSourceImpl(
+            FlutterGemmaRuntime(modelPath: () => modelPath, backend: backend),
+          ),
         );
         final summarize = SummarizeTranscript(
           repository: repository,
