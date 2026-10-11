@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutq/core/errors/app_error.dart';
 import 'package:nutq/features/jobs/data/datasources/jobs_local_datasource.dart';
@@ -5,6 +7,7 @@ import 'package:nutq/features/jobs/data/repositories/jobs_repository_impl.dart';
 import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
+import 'package:nutq/features/jobs/domain/usecases/delete_job.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
 
@@ -194,12 +197,37 @@ void main() {
       expect(cubit.state.deleteError, isNull);
     });
 
+    test('deleting the running job stops it, so the next job starts at once', () async {
+      final gate = Completer<void>();
+      h.gemma.responder = (prompt, call) async {
+        if (call == 1) await gate.future;
+        return null;
+      };
+      final a = await h.submit('AAA $sampleTranscript');
+      await eventually(() => h.gemma.calls == 1); // A is inside a model call
+      await cubit.fetchJobs();
+
+      final deleting = cubit.deleteJob(a);
+      await pumpEventQueue();
+      expect(h.gemma.cancelled, isTrue, reason: 'the run was told to stop');
+      gate.complete();
+      await deleting;
+
+      final b = await h.submit('BBB $sampleTranscript');
+      await eventually(() async => (await h.repo.getJob(b))!.status == JobRunStatus.completed);
+      expect(await h.repo.getJob(a), isNull);
+    });
+
     test('a failed delete restores the row and signals the error once', () async {
       final repo = JobsRepositoryImpl(
         FaultyJobsLocalDataSource(JobsLocalDataSourceImpl(h.db.jobsDao), {Fault.deleteJob}),
         newId: () => 'x',
       );
-      final flaky = JobsCubit(repo, searchDebounce: const Duration(milliseconds: 20));
+      final flaky = JobsCubit(
+        repo,
+        DeleteJob(repo, h.runner),
+        searchDebounce: const Duration(milliseconds: 20),
+      );
       addTearDown(flaky.close);
       final id = await h.createJob('keep me');
       await flaky.fetchJobs();
@@ -221,7 +249,7 @@ void main() {
       FaultyJobsLocalDataSource(JobsLocalDataSourceImpl(h.db.jobsDao), {Fault.watchJobs}),
       newId: () => 'x',
     );
-    final failing = JobsCubit(repo);
+    final failing = JobsCubit(repo, DeleteJob(repo, h.runner));
     addTearDown(failing.close);
     await failing.fetchJobs();
     expect(failing.state.status, JobsStatus.failure);

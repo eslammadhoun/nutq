@@ -11,6 +11,7 @@ import 'package:nutq/features/jobs/domain/services/job_runner.dart';
 import 'package:nutq/features/jobs/domain/sources/text_transcript_source.dart';
 import 'package:nutq/features/jobs/domain/sources/transcript_source.dart';
 import 'package:nutq/features/jobs/domain/sources/transcript_source_registry.dart';
+import 'package:nutq/features/jobs/domain/usecases/delete_job.dart';
 import 'package:nutq/features/jobs/domain/usecases/process_job.dart';
 import 'package:nutq/features/jobs/domain/usecases/submit_job.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
@@ -65,6 +66,7 @@ class JobHarness {
       now: () => DateTime.utc(2000),
     );
     submitJob = SubmitJob(repoFixture.repo, runner);
+    deleteJob = DeleteJob(repoFixture.repo, runner);
     if (autoStart) unawaited(runner.start());
   }
 
@@ -76,6 +78,7 @@ class JobHarness {
   late final ProcessJob processJob;
   late final JobRunner runner;
   late final SubmitJob submitJob;
+  late final DeleteJob deleteJob;
 
   JobsRepositoryImpl get repo => repoFixture.repo;
 
@@ -95,7 +98,7 @@ class JobHarness {
       JobDetailCubit(repository: repo, scheduler: runner, jobId: jobId);
 
   JobsCubit jobsCubit({Duration searchDebounce = const Duration(milliseconds: 20)}) =>
-      JobsCubit(repo, searchDebounce: searchDebounce);
+      JobsCubit(repo, deleteJob, searchDebounce: searchDebounce);
 
   final media = FakeMediaFiles();
 

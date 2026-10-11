@@ -23,7 +23,7 @@ void main() {
   setUp(() {
     h = JobHarness();
     h.media.bytes = 3 * 1024 * 1024;
-    storage = LocalJobStorage(jobs: h.repo, media: h.media, scheduler: h.runner);
+    storage = LocalJobStorage(jobs: h.repo, media: h.media, deleteJob: h.deleteJob);
   });
   tearDown(() => h.dispose());
 
