@@ -81,8 +81,11 @@ class ModelRepositoryImpl implements ModelRepository {
   @override
   Future<void> download(Iterable<String> ids) {
     for (final id in ids) {
-      if (_statuses[id]!.isReady || _queue.contains(id)) continue;
+      final status = _statuses[id]!;
+      if (status.isReady || _queue.contains(id)) continue;
       _queue.add(id);
+      // Waiting packs show as downloading too, so a tap is seen at once.
+      _set(_pack(id), ModelPackPhase.downloading, status.receivedBytes);
     }
     final running = _drained;
     if (running != null) return running.future;
@@ -150,6 +153,11 @@ class ModelRepositoryImpl implements ModelRepository {
 
   @override
   void cancel() {
+    // The running pack settles in [_downloadPack]; the waiting ones here.
+    final running = _drained == null ? null : _queue.firstOrNull;
+    for (final id in _queue.where((id) => id != running)) {
+      _set(_pack(id), ModelPackPhase.missing, _statuses[id]!.receivedBytes);
+    }
     _queue.clear();
     _cancellation?.cancel();
   }

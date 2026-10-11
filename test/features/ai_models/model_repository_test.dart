@@ -185,6 +185,18 @@ void main() {
     expect(models.statuses['gemma']!.isReady, isTrue);
   });
 
+  test('a pack waiting in the queue shows as downloading at once', () async {
+    final models = await repository();
+
+    final done = models.download(['gemma', 'moonshine-en']);
+
+    expect(models.statuses['moonshine-en']!.phase, ModelPackPhase.downloading);
+    models.cancel();
+    expect(models.statuses['moonshine-en']!.phase, ModelPackPhase.missing);
+    await done;
+    expect(models.statuses['gemma']!.phase, ModelPackPhase.missing);
+  });
+
   test('downloads asked for while one runs join the same queue', () async {
     final models = await repository();
 
