@@ -4,24 +4,6 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-/// Moonshine models, fetched into the iOS project by
-/// third_party/moonshine/fetch-model.sh and shared with Android rather than
-/// downloaded twice.
-val moonshineModels = rootProject.file("../ios/Runner/moonshine_models")
-// A concrete path: the Android source-set API does not take Gradle providers.
-val moonshineAssets: File = layout.buildDirectory.dir("generated/moonshine_assets").get().asFile
-
-val syncMoonshineModels by tasks.registering(Sync::class) {
-    description = "Copies the Moonshine models into the APK's assets."
-    from(moonshineModels)
-    into(moonshineAssets.resolve("moonshine_models"))
-    doFirst {
-        check(moonshineModels.resolve("tiny-streaming-ar/streaming_config.json").exists()) {
-            "Moonshine models are missing. Run third_party/moonshine/fetch-model.sh first."
-        }
-    }
-}
-
 android {
     namespace = "com.nutq.nutq"
     compileSdk = maxOf(flutter.compileSdkVersion, 35)
@@ -55,14 +37,15 @@ android {
         }
     }
 
-    sourceSets["main"].assets.srcDir(moonshineAssets)
-
     packaging {
         jniLibs {
             // Moonshine's Java binding's JNI library; the app uses its own.
             excludes += "**/libmoonshine-jni.so"
             // Vulkan validation layer Flutter adds to debug builds: 15 MB per ABI.
             excludes += "**/libVkLayer_khronos_validation.so"
+            // Qualcomm NPU (QNN) runtimes LiteRT-LM ships, ~54 MB: Nutq runs
+            // Gemma on the GPU, falling back to the CPU, never on the NPU.
+            excludes += "**/libQnn*.so"
 
             // `--target-platform` trims only Flutter's engine: the AARs
             // (FFmpegKit, Moonshine, LiteRT-LM) would still ship every ABI.
@@ -79,12 +62,6 @@ android {
         }
     }
 
-    androidResources {
-        // Stored uncompressed: installing a model is a straight copy out of the
-        // APK, the weights barely compress, and the Gemma model is memory-mapped.
-        noCompress += listOf("ort", "bin", "litertlm")
-    }
-
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
@@ -97,8 +74,6 @@ android {
         }
     }
 }
-
-tasks.named("preBuild") { dependsOn(syncMoonshineModels) }
 
 dependencies {
     // Only for its native libraries: libmoonshine.so (the C API) and
