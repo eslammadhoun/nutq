@@ -4,7 +4,10 @@ import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:nutq/core/utils/throttler.dart';
 import 'package:nutq/features/jobs/domain/entities/job_exceptions.dart';
+import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
+import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
+import 'package:nutq/features/jobs/domain/repositories/media_files.dart';
 import 'package:nutq/features/jobs/domain/services/job_scheduler.dart';
 import 'package:nutq/features/jobs/domain/usecases/process_job.dart';
 
@@ -17,6 +20,9 @@ import 'package:nutq/features/jobs/domain/usecases/process_job.dart';
 /// - **Recovers after a crash.** [start] fails jobs an earlier session left
 ///   active (only those created before this runner was created, so a job
 ///   submitted a moment ago is never touched).
+/// - **Frees media it no longer needs.** A job's audio or video file is deleted
+///   once the job ends, and [start] sweeps away files no active job uses (left
+///   by a crash, or by builds before this rule).
 /// - **Releases memory when idle.** [onIdle] fires after the queue has been
 ///   empty for [idleAfter] (for example to unload the model).
 ///
@@ -26,6 +32,7 @@ class JobRunner implements JobScheduler {
   JobRunner({
     required this._jobs,
     required this._process,
+    this._media,
     this.onIdle,
     this.idleAfter = const Duration(minutes: 2),
     this.partialInterval = const Duration(milliseconds: 250),
@@ -34,6 +41,9 @@ class JobRunner implements JobScheduler {
 
   final JobsRepository _jobs;
   final ProcessJob _process;
+
+  /// Null leaves media files alone (tests that do not need them).
+  final MediaFiles? _media;
 
   /// Called once the queue has been idle for [idleAfter].
   final Future<void> Function()? onIdle;
@@ -64,6 +74,7 @@ class JobRunner implements JobScheduler {
     } catch (error) {
       debugPrint('Could not recover interrupted jobs: $error');
     }
+    await _sweepMedia();
     _started = true;
     _pump();
   }
@@ -154,6 +165,12 @@ class JobRunner implements JobScheduler {
     transcripts.cancel();
     await subscription.cancel();
 
+    try {
+      await _jobs.releaseMedia(id);
+    } catch (error) {
+      debugPrint('Could not release media of job $id: $error');
+    }
+
     _currentId = null;
     _currentRun = null;
     _live.remove(id);
@@ -164,6 +181,27 @@ class JobRunner implements JobScheduler {
       _pump();
     } else {
       _scheduleIdle();
+    }
+  }
+
+  /// Deletes media files no pending or running job reads. Files imported since
+  /// this runner was created are spared: they may belong to a job being
+  /// submitted.
+  Future<void> _sweepMedia() async {
+    final media = _media;
+    if (media == null) return;
+    try {
+      final active = await _jobs
+          .watchJobs(
+            const JobsQuery(statuses: {JobRunStatus.pending, JobRunStatus.running}, limit: 1 << 30),
+          )
+          .first;
+      final keep = <String>{
+        for (final job in active) ?(await _jobs.getJob(job.id))?.sourceFilePath,
+      };
+      await media.deleteAllExcept(keep, modifiedBefore: _startedAt);
+    } catch (error) {
+      debugPrint('Could not clean up job media: $error');
     }
   }
 

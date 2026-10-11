@@ -161,6 +161,14 @@ class JobsRepositoryImpl implements JobsRepository {
   });
 
   @override
+  Future<void> releaseMedia(String id) => _guard(() async {
+    final job = await _local.getJob(id);
+    final filePath = job?.sourceFilePath;
+    if (job == null || filePath == null || job.status.isActive) return;
+    await _removeFile(filePath);
+  });
+
+  @override
   Future<int> recoverInterruptedJobs({DateTime? createdBefore}) => _guard(
     () => _local.failActiveJobs(
       JobFailureKind.interrupted,

@@ -204,6 +204,7 @@ void _registerJobs() {
       () => JobRunner(
         jobs: sl<JobsRepository>(),
         process: sl<ProcessJob>(),
+        media: sl<MediaFiles>(),
         // Free the model's memory once no job has run for a while.
         onIdle: sl<SummarizationRepository>().release,
       ),

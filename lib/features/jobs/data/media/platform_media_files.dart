@@ -83,6 +83,21 @@ class PlatformMediaFiles implements MediaFiles {
   }
 
   @override
+  Future<void> deleteAllExcept(Set<String> keep, {required DateTime modifiedBefore}) async {
+    final dir = await _storage();
+    if (!await dir.exists()) return;
+    final names = {for (final path in keep) p.basename(path)};
+    await for (final entity in dir.list()) {
+      if (entity is! File || names.contains(p.basename(entity.path))) continue;
+      try {
+        if ((await entity.lastModified()).isBefore(modifiedBefore)) await entity.delete();
+      } on FileSystemException {
+        // Gone already, or in use: the next sweep tries again.
+      }
+    }
+  }
+
+  @override
   Future<String> import(UploadFile file) async {
     final dir = await (await _storage()).create(recursive: true);
     final target = p.join(dir.path, '${_newId()}${p.extension(file.path).toLowerCase()}');
