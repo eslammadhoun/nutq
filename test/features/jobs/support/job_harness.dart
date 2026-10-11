@@ -59,6 +59,7 @@ class JobHarness {
     runner = JobRunner(
       jobs: repoFixture.repo,
       process: processJob,
+      media: media,
       partialInterval: const Duration(milliseconds: 10),
       // Earlier than any test job, so startup recovery never touches them.
       now: () => DateTime.utc(2000),

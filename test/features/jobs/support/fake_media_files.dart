@@ -33,6 +33,13 @@ class FakeMediaFiles implements MediaFiles {
   @override
   Future<int> storageBytes() async => bytes;
 
+  /// Each [deleteAllExcept] call's kept paths.
+  final sweeps = <Set<String>>[];
+
+  @override
+  Future<void> deleteAllExcept(Set<String> keep, {required DateTime modifiedBefore}) async =>
+      sweeps.add(keep);
+
   @override
   Future<String> import(UploadFile file) async {
     if (importError != null) throw const FileSystemException('disk full');

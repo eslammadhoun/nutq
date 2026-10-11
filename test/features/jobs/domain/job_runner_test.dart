@@ -1,12 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/features/jobs/domain/entities/job_failure.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/entities/job_stage.dart';
+import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
 import 'package:nutq/features/jobs/domain/services/job_runner.dart';
 import 'package:nutq/features/jobs/domain/services/job_scheduler.dart';
 
+import '../support/fake_media_files.dart';
+import '../support/job_fixtures.dart';
 import '../support/job_harness.dart';
 
 /// Distinct one-section transcripts, so a job can be recognised in the
@@ -277,6 +282,49 @@ void main() {
         );
       },
     );
+
+    test('start deletes media no active job uses, keeping this session\'s imports', () async {
+      final active = await h.repo.createJob(
+        NewJobDraft.media(
+          type: JobSourceType.video,
+          filePath: '/app/job_media/active.mp4',
+          language: ContentLanguage.ar,
+        ),
+      );
+      final media = FakeMediaFiles();
+      final runner = JobRunner(
+        jobs: h.repo,
+        process: h.processJob,
+        media: media,
+        now: () => DateTime.utc(2000),
+      );
+      addTearDown(runner.dispose);
+      await runner.start();
+      expect(media.sweeps, [
+        {'/app/job_media/active.mp4'},
+      ]);
+      expect(await statusOf(active.id), JobRunStatus.pending);
+    });
+
+    test('a job\'s media file is deleted once its run ends, even when it fails', () async {
+      final removed = <String>[];
+      final repo = TestRepo(h.db, removeFile: (path) async => removed.add(path)).repo;
+      final runner = JobRunner(jobs: repo, process: h.processJob, now: () => DateTime.utc(2000));
+      addTearDown(runner.dispose);
+      await runner.start();
+      // No audio source is registered here, so the job fails as unsupported.
+      final job = await repo.createJob(
+        NewJobDraft.media(
+          type: JobSourceType.audio,
+          filePath: '/app/job_media/a.m4a',
+          language: ContentLanguage.ar,
+        ),
+      );
+      runner.enqueue(job.id);
+      await eventually(() async => removed.isNotEmpty);
+      expect(removed, ['/app/job_media/a.m4a']);
+      expect(await statusOf(job.id), JobRunStatus.failed);
+    });
 
     test('start is idempotent', () async {
       await h.runner.start();
