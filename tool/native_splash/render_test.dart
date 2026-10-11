@@ -1,12 +1,16 @@
-// Renders the iOS launch screen images from SplashArt.
+// Renders the launch screen images.
 //
 //   flutter test tool/native_splash/render_test.dart
 //
-// Writes two image sets, each with a dark variant:
+// iOS, two image sets, each with a dark variant:
 // - LaunchImage: SplashArt (390×844pt, transparent), centered on screen by
 //   LaunchScreen.storyboard.
 // - LaunchGradient: the design's background gradient, stretched to fill the
 //   screen behind it.
+//
+// Android 12+, whose launch screen is only an icon (drawable/splash_icon.xml)
+// on a color: splash_branding, the "Nutq" wordmark the system shows at the
+// bottom (200×80dp), in drawable-<density> and drawable-night-<density>.
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -15,10 +19,13 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/theme/app_theme.dart';
 import 'package:nutq/features/onBoarding/presentation/widgets/splash_art.dart';
 
 const _assets = 'ios/Runner/Assets.xcassets';
+const _androidRes = 'android/app/src/main/res';
+const _androidDensities = {'mdpi': 1.0, 'hdpi': 1.5, 'xhdpi': 2.0, 'xxhdpi': 3.0, 'xxxhdpi': 4.0};
 
 /// The design's background, bottom to top (Figma "Splash — Light" / "Dark").
 const _lightGradient = LinearGradient(
@@ -56,16 +63,17 @@ void main() {
     required bool dark,
     required Widget child,
     required Map<String, double> outputs,
+    Size size = SplashArt.size,
   }) async {
     // The view is the design's size, and ScreenUtil's design size equals it,
     // so the typography's .sp is 1.
-    tester.view.physicalSize = SplashArt.size;
+    tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final boundary = GlobalKey();
     await tester.pumpWidget(
       ScreenUtilPlusInit(
-        designSize: SplashArt.size,
+        designSize: size,
         builder: (_, _) => MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: dark ? AppTheme.dark : AppTheme.light,
@@ -121,6 +129,34 @@ void main() {
           ),
         ),
         outputs: {'$_assets/LaunchGradient.imageset/LaunchGradient$suffix.png': 1},
+      );
+    });
+
+    testWidgets('android branding ($mode)', (tester) async {
+      const size = Size(200, 80);
+      await render(
+        tester,
+        dark: dark,
+        size: size,
+        child: Builder(
+          builder: (context) => SizedBox.fromSize(
+            size: size,
+            child: Center(
+              child: Text(
+                'Nutq',
+                style: context.typography.display.copyWith(
+                  color: context.appColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 36,
+                ),
+              ),
+            ),
+          ),
+        ),
+        outputs: {
+          for (final MapEntry(key: density, value: ratio) in _androidDensities.entries)
+            '$_androidRes/drawable${dark ? '-night' : ''}-$density/splash_branding.png': ratio,
+        },
       );
     });
   }

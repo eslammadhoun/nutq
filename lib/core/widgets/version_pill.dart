@@ -29,7 +29,7 @@ class _VersionPillState extends State<VersionPill> {
   Widget build(BuildContext context) {
     return Container(
       height: 26.h,
-      width: 64.w,
+      constraints: BoxConstraints(minWidth: 64.w),
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       alignment: Alignment.center,
       decoration: BoxDecoration(
@@ -50,6 +50,7 @@ class _VersionPillState extends State<VersionPill> {
           final version = snapshot.data?.version;
           return Text(
             context.l10n.versionLabel(version ?? ''),
+            maxLines: 1,
             style: AppTypography.caption.copyWith(
               fontWeight: FontWeight.w500,
               color: context.isDark ? context.appColors.textPrimary : context.appColors.primary,
