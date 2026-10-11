@@ -8,6 +8,10 @@ abstract interface class ModelStorage {
 
   /// Free bytes on the volume of [root], or null when unknown.
   Future<int?> freeBytes();
+
+  /// Folders where the inference engine may write its own files next to the
+  /// app's data, such as LiteRT's `.xnnpack_cache` on the CPU.
+  Future<List<String>> engineCacheFolders();
 }
 
 /// Asks `modelStorage` on the `nutq/device` channel (AppDelegate.swift,
@@ -31,6 +35,12 @@ class PlatformModelStorage implements ModelStorage {
     }
     return '${(await getApplicationSupportDirectory()).path}/models';
   }
+
+  @override
+  Future<List<String>> engineCacheFolders() async => [
+    (await getApplicationSupportDirectory()).path,
+    (await getApplicationDocumentsDirectory()).path,
+  ];
 
   @override
   Future<int?> freeBytes() async {

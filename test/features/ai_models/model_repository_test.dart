@@ -20,12 +20,16 @@ class _TempStorage implements ModelStorage {
 
   final String path;
   int? free;
+  List<String> engineFolders = [];
 
   @override
   Future<String> root() async => path;
 
   @override
   Future<int?> freeBytes() async => free;
+
+  @override
+  Future<List<String>> engineCacheFolders() async => engineFolders;
 }
 
 void main() {
@@ -220,6 +224,31 @@ void main() {
       ModelPackStatus(phase: ModelPackPhase.missing, totalBytes: gemmaBytes.length),
     );
     expect(Directory(p.join(dir.path, 'gemma')).existsSync(), isFalse);
+  });
+
+  test('only the newest engine cache of a ready summarizer is kept', () async {
+    await (await repository()).download(['gemma']);
+    final engine = Directory(p.join(dir.path, '..', '${p.basename(dir.path)}_engine'))
+      ..createSync();
+    addTearDown(() => engine.deleteSync(recursive: true));
+    storage.engineFolders = [engine.path];
+    File cache(String name, DateTime modified) => File(p.join(engine.path, name))
+      ..writeAsBytesSync([1])
+      ..setLastModifiedSync(modified);
+    final old = cache('gemma.litertlm_100_9.xnnpack_cache', DateTime(2026));
+    final current = cache('gemma.litertlm_200_9.xnnpack_cache', DateTime(2026, 2));
+    final unknown = cache('other.litertlm_1_1.xnnpack_cache', DateTime(2026, 3));
+    final unrelated = File(p.join(engine.path, 'jobs.sqlite'))..writeAsBytesSync([1]);
+
+    final models = await repository();
+
+    expect(old.existsSync(), isFalse);
+    expect(current.existsSync(), isTrue);
+    expect(unknown.existsSync(), isFalse);
+    expect(unrelated.existsSync(), isTrue);
+
+    await models.delete('gemma');
+    expect(current.existsSync(), isFalse);
   });
 
   test('old versions and unknown packs are cleaned up at launch', () async {
