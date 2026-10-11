@@ -92,7 +92,7 @@ class FileDownloader {
     cancellation?.throwIfCancelled();
     final client = _newClient()
       ..connectionTimeout = const Duration(seconds: 30)
-      // Already-compressed weights: gzip would only cost CPU.
+      // The bytes are stored and checked exactly as sent; see [_get].
       ..autoUncompress = false;
     // Closing the client aborts a read that is waiting on the network.
     final unregister = cancellation?.onCancel(() => client.close(force: true));
@@ -137,6 +137,9 @@ class FileDownloader {
     for (var hop = 0; hop <= _maxRedirects; hop++) {
       final request = await client.getUrl(location)
         ..followRedirects = false;
+      // Without this a server may gzip the file (download.moonshine.ai does
+      // for JSON), and the compressed bytes would fail the checksum.
+      request.headers.set(HttpHeaders.acceptEncodingHeader, 'identity');
       if (from > 0) request.headers.set(HttpHeaders.rangeHeader, 'bytes=$from-');
       final response = await request.close();
       if (!response.isRedirect) return response;

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -48,6 +49,18 @@ void main() {
 
     expect(await target.readAsBytes(), bytes);
     expect(server.ranges, ['bytes=1000-']);
+  });
+
+  test('stores the file as served, not gzipped, when the server would compress', () async {
+    final bytes = utf8.encode(
+      '{"encoder_dim": 288, "decoder_dim": 288, "padding": "${'x' * 400}"}',
+    );
+    final file = server.serve('streaming_config.json', bytes);
+    server.gzipWhenAccepted = true;
+
+    await downloader.download(file, target);
+
+    expect(await target.readAsBytes(), bytes);
   });
 
   test('resumes after a dropped connection instead of starting over', () async {

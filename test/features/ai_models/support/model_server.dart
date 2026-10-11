@@ -7,7 +7,8 @@ import 'package:nutq/features/ai_models/domain/entities/model_pack.dart';
 
 /// A local HTTP server for model files, with the behaviors downloads must
 /// survive: Range requests, a redirect to another path (as Hugging Face does),
-/// a server that ignores Range, and a connection dropped partway.
+/// a server that ignores Range, a server that gzips (as download.moonshine.ai
+/// does for JSON), and a connection dropped partway.
 class ModelServer {
   ModelServer._(this._server) {
     _server.listen(_handle);
@@ -27,6 +28,9 @@ class ModelServer {
 
   /// Close the connection after sending this many bytes of the next response.
   int? dropAfter;
+
+  /// Gzip whole-file responses when the client accepts gzip.
+  bool gzipWhenAccepted = false;
 
   /// Answer every request for a file with this status instead.
   int? failWith;
@@ -85,7 +89,12 @@ class ModelServer {
           'bytes $start-${bytes.length - 1}/${bytes.length}',
         );
     }
-    final body = bytes.sublist(start);
+    var body = bytes.sublist(start);
+    final accepted = request.headers.value(HttpHeaders.acceptEncodingHeader) ?? '';
+    if (gzipWhenAccepted && start == 0 && accepted.contains('gzip')) {
+      body = Uint8List.fromList(gzip.encode(body));
+      response.headers.set(HttpHeaders.contentEncodingHeader, 'gzip');
+    }
     response.contentLength = body.length;
 
     final drop = dropAfter;
