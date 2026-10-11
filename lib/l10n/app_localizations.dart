@@ -992,6 +992,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Finished jobs'**
   String get backgroundJobDoneChannel;
+
+  /// No description provided for @modelsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the AI models'**
+  String get modelsTitle;
+
+  /// No description provided for @modelsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutq transcribes and summarizes entirely on your phone, so it needs its AI models first. They download once ({size}) and then work offline.'**
+  String modelsBody(String size);
+
+  /// No description provided for @modelsNeededTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This job needs the AI models'**
+  String get modelsNeededTitle;
+
+  /// No description provided for @modelsWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi recommended'**
+  String get modelsWifi;
+
+  /// No description provided for @modelsDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get modelsDownload;
+
+  /// No description provided for @modelsPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get modelsPause;
+
+  /// No description provided for @modelsResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get modelsResume;
+
+  /// No description provided for @modelsRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get modelsRetry;
+
+  /// No description provided for @modelsReady.
+  ///
+  /// In en, this message translates to:
+  /// **'The models are ready'**
+  String get modelsReady;
+
+  /// No description provided for @modelsContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get modelsContinue;
+
+  /// No description provided for @modelsLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get modelsLater;
+
+  /// No description provided for @modelsProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{received} of {total}'**
+  String modelsProgress(String received, String total);
+
+  /// No description provided for @profileModels.
+  ///
+  /// In en, this message translates to:
+  /// **'AI models'**
+  String get profileModels;
+
+  /// No description provided for @modelSummarizer.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarizer'**
+  String get modelSummarizer;
+
+  /// No description provided for @modelSpeechArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic speech'**
+  String get modelSpeechArabic;
+
+  /// No description provided for @modelSpeechEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English speech'**
+  String get modelSpeechEnglish;
+
+  /// No description provided for @modelNotDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get modelNotDownloaded;
+
+  /// No description provided for @modelDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this model?'**
+  String get modelDeleteTitle;
+
+  /// No description provided for @modelDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It frees {size}. You can download it again at any time.'**
+  String modelDeleteBody(String size);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

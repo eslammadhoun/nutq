@@ -13,7 +13,9 @@ import 'package:nutq/core/utils/platform_device_status.dart';
 import 'package:nutq/features/ai_models/data/model_manifest.dart';
 import 'package:nutq/features/ai_models/data/model_repository_impl.dart';
 import 'package:nutq/features/ai_models/data/model_storage.dart';
+import 'package:nutq/features/ai_models/domain/entities/model_pack.dart';
 import 'package:nutq/features/ai_models/domain/repositories/model_repository.dart';
+import 'package:nutq/features/ai_models/presentation/cubit/model_download_cubit.dart';
 import 'package:nutq/features/alerts/data/job_alerts_repository.dart';
 import 'package:nutq/features/alerts/domain/alerts_repository.dart';
 import 'package:nutq/features/alerts/presentation/cubit/alerts_cubit.dart';
@@ -86,12 +88,16 @@ void _registerCore(SharedPreferences prefs, AppDatabase Function() openDatabase)
 /// The AI models, downloaded after install. `main` calls
 /// `ModelRepository.init` before the app starts.
 void _registerModels() {
-  sl.registerLazySingleton<ModelRepository>(
-    () => ModelRepositoryImpl(
-      loadPacks: ModelManifest.load,
-      storage: const PlatformModelStorage(),
-    ),
-  );
+  sl
+    ..registerLazySingleton<ModelRepository>(
+      () => ModelRepositoryImpl(
+        loadPacks: ModelManifest.load,
+        storage: const PlatformModelStorage(),
+      ),
+    )
+    ..registerFactoryParam<ModelDownloadCubit, List<ModelPack>, void>(
+      (packs, _) => ModelDownloadCubit(sl<ModelRepository>(), packs),
+    );
 }
 
 /// On-device summarization (Gemma 3 1B fine-tuned for Arabic, LiteRT-LM).
@@ -215,6 +221,13 @@ void _registerJobs() {
         sl<MediaFiles>(),
         recognizesLink: sl<SubtitleProvider>().recognizes,
         supportedSources: sl<TranscriptSourceRegistry>().supportedTypes,
+        missingModels: (type, language) {
+          final models = sl<ModelRepository>();
+          return [
+            for (final pack in models.requiredFor(type, language))
+              if (!models.statuses[pack.id]!.isReady) pack,
+          ];
+        },
       ),
     )
     ..registerFactoryParam<JobDetailCubit, String, void>(
