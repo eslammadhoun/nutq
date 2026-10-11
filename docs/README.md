@@ -1,7 +1,8 @@
 # Nutq
 
-Arabic speech transcription client app, built with Flutter. Connects to the
-`transcription_api` backend (FastAPI, hexagonal architecture).
+Developer guide for the Nutq Flutter app: Arabic/English transcription and
+summarization that runs entirely on the device. The project overview is the
+[root README](../README.md).
 
 ## Status
 
