@@ -14,8 +14,10 @@ Arabic news summaries (XLSum + arabsummaries), int4, 2048-token context. It is s
 instruction it was fine-tuned on; English summaries use a short generic prompt
 (`data/prompts/summary_prompt.dart`).
 
-The file is bundled as an asset but not committed (`assets/models/*.litertlm` is ignored). Copy it
-from `gemma_playground/assets/models/`.
+The app downloads it on first use from
+[Hugging Face](https://huggingface.co/EslamMad3/gemma3-1b-arabic-summarizer-litertlm)
+(`assets/models/manifest.json`, `lib/features/ai_models/`), and `FlutterGemmaRuntime` registers
+the downloaded file with flutter_gemma in place, without copying it.
 
 **Backend:** GPU, with the plugin falling back to CPU by itself if the GPU fails to start. The iOS
 Simulator always uses the CPU: its emulated Metal makes the GPU produce garbage (the

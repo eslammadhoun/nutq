@@ -134,9 +134,8 @@ is shared.
 
 - **Moonshine.** `MoonshinePlugin` + `MoonshineNative` over a small JNI layer
   (`android/app/src/main/cpp/nutq_moonshine.cpp`, built with CMake) against the native libraries of
-  `ai.moonshine:moonshine-voice` (the AAR's Java side is not used). Models are copied from
-  `ios/Runner/moonshine_models/` into the APK's assets at build time (`syncMoonshineModels`) and
-  unpacked to app storage on first use (`ModelInstaller`). One difference from iOS:
+  `ai.moonshine:moonshine-voice` (the AAR's Java side is not used). Models are downloaded by
+  the app like on iOS (`lib/features/ai_models/`), and the plugin loads the folder it is given. One difference from iOS:
   `decode_incomplete_lines` stays on, so there is no tail recovery pass.
 - **Background.** `JobService` is a foreground service (`dataSync|mediaProcessing`, with a wake
   lock) for the length of a media job. Its notification shows the whole-job progress with Pause /
@@ -178,7 +177,7 @@ holds it still for a moment and a shorter one moves it ahead.
 | Bridge (method channel `nutq/moonshine`, events on `nutq/moonshine/progress`) | `ios/Runner/MoonshineBridge.swift`, registered in `AppDelegate.swift` |
 | Background and lock screen (method channel `nutq/background_job`: `begin`, `update`, `setPhase`, `setPaused`, `end`) | `ios/Runner/JobBridge.swift`, registered in `AppDelegate.swift` |
 | Framework (not committed) | `third_party/moonshine/Moonshine.xcframework`, from `fetch-framework.sh`, linked by the `MoonshineVoice` pod |
-| Models (not committed) | `ios/Runner/moonshine_models/`, from `fetch-model.sh`, bundled as a folder reference (and copied into the Android APK) |
+| Models | Downloaded by the app from download.moonshine.ai (`assets/models/manifest.json`, `lib/features/ai_models/`); the bridge loads the folder it is given |
 | Android bridge, service and JNI | `android/app/src/main/kotlin/com/nutq/nutq/` (`MoonshinePlugin`, `JobPlugin`, `JobService`, registered in `MainActivity.kt`), `android/app/src/main/cpp/` |
 
 The bridge logs one `[moonshine] …` line per run (load, inference, real-time factor, `covered`)
