@@ -26,7 +26,9 @@ class SummaryCard extends StatelessWidget {
     final liveText = streamingSummary;
     final hasLiveText = liveText != null && liveText.isNotEmpty;
     final isStreaming = hasLiveText && job.status.isActive;
-    final takeaways = summary?.takeaways ?? const <String>[];
+    final takeaways = _addsToSummary(summary?.takeaways, summary?.summaryText)
+        ? summary!.takeaways
+        : const <String>[];
 
     return JobDetailSectionCard(
       child: Column(
@@ -84,6 +86,14 @@ class SummaryCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Takeaways are sentences picked from the summary. Jobs summarized before
+  /// that was ruled out can hold every one of them, which only repeats it.
+  static bool _addsToSummary(List<String>? takeaways, String? summary) {
+    if (takeaways == null || takeaways.isEmpty) return false;
+    String flat(String text) => text.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return flat(takeaways.join(' ')) != flat(summary ?? '');
   }
 
   String _toneLabel(String raw) {
