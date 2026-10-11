@@ -49,7 +49,8 @@ void main() {
     messenger.setMockStreamHandler(progress, null);
   });
 
-  final recognizer = MoonshineSpeechRecognizer(isAvailable: true);
+  String modelPath(ContentLanguage language) => '/models/moonshine-${language.code}';
+  final recognizer = MoonshineSpeechRecognizer(isAvailable: true, modelPath: modelPath);
 
   test('asks for the model of the spoken language and joins the lines', () async {
     fakeBridge(result: [_line(' Hello ', 0, 1), _line('', 1, 1), _line('world', 2, 1)]);
@@ -60,7 +61,7 @@ void main() {
     expect(speech.text, 'Hello\nworld');
     expect(speech.modelName, 'moonshine-tiny-streaming-en');
     final args = calls.first.arguments as Map<Object?, Object?>;
-    expect(args['modelPath'], 'tiny-streaming-en');
+    expect(args['modelPath'], '/models/moonshine-en');
     expect(args['keepLoaded'], isFalse);
   });
 
@@ -142,7 +143,7 @@ void main() {
 
   test('is unavailable off iOS and fails without calling the bridge', () async {
     fakeBridge();
-    final android = MoonshineSpeechRecognizer(isAvailable: false);
+    final android = MoonshineSpeechRecognizer(isAvailable: false, modelPath: modelPath);
     await expectLater(
       android.transcribe(audioPath: '/tmp/a.wav', language: ContentLanguage.ar),
       throwsA(isA<SpeechRecognitionException>()),

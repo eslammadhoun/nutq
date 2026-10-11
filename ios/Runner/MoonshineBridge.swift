@@ -764,31 +764,16 @@ final class MoonshineBridge: NSObject, FlutterPlugin, FlutterStreamHandler {
     return loaded
   }
 
-  /// Turns a model reference into a directory on disk.
-  ///
-  /// Absolute paths are used as-is. A bare name is looked up inside the app
-  /// bundle, first directly and then under `moonshine_models/`, which is where
-  /// the bundled model folder reference lands.
+  /// The model's folder: where the app downloaded it (ModelRepository in Dart).
   private static func resolveModelPath(_ path: String) throws -> String {
-    if path.hasPrefix("/") {
-      return path
+    var isDirectory: ObjCBool = false
+    guard path.hasPrefix("/"),
+      FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory),
+      isDirectory.boolValue
+    else {
+      throw MoonshineError.failed("no model directory at '\(path)'")
     }
-    let bundle = Bundle.main.resourceURL ?? Bundle.main.bundleURL
-    let candidates = [
-      bundle.appendingPathComponent(path),
-      bundle.appendingPathComponent("moonshine_models").appendingPathComponent(path),
-    ]
-    for candidate in candidates {
-      var isDirectory: ObjCBool = false
-      if FileManager.default.fileExists(atPath: candidate.path, isDirectory: &isDirectory),
-        isDirectory.boolValue
-      {
-        return candidate.path
-      }
-    }
-    throw MoonshineError.failed(
-      "no bundled model directory for '\(path)'; looked in "
-        + candidates.map(\.path).joined(separator: ", "))
+    return path
   }
 
   private func releaseTranscriber() {

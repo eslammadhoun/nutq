@@ -20,6 +20,8 @@ import 'package:nutq/features/transcription/data/moonshine_speech_recognizer.dar
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import 'support/downloaded_models.dart';
+
 const _file = String.fromEnvironment('BENCH_FILE');
 
 /// Optional: indices of [_configs] to run, comma-separated (all by default).
@@ -58,7 +60,8 @@ void main() {
       expect(File(path).existsSync(), isTrue, reason: 'copy the recording to $path first');
       final audio = await FfmpegAudioExtractor().extract(path);
       final seconds = audio.duration.inMilliseconds / 1000;
-      final probe = MoonshineSpeechRecognizer();
+      final modelPath = await downloadedMoonshine();
+      final probe = MoonshineSpeechRecognizer(modelPath: modelPath);
 
       Future<String?> coolDown() async {
         final watch = Stopwatch()..start();
@@ -82,6 +85,7 @@ void main() {
           final cpuBefore = await probe.cpuSeconds() ?? 0;
           final watch = Stopwatch()..start();
           final speech = await MoonshineSpeechRecognizer(
+            modelPath: modelPath,
             decodeIncompleteLines: config.decodeIncomplete,
             singleThread: config.singleThread,
           ).transcribe(audioPath: audio.path, language: ContentLanguage.ar);

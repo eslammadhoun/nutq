@@ -48,9 +48,8 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
     bool? isAvailable,
     this.decodeIncompleteLines = false,
     this.singleThread = false,
-    String Function(ContentLanguage language)? modelPath,
-  }) : _modelPath = modelPath ?? ((language) => MoonshineModel.of(language).directory),
-       _channel = channel ?? const MethodChannel(channelName),
+    required this._modelPath,
+  }) : _channel = channel ?? const MethodChannel(channelName),
        _progress = progressChannel ?? const EventChannel(progressChannelName),
        isAvailable = isAvailable ?? (Platform.isIOS || Platform.isAndroid);
 
@@ -77,7 +76,7 @@ class MoonshineSpeechRecognizer implements SpeechRecognizer {
   final EventChannel _progress;
 
   /// The folder holding the model for a language: the downloaded one
-  /// (`ModelRepository`). A bare name is looked up inside the app bundle.
+  /// (`ModelRepository`).
   final String Function(ContentLanguage language) _modelPath;
 
   /// Moonshine's `decode_incomplete_lines`. Off: every line is decoded once,

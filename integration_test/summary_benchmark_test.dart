@@ -17,9 +17,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/core/utils/background_work.dart';
 import 'package:nutq/core/utils/platform_device_status.dart';
-import 'package:nutq/features/ai_models/data/model_manifest.dart';
-import 'package:nutq/features/ai_models/data/model_repository_impl.dart';
-import 'package:nutq/features/ai_models/data/model_storage.dart';
+import 'package:nutq/features/ai_models/domain/entities/model_pack.dart';
 import 'package:nutq/features/summarization/data/datasources/flutter_gemma_runtime.dart';
 import 'package:nutq/features/summarization/data/datasources/gemma_local_datasource.dart';
 import 'package:nutq/features/summarization/data/repositories/summarization_repository_impl.dart';
@@ -27,6 +25,8 @@ import 'package:nutq/features/summarization/domain/entities/summarization_config
 import 'package:nutq/features/summarization/domain/usecases/summarize_transcript.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+
+import 'support/downloaded_models.dart';
 
 const _file = String.fromEnvironment('SUMMARY_FILE');
 
@@ -51,13 +51,7 @@ void main() {
         transcript = await File(path).readAsString();
       }
       const device = PlatformDeviceStatus();
-      final models = ModelRepositoryImpl(
-        loadPacks: ModelManifest.load,
-        storage: const PlatformModelStorage(),
-      );
-      await models.init();
-      await models.download([models.summarizer.id]);
-      expect(models.statuses[models.summarizer.id]!.isReady, isTrue, reason: 'model download');
+      final models = await downloadedModels({ModelKind.summarizer});
       final modelPath = models.fileOf(models.summarizer.id);
 
       for (final name in _backends.split(',')) {
