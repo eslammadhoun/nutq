@@ -331,6 +331,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorStorage => 'Couldn\'t access saved jobs on this device. Please try again.';
 
   @override
+  String get errorModelDownloadNetwork =>
+      'Couldn\'t download the AI models. Check your connection and try again.';
+
+  @override
+  String get errorModelDownloadNoSpace =>
+      'Not enough free space on this device to download the AI models.';
+
+  @override
+  String get errorModelDownloadCorrupt =>
+      'A downloaded model was damaged, so it was removed. Please download it again.';
+
+  @override
   String get jobDetailNotFound => 'This job no longer exists.';
 
   @override
@@ -513,4 +525,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backgroundJobDoneChannel => 'Finished jobs';
+
+  @override
+  String get modelsTitle => 'Download the AI models';
+
+  @override
+  String modelsBody(String size) {
+    return 'Nutq transcribes and summarizes entirely on your phone, so it needs its AI models first. They download once ($size) and then work offline.';
+  }
+
+  @override
+  String get modelsNeededTitle => 'This job needs the AI models';
+
+  @override
+  String get modelsWifi => 'Wi-Fi recommended';
+
+  @override
+  String get modelsDownload => 'Download';
+
+  @override
+  String get modelsPause => 'Pause';
+
+  @override
+  String get modelsResume => 'Resume';
+
+  @override
+  String get modelsRetry => 'Try again';
+
+  @override
+  String get modelsReady => 'The models are ready';
+
+  @override
+  String get modelsContinue => 'Continue';
+
+  @override
+  String get modelsLater => 'Later';
+
+  @override
+  String modelsProgress(String received, String total) {
+    return '$received of $total';
+  }
+
+  @override
+  String get profileModels => 'AI models';
+
+  @override
+  String get modelSummarizer => 'Summarizer';
+
+  @override
+  String get modelSpeechArabic => 'Arabic speech';
+
+  @override
+  String get modelSpeechEnglish => 'English speech';
+
+  @override
+  String get modelNotDownloaded => 'Download';
+
+  @override
+  String get modelDeleteTitle => 'Delete this model?';
+
+  @override
+  String modelDeleteBody(String size) {
+    return 'It frees $size. You can download it again at any time.';
+  }
 }

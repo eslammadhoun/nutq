@@ -67,6 +67,10 @@ class MoonshinePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventCha
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
+        // Builds that bundled the models unpacked them here; the app now
+        // downloads them to its own folder instead.
+        val unpacked = File(context.noBackupFilesDir, "moonshine_models")
+        if (unpacked.exists()) worker.execute { unpacked.deleteRecursively() }
         methods = MethodChannel(binding.binaryMessenger, CHANNEL).apply {
             setMethodCallHandler(this@MoonshinePlugin)
         }
@@ -394,7 +398,8 @@ class MoonshinePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventCha
 
     /** Loads the model unless it is already resident. */
     private fun ensureTranscriber(model: String, modelArch: Int): Int {
-        val dir = ModelInstaller.resolve(context, model).absolutePath
+        // The folder the app downloaded the model to (ModelRepository in Dart).
+        val dir = File(model).absolutePath
         if (handle >= 0 && loadedModelDir == dir) return handle
         releaseTranscriber()
         val loaded = MoonshineNative.loadTranscriber(dir, modelArch)

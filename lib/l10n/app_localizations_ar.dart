@@ -331,6 +331,18 @@ class AppLocalizationsAr extends AppLocalizations {
       'تعذّر الوصول إلى المهام المحفوظة على هذا الجهاز. يُرجى المحاولة مرة أخرى.';
 
   @override
+  String get errorModelDownloadNetwork =>
+      'تعذّر تنزيل نماذج الذكاء الاصطناعي. تحقّق من اتصالك ثم حاول مرة أخرى.';
+
+  @override
+  String get errorModelDownloadNoSpace =>
+      'لا توجد مساحة كافية على هذا الجهاز لتنزيل نماذج الذكاء الاصطناعي.';
+
+  @override
+  String get errorModelDownloadCorrupt =>
+      'تلف أحد النماذج أثناء التنزيل فتم حذفه. يُرجى تنزيله مرة أخرى.';
+
+  @override
   String get jobDetailNotFound => 'لم تعد هذه المهمة موجودة.';
 
   @override
@@ -513,4 +525,67 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get backgroundJobDoneChannel => 'المهام المنتهية';
+
+  @override
+  String get modelsTitle => 'نزّل نماذج الذكاء الاصطناعي';
+
+  @override
+  String modelsBody(String size) {
+    return 'يعمل تطبيق نُطق بالكامل على هاتفك، من تحويل الكلام إلى نص حتى التلخيص، لذا يحتاج إلى نماذج الذكاء الاصطناعي أولًا. تُنزَّل مرة واحدة ($size) ثم تعمل دون إنترنت.';
+  }
+
+  @override
+  String get modelsNeededTitle => 'تحتاج هذه المهمة إلى نماذج الذكاء الاصطناعي';
+
+  @override
+  String get modelsWifi => 'يُفضَّل استخدام Wi-Fi';
+
+  @override
+  String get modelsDownload => 'تنزيل';
+
+  @override
+  String get modelsPause => 'إيقاف مؤقت';
+
+  @override
+  String get modelsResume => 'استئناف';
+
+  @override
+  String get modelsRetry => 'حاول مرة أخرى';
+
+  @override
+  String get modelsReady => 'النماذج جاهزة';
+
+  @override
+  String get modelsContinue => 'متابعة';
+
+  @override
+  String get modelsLater => 'لاحقًا';
+
+  @override
+  String modelsProgress(String received, String total) {
+    return '$received من $total';
+  }
+
+  @override
+  String get profileModels => 'نماذج الذكاء الاصطناعي';
+
+  @override
+  String get modelSummarizer => 'الملخِّص';
+
+  @override
+  String get modelSpeechArabic => 'الكلام العربي';
+
+  @override
+  String get modelSpeechEnglish => 'الكلام الإنجليزي';
+
+  @override
+  String get modelNotDownloaded => 'تنزيل';
+
+  @override
+  String get modelDeleteTitle => 'حذف هذا النموذج؟';
+
+  @override
+  String modelDeleteBody(String size) {
+    return 'سيوفّر $size. يمكنك تنزيله مرة أخرى في أي وقت.';
+  }
 }

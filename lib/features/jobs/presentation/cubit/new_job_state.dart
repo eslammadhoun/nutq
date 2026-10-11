@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nutq/core/errors/app_error.dart';
+import 'package:nutq/features/ai_models/domain/entities/model_pack.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
 
@@ -32,6 +33,10 @@ abstract class NewJobState with _$NewJobState {
     @Default(NewJobStatus.idle) NewJobStatus status,
     AppError? lastError,
     String? submittedJobId,
+
+    /// Models the job needs that are not on the phone yet. Set by a submit
+    /// that has to wait for them; the sheet then offers the download.
+    @Default(<ModelPack>[]) List<ModelPack> missingModels,
   }) = _NewJobState;
 
   const NewJobState._();

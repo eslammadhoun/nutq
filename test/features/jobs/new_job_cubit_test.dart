@@ -14,6 +14,7 @@ import 'package:nutq/features/jobs/domain/usecases/submit_job.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
 
+import '../ai_models/support/fake_model_repository.dart';
 import 'support/fake_media_files.dart';
 import 'support/faulty_jobs_local_data_source.dart';
 import 'support/job_harness.dart';
@@ -58,6 +59,35 @@ void main() {
     sizeBytes: 1000,
     contentType: 'audio/mp4',
   );
+
+  group('models', () {
+    test('a job whose models are missing waits for them; nothing is saved', () async {
+      final models = FakeModelRepository();
+      final cubit = NewJobCubit(
+        SubmitJob(h.repo, scheduler),
+        h.media,
+        supportedSources: const {JobSourceType.text},
+        missingModels: (type, language) => [
+          for (final pack in models.requiredFor(type, language))
+            if (!models.statuses[pack.id]!.isReady) pack,
+        ],
+      );
+      addTearDown(cubit.close);
+      cubit.setText('نص للتلخيص');
+
+      await cubit.submit();
+      expect(cubit.state.missingModels.map((pack) => pack.id), ['gemma']);
+      expect(cubit.state.status, NewJobStatus.idle);
+      expect(scheduler.enqueued, isEmpty);
+
+      cubit.modelsOffered();
+      expect(cubit.state.missingModels, isEmpty);
+      models.finish('gemma');
+      await cubit.submit();
+      expect(cubit.state.status, NewJobStatus.success);
+      expect(scheduler.enqueued, hasLength(1));
+    });
+  });
 
   group('what can be submitted', () {
     test('only a non-empty text source is valid by default', () {

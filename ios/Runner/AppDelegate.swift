@@ -45,11 +45,37 @@ import UIKit
             "footprintMB": AppDelegate.footprintMegabytes(),
             "thermal": AppDelegate.thermalState(),
           ])
+        case "modelStorage":
+          do {
+            result(try AppDelegate.modelStorage())
+          } catch {
+            result(
+              FlutterError(
+                code: "model_storage", message: error.localizedDescription, details: nil))
+          }
         default:
           result(FlutterMethodNotImplemented)
         }
       }
     }
+  }
+
+  /// The folder for downloaded AI models (ModelStorage in Dart) and the room
+  /// left on its volume. Application Support is backed up to iCloud by
+  /// default; models that can be downloaded again must not be.
+  static func modelStorage() throws -> [String: Any] {
+    var url = try FileManager.default.url(
+      for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true
+    ).appendingPathComponent("models", isDirectory: true)
+    try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+    var values = URLResourceValues()
+    values.isExcludedFromBackup = true
+    try url.setResourceValues(values)
+    let free = try url.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+      .volumeAvailableCapacityForImportantUsage
+    var info: [String: Any] = ["path": url.path]
+    if let free { info["freeBytes"] = free }
+    return info
   }
 
   /// Physical footprint in MB: the figure iOS compares against the app's

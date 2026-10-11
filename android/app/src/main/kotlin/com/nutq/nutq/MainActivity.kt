@@ -3,6 +3,7 @@ package com.nutq.nutq
 import android.content.Context
 import android.os.Build
 import android.os.PowerManager
+import android.os.StatFs
 import android.system.Os
 import android.system.OsConstants
 import io.flutter.embedding.android.FlutterActivity
@@ -29,6 +30,7 @@ class MainActivity : FlutterActivity() {
                     "status" -> result.success(
                         mapOf("footprintMB" to residentMegabytes(), "thermal" to thermalState()),
                     )
+                    "modelStorage" -> result.success(modelStorage())
                     else -> result.notImplemented()
                 }
             }
@@ -43,6 +45,15 @@ class MainActivity : FlutterActivity() {
     override fun onPause() {
         AppVisibility.foreground = false
         super.onPause()
+    }
+
+    /**
+     * The folder for downloaded AI models (ModelStorage in Dart) and the room
+     * left on it. `noBackupFilesDir` is never included in a backup.
+     */
+    private fun modelStorage(): Map<String, Any> {
+        val dir = File(noBackupFilesDir, "models").apply { mkdirs() }
+        return mapOf("path" to dir.absolutePath, "freeBytes" to StatFs(dir.path).availableBytes)
     }
 
     private fun isEmulator(): Boolean =

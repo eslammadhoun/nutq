@@ -30,6 +30,8 @@ import 'package:nutq/features/transcription/data/platform_background_job.dart';
 import 'package:nutq/features/transcription/domain/audio_extractor.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
+import 'support/downloaded_models.dart';
+
 const _arPath = String.fromEnvironment('AR_MEDIA');
 const _enPath = String.fromEnvironment('EN_MEDIA');
 
@@ -65,7 +67,12 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   final extractor = FfmpegAudioExtractor();
-  final recognizer = MoonshineSpeechRecognizer();
+  late String Function(ContentLanguage) modelPath;
+  late MoonshineSpeechRecognizer recognizer;
+  setUpAll(() async {
+    modelPath = await downloadedMoonshine();
+    recognizer = MoonshineSpeechRecognizer(modelPath: modelPath);
+  });
 
   Future<String> transcribe(String media, ContentLanguage language) async {
     final audio = await extractor.extract(media);
@@ -193,6 +200,7 @@ void main() {
         Future<({Duration time, String text})> run({required bool decodeIncomplete}) async {
           final watch = Stopwatch()..start();
           final speech = await MoonshineSpeechRecognizer(
+            modelPath: modelPath,
             decodeIncompleteLines: decodeIncomplete,
           ).transcribe(audioPath: audio.path, language: ContentLanguage.ar);
           return (time: watch.elapsed, text: speech.text);

@@ -9,6 +9,8 @@ import 'package:nutq/core/preferences/app_preferences.dart';
 import 'package:nutq/core/theme/app_theme.dart';
 import 'package:nutq/core/theme/theme_cubit.dart';
 import 'package:nutq/core/widgets/app_switch.dart';
+import 'package:nutq/features/ai_models/domain/entities/model_pack_status.dart';
+import 'package:nutq/features/ai_models/presentation/cubit/model_download_cubit.dart';
 import 'package:nutq/features/alerts/domain/alerts_repository.dart';
 import 'package:nutq/features/alerts/domain/job_alert.dart';
 import 'package:nutq/features/alerts/presentation/cubit/alerts_cubit.dart';
@@ -20,6 +22,8 @@ import 'package:nutq/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:nutq/features/profile/presentation/screens/profile_screen.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../ai_models/support/fake_model_repository.dart';
 
 class _Alerts implements AlertsRepository {
   _Alerts(this.alerts);
@@ -133,7 +137,10 @@ void main() {
         final storage = _Storage();
         final profile = ProfileCubit(storage);
         final notifications = NotificationsCubit(prefs);
+        final models = FakeModelRepository(ready: {'gemma'});
+        final modelDownload = ModelDownloadCubit(models, models.packs);
         addTearDown(() async {
+          await modelDownload.close();
           await theme.close();
           await locale.close();
           await profile.close();
@@ -147,6 +154,7 @@ void main() {
             BlocProvider<LocaleCubit>.value(value: locale),
             BlocProvider<ProfileCubit>.value(value: profile),
             BlocProvider<NotificationsCubit>.value(value: notifications),
+            BlocProvider<ModelDownloadCubit>.value(value: modelDownload),
           ],
         );
         await tester.pump();
@@ -185,6 +193,23 @@ void main() {
         await tester.tap(find.text('Arabic'));
         await tester.pumpAndSettle();
         expect(locale.state, const Locale('ar'));
+
+        expect(find.text('AI MODELS'), findsOneWidget);
+        expect(find.text('600 MB'), findsOneWidget, reason: 'the downloaded summarizer');
+        await tester.tap(find.text('Arabic speech'));
+        await tester.pump();
+        expect(models.downloads, ['moonshine-ar'], reason: 'a missing model downloads on tap');
+        expect(find.text('50%'), findsOneWidget);
+        await tester.tap(find.text('Arabic speech'));
+        await tester.pump();
+        expect(models.statuses['moonshine-ar']!.phase, ModelPackPhase.missing, reason: 'paused');
+
+        await tester.tap(find.text('Summarizer'));
+        await tester.pumpAndSettle();
+        expect(find.text('Delete this model?'), findsOneWidget);
+        await tester.tap(find.text('Delete'));
+        await tester.pumpAndSettle();
+        expect(models.deleted, ['gemma']);
 
         await tester.tap(find.text('Delete all jobs'));
         await tester.pumpAndSettle();

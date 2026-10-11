@@ -6,6 +6,7 @@ import 'package:nutq/core/di/dependency_injection.dart';
 import 'package:nutq/core/extensions/error_l10n_extension.dart';
 import 'package:nutq/core/extensions/navigation_extension.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/features/ai_models/presentation/widgets/model_download_sheet.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_cubit.dart';
 import 'package:nutq/features/jobs/presentation/cubit/new_job_state.dart';
 import 'package:nutq/features/jobs/presentation/widgets/new_job_widgets/language_row.dart';
@@ -25,27 +26,41 @@ class NewJobSheet extends StatelessWidget {
 
     return BlocProvider<NewJobCubit>(
       create: (_) => sl<NewJobCubit>(),
-      child: BlocListener<NewJobCubit, NewJobState>(
-        listenWhen: (previous, current) => previous.status != current.status,
-        listener: (context, state) {
-          switch (state.status) {
-            case NewJobStatus.success:
-              onSubmitted?.call(state.submittedJobId!);
-            case NewJobStatus.failure when state.lastError != null:
-              ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      context.l10n.errorMessage(state.lastError!),
-                    ),
-                    backgroundColor: colors.statusFailed,
-                  ),
-                );
-            case _:
-              break;
-          }
-        },
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<NewJobCubit, NewJobState>(
+            listenWhen: (previous, current) =>
+                current.missingModels.isNotEmpty && previous.missingModels != current.missingModels,
+            listener: (context, state) async {
+              final cubit = context.read<NewJobCubit>()..modelsOffered();
+              if (await showModelDownloadSheet(context, state.missingModels)) {
+                await cubit.submit();
+              }
+            },
+          ),
+          BlocListener<NewJobCubit, NewJobState>(
+            listenWhen: (previous, current) => previous.status != current.status,
+            listener: (context, state) {
+              switch (state.status) {
+                case NewJobStatus.success:
+                  onSubmitted?.call(state.submittedJobId!);
+                case NewJobStatus.failure when state.lastError != null:
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          context.l10n.errorMessage(state.lastError!),
+                        ),
+                        backgroundColor: colors.statusFailed,
+                      ),
+                    );
+                case _:
+                  break;
+              }
+            },
+          ),
+        ],
         child: Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.viewInsetsOf(context).bottom,

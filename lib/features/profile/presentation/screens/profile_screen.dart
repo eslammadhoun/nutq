@@ -5,6 +5,7 @@ import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/widgets/version_pill.dart';
 import 'package:nutq/features/jobs/presentation/utils/job_display_format.dart';
 import 'package:nutq/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:nutq/features/profile/presentation/widgets/models_section.dart';
 import 'package:nutq/features/profile/presentation/widgets/preferences_section.dart';
 
 /// Settings: preferences (dark mode, notifications, language), storage, about. Everything is on the phone,
@@ -38,6 +39,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             SizedBox(height: 18.h),
             const PreferencesSection(),
+            SizedBox(height: 16.h),
+            const ModelsSection(),
             SizedBox(height: 16.h),
             _Section(title: l10n.profileStorage, child: const _Storage()),
             _Section(

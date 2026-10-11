@@ -4,6 +4,8 @@ import 'package:nutq/core/di/dependency_injection.dart';
 import 'package:nutq/core/extensions/theme_extension.dart';
 import 'package:nutq/core/routing/routes.dart';
 import 'package:nutq/core/widgets/app_bottom_nav_bar.dart';
+import 'package:nutq/features/ai_models/domain/repositories/model_repository.dart';
+import 'package:nutq/features/ai_models/presentation/cubit/model_download_cubit.dart';
 import 'package:nutq/features/alerts/domain/job_alert.dart';
 import 'package:nutq/features/alerts/presentation/cubit/alerts_cubit.dart';
 import 'package:nutq/features/alerts/presentation/screens/alerts_screen.dart';
@@ -23,6 +25,9 @@ class HomeScreen extends StatelessWidget {
         BlocProvider<AlertsCubit>(create: (_) => sl<AlertsCubit>()),
         BlocProvider<ProfileCubit>(create: (_) => sl<ProfileCubit>()),
         BlocProvider<NotificationsCubit>(create: (_) => sl<NotificationsCubit>()),
+        BlocProvider<ModelDownloadCubit>(
+          create: (_) => sl<ModelDownloadCubit>(param1: sl<ModelRepository>().packs),
+        ),
       ],
       child: const _HomeShell(),
     );

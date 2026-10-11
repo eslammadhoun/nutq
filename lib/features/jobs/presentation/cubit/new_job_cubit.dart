@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nutq/core/domain/content_language.dart';
 import 'package:nutq/core/errors/app_error.dart';
+import 'package:nutq/features/ai_models/domain/entities/model_pack.dart';
 import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
 import 'package:nutq/features/jobs/domain/entities/new_job_draft.dart';
 import 'package:nutq/features/jobs/domain/entities/upload_file.dart';
@@ -15,12 +16,18 @@ class NewJobCubit extends Cubit<NewJobState> {
     this._media, {
     required Set<JobSourceType> supportedSources,
     bool Function(String link)? recognizesLink,
+    List<ModelPack> Function(JobSourceType type, ContentLanguage language)? missingModels,
   }) : _recognizesLink = recognizesLink ?? _anyLink,
+       _missingModels = missingModels ?? _noneMissing,
        super(NewJobState(supportedSources: supportedSources));
 
   final bool Function(String link) _recognizesLink;
 
   static bool _anyLink(String link) => link.trim().isNotEmpty;
+
+  final List<ModelPack> Function(JobSourceType type, ContentLanguage language) _missingModels;
+
+  static List<ModelPack> _noneMissing(JobSourceType type, ContentLanguage language) => const [];
 
   final SubmitJob _submitJob;
   final MediaFiles _media;
@@ -64,14 +71,25 @@ class NewJobCubit extends Cubit<NewJobState> {
     }
   }
 
+  /// The sheet has shown the download offer.
+  void modelsOffered() => emit(state.copyWith(missingModels: const []));
+
   void clearPickedFile() => emit(state.copyWith(pickedFile: null, fileTooLarge: false));
 
   /// Saves the job and queues it; the sheet then opens it. The job exists in
   /// storage before it runs, so a crash never loses it.
+  ///
+  /// When the models the job needs are not downloaded yet, nothing is saved:
+  /// [NewJobState.missingModels] asks the sheet to offer the download first.
   Future<void> submit() async {
     if (!state.canSubmit ||
         state.status == NewJobStatus.submitting ||
         state.status == NewJobStatus.success) {
+      return;
+    }
+    final missing = _missingModels(state.sourceType, _language);
+    if (missing.isNotEmpty) {
+      emit(state.copyWith(missingModels: missing));
       return;
     }
     emit(state.copyWith(status: NewJobStatus.submitting, lastError: null));
@@ -99,8 +117,10 @@ class NewJobCubit extends Cubit<NewJobState> {
   bool get _isMedia =>
       state.sourceType == JobSourceType.audio || state.sourceType == JobSourceType.video;
 
+  ContentLanguage get _language => ContentLanguage.fromCode(state.language.wireValue);
+
   NewJobDraft _draft(String? mediaPath) {
-    final language = ContentLanguage.fromCode(state.language.wireValue);
+    final language = _language;
     return switch (state.sourceType) {
       JobSourceType.text => NewJobDraft.text(text: state.text, language: language),
       JobSourceType.youtube => NewJobDraft.youtube(url: state.sourceUrl, language: language),
