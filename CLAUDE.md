@@ -1,70 +1,98 @@
 # CLAUDE.md — Nutq Flutter App
 
-Arabic Speech Transcription client app. Connects to the `transcription_api` backend (FastAPI, hexagonal arch).
+Arabic Speech Transcription client app. Connects to the `transcription_api` backend (FastAPI, hexagonal arch, lives at `/Users/mac/Desktop/transcription_api`).
 
 ## Commands
 
 ```bash
 # Run app (iOS simulator or connected device)
-flutter run
+flutter run --dart-define=API_BASE_URL=http://<LAN_IP>:8000/v1
 
-# Regenerate code after adding/editing models or API services
+# Regenerate code after editing freezed models or Drift tables/DAOs
 dart run build_runner build
 
-# Analyze
-flutter analyze
+# Regenerate localizations after editing lib/l10n/*.arb
+flutter gen-l10n
+
+# Format (CI fails on unformatted code; width 100, see analysis_options.yaml).
+# Only lib and test: third_party/ is vendored and stays as upstream wrote it.
+dart format lib test
+
+# Analyze (CI runs with --fatal-infos — infos fail the build; strict-casts/inference/raw-types are on)
+flutter analyze --fatal-infos
+
+# After changing the Drift schema: bump schemaVersion, add the migration step, then
+dart run drift_dev schema dump lib/core/database/app_database.dart drift_schemas/
+dart run drift_dev schema steps drift_schemas/ lib/core/database/schema_versions.dart
+dart run drift_dev schema generate drift_schemas/ test/core/database/generated/
 
 # Tests
 flutter test
 ```
 
+## Docs — read before building features
+
+- `docs/SRS.md` — 21 user stories (Auth U1–U4, Jobs J1–J10, Settings S1–S4, Notifications N1–N3), 9 screen specs, and the API-to-screen mapping. **The source of truth for what to build.**
+- `docs/DESIGN_SYSTEM.md` — colors, typography, spacing tokens.
+- `docs/SYSTEM_DESIGN.md` — client architecture decisions.
+
 ## Architecture
 
-**BLoC/Cubit** for state, **Retrofit + Dio** for networking, **GetIt** for DI, **Freezed** for sealed unions, **json_serializable** for JSON models.
+**BLoC/Cubit** for state, **Retrofit + Dio** for networking, **GetIt** for DI, **Freezed** for data models/sealed unions, **json_serializable** for JSON, **flutter_screenutil_plus** for responsive sizing, **gen-l10n** for Arabic/English localization.
 
 ### Folder structure
 
 ```
 lib/
   core/
+    database/       # AppDatabase (Drift/SQLite) — tables & DAOs live in each feature's data/local; see docs/LOCAL_STORAGE.md
     di/             # dependency_injection.dart — GetIt setup (sl)
-    network/        # DioFactory, ApiResult<T>, ErrorHandler
+    extensions/     # theme_extension (context.appColors/.typography/.l10n), error_l10n_extension
+    locale/         # LocaleCubit — persisted language choice (ar/en)
+    network/        # DioFactory + interceptors, ApiClient, ApiResult<T>, ApiError, TokenRefresher
     preferences/    # AppPreferences (SharedPreferences wrapper)
-    routing/        # AppRouter + Routes constants
-    theme/          # AppTheme
+    routing/        # AppRouter (+ navigatorKey) + Routes constants
+    session/        # SessionManager — broadcasts session-expiry → redirect to login
+    theme/          # AppTheme, AppColors (light+dark palettes), AppTypography
+    utils/          # Validators, helpers
+    widgets/        # GlobalButton, GlobalTextField, AppBottomNavBar, NutqLogo, VersionPill
+  l10n/             # app_en.arb + app_ar.arb (+ generated AppLocalizations)
   features/
-    auth/
-      data/
-        datasources/  # AuthApiService (Retrofit)
-        models/       # AuthModels (json_serializable)
-        repositories/ # AuthRepositoryImpl
-      domain/
-        repositories/ # AuthRepository interface
-      presentation/
-        cubit/        # AuthCubit + AuthState
-        screens/      # LoginScreen, RegisterScreen
-        widgets/      # AuthTextField
-    jobs/
-      presentation/
-        screens/      # JobsScreen (placeholder — to be built)
+    auth/           # ✅ full data/domain/presentation — login + register
+    jobs/           # ✅ full — list, filters, pagination, new-job sheet. REFERENCE FEATURE.
+    home/           # tab shell hosting Jobs/Alerts/Profile behind the bottom nav
+    onBoarding/     # splash + onboarding screens
+    transcription/  # on-device speech-to-text (FFmpeg + Moonshine, iOS) — see docs/TRANSCRIPTION.md
+    alerts/         # placeholder (SRS 4.8 Notifications — not started)
+    profile/        # placeholder (SRS 4.9 Profile/Settings — not started)
 ```
 
-### Adding a new feature
+Feature layering (mirror `jobs/`, the most complete reference):
+`data/{datasources,models,repositories}` → `domain/repositories` (interface) → `presentation/{cubit,models,screens,widgets}`.
 
-1. Create `lib/features/<name>/` with data/domain/presentation sub-folders.
-2. Define Retrofit service → run `dart run build_runner build`.
-3. Implement repository interface.
-4. Register in `core/di/dependency_injection.dart`.
-5. Add route in `core/routing/routes.dart` + `app_router.dart`.
+### Key conventions
 
-### Backend API
+- **Theming**: `context.appColors.*` and `context.typography.*` (via `core/extensions/theme_extension.dart`). Never raw hex, `Colors.*`, or inline `TextStyle`. New color tokens go into both light AND dark `AppColors` palettes + the token-count check in `test/core/theme/app_colors_test.dart`.
+- **Localization**: every user-facing string is `context.l10n.<key>`, with the key in both `lib/l10n/app_en.arb` and `app_ar.arb`. The app is bilingual (Arabic RTL / English LTR) — use `EdgeInsetsDirectional`/start-end where sides matter.
+- **Errors**: cubits carry the raw `ApiError` in state (`lastError` / `AuthState.failure(error)`); the UI localizes it at display time via `error_l10n_extension.dart`. Never pre-format English messages in a cubit.
+- **Sizing**: `.w` / `.h` / `.r` everywhere (screenutil); gaps via `SizedBox(height: n.h)`.
+- **DI** (`sl` = global GetIt): ApiService/DataSource/Repository → `registerLazySingleton`; Cubits → `registerFactory`. Tab screens (Jobs/Alerts/Profile) get their `BlocProvider` in `home_screen.dart`, routed screens in `app_router.dart`.
+- **Auth/session**: JWT in `FlutterSecureStorage`; refresh token sent in request **body**; token refresh is single-flight in `TokenRefresherImpl`; `SessionManager` broadcasts expiry and `main.dart` redirects to login. Features never touch tokens directly — interceptors handle it.
 
-Base URL configured via `--dart-define=API_BASE_URL=http://<LAN_IP>:8000/v1`.
-Physical device **cannot** reach `localhost` — use Mac's LAN IP on the same WiFi.
+## Workflow
 
-Auth flow: `POST /auth/register` → `POST /auth/login` → JWT stored in `FlutterSecureStorage`.
+- Branch `feature/<name>` off `develop` → grouped conventional commits (`feat(jobs): ...`, `fix(core/network): ...`) → PR into `develop` → CI (`flutter analyze --fatal-infos` + `flutter test`) → merge. **Group commits by concern, never one big commit.**
+- Definition of done: `flutter analyze` clean, `flutter test` green, both ARB files updated, screen verified in light+dark and Arabic+English.
+- New features should ship with at least a cubit test (fake the repository interface, return canned `ApiResult` values).
 
-### DI note
+## Orchestration — use the skills
 
-`sl` is the global `GetIt` instance from `core/di/dependency_injection.dart`.
-Repos → `registerLazySingleton`, Cubits → `registerFactory`.
+- **`/flutter-feature`** — scaffold a new API-backed feature end-to-end (models → datasource → repo → cubit → screen → DI → route). Checks `docs/SRS.md` for endpoints.
+- **`/figma-screen`** — implement a screen from a Figma URL with token mapping and widget separation.
+- **`/code-review`** — run before opening a PR.
+
+## Backend API
+
+Base URL via `--dart-define=API_BASE_URL=http://<LAN_IP>:8000/v1`. Physical device **cannot** reach `localhost` — use the Mac's LAN IP on the same WiFi.
+
+Auth flow: `POST /auth/register` → `POST /auth/login` → JWT stored in `FlutterSecureStorage`. Jobs: cursor-paginated `GET /jobs`, `POST /jobs` (source types: text, upload, url, youtube), `GET /jobs/{id}`, cancel/confirm endpoints.

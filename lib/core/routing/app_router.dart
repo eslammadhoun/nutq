@@ -1,13 +1,82 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nutq/core/di/dependency_injection.dart';
+import 'package:nutq/core/domain/content_language.dart';
+import 'package:nutq/core/extensions/theme_extension.dart';
+import 'package:nutq/core/routing/routes.dart';
+import 'package:nutq/features/ai_models/domain/repositories/model_repository.dart';
+import 'package:nutq/features/ai_models/presentation/cubit/model_download_cubit.dart';
+import 'package:nutq/features/ai_models/presentation/screens/model_download_screen.dart';
+import 'package:nutq/features/home/presentation/screens/home_screen.dart';
+import 'package:nutq/features/jobs/domain/entities/job_source_type.dart';
+import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
+import 'package:nutq/features/jobs/presentation/screens/job_detail_screen.dart';
+import 'package:nutq/features/onBoarding/presentation/screens/on_boarding_screen.dart';
 
 class AppRouter {
+  /// Global access to the navigator for imperative navigation from
+  /// non-widget code.
+  static final navigatorKey = GlobalKey<NavigatorState>();
+
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case Routes.onboarding:
+        return _buildRoute(settings, const OnBoardingScreen());
+
+      case Routes.modelDownload:
+        // What an Arabic recording needs, the app's main use; English speech
+        // is fetched when a job needs it.
+        final models = sl<ModelRepository>();
+        return _buildRoute(
+          settings,
+          BlocProvider<ModelDownloadCubit>(
+            create: (_) => sl<ModelDownloadCubit>(
+              param1: models.requiredFor(JobSourceType.audio, ContentLanguage.ar),
+            ),
+            child: const ModelDownloadScreen(),
+          ),
+        );
+
+      case Routes.home:
+        return _buildRoute(settings, HomeScreen());
+
+      case Routes.jobDetail:
+        final jobId = settings.arguments as String;
+        return _buildRoute(
+          settings,
+          BlocProvider<JobDetailCubit>(
+            create: (_) => sl<JobDetailCubit>(param1: jobId),
+            child: const JobDetailScreen(),
+          ),
+        );
       default:
-        return MaterialPageRoute(
-          builder: (_) =>
-              const Scaffold(body: Center(child: Text('Route not found'))),
+        return _buildRoute(
+          settings,
+          Scaffold(
+            body: Center(
+              child: Builder(
+                builder: (context) => Text(context.l10n.routeNotFound),
+              ),
+            ),
+          ),
         );
     }
+  }
+
+  static PageRouteBuilder<void> _buildRoute(RouteSettings settings, Widget page) {
+    return PageRouteBuilder<void>(
+      settings: settings,
+
+      transitionDuration: const Duration(milliseconds: 180),
+      reverseTransitionDuration: const Duration(milliseconds: 150),
+
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return page;
+      },
+
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(opacity: animation, child: child);
+      },
+    );
   }
 }

@@ -1,0 +1,351 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'new_job_state.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$NewJobState {
+
+ JobSourceType get sourceType;/// Source types the app can process (the registered transcript sources).
+ Set<JobSourceType> get supportedSources; JobLanguage get language; String get text; UploadFile? get pickedFile; String get sourceUrl;/// Whether [sourceUrl] is a video link the app can read.
+ bool get sourceUrlValid; bool get fileTooLarge; NewJobStatus get status; AppError? get lastError; String? get submittedJobId;/// Models the job needs that are not on the phone yet. Set by a submit
+/// that has to wait for them; the sheet then offers the download.
+ List<ModelPack> get missingModels;
+/// Create a copy of NewJobState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$NewJobStateCopyWith<NewJobState> get copyWith => _$NewJobStateCopyWithImpl<NewJobState>(this as NewJobState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NewJobState&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&const DeepCollectionEquality().equals(other.supportedSources, supportedSources)&&(identical(other.language, language) || other.language == language)&&(identical(other.text, text) || other.text == text)&&(identical(other.pickedFile, pickedFile) || other.pickedFile == pickedFile)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.sourceUrlValid, sourceUrlValid) || other.sourceUrlValid == sourceUrlValid)&&(identical(other.fileTooLarge, fileTooLarge) || other.fileTooLarge == fileTooLarge)&&(identical(other.status, status) || other.status == status)&&(identical(other.lastError, lastError) || other.lastError == lastError)&&(identical(other.submittedJobId, submittedJobId) || other.submittedJobId == submittedJobId)&&const DeepCollectionEquality().equals(other.missingModels, missingModels));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,sourceType,const DeepCollectionEquality().hash(supportedSources),language,text,pickedFile,sourceUrl,sourceUrlValid,fileTooLarge,status,lastError,submittedJobId,const DeepCollectionEquality().hash(missingModels));
+
+@override
+String toString() {
+  return 'NewJobState(sourceType: $sourceType, supportedSources: $supportedSources, language: $language, text: $text, pickedFile: $pickedFile, sourceUrl: $sourceUrl, sourceUrlValid: $sourceUrlValid, fileTooLarge: $fileTooLarge, status: $status, lastError: $lastError, submittedJobId: $submittedJobId, missingModels: $missingModels)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $NewJobStateCopyWith<$Res>  {
+  factory $NewJobStateCopyWith(NewJobState value, $Res Function(NewJobState) _then) = _$NewJobStateCopyWithImpl;
+@useResult
+$Res call({
+ JobSourceType sourceType, Set<JobSourceType> supportedSources, JobLanguage language, String text, UploadFile? pickedFile, String sourceUrl, bool sourceUrlValid, bool fileTooLarge, NewJobStatus status, AppError? lastError, String? submittedJobId, List<ModelPack> missingModels
+});
+
+
+$UploadFileCopyWith<$Res>? get pickedFile;
+
+}
+/// @nodoc
+class _$NewJobStateCopyWithImpl<$Res>
+    implements $NewJobStateCopyWith<$Res> {
+  _$NewJobStateCopyWithImpl(this._self, this._then);
+
+  final NewJobState _self;
+  final $Res Function(NewJobState) _then;
+
+/// Create a copy of NewJobState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? sourceType = null,Object? supportedSources = null,Object? language = null,Object? text = null,Object? pickedFile = freezed,Object? sourceUrl = null,Object? sourceUrlValid = null,Object? fileTooLarge = null,Object? status = null,Object? lastError = freezed,Object? submittedJobId = freezed,Object? missingModels = null,}) {
+  return _then(_self.copyWith(
+sourceType: null == sourceType ? _self.sourceType : sourceType // ignore: cast_nullable_to_non_nullable
+as JobSourceType,supportedSources: null == supportedSources ? _self.supportedSources : supportedSources // ignore: cast_nullable_to_non_nullable
+as Set<JobSourceType>,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
+as JobLanguage,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
+as String,pickedFile: freezed == pickedFile ? _self.pickedFile : pickedFile // ignore: cast_nullable_to_non_nullable
+as UploadFile?,sourceUrl: null == sourceUrl ? _self.sourceUrl : sourceUrl // ignore: cast_nullable_to_non_nullable
+as String,sourceUrlValid: null == sourceUrlValid ? _self.sourceUrlValid : sourceUrlValid // ignore: cast_nullable_to_non_nullable
+as bool,fileTooLarge: null == fileTooLarge ? _self.fileTooLarge : fileTooLarge // ignore: cast_nullable_to_non_nullable
+as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as NewJobStatus,lastError: freezed == lastError ? _self.lastError : lastError // ignore: cast_nullable_to_non_nullable
+as AppError?,submittedJobId: freezed == submittedJobId ? _self.submittedJobId : submittedJobId // ignore: cast_nullable_to_non_nullable
+as String?,missingModels: null == missingModels ? _self.missingModels : missingModels // ignore: cast_nullable_to_non_nullable
+as List<ModelPack>,
+  ));
+}
+/// Create a copy of NewJobState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$UploadFileCopyWith<$Res>? get pickedFile {
+    if (_self.pickedFile == null) {
+    return null;
+  }
+
+  return $UploadFileCopyWith<$Res>(_self.pickedFile!, (value) {
+    return _then(_self.copyWith(pickedFile: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [NewJobState].
+extension NewJobStatePatterns on NewJobState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _NewJobState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _NewJobState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _NewJobState value)  $default,){
+final _that = this;
+switch (_that) {
+case _NewJobState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _NewJobState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _NewJobState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( JobSourceType sourceType,  Set<JobSourceType> supportedSources,  JobLanguage language,  String text,  UploadFile? pickedFile,  String sourceUrl,  bool sourceUrlValid,  bool fileTooLarge,  NewJobStatus status,  AppError? lastError,  String? submittedJobId,  List<ModelPack> missingModels)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _NewJobState() when $default != null:
+return $default(_that.sourceType,_that.supportedSources,_that.language,_that.text,_that.pickedFile,_that.sourceUrl,_that.sourceUrlValid,_that.fileTooLarge,_that.status,_that.lastError,_that.submittedJobId,_that.missingModels);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( JobSourceType sourceType,  Set<JobSourceType> supportedSources,  JobLanguage language,  String text,  UploadFile? pickedFile,  String sourceUrl,  bool sourceUrlValid,  bool fileTooLarge,  NewJobStatus status,  AppError? lastError,  String? submittedJobId,  List<ModelPack> missingModels)  $default,) {final _that = this;
+switch (_that) {
+case _NewJobState():
+return $default(_that.sourceType,_that.supportedSources,_that.language,_that.text,_that.pickedFile,_that.sourceUrl,_that.sourceUrlValid,_that.fileTooLarge,_that.status,_that.lastError,_that.submittedJobId,_that.missingModels);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( JobSourceType sourceType,  Set<JobSourceType> supportedSources,  JobLanguage language,  String text,  UploadFile? pickedFile,  String sourceUrl,  bool sourceUrlValid,  bool fileTooLarge,  NewJobStatus status,  AppError? lastError,  String? submittedJobId,  List<ModelPack> missingModels)?  $default,) {final _that = this;
+switch (_that) {
+case _NewJobState() when $default != null:
+return $default(_that.sourceType,_that.supportedSources,_that.language,_that.text,_that.pickedFile,_that.sourceUrl,_that.sourceUrlValid,_that.fileTooLarge,_that.status,_that.lastError,_that.submittedJobId,_that.missingModels);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _NewJobState extends NewJobState {
+  const _NewJobState({this.sourceType = JobSourceType.text, final  Set<JobSourceType> supportedSources = const {JobSourceType.text}, this.language = JobLanguage.ar, this.text = '', this.pickedFile, this.sourceUrl = '', this.sourceUrlValid = false, this.fileTooLarge = false, this.status = NewJobStatus.idle, this.lastError, this.submittedJobId, final  List<ModelPack> missingModels = const <ModelPack>[]}): _supportedSources = supportedSources,_missingModels = missingModels,super._();
+  
+
+@override@JsonKey() final  JobSourceType sourceType;
+/// Source types the app can process (the registered transcript sources).
+ final  Set<JobSourceType> _supportedSources;
+/// Source types the app can process (the registered transcript sources).
+@override@JsonKey() Set<JobSourceType> get supportedSources {
+  if (_supportedSources is EqualUnmodifiableSetView) return _supportedSources;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableSetView(_supportedSources);
+}
+
+@override@JsonKey() final  JobLanguage language;
+@override@JsonKey() final  String text;
+@override final  UploadFile? pickedFile;
+@override@JsonKey() final  String sourceUrl;
+/// Whether [sourceUrl] is a video link the app can read.
+@override@JsonKey() final  bool sourceUrlValid;
+@override@JsonKey() final  bool fileTooLarge;
+@override@JsonKey() final  NewJobStatus status;
+@override final  AppError? lastError;
+@override final  String? submittedJobId;
+/// Models the job needs that are not on the phone yet. Set by a submit
+/// that has to wait for them; the sheet then offers the download.
+ final  List<ModelPack> _missingModels;
+/// Models the job needs that are not on the phone yet. Set by a submit
+/// that has to wait for them; the sheet then offers the download.
+@override@JsonKey() List<ModelPack> get missingModels {
+  if (_missingModels is EqualUnmodifiableListView) return _missingModels;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_missingModels);
+}
+
+
+/// Create a copy of NewJobState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$NewJobStateCopyWith<_NewJobState> get copyWith => __$NewJobStateCopyWithImpl<_NewJobState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NewJobState&&(identical(other.sourceType, sourceType) || other.sourceType == sourceType)&&const DeepCollectionEquality().equals(other._supportedSources, _supportedSources)&&(identical(other.language, language) || other.language == language)&&(identical(other.text, text) || other.text == text)&&(identical(other.pickedFile, pickedFile) || other.pickedFile == pickedFile)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.sourceUrlValid, sourceUrlValid) || other.sourceUrlValid == sourceUrlValid)&&(identical(other.fileTooLarge, fileTooLarge) || other.fileTooLarge == fileTooLarge)&&(identical(other.status, status) || other.status == status)&&(identical(other.lastError, lastError) || other.lastError == lastError)&&(identical(other.submittedJobId, submittedJobId) || other.submittedJobId == submittedJobId)&&const DeepCollectionEquality().equals(other._missingModels, _missingModels));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,sourceType,const DeepCollectionEquality().hash(_supportedSources),language,text,pickedFile,sourceUrl,sourceUrlValid,fileTooLarge,status,lastError,submittedJobId,const DeepCollectionEquality().hash(_missingModels));
+
+@override
+String toString() {
+  return 'NewJobState(sourceType: $sourceType, supportedSources: $supportedSources, language: $language, text: $text, pickedFile: $pickedFile, sourceUrl: $sourceUrl, sourceUrlValid: $sourceUrlValid, fileTooLarge: $fileTooLarge, status: $status, lastError: $lastError, submittedJobId: $submittedJobId, missingModels: $missingModels)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$NewJobStateCopyWith<$Res> implements $NewJobStateCopyWith<$Res> {
+  factory _$NewJobStateCopyWith(_NewJobState value, $Res Function(_NewJobState) _then) = __$NewJobStateCopyWithImpl;
+@override @useResult
+$Res call({
+ JobSourceType sourceType, Set<JobSourceType> supportedSources, JobLanguage language, String text, UploadFile? pickedFile, String sourceUrl, bool sourceUrlValid, bool fileTooLarge, NewJobStatus status, AppError? lastError, String? submittedJobId, List<ModelPack> missingModels
+});
+
+
+@override $UploadFileCopyWith<$Res>? get pickedFile;
+
+}
+/// @nodoc
+class __$NewJobStateCopyWithImpl<$Res>
+    implements _$NewJobStateCopyWith<$Res> {
+  __$NewJobStateCopyWithImpl(this._self, this._then);
+
+  final _NewJobState _self;
+  final $Res Function(_NewJobState) _then;
+
+/// Create a copy of NewJobState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? sourceType = null,Object? supportedSources = null,Object? language = null,Object? text = null,Object? pickedFile = freezed,Object? sourceUrl = null,Object? sourceUrlValid = null,Object? fileTooLarge = null,Object? status = null,Object? lastError = freezed,Object? submittedJobId = freezed,Object? missingModels = null,}) {
+  return _then(_NewJobState(
+sourceType: null == sourceType ? _self.sourceType : sourceType // ignore: cast_nullable_to_non_nullable
+as JobSourceType,supportedSources: null == supportedSources ? _self._supportedSources : supportedSources // ignore: cast_nullable_to_non_nullable
+as Set<JobSourceType>,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
+as JobLanguage,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
+as String,pickedFile: freezed == pickedFile ? _self.pickedFile : pickedFile // ignore: cast_nullable_to_non_nullable
+as UploadFile?,sourceUrl: null == sourceUrl ? _self.sourceUrl : sourceUrl // ignore: cast_nullable_to_non_nullable
+as String,sourceUrlValid: null == sourceUrlValid ? _self.sourceUrlValid : sourceUrlValid // ignore: cast_nullable_to_non_nullable
+as bool,fileTooLarge: null == fileTooLarge ? _self.fileTooLarge : fileTooLarge // ignore: cast_nullable_to_non_nullable
+as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as NewJobStatus,lastError: freezed == lastError ? _self.lastError : lastError // ignore: cast_nullable_to_non_nullable
+as AppError?,submittedJobId: freezed == submittedJobId ? _self.submittedJobId : submittedJobId // ignore: cast_nullable_to_non_nullable
+as String?,missingModels: null == missingModels ? _self._missingModels : missingModels // ignore: cast_nullable_to_non_nullable
+as List<ModelPack>,
+  ));
+}
+
+/// Create a copy of NewJobState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$UploadFileCopyWith<$Res>? get pickedFile {
+    if (_self.pickedFile == null) {
+    return null;
+  }
+
+  return $UploadFileCopyWith<$Res>(_self.pickedFile!, (value) {
+    return _then(_self.copyWith(pickedFile: value));
+  });
+}
+}
+
+// dart format on

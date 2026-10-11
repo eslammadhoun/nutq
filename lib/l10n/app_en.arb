@@ -1,0 +1,250 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Nutq",
+  "@appTitle": {
+    "description": "The application title"
+  },
+  "appTagline": "Arabic Speech Transcription",
+
+  "routeNotFound": "Route not found",
+
+  "navHome": "Home",
+  "navAlerts": "Alerts",
+  "navProfile": "Profile",
+
+  "versionLabel": "v {version}",
+  "@versionLabel": {
+    "placeholders": { "version": { "type": "String" } }
+  },
+
+  "retry": "Retry",
+  "somethingWentWrong": "Something went wrong",
+
+  "jobFallbackTitle": "Job #{id}",
+  "@jobFallbackTitle": {
+    "placeholders": { "id": { "type": "String" } }
+  },
+  "jobTodayLabel": "Today, {time}",
+  "@jobTodayLabel": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "jobYesterdayLabel": "Yesterday",
+  "languageArabic": "Arabic",
+  "languageEnglish": "English",
+
+  "validationFieldRequired": "{field} is required",
+  "@validationFieldRequired": {
+    "placeholders": { "field": { "type": "String" } }
+  },
+  "validationMinLength": "{field} must be at least {min} characters",
+  "@validationMinLength": {
+    "placeholders": {
+      "field": { "type": "String" },
+      "min": { "type": "int" }
+    }
+  },
+  "validationMaxLength": "{field} must not exceed {max} characters",
+  "@validationMaxLength": {
+    "placeholders": {
+      "field": { "type": "String" },
+      "max": { "type": "int" }
+    }
+  },
+  "validationEmailInvalid": "Please enter a valid email address",
+  "validationPasswordLowercase": "Password must contain at least one lowercase letter",
+  "validationPasswordUppercase": "Password must contain at least one uppercase letter",
+  "validationPasswordNumber": "Password must contain at least one number",
+  "validationPasswordsMismatch": "Passwords do not match",
+  "validationNameChars": "Name can only contain letters, spaces, hyphens, and apostrophes",
+  "validationUsernameChars": "Username can only contain letters, numbers, underscores, and hyphens",
+
+  "jobsHistoryTitle": "History",
+  "jobsSearchHint": "Search transcriptions...",
+  "jobsFilterAll": "All",
+
+  "jobsEmptyTitle": "No transcriptions yet",
+  "jobsEmptySubtitle": "Submit your first Arabic audio, video, \nor text to get started",
+
+  "sourceAudioFile": "Audio File",
+  "sourceVideo": "Video",
+  "sourceYoutube": "YouTube",
+  "sourceText": "Text",
+
+  "statusDone": "Done",
+  "statusProcessing": "Processing",
+  "statusQueued": "Queued",
+  "statusFailed": "Failed",
+  "statusCancelled": "Cancelled",
+
+  "newJobTitle": "New Job",
+  "newJobLanguageLabel": "Language",
+  "newJobLanguageArabic": "Arabic (AR)",
+  "newJobLanguageEnglish": "English (EN)",
+  "newJobTextLabel": "Enter or paste your Arabic text",
+  "newJobTextPlaceholder": "Example: enter Arabic text here to get a summary...",
+  "newJobCharCounter": "{count} / {max}",
+  "@newJobCharCounter": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "newJobChooseAudioFile": "Choose audio file",
+  "newJobChooseVideoFile": "Choose video file",
+  "newJobFormatsAudio": "MP3, WAV, M4A · up to 500MB",
+  "newJobFormatsVideo": "MP4, WebM, MOV · up to 500MB",
+  "newJobYoutubeUrlLabel": "YouTube URL",
+  "newJobYoutubeUrlHint": "https://youtube.com/watch?v=...",
+  "newJobSubmit": "Submit Job",
+  "newJobFileTooLarge": "Selected file exceeds the 500 MB limit",
+
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingGetStarted": "Get Started",
+  "onboardingSlide1Title": "Turn Arabic Speech\ninto Text",
+  "onboardingSlide1Subtitle": "Record or upload any audio — Nutq\ntranscribes it in seconds with precision.",
+  "onboardingSlide2Title": "AI-Powered\nSummaries",
+  "onboardingSlide2Subtitle": "Get smart summaries, key takeaways,\nand insights from every transcription.",
+  "onboardingSlide3Title": "Browse Your\nHistory",
+  "onboardingSlide3Subtitle": "Search, share, and export all your\npast transcriptions with ease.",
+
+
+  "jobDetailTitle": "Job Detail",
+  "jobDetailTranscriptionComplete": "Transcription Complete",
+  "jobDetailTranscript": "Transcript",
+  "jobDetailTranscriptPending": "The transcript isn't ready yet.",
+  "jobDetailTranscriptLive": "Live",
+  "jobDetailAiSummary": "AI Summary",
+  "jobDetailSummaryPending": "The summary isn't ready yet.",
+  "jobDetailDownloadTranscript": "Download Transcript",
+  "jobDetailShare": "Share",
+  "jobDetailCopyText": "Copy Text",
+  "jobDetailKeyTakeaways": "KEY TAKEAWAYS",
+  "jobDetailWordCount": "{count} words",
+  "@jobDetailWordCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailCancelJob": "Cancel Job",
+  "jobDetailCancelling": "Cancelling…",
+  "jobDetailJustNow": "Just now",
+  "jobDetailMinutesAgo": "{count} minutes ago",
+  "@jobDetailMinutesAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailHoursAgo": "{count} hours ago",
+  "@jobDetailHoursAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailDaysAgo": "{count} days ago",
+  "@jobDetailDaysAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "jobDetailShowMore": "Show more",
+  "jobDetailShowLess": "Show less",
+
+
+  "jobStagePreparing": "Preparing transcript",
+  "jobStageAnalyzing": "Analyzing transcript",
+  "jobStageSummarizing": "Summarizing sections",
+  "jobStageCombining": "Combining information",
+  "jobStageChecking": "Checking summary",
+  "jobStageFinalizing": "Finalizing",
+  "jobStageCompleted": "Completed",
+  "jobStageSections": "{processed} of {total} sections",
+  "@jobStageSections": {"placeholders": {"processed": {"type": "int"}, "total": {"type": "int"}}},
+  "jobSummaryNeedsReview": "Some details in this summary could not be verified against the transcript. Please review it.",
+  "jobFailureEmptyTranscript": "There is no transcript text to summarize.",
+  "jobFailureModelUnavailable": "The on-device summarization model isn't available.",
+  "jobFailureGenerationFailed": "The summary could not be generated. Please try again.",
+  "newJobSourceUnavailable": "Only pasted text can be summarized on this device for now. Audio, video and YouTube sources aren't available yet.",
+  "jobDetailSummaryComplete": "Summary Complete",
+  "errorStorage": "Couldn't access saved jobs on this device. Please try again.",
+  "errorModelDownloadNetwork": "Couldn't download the AI models. Check your connection and try again.",
+  "errorModelDownloadNoSpace": "Not enough free space on this device to download the AI models.",
+  "errorModelDownloadCorrupt": "A downloaded model was damaged, so it was removed. Please download it again.",
+  "jobDetailNotFound": "This job no longer exists.",
+  "jobFailureInterrupted": "This job was interrupted because the app was closed before it finished.",
+  "jobStageAcquiring": "Fetching source",
+  "jobStageTranscribing": "Transcribing audio",
+  "jobFailureSourceUnavailable": "The source couldn't be reached. Check your connection and try again.",
+  "jobFailureUnsupportedMedia": "This file's format isn't supported.",
+  "jobFailureTranscriptionFailed": "The audio couldn't be transcribed.",
+  "jobFailureInsufficientStorage": "There isn't enough free storage to process this job.",
+
+  "backgroundJobTranscribing": "Transcribing · {percent}",
+  "@backgroundJobTranscribing": {"placeholders": {"percent": {"type": "String"}}},
+  "backgroundJobPaused": "Paused · {percent}",
+  "@backgroundJobPaused": {"placeholders": {"percent": {"type": "String"}}},
+  "backgroundJobInterruptedTitle": "Transcription paused at {percent}",
+  "@backgroundJobInterruptedTitle": {"placeholders": {"percent": {"type": "String"}}},
+  "backgroundJobInterruptedBody": "Another app is playing audio. Open Nutq to continue {title}.",
+  "@backgroundJobInterruptedBody": {"placeholders": {"title": {"type": "String"}}},
+  "backgroundJobReadyTitle": "Transcript ready",
+  "backgroundJobReadyBody": "Open Nutq to summarize {title}.",
+  "@backgroundJobReadyBody": {"placeholders": {"title": {"type": "String"}}},
+  "backgroundJobSummarizing": "Summarizing · {percent}",
+  "@backgroundJobSummarizing": {"placeholders": {"percent": {"type": "String"}}},
+  "backgroundJobWaitingForApp": "Open Nutq to summarize · {percent}",
+  "@backgroundJobWaitingForApp": {"placeholders": {"percent": {"type": "String"}}},
+  "backgroundJobDoneTitle": "Summary ready",
+  "backgroundJobDoneBody": "{title} is summarized.",
+  "@backgroundJobDoneBody": {"placeholders": {"title": {"type": "String"}}},
+  "alertsTitle": "Alerts",
+  "alertsClearAll": "Clear all",
+  "alertsEmpty": "No alerts yet. Finished jobs show up here.",
+  "alertsUntitled": "Untitled job",
+  "alertJobDone": "Summary ready",
+  "alertJobFailed": "Job failed",
+  "alertBannerDone": "Summary ready: {title}",
+  "@alertBannerDone": {"placeholders": {"title": {"type": "String"}}},
+  "alertBannerFailed": "Job failed: {title}",
+  "@alertBannerFailed": {"placeholders": {"title": {"type": "String"}}},
+  "alertBannerView": "View",
+  "profileTitle": "Settings",
+  "profilePreferences": "Preferences",
+  "profileUseDeviceTheme": "Use device theme",
+  "profileDarkMode": "Dark Mode",
+  "profileNotifications": "Notifications",
+  "profileLanguage": "Language",
+  "profileStorage": "Storage",
+  "profileStorageSummary": "{count, plural, =0{No jobs} =1{1 job} other{{count} jobs}} · {size}",
+  "@profileStorageSummary": {"placeholders": {"count": {"type": "int"}, "size": {"type": "String"}}},
+  "profileDeleteAll": "Delete all jobs",
+  "profileDeleteAllTitle": "Delete all jobs?",
+  "profileDeleteAllBody": "Every job is deleted with its transcript, summary and media file. This can't be undone.",
+  "profileDeleteAllConfirm": "Delete",
+  "profileCancel": "Cancel",
+  "profileAbout": "About",
+  "profileVersion": "Version",
+  "profileOnDevice": "Everything runs on this phone. Nothing is uploaded.",
+  "jobFailureNoSubtitles": "This video has no subtitles in the chosen language. Try the other language.",
+  "newJobYoutubeInvalid": "That doesn't look like a YouTube link.",
+  "backgroundJobPauseAction": "Pause",
+  "backgroundJobResumeAction": "Resume",
+  "backgroundJobCancelAction": "Cancel",
+  "backgroundJobProgressChannel": "Job progress",
+  "backgroundJobDoneChannel": "Finished jobs",
+  "modelsTitle": "Download the AI models",
+  "modelsBody": "Nutq transcribes and summarizes entirely on your phone, so it needs its AI models first. They download once ({size}) and then work offline.",
+  "@modelsBody": {"placeholders": {"size": {"type": "String"}}},
+  "modelsNeededTitle": "This job needs the AI models",
+  "modelsWifi": "Wi-Fi recommended",
+  "modelsDownload": "Download",
+  "modelsPause": "Pause",
+  "modelsResume": "Resume",
+  "modelsRetry": "Try again",
+  "modelsReady": "The models are ready",
+  "modelsContinue": "Continue",
+  "modelsLater": "Later",
+  "modelsProgress": "{received} of {total}",
+  "@modelsProgress": {"placeholders": {"received": {"type": "String"}, "total": {"type": "String"}}},
+  "profileModels": "AI models",
+  "modelSummarizer": "Summarizer",
+  "modelSpeechArabic": "Arabic speech",
+  "modelSpeechEnglish": "English speech",
+  "modelNotDownloaded": "Download",
+  "modelDeleteTitle": "Delete this model?",
+  "modelDeleteBody": "It frees {size}. You can download it again at any time.",
+  "@modelDeleteBody": {"placeholders": {"size": {"type": "String"}}}
+}
