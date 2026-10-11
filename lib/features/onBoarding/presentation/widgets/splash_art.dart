@@ -7,9 +7,9 @@ import 'package:nutq/core/extensions/theme_extension.dart';
 /// The launch screen's design (Figma "Splash — Light" 11:2 and "Splash —
 /// Dark" 2017:2), minus the background gradient: a 390×844 transparent layer.
 ///
-/// The app shows no splash of its own; this is rendered to the iOS launch
-/// image by `tool/native_splash/render_test.dart`, which also renders the
-/// gradient. Re-run it after changing this widget.
+/// On iOS it is the launch screen: `tool/native_splash/render_test.dart`
+/// renders it, and [gradient], to the launch images. Re-run it after changing
+/// this widget. Android draws it in Flutter instead (`LaunchSplash`).
 ///
 /// Sizes are plain design points, not ScreenUtil units: the image is drawn at
 /// the design's size and the launch screen centers it.
@@ -17,6 +17,26 @@ class SplashArt extends StatelessWidget {
   const SplashArt({super.key});
 
   static const Size size = Size(390, 844);
+
+  static const _logo = SvgAssetLoader('assets/svgs/nutq-icon.svg');
+
+  /// Loads the logo ahead, so the first frame already shows it.
+  static Future<void> precacheLogo() => _logo.loadBytes(null);
+
+  /// The design's background, bottom to top, which fills the screen behind
+  /// the art.
+  static LinearGradient gradient({required bool dark}) => dark
+      ? const LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [Color(0xFF0B1120), Color(0xFF111827), Color(0xFF0F1729)],
+          stops: [0, 0.6, 1],
+        )
+      : const LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [Color(0xFFE8F0FE), Color(0xFFF3F7FF), Color(0xFFFFFFFF)],
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +196,7 @@ class _Mark extends StatelessWidget {
             height: 80,
             alignment: Alignment.center,
             decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(20)),
-            child: SvgPicture.asset('assets/svgs/nutq-icon.svg', width: 50, height: 40),
+            child: SvgPicture(SplashArt._logo, width: 50, height: 40),
           ),
         ],
       ),

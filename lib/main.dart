@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,20 +15,38 @@ import 'package:nutq/core/theme/app_theme.dart';
 import 'package:nutq/core/theme/theme_cubit.dart';
 import 'package:nutq/features/ai_models/domain/repositories/model_repository.dart';
 import 'package:nutq/features/jobs/domain/services/job_runner.dart';
+import 'package:nutq/features/onBoarding/presentation/widgets/launch_splash.dart';
+import 'package:nutq/features/onBoarding/presentation/widgets/splash_art.dart';
 import 'package:nutq/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // iOS shows the launch screen until the first frame; Android can't show
+  // that design itself, so the app draws it while it starts.
+  final splash = Platform.isAndroid ? _showLaunchSplash() : null;
   await setupDI();
   // Reads the model manifest and which models are already downloaded: a few
   // file checks, so the first screen knows what is missing.
   await sl<ModelRepository>().init();
+  await splash;
   runApp(const NutqApp());
   // After the first frame: recover jobs an earlier session left running, then
   // start processing the queue. Nothing here delays startup.
   WidgetsBinding.instance.addPostFrameCallback(
     (_) => unawaited(sl<JobRunner>().start()),
   );
+}
+
+/// Shows [LaunchSplash] and completes once it has been on screen long enough
+/// to be seen rather than flash. Its first frame is slow (blurs, the logo),
+/// so the time counts from when that frame is drawn.
+Future<void> _showLaunchSplash() async {
+  // The logo is an SVG, which loads asynchronously: loaded first, it is there
+  // from the first frame, as in the iOS launch image.
+  await SplashArt.precacheLogo();
+  runApp(const LaunchSplash());
+  await WidgetsBinding.instance.waitUntilFirstFrameRasterized;
+  await Future<void>.delayed(const Duration(milliseconds: 800));
 }
 
 class NutqApp extends StatelessWidget {
@@ -62,8 +81,8 @@ class NutqApp extends StatelessWidget {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              // No splash screen of its own: the system launch screen shows
-              // SplashArt until the first frame, then this route.
+              // On iOS the launch screen shows SplashArt until the first
+              // frame, on Android LaunchSplash (main); then this route.
               initialRoute: sl<AppPreferences>().hasSeenOnboarding
                   ? Routes.home
                   : Routes.onboarding,

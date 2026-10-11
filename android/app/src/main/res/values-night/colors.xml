@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- AppColors.dark.page -->
-    <color name="launch_background">#0D1117</color>
+    <!-- SplashArt.gradient, dark, mid-screen -->
+    <color name="launch_background">#111827</color>
 </resources>
