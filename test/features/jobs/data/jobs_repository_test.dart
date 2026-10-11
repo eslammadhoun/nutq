@@ -419,6 +419,49 @@ void main() {
     });
   });
 
+  group('releaseMedia frees the source file of a finished job', () {
+    late List<String> removed;
+    late TestRepo files;
+
+    setUp(() {
+      removed = [];
+      files = TestRepo(db, removeFile: (path) async => removed.add(path));
+    });
+
+    Future<String> mediaJob() async => (await files.repo.createJob(
+      NewJobDraft.media(
+        type: JobSourceType.video,
+        filePath: '/app/files/v.mp4',
+        language: ContentLanguage.ar,
+      ),
+    )).id;
+
+    test('the file goes once the job ends, the job stays', () async {
+      final id = await mediaJob();
+      await files.repo.markRunning(id);
+      await files.repo.failJob(id, JobFailureKind.unsupportedMedia);
+      await files.repo.releaseMedia(id);
+      expect(removed, ['/app/files/v.mp4']);
+      expect(await files.repo.getJob(id), isNotNull);
+    });
+
+    test('an active job keeps its file', () async {
+      final id = await mediaJob();
+      await files.repo.releaseMedia(id);
+      await files.repo.markRunning(id);
+      await files.repo.releaseMedia(id);
+      expect(removed, isEmpty);
+    });
+
+    test('a missing job or a text job removes nothing', () async {
+      final text = await files.repo.createJob(draft('نص'));
+      await files.repo.cancelJob(text.id);
+      await files.repo.releaseMedia(text.id);
+      await files.repo.releaseMedia('nope');
+      expect(removed, isEmpty);
+    });
+  });
+
   group('deleteJob', () {
     test('removes the job; deleting again is a no-op', () async {
       await t.repo.createJob(draft('نص'));

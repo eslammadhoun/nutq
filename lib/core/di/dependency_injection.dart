@@ -35,6 +35,7 @@ import 'package:nutq/features/jobs/domain/sources/media_transcript_source.dart';
 import 'package:nutq/features/jobs/domain/sources/text_transcript_source.dart';
 import 'package:nutq/features/jobs/domain/sources/transcript_source_registry.dart';
 import 'package:nutq/features/jobs/domain/sources/youtube_transcript_source.dart';
+import 'package:nutq/features/jobs/domain/usecases/delete_job.dart';
 import 'package:nutq/features/jobs/domain/usecases/process_job.dart';
 import 'package:nutq/features/jobs/domain/usecases/submit_job.dart';
 import 'package:nutq/features/jobs/presentation/cubit/job_detail_cubit.dart';
@@ -204,6 +205,7 @@ void _registerJobs() {
       () => JobRunner(
         jobs: sl<JobsRepository>(),
         process: sl<ProcessJob>(),
+        media: sl<MediaFiles>(),
         // Free the model's memory once no job has run for a while.
         onIdle: sl<SummarizationRepository>().release,
       ),
@@ -213,7 +215,8 @@ void _registerJobs() {
     ..registerLazySingleton<SubmitJob>(
       () => SubmitJob(sl<JobsRepository>(), sl<JobScheduler>()),
     )
-    ..registerFactory<JobsCubit>(() => JobsCubit(sl<JobsRepository>()))
+    ..registerLazySingleton<DeleteJob>(() => DeleteJob(sl<JobsRepository>(), sl<JobScheduler>()))
+    ..registerFactory<JobsCubit>(() => JobsCubit(sl<JobsRepository>(), sl<DeleteJob>()))
     ..registerLazySingleton<MediaFiles>(() => PlatformMediaFiles(newId: () => const Uuid().v4()))
     ..registerFactory<NewJobCubit>(
       () => NewJobCubit(
@@ -251,7 +254,7 @@ void _registerAlertsAndProfile() {
       () => LocalJobStorage(
         jobs: sl<JobsRepository>(),
         media: sl<MediaFiles>(),
-        scheduler: sl<JobScheduler>(),
+        deleteJob: sl<DeleteJob>(),
       ),
     )
     ..registerFactory<ProfileCubit>(() => ProfileCubit(sl<JobStorage>()))

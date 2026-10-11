@@ -6,6 +6,7 @@ import 'package:nutq/features/jobs/domain/entities/job_entity.dart';
 import 'package:nutq/features/jobs/domain/entities/job_run_status.dart';
 import 'package:nutq/features/jobs/domain/entities/jobs_query.dart';
 import 'package:nutq/features/jobs/domain/repositories/jobs_repository.dart';
+import 'package:nutq/features/jobs/domain/usecases/delete_job.dart';
 import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
 
 /// The jobs list. The database is the source of truth: the cubit subscribes to
@@ -14,11 +15,13 @@ import 'package:nutq/features/jobs/presentation/cubit/jobs_state.dart';
 /// query, not in memory.
 class JobsCubit extends Cubit<JobsState> {
   JobsCubit(
-    this._repository, {
+    this._repository,
+    this._deleteJob, {
     this.searchDebounce = const Duration(milliseconds: 300),
   }) : super(const JobsState());
 
   final JobsRepository _repository;
+  final DeleteJob _deleteJob;
   final Duration searchDebounce;
 
   static const _pageSize = JobsQuery.defaultLimit;
@@ -83,7 +86,7 @@ class JobsCubit extends Cubit<JobsState> {
       ),
     );
     try {
-      await _repository.deleteJob(jobId);
+      await _deleteJob(jobId);
     } catch (_) {
       if (isClosed) return;
       emit(

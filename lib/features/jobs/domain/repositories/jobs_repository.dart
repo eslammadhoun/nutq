@@ -51,6 +51,11 @@ abstract interface class JobsRepository {
   /// file. Deleting a missing job is a no-op.
   Future<void> deleteJob(String id);
 
+  /// Deletes the stored source file of a job that reached a final state: only
+  /// a pending or running job reads it, and nothing can run the job again. The
+  /// transcript and summary stay. A no-op for an active or missing job.
+  Future<void> releaseMedia(String id);
+
   /// Marks jobs left `pending`/`running` (for example by an app kill) as
   /// failed with `interrupted`. With [createdBefore], jobs created at or after
   /// that moment (this session's own) are left alone. Returns how many were
