@@ -21,7 +21,8 @@ final RegExp _complete = RegExp(r'[.!?؟…]["»”)]*$');
 /// [ignore] (words found nearly everywhere, such as the subject's name) weighs
 /// nothing. A sentence scores by its words' weight. The best complete sentences
 /// are taken, skipping any that mostly repeat one already taken, and returned
-/// in summary order.
+/// in summary order. None when they would be every sentence of the summary,
+/// as with a short one: the list would only repeat it.
 List<String> pickTakeaways(
   String summary, {
   required Iterable<SourceUnit> keySources,
@@ -39,7 +40,11 @@ List<String> pickTakeaways(
   }
 
   final candidates = <({int index, String text, Set<String> terms, double score})>[];
-  final sentences = summary.split(_sentenceEnd).map((s) => s.trim()).toList();
+  final sentences = summary
+      .split(_sentenceEnd)
+      .map((s) => s.trim())
+      .where((s) => s.isNotEmpty)
+      .toList();
   for (var i = 0; i < sentences.length; i++) {
     final text = sentences[i];
     final words = text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
@@ -61,6 +66,7 @@ List<String> pickTakeaways(
     );
     if (!repeats) picked.add(c);
   }
+  if (picked.length == sentences.length) return const [];
   picked.sort((a, b) => a.index.compareTo(b.index));
   return [for (final p in picked) p.text];
 }

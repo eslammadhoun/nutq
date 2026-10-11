@@ -63,6 +63,7 @@ class ModelRepositoryImpl implements ModelRepository {
       _statuses[pack.id] = await _scan(pack);
     }
     _emit();
+    await _removeStaleEngineCaches();
   }
 
   @override
@@ -81,8 +82,11 @@ class ModelRepositoryImpl implements ModelRepository {
   @override
   Future<void> download(Iterable<String> ids) {
     for (final id in ids) {
-      if (_statuses[id]!.isReady || _queue.contains(id)) continue;
+      final status = _statuses[id]!;
+      if (status.isReady || _queue.contains(id)) continue;
       _queue.add(id);
+      // Waiting packs show as downloading too, so a tap is seen at once.
+      _set(_pack(id), ModelPackPhase.downloading, status.receivedBytes);
     }
     final running = _drained;
     if (running != null) return running.future;
@@ -150,6 +154,11 @@ class ModelRepositoryImpl implements ModelRepository {
 
   @override
   void cancel() {
+    // The running pack settles in [_downloadPack]; the waiting ones here.
+    final running = _drained == null ? null : _queue.firstOrNull;
+    for (final id in _queue.where((id) => id != running)) {
+      _set(_pack(id), ModelPackPhase.missing, _statuses[id]!.receivedBytes);
+    }
     _queue.clear();
     _cancellation?.cancel();
   }
@@ -163,6 +172,7 @@ class ModelRepositoryImpl implements ModelRepository {
     final folder = Directory(p.join(_root, id));
     if (await folder.exists()) await folder.delete(recursive: true);
     _set(_pack(id), ModelPackPhase.missing, 0);
+    await _removeStaleEngineCaches();
   }
 
   @override
@@ -214,6 +224,42 @@ class ModelRepositoryImpl implements ModelRepository {
       await for (final child in entry.list()) {
         if (p.basename(child.path) != version) await child.delete(recursive: true);
       }
+    }
+  }
+
+  /// On the CPU LiteRT writes a weight cache about the size of the model,
+  /// `<model file>_<mtime>_<size>.xnnpack_cache`, and a new one whenever the
+  /// file changes; the old ones stay. Keeps the newest for a summarizer that
+  /// is ready, deletes the rest.
+  Future<void> _removeStaleEngineCaches() async {
+    try {
+      final keep = {
+        for (final pack in packs)
+          if (pack.kind == ModelKind.summarizer && _statuses[pack.id]!.isReady)
+            for (final file in pack.files) file.name,
+      };
+      final caches = <File>[];
+      for (final folder in await _storage.engineCacheFolders()) {
+        final dir = Directory(folder);
+        if (!await dir.exists()) continue;
+        await for (final entry in dir.list()) {
+          if (entry is File && entry.path.endsWith('.xnnpack_cache')) caches.add(entry);
+        }
+      }
+      final newest = <String, File>{};
+      for (final cache in caches) {
+        final model = keep.where((name) => p.basename(cache.path).startsWith('${name}_'));
+        if (model.isEmpty) continue;
+        final current = newest[model.first];
+        if (current == null || (await cache.lastModified()).isAfter(await current.lastModified())) {
+          newest[model.first] = cache;
+        }
+      }
+      for (final cache in caches) {
+        if (!newest.values.any((kept) => kept.path == cache.path)) await cache.delete();
+      }
+    } on FileSystemException catch (e) {
+      debugPrint('Engine cache cleanup failed: $e');
     }
   }
 

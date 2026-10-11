@@ -29,6 +29,11 @@ void main() {
     expect(picked, isNot(contains(repeat)));
   });
 
+  test('none when they would be the whole summary', () {
+    expect(pick(onTopic), isEmpty);
+    expect(pick('$offTopic\n$onTopic'), [onTopic]);
+  });
+
   test('skips sentences cut short, too short or too long', () {
     final summary = [
       'يعتمد الذكاء الاصطناعي على البيانات وجودتها في تدريب النماذج', // cut at the cap
